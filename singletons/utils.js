@@ -65,7 +65,6 @@ module.exports = (function (Module) {
 			this.Transliterate = null;
 
 			this.YoutubeUtils = require("youtube-utils");
-			this.ytdl = require("youtube-dl");
 			this.fs = require("fs");
 
 			this.languageISO = require("language-iso-codes");
@@ -367,20 +366,6 @@ module.exports = (function (Module) {
 			return parseDuration(string, unit);
 		}
 
-		getVideoInfo (link) {
-			return new Promise((resolve, reject) => {
-				const options = ["--age-limit=18"];
-				this.ytdl.getInfo(link, options, (err, resp) => {
-					if (err) {
-						reject(err);
-					}
-					else {
-						resolve(resp);
-					}
-				});
-			});
-		}
-
 		/**
 		 * Checks if the string user is contained within the Discord mentions.
 		 * If it is, tries to return a User with the corresponding Discord ID.
@@ -411,17 +396,7 @@ module.exports = (function (Module) {
 
 			return result;
 		}
-
-		downloadVideoFile (link, path) {
-			return new Promise((resolve, reject) => {
-				const stream = this.ytdl(link);
-
-				stream.on("error", (err) => reject(err));
-				stream.on("end", () => resolve());
-				stream.pipe(this.fs.createWriteStream(path));
-			});
-		}
-
+		
 		convertCase (text, caseFrom, caseTo) {
 			if (typeof text !== "string") {
 				throw new sb.Error({

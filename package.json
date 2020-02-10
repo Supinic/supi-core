@@ -9,9 +9,7 @@
     "random-js": "latest",
     "rss-parser": "latest",
     "transliterate": "latest",
-    "youtube-dl": "latest",
     "youtube-search": "latest",
-	
     "async-markov": "github:supinic/async-markov",
     "custom-request-promise": "github:supinic/custom-request-promise",
     "duration-parser": "github:supinic/duration-parser",
