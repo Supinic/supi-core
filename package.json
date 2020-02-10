@@ -6,10 +6,8 @@
   "dependencies": {
     "cron": "latest",
     "mariadb": "latest",
-    "requestretry": "latest",
     "random-js": "latest",
     "rss-parser": "latest",
-    "socket.io-client": "latest",
     "transliterate": "latest",
     "youtube-dl": "latest",
     "youtube-search": "latest",
