@@ -1,0 +1,27 @@
+{
+  "name": "supi-core",
+  "version": "2.0.0",
+  "description": "Supinic's projects' core modules, created in a global namespace",
+  "main": "index.js",
+  "dependencies": {
+    "cron": "latest",
+    "mariadb": "latest",
+    "requestretry": "latest",
+    "random-js": "latest",
+    "rss-parser": "latest",
+    "socket.io-client": "latest",
+    "transliterate": "latest",
+    "youtube-dl": "latest",
+    "youtube-search": "latest",
+	
+    "async-markov": "github:supinic/async-markov",
+    "custom-request-promise": "github:supinic/custom-request-promise",
+    "duration-parser": "github:supinic/duration-parser",
+    "language-iso-codes": "github:supinic/language-iso-codes",
+    "long-timeout": "github:supinic/long-timeout",
+    "track-link-parser": "github:supinic/track-link-parser",
+    "youtube-utils": "github:supinic/youtube-utils"
+  },
+  "author": "Supinic",
+  "license": "ISC"
+}
