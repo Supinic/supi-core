@@ -6,18 +6,7 @@ module.exports = class TemplateModule {
 	 * @abstract
 	 */
 	destroy () {
-		throw new sb.Error({ message: "Module.destroy is not implemented!" });
-	}
-
-	/**
-	 * Reloads a given module.
-	 */
-	reload () {
-		this.destroy();
-		sb[this.name] = null;
-
-		delete require.cache[require.resolve(__dirname + "/" + (this.modulePath || this.name))];
-		sb[this.name] = require(__dirname + "/" + (this.modulePath || this.name))(Module);
+		throw new Error("Module.destroy is not implemented!");
 	}
 
 	/**
@@ -26,6 +15,6 @@ module.exports = class TemplateModule {
 	 * @abstract
 	 */
 	get modulePath () {
-		throw new sb.Error({ message: "get Module.modulePath is not implemented!" });
+		throw new Error("get Module.modulePath is not implemented!");
 	}
 };
