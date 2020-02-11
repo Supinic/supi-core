@@ -4,6 +4,7 @@
   "description": "Supinic's projects' core modules, created in a global namespace",
   "main": "index.js",
   "dependencies": {
+	"cheerio": "latest",
     "cron": "latest",
     "mariadb": "latest",
     "random-js": "latest",
