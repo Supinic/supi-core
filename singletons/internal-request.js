@@ -56,7 +56,6 @@ module.exports = (function (Module) {
 
 		async processBotRequest (req, res) {
 			const query = url.parse(req.url,true).query;
-			console.log("INCOMING INTERNAL REQUEST FROM WEBSITE!!!", query, req, res);
 
 			if (query.type === "watch" && query.table === "Gachi") {
 				const subs = this.subscriptions.filter(i => i.Event === "Gachi");
