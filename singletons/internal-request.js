@@ -97,19 +97,6 @@ module.exports = (function (Module) {
 					sb.Master.send(msg, channelData);
 				}
 			}
-			else if (query.type === "paypal") {
-				sb.Master.send(
-					"Someone just donated " + query.currency + " " + query.amount + " PagChomp",
-					"supinic"
-				);
-
-				if (query.id === "WH-2WR32451HC0233532-67976317FL4543714") {
-					sb.Master.send(
-						"But unforunately, this is just a jebait because I'm testing it with non-existing money Jebaited Clap",
-						"supinic"
-					);
-				}
-			}
 			else if (query.type === "reload") {
 				if (query.module === "afk") {
 					await sb.AwayFromKeyboard.reloadData();
