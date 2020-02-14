@@ -72,14 +72,10 @@ module.exports = (function (Module) {
 		}
 
 		async playTextToSpeech (options) {
-			const params = new sb.URLParams();
-			params.set("tts", options.text);
+			const params = new sb.URLParams().set("tts", JSON.stringify(options.tts));
 
 			if (options.volume) {
 				params.set("volume", options.volume);
-			}
-			if (options.voice) {
-				params.set("voice", options.voice);
 			}
 			if (options.limit) {
 				params.set("limit", options.limit);
