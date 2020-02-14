@@ -56,7 +56,6 @@ module.exports = (function (Module) {
 
 		async processBotRequest (req, res) {
 			const query = url.parse(req.url,true).query;
-			console.log("INCOMING INTERNAL REQUEST FROM WEBSITE!!!", query, req, res);
 
 			if (query.type === "watch" && query.table === "Gachi") {
 				const subs = this.subscriptions.filter(i => i.Event === "Gachi");
@@ -95,19 +94,6 @@ module.exports = (function (Module) {
 					msg = await sb.Master.prepareMessage(msg, channelData);
 
 					sb.Master.send(msg, channelData);
-				}
-			}
-			else if (query.type === "paypal") {
-				sb.Master.send(
-					"Someone just donated " + query.currency + " " + query.amount + " PagChomp",
-					"supinic"
-				);
-
-				if (query.id === "WH-2WR32451HC0233532-67976317FL4543714") {
-					sb.Master.send(
-						"But unforunately, this is just a jebait because I'm testing it with non-existing money Jebaited Clap",
-						"supinic"
-					);
 				}
 			}
 			else if (query.type === "reload") {

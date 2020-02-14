@@ -9,7 +9,7 @@
     "mariadb": "latest",
     "random-js": "latest",
     "rss-parser": "latest",
-    "transliterate": "latest",
+    "transliteration": "latest",
     "youtube-search": "latest",
     "async-markov": "github:supinic/async-markov",
     "custom-request-promise": "github:supinic/custom-request-promise",
