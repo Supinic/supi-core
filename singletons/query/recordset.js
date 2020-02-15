@@ -17,7 +17,7 @@ module.exports = class Recordset {
 	#join = [];
 	#limit = null;
 	#offset = null;
-	#reference = null;
+	#reference = [];
 
 	/**
 	 * Creates a new Recordset instance.
@@ -319,11 +319,11 @@ module.exports = class Recordset {
 			toField: targetField
 		});
 
-		this.#reference = {
+		this.#reference.push({
 			collapseOn: collapseOn ?? null,
 			columns: fields,
 			target: targetTable
-		};
+		});
 
 		return this;
 	}
@@ -399,8 +399,10 @@ module.exports = class Recordset {
 				result.push(row);
 			}
 
-			if (this.#reference?.collapseOn) {
-				result = Recordset.collapseReferencedData(result, this.#reference);
+			for (const reference of this.#reference) {
+				if (reference.collapseOn) {
+					result = Recordset.collapseReferencedData(result, reference);
+				}
 			}
 
 			// result.sql = sql;
