@@ -28,6 +28,10 @@ module.exports = (function (Module) {
 		 * @returns {Promise<void>}
 		 */
 		async send (tag, description = null, channel = null, user = null) {
+			if (!sb.Config.get("GENERAL_LOGGING_ENABLED")) {
+				return;
+			}
+
 			const [parentTag, childTag = null] = tag.split(".");
 
 			const row = await sb.Query.getRow("chat_data", "Log");
@@ -51,6 +55,10 @@ module.exports = (function (Module) {
 		 * @returns {Promise<void>}
 		 */
 		async sendError (tag, error, ...args) {
+			if (!sb.Config.get("COMMAND_ERROR_LOGGING_ENABLED")) {
+				return;
+			}
+
 			const row = await sb.Query.getRow("chat_data", "Error");
 			row.setValues({
 				Type: tag,
