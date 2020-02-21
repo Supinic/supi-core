@@ -5,6 +5,7 @@ module.exports = (async function (namespace = "sb", options = {}) {
 	const files = [
 		"objects/date",
 		"objects/error",
+		"objects/errors",
 		"objects/promise",
 		"objects/url-params",
 

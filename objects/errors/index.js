@@ -1,12 +1,12 @@
 module.exports = (function () {
 	const result = Object.create(null);
-	result.name = "error";
+	result.name = "errors";
 
-	const types = [
+	const subtypes = [
 		"api.js"
 	];
 
-	for (const file of types) {
+	for (const file of subtypes) {
 		try {
 			const mod = require("./" + file);
 			result[mod.name] = mod;
