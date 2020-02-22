@@ -59,5 +59,7 @@ module.exports = (function () {
 		await Got.loadData();
 	};
 
+	Got.specificName = "Got";
+
 	return Got;
 })();

@@ -60,7 +60,7 @@ module.exports = (async function (namespace = "sb", options = {}) {
 			global[namespace][component.name] = await component.singleton();
 		}
 		else if (type === "classes") {
-			global[namespace][component.name] = await component.initialize();
+			global[namespace][component.specificName ?? component.name] = await component.initialize();
 		}
 
 		const end = process.hrtime.bigint();
