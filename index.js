@@ -24,6 +24,7 @@ module.exports = (async function (namespace = "sb", options = {}) {
 		"singletons/pastebin",
 
 		"classes/platform",
+		"classes/got",
 		"classes/filter",
 		"classes/command",
 		"classes/channel",
