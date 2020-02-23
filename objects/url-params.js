@@ -36,6 +36,10 @@ module.exports = class URLParams {
 		)).join("&");
 	}
 
+	valueOf () {
+		return this.toString();
+	}
+
 	toJSON () {
 		return JSON.stringify(this.#values);
 	}
