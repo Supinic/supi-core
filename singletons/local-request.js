@@ -57,16 +57,16 @@ module.exports = (function (Module) {
 				this.playsoundCooldowns[name] = now + playsound.Cooldown;
 			}
 
-			const result = await sb.Utils.request(this.url + "/?audio=" + name);
+			const result = await sb.Got(this.url + "/?audio=" + name);
 			return (result === "true");
 		}
 
 		async playSpecialAudio (name) {
-			return await sb.Utils.request(this.url + "/?specialAudio=" + name);
+			return await sb.Got(this.url + "/?specialAudio=" + name);
 		}
 
 		async checkTextToSpeech () {
-			const result = await sb.Utils.request(this.url + "/?ttsCheck=true");
+			const result = await sb.Got(this.url + "/?ttsCheck=true");
 
 			return (result === "true");
 		}
@@ -81,7 +81,7 @@ module.exports = (function (Module) {
 				params.set("limit", options.limit);
 			}
 
-			const result = await sb.Utils.request(this.url + "/?" + params.toString());
+			const result = await sb.Got(this.url + "/?" + params.toString());
 			return (result === "true");
 		}
 

@@ -499,17 +499,15 @@ module.exports = (function (Module) {
 		 */
 		async getTwitchID (user) {
 			let userData = await sb.User.get(user, true);
+
 			if (userData && userData.Twitch_ID) {
 				return userData.Twitch_ID;
 			}
 			else {
-				const channelInfo = JSON.parse(await sb.Utils.request({
-					method: "GET",
-					url: "https://api.twitch.tv/helix/users?login=" + user,
-					headers: {
-						"Client-ID": sb.Config.get("TWITCH_CLIENT_ID")
-					}
-				}));
+				const channelInfo = await sb.Got.instances.Twitch.Helix({
+					url: "users",
+					searchParams: "login=" + user
+				}).json();
 
 				if (channelInfo.data.length !== 0) {
 					const {id, display_name: name} = channelInfo.data[0];

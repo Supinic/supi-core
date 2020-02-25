@@ -148,14 +148,14 @@ module.exports = (function (Module) {
 
 			const requestObject = {
 				method: "POST",
-				uri: "http://localhost:" + targetPort + "/?" + urlParams.toString()
+				url: "http://localhost:" + targetPort + "/?" + urlParams.toString()
 			};
 
 			if (data) {
 				requestObject.json = data;
 			}
 
-			sb.Utils.request(requestObject);
+			sb.got(requestObject);
 		}
 
 		addSubscription (valuesObject) {
