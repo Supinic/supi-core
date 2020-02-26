@@ -81,7 +81,7 @@ module.exports = (function (Module) {
 				params.set("limit", options.limit);
 			}
 
-			const result = await sb.Got(this.url + "/?" + params.toString());
+			const result = await sb.Got(this.url + "/?" + params.toString()).text();
 			return (result === "true");
 		}
 
