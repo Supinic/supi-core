@@ -155,7 +155,7 @@ module.exports = (function (Module) {
 				requestObject.json = data;
 			}
 
-			sb.got(requestObject);
+			sb.Got(requestObject);
 		}
 
 		addSubscription (valuesObject) {
