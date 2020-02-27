@@ -514,8 +514,10 @@ module.exports = (function (Module) {
 					if (!userData) {
 						userData = await sb.User.get(name, false);
 					}
+					if (userData) {
+						await userData.saveProperty("Twitch_ID", id);
+					}
 
-					await userData.saveProperty("Twitch_ID", id);
 					return id;
 				}
 			}
