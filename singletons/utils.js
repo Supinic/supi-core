@@ -7,6 +7,17 @@ module.exports = (function (Module) {
 	const { parse: urlParser } = require("url");
 	const parseDuration = require("duration-parser");
 
+	const byteUnits = {
+		si: {
+			multiplier: 1000,
+			units: ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+		},
+		iec: {
+			multiplier: 1024,
+			units: ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
+		}
+	};
+
 	return class Utils extends Module {
 		#linkParser = null;
 
@@ -108,7 +119,7 @@ module.exports = (function (Module) {
 
 		/**
 		 * Returns a formatted string, specifying an amount of time delta from current date to provided date.
-		 * @param {sb.Date|Date} target
+		 * @param {sb.Date|Date|number} target
 		 * @param {boolean} [skipAffixes] if true, the affixes "in X hours" or "X hours ago" will be omitted
 		 * @returns {string}
 		 */
@@ -359,10 +370,10 @@ module.exports = (function (Module) {
 		/**
 		 * Parses strings containing time units into a time number.
 		 * @param {string} string A string containing potential data about a duration.
-		 * @param {TimeUnit} unit
+		 * @param {string} unit
 		 * @returns {number}
 		 */
-		parseDuration(string, unit) {
+		parseDuration (string, unit) {
 			return parseDuration(string, unit);
 		}
 
@@ -540,6 +551,58 @@ module.exports = (function (Module) {
 			}
 
 			return this.Cheerio.load(html);
+		}
+
+		formatByteSize (number, digits = 3, type = "si") {
+			if (type !== "si" && type !== "iem") {
+				throw new sb.Error({
+					message: "Unsupported byte size format",
+					args: { number, type }
+				});
+			}
+
+			const { multiplier, units } = byteUnits[type];
+			number = Math.abs(Math.trunc(Number(number)));
+
+			if (number < multiplier) {
+				return number + " B";
+			}
+
+			let index = 0;
+			while (number >= multiplier && index < units.length) {
+				number /= multiplier;
+				index++;
+			}
+
+			return number.toFixed(digits) + " " + units[index - 1];
+		}
+
+		/**
+		 * Creates a random string using the characters provided.
+		 * If not provided, uses the base ASCII alphabet.
+		 * @param {number} length
+		 * @param {string|string[]} [characters]
+		 */
+		randomString (length, characters) {
+			if (!characters) {
+				characters = "abcdefghiklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ".split("");
+			}
+			else if (typeof characters === "string") {
+				characters = characters.split("")
+			}
+			else if (!Array.isArray(characters) || characters.some(i => typeof i !== "string")) {
+				throw new sb.Error({
+					message: "Invalid input",
+					args: { characters, length }
+				});
+			}
+
+			const result = [];
+			for (let i = 0; i < length; i++) {
+				result.push(sb.Utils.randArray(characters));
+			}
+
+			return result.join("");
 		}
 
 		get modulePath () { return "utils"; }
