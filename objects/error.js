@@ -24,12 +24,15 @@ module.exports = class Error extends global.Error {
 		const stackDescriptor = Object.getOwnPropertyDescriptor(this, "stack");
 		Object.defineProperty(this, "stack", {
 			get: () => {
-				if (this.parentError) {
-					return `${stackDescriptor.value}\n===\nCaused by: ${this.parentError.stack}`;
-				}
-				else {
-					return stackDescriptor.get();
-				}
+				const currentStack = (typeof stackDescriptor.get === "function")
+					? stackDescriptor.get()
+					: stackDescriptor.value;
+
+				const extraStack = (this?.parentError?.stack)
+					? `\n=====\nCaused by:\n${this.parentError.stack}`
+					: "";
+
+				return currentStack + extraStack;
 			}
 		});
 	}
