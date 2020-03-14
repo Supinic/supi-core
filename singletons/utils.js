@@ -606,6 +606,23 @@ module.exports = (function (Module) {
 			return result.join("");
 		}
 
+		/**
+		 * Recursively deep-freezes an object.
+		 * @param {Object} object
+		 * @returns {Object}
+		 */
+		deepFreeze (object) {
+			const properties = Object.getOwnPropertyNames(object);
+			for (const key of properties) {
+				const value = object[key];
+				if (value && typeof value === "object") {
+					Utils.deepFreeze(object);
+				}
+			}
+
+			return Object.freeze(object);
+		}
+
 		get modulePath () { return "utils"; }
 
 		/** @inheritDoc */
