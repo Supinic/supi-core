@@ -214,8 +214,8 @@ module.exports = (function (Module) {
 		 * @param string
 		 * @returns {string}
 		 */
-		removeHTML(string) {
-			return string.replace(/<(.*?)>/g, "");
+		removeHTML (string) {
+			return string.replace(/<\s*br.*?>/g, "\n").replace(/<(.*?)>/g, "");
 		}
 
 		/**
