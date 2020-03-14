@@ -616,7 +616,7 @@ module.exports = (function (Module) {
 			for (const key of properties) {
 				const value = object[key];
 				if (value && typeof value === "object") {
-					Utils.deepFreeze(object);
+					this.deepFreeze(value);
 				}
 			}
 
