@@ -36,7 +36,7 @@ module.exports = (async function (namespace = "sb", options = {}) {
 		"classes/markov-chain",
 	];
 
-	const { blacklist, whitelist } = options;
+	const { blacklist, whitelist, skipData = [] } = options;
 
 	console.groupCollapsed("module load performance");
 
@@ -60,7 +60,12 @@ module.exports = (async function (namespace = "sb", options = {}) {
 			global[namespace][component.name] = await component.singleton();
 		}
 		else if (type === "classes") {
-			global[namespace][component.specificName ?? component.name] = await component.initialize();
+			if (skipData.includes(file)) {
+				global[namespace][component.specificName ?? component.name] = component;
+			}
+			else {
+				global[namespace][component.specificName ?? component.name] = await component.initialize();
+			}
 		}
 
 		const end = process.hrtime.bigint();
