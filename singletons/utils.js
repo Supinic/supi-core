@@ -623,6 +623,161 @@ module.exports = (function (Module) {
 			return Object.freeze(object);
 		}
 
+		/**
+		 * Levenshtein distance of two strings.
+		 * @param {string} from
+		 * @param {string} target
+		 * @returns {number}
+		 */
+		levenshteinDistance (from, target) {
+			if (from.length === 0) {
+				return target.length;
+			}
+			if (target.length === 0) {
+				return from.length;
+			}
+
+			const matrix = [];
+			for (let i = 0; i <= target.length; i++) {
+				matrix[i] = [i];
+			}
+
+			for (let i = 0; i <= from.length; i++) {
+				matrix[0][i] = i;
+			}
+
+			for (let i = 1; i <= target.length; i++) {
+				for (let j = 1; j <= from.length; j++) {
+					if (target[i - 1] === from[j - 1]) {
+						matrix[i][j] = matrix[i - 1][j - 1];
+					}
+					else {
+						matrix[i][j] = Math.min(
+							matrix[i - 1][j - 1] + 1,
+							Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1)
+						);
+					}
+				}
+			}
+
+			return matrix[target.length][from.length];
+		}
+
+		/**
+		 * Jaro-Winkler similarity of two strings.
+		 * @param {string} from
+		 * @param {string} target
+		 * @returns {number}
+		 */
+		jaroWinklerSimilarity (from, target) {
+			// Exit early if either are empty.
+			if (from.length === 0 || target.length === 0) {
+				return 0;
+			}
+			else if (from === target) {
+				return 1;
+			}
+
+			let matches = 0;
+			const range = (Math.floor(Math.max(from.length, target.length) / 2)) - 1;
+			const fromMatches = Array(from.length);
+			const targetMatches = Array(target.length);
+
+			for (let i = 0; i < from.length; i++) {
+				const low = (i >= range) ? i - range : 0;
+				const high = (i + range <= (target.length - 1))
+					? (i + range)
+					: (target.length - 1);
+
+				for (let j = low; j <= high; j++) {
+					if (fromMatches[i] !== true && targetMatches[j] !== true && from[i] === target[j]) {
+						matches++;
+						fromMatches[i] = targetMatches[j] = true;
+						break;
+					}
+				}
+			}
+
+			// Exit early if no matches were found.
+			if (matches === 0) {
+				return 0;
+			}
+
+			// Count the transpositions.
+			let start = 0;
+			let transpositions = 0;
+			for (let i = 0; i < from.length; i++) {
+				if (fromMatches[i] === true) {
+					let j = null;
+					for (let j = start; j < target.length; j++) {
+						if (targetMatches[j] === true) {
+							start = j + 1;
+							break;
+						}
+					}
+
+					if (from[i] !== target[j]) {
+						++transpositions;
+					}
+				}
+			}
+
+			let l = 0;
+			let weight = (matches / from.length + matches / target.length + (matches - (transpositions / 2)) / matches) / 3;
+			const p = 0.1;
+
+			if (weight > 0.7) {
+				while (from[l] === target[l] && l < 4) {
+					++l;
+				}
+
+				weight = weight + l * p * (1 - weight);
+			}
+
+			return weight;
+		}
+
+		/**
+		 * Returns the best fit for given string, based on Levenshtein distance.
+		 * @param {string} from
+		 * @param {string[]} targets
+		 * @param {Object} [options]
+		 * @param {boolean} [options.ignoreCase] if true, all cases will be ignored
+		 * @param {boolean} [options.fullResult] if true, a full Object[] will be returned
+		 * @returns {string|Object[]}
+		 */
+		selectClosestString (from, targets, options = {}) {
+			const originalTargets = targets.slice(0);
+			if (options.ignoreCase) {
+				from = from.toLowerCase();
+				for (let i = 0; i < targets.length; i++) {
+					targets[i] = targets[i].toLowerCase();
+				}
+			}
+
+			const scoreArray = targets.map((i, ind) => this.jaroWinklerSimilarity(from, targets[ind]));
+			if (options.fullResult) {
+				return scoreArray.map((i, ind) => ({
+					score: i,
+					string: targets[ind],
+					original: originalTargets[ind],
+					includes: Boolean(targets[i].includes(from))
+				}));
+			}
+			else {
+				let champion = null;
+				let score = -Infinity;
+				for (let i = 0; i < scoreArray.length; i++) {
+					if (targets[i].includes(from) && score < scoreArray[i]) {
+						champion = targets[i];
+						score = scoreArray[i];
+					}
+				}
+
+				return champion;
+			}
+		}
+
 		get modulePath () { return "utils"; }
 
 		/** @inheritDoc */
