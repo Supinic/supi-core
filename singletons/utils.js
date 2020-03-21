@@ -518,10 +518,13 @@ module.exports = (function (Module) {
 			else {
 				const channelInfo = await sb.Got.instances.Twitch.Helix({
 					url: "users",
-					searchParams: "login=" + user
+					throwHttpErrors: false,
+					searchParams: new sb.URLParams()
+						.set("login", user)
+						.toString()
 				}).json();
 
-				if (channelInfo.data.length !== 0) {
+				if (!channelInfo.error && channelInfo.data.length !== 0) {
 					const {id, display_name: name} = channelInfo.data[0];
 					if (!userData) {
 						userData = await sb.User.get(name, false);
