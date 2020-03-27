@@ -343,7 +343,7 @@ module.exports = (function (Module) {
 		 * @param {number} number
 		 * @returns {string}
 		 */
-		formatEnglishOrdinal(number) {
+		formatEnglishOrdinal (number) {
 			number = Number(number);
 			switch (number) {
 				case 1:
@@ -359,13 +359,50 @@ module.exports = (function (Module) {
 
 		/**
 		 * Returns Google Geo Data for given query
-		 * @param {string} query
 		 * @param {string} key Google Geo API key
+		 * @param {string} query
 		 * @returns {Promise<Object>}
 		 */
-		async fetchGeoLocationData(query, key) {
-			const url = `https://maps.googleapis.com/maps/api/geocode/json?key=${key}&address=${query}`;
-			return JSON.parse(await requestPromise(url));
+		async fetchGeoLocationData (key, query) {
+			const { results, status } = await sb.Got({
+				url: "https://maps.googleapis.com/maps/api/geocode/json",
+				searchParams: new sb.URLParams()
+					.set("key", key)
+					.set("address", query)
+					.toString()
+			}).json();
+
+			if (status !== "OK") {
+				return {
+					success: false,
+					cause: status
+				};
+			}
+
+			const {
+				address_components: components,
+				formatted_address: formatted,
+				place_id: placeID,
+				geometry: { location }
+			} = results[0];
+
+			const object = {};
+			for (const row of components)  {
+				let { types, long_name: long } = row;
+				if (types.includes("political")) {
+					types = types.filter(i => i !== "political");
+					types[0] = types[0].replace(/_/g, "").replace("administrativearea", "");
+					object[types[0]] = long;
+				}
+			}
+
+			return {
+				success: true,
+				components: object,
+				placeID,
+				location,
+				formatted
+			};
 		}
 
 		/**
