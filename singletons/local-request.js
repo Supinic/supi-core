@@ -61,8 +61,20 @@ module.exports = (function (Module) {
 			return (result === "true");
 		}
 
-		async playSpecialAudio (name) {
-			return await sb.Got(this.url + "/?specialAudio=" + name);
+		async playSpecialAudio (options = {}) {
+			const params = new sb.URLParams()
+				.set("specialAudio", "1")
+				.set("url", options.url);
+
+			if (options.volume) {
+				params.set("volume", options.volume);
+			}
+			if (options.limit) {
+				params.set("limit", options.limit);
+			}
+
+			const result = await sb.Got(this.url + "/?" + params.toString()).text();
+			return (result === "true");
 		}
 
 		async checkTextToSpeech () {
