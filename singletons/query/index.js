@@ -7,7 +7,7 @@ module.exports = (function (Module) {
 	const RecordUpdater = require("./record-updater.js");
 	const Row = require("./row.js");
 
-	const formatSymbolRegex = /%(s\+|n\+|b|d|dt|n|p|s|t|\*?like\*?)/g;
+	const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
 	
 	/**
 	 * Query represents every possible access to the database.
@@ -363,7 +363,7 @@ module.exports = (function (Module) {
 						throw new sb.Error({ message: "Expected sb.Date, got " + param });
 					}
 					
-					return param.sqlDate();
+					return "'" + param.sqlDate() + "'";
 
 				case "dt":
 					if (param instanceof Date && !(param instanceof sb.Date)) {
@@ -372,8 +372,8 @@ module.exports = (function (Module) {
 					if (!(param instanceof sb.Date)) {
 						throw new sb.Error({ message: "Expected sb.Date, got " + param });
 					}
-					
-					return param.sqlDateTime();
+
+					return "'" + param.sqlDateTime() + "'";
 
 				case "n":
 					if (typeof param !== "number") {
