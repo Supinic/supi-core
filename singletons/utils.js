@@ -97,6 +97,34 @@ module.exports = (function (Module) {
 				"copy": "©",
 				"reg": "®",
 			};
+
+			const self = this;
+			this.tag = {
+				trim: (strings, ... values) => {
+					const result = [];
+					for (let i = 0; i < strings.length; i++) {
+						result.push(strings[i].replace(/\s+/g, " "));
+						result.push(values[i]);
+					}
+
+					return result.join("");
+				},
+				groupDigits: (strings, ...values) => {
+					const result = [];
+					for (let i = 0; i < strings.length; i++) {
+						result.push(strings[i]);
+
+						if (typeof values[i] === "number") {
+							result.push(self.groupDigits(values[i]));
+						}
+						else {
+							result.push(values[i]);
+						}
+					}
+
+					return result.join("");
+				}
+			};
 		}
 
 		/**
@@ -816,6 +844,11 @@ module.exports = (function (Module) {
 
 				return champion;
 			}
+		}
+
+		groupDigits (number, separator = " ") {
+			const local = new Intl.NumberFormat().format(number);
+			return local.replace(/,/g, separator);
 		}
 
 		get modulePath () { return "utils"; }
