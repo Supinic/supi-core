@@ -683,7 +683,7 @@ module.exports = (function (Module) {
 			const properties = Object.getOwnPropertyNames(object);
 			for (const key of properties) {
 				const value = object[key];
-				if (value && typeof value === "object") {
+				if (value && typeof value === "object" && value.constructor !== RegExp) {
 					this.deepFreeze(value);
 				}
 			}
