@@ -140,12 +140,14 @@ module.exports = (function () {
 
 			for (const record of data) {
 				const object = new Config(record);
+
+				// If a value exists for the name, it will be overwritten.
+				// Not the cleanest and clearest solution, but it works, and minimizes downtime of each Config.
 				Config.data.set(record.Name, object);
 			}
 		}
 
 		static async reloadData () {
-			Config.data.clear();
 			await Config.loadData();
 		}
 
