@@ -7,7 +7,7 @@
     "cheerio": "latest",
     "cron": "latest",
     "mariadb": "latest",
-    "node-vlc-http": "^1.0.1",
+    "node-vlc-http": "https://github.com/Supinic/node-vlc-http.git",
     "random-js": "latest",
     "rss-parser": "latest",
     "transliteration": "latest",
