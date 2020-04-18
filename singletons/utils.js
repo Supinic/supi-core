@@ -489,6 +489,9 @@ module.exports = (function (Module) {
 			else if (caseFrom === "snake" && caseTo === "camel") {
 				words = text.split("_");
 			}
+			else if (caseFrom === "text" && caseTo === "camel") {
+				words = text.split(" ");
+			}
 
 			let result = "";
 			if (caseTo === "snake") {
