@@ -31,6 +31,12 @@ module.exports = (function () {
 			this.Name = data.Name;
 
 			/**
+			 * Any sort of custom data usable by the cron.
+			 * @type {Object}
+			 */
+			this.data = {};
+
+			/**
 			 * Cron expression that specifies when a job is being executed
 			 * @type {string}
 			 */
@@ -66,7 +72,7 @@ module.exports = (function () {
 				return this;
 			}
 
-			this.job = new CronJob(this.Expression, this.Code);
+			this.job = new CronJob(this.Expression, () => this.Code());
 			this.job.start();
 			this.started = true;
 
