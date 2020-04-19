@@ -36,22 +36,6 @@ module.exports = (function (Module) {
 			});
 
 			this.server.listen(sb.Config.get("INTERNAL_REQUEST_PORT_" + process.env.PROJECT_TYPE.toUpperCase()));
-
-			if (process.env.PROJECT_TYPE === "bot") {
-				this.subscriptions = [];
-
-				return (async () => {
-					this.subscriptions = await sb.Query.getRecordset(rs => rs
-						.select("*")
-						.from("chat_data", "Table_Update_Notification")
-						.where("Active = %b", true)
-					);
-					return this;
-				})();
-			}
-			else if (process.env.PROJECT_TYPE === "site") {
-				return this;
-			}
 		}
 
 		async processBotRequest (req, res) {
