@@ -107,7 +107,7 @@ module.exports = class RecordUpdater {
 			}
 
 			if (value?.useField) {
-				set.push(`${column} = ${value}`);
+				set.push(`${column} = ${value.value}`);
 			}
 			else {
 				set.push(`${column} = ${this.#query.convertToSQL(value, definition.type)}`);
