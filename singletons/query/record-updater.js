@@ -106,7 +106,12 @@ module.exports = class RecordUpdater {
 				});
 			}
 
-			set.push(`${column} = ${this.#query.convertToSQL(value, definition.type)}`);
+			if (value?.useField) {
+				set.push(`${column} = ${value}`);
+			}
+			else {
+				set.push(`${column} = ${this.#query.convertToSQL(value, definition.type)}`);
+			}
 		}
 
 		sql.push("SET " + set.join(", "));
