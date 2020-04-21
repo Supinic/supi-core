@@ -6,6 +6,7 @@ module.exports = (function (Module) {
 	const requestPromise = require("custom-request-promise");
 	const { parse: urlParser } = require("url");
 	const parseDuration = require("duration-parser");
+	const ffprobe = require("ffprobe");
 
 	const byteUnits = {
 		si: {
@@ -852,6 +853,20 @@ module.exports = (function (Module) {
 		groupDigits (number, separator = " ") {
 			const local = new Intl.NumberFormat().format(number);
 			return local.replace(/,/g, separator);
+		}
+
+		async getMediaFileData (link) {
+			try {
+				const path = sb.Config.get("FFMPEG_PATH");
+				const { streams } = await ffprobe(link, { path });
+				return {
+					duration: Number(streams[0].duration),
+					bitrate: Number(streams[0].bit_rate)
+				};
+			}
+			catch {
+				return null;
+			}
 		}
 
 		get modulePath () { return "utils"; }
