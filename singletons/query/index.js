@@ -7,6 +7,7 @@ module.exports = (function (Module) {
 	const RecordUpdater = require("./record-updater.js");
 	const Row = require("./row.js");
 
+	const updateBatchLimit = 1000;
 	const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
 	
 	/**
@@ -47,6 +48,7 @@ module.exports = (function (Module) {
 					user: process.env.MARIA_USER,
 					password: process.env.MARIA_PASSWORD,
 					connectionLimit: process.env.MARIA_CONNECTION_LIMIT || 300,
+					multipleStatements: true
 				});
 			}
 			else if (process.env.MARIA_HOST) {
@@ -55,6 +57,7 @@ module.exports = (function (Module) {
 					host: process.env.MARIA_HOST,
 					password: process.env.MARIA_PASSWORD,
 					connectionLimit: process.env.MARIA_CONNECTION_LIMIT || 300,
+					multipleStatements: true
 				});
 			}
 			else {
@@ -117,9 +120,32 @@ module.exports = (function (Module) {
 		 * @returns {Promise<Array>}
 		 */
 		async getRecordUpdater (callback) {
-			const rs = new RecordUpdater(this);
-			callback(rs);
-			return await rs.fetch();
+			const ru = new RecordUpdater(this);
+			callback(ru);
+			return await ru.fetch();
+		}
+
+		async batchUpdate (data, callback) {
+			const queries = await Promise.all(data.map(async row => {
+				const ru = new RecordUpdater(this);
+				callback(ru, row);
+
+				const sql = await ru.toSQL();
+				return sql.join(" ") + ";";
+			}));
+
+			for (let i = 0; i <= queries.length; i += updateBatchLimit) {
+				const transaction = await this.getTransaction();
+				const slice = queries.slice(i, i + updateBatchLimit);
+
+				try {
+					await transaction.query(slice.join("\n"));
+					await transaction.commit();
+				}
+				catch {
+					await transaction.rollback();
+				}
+			}
 		}
 
 		/**
