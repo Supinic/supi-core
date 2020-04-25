@@ -3,7 +3,8 @@ module.exports = (function () {
 	result.name = "errors";
 
 	const subtypes = [
-		"api.js"
+		"api.js",
+		"not-implemented"
 	];
 
 	for (const file of subtypes) {
