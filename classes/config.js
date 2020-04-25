@@ -151,6 +151,16 @@ module.exports = (function () {
 			await Config.loadData();
 		}
 
+		/**
+		 * Checks if given configuration variable exists.
+		 * @param {string} variable Variable name
+		 * @param {boolean} strict If true, the config value must also not be null in addition to existing
+		 * @returns {boolean}
+		 */
+		static has (variable, strict) {
+			return (Config.data.has(variable) && (!strict || Config.get(variable) !== null));
+		}
+
 		 /**
 		 * Fetches the given configuration variable
 		 * @param {string} variable Variable name
