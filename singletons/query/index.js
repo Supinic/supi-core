@@ -4,6 +4,7 @@ module.exports = (function (Module) {
 	const Maria = require("mariadb");
 	const Batch = require("./batch.js");
 	const Recordset = require("./recordset.js");
+	const RecordDeleter = require("./record-deleter.js");
 	const RecordUpdater = require("./record-updater.js");
 	const Row = require("./row.js");
 
@@ -115,7 +116,18 @@ module.exports = (function (Module) {
 		}
 
 		/**
-		 * Creates a new Recordset instance.
+		 * Creates a new RecordDeleter instance.
+		 * @param callback
+		 * @returns {Promise<*>}
+		 */
+		async getRecordDeleter (callback) {
+			const rd = new RecordDeleter(this);
+			callback(rd);
+			return await rd.fetch();
+		}
+
+		/**
+		 * Creates a new RecordUpdater instance.
 		 * @param {RecordsetCallback} callback
 		 * @returns {Promise<Array>}
 		 */
