@@ -1,6 +1,9 @@
 module.exports = class NotImplementedError extends sb.Error {
 	constructor (object) {
-		super(object);
+		super({
+			message: object?.message ?? "Not implemented"
+		});
+
 		this.type = "NotImplemented";
 	}
 
