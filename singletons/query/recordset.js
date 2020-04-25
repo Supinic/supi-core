@@ -7,6 +7,7 @@ module.exports = class Recordset {
 	#fetchSingle = false;
 	#raw = null;
 	#options = {};
+	#flat = null;
 
 	#select = [];
 	#from = { database: null, table: null };
@@ -39,10 +40,20 @@ module.exports = class Recordset {
 	}
 
 	/**
-	 * Sets an option to be used when constructing the SQL query.
-	 * @param option
+	 * Sets for the query result to be an array of primitives, instead of an array of objects.
+	 * The object will be flattened, and only the field values will be preserved.
+	 * @param {string} field
 	 */
-	use (option) {
+	flat (field) {
+		this.#flat = field;
+	}
+
+	/**
+	 * Sets an option to be used when constructing the SQL query.
+	 * @param {string} option
+	 * @param {*} value
+	 */
+	use (option, value) {
 		this.#options[option] = value;
 	}
 
@@ -377,43 +388,60 @@ module.exports = class Recordset {
 	 */
 	async fetch () {
 		const sql = this.toSQL();
+		let rows = null;
+
 		try {
-			const rows = await this.#query.raw(...sql);
-
-			let definition = {};
-			for (const column of rows.meta) {
-				definition[column.name()] = column.type;
-			}
-
-			let result = [];
-			for (const row of rows) {
-				for (const [name, value] of Object.entries(row)) {
-					let type = definition[name];
-					if (definition[name] === "LONGLONG" && !this.#options.bigint) {
-						type = "LONG";
-					}
-
-					row[name] = this.#query.convertToJS(value, type);
-				}
-
-				result.push(row);
-			}
-
-			for (const reference of this.#reference) {
-				if (reference.collapseOn) {
-					result = Recordset.collapseReferencedData(result, reference);
-				}
-			}
-
-			// result.sql = sql;
-			return (this.#fetchSingle)
-				? result[0]
-				: result;
+			rows = await this.#query.raw(...sql);
 		}
 		catch (err) {
 			console.error(err);
 			throw err;
 		}
+
+		const definition = {};
+		for (const column of rows.meta) {
+			definition[column.name()] = column.type;
+		}
+
+		let result = [];
+		for (const row of rows) {
+			if (this.#flat && typeof row[this.#flat] === "undefined") {
+				throw new sb.Error({
+					message: `Column ${this.#flat} is not included in the result`,
+					args: {
+						column: this.#flat,
+						resultColuns: Object.keys(row)
+					}
+				});
+			}
+
+			for (const [name, value] of Object.entries(row)) {
+				let type = definition[name];
+				if (definition[name] === "LONGLONG" && !this.#options.bigint) {
+					type = "LONG";
+				}
+
+				row[name] = this.#query.convertToJS(value, type);
+			}
+
+			if (this.#flat) {
+				result.push(row[this.#flat]);
+			}
+			else {
+				result.push(row);
+			}
+		}
+
+		for (const reference of this.#reference) {
+			if (reference.collapseOn) {
+				result = Recordset.collapseReferencedData(result, reference);
+			}
+		}
+
+		// result.sql = sql;
+		return (this.#fetchSingle)
+			? result[0]
+			: result;
 	}
 
 	static collapseReferencedData (originalData, options) {
