@@ -349,12 +349,27 @@ module.exports = (function (Module) {
 
 		/**
 		 * Fetches info about a provided Youtube video.
-		 * @param {string} videoString String containing a link to a Youtube video.
-		 * @param {string} key Youtube API key.
-		 * @returns {Promise<YoutubeDataObject>}
+		 * @param {string} query Search string
+		 * @param {string} key Youtube API key
+		 * @returns {Promise<string>}
 		 */
-		async fetchYoutubeVideo (videoString, key) {
-			return await this.YoutubeUtils.fullFetch(key, videoString);
+		async searchYoutube (query, key) {
+			const { items } = await sb.Got({
+				url: `https://www.googleapis.com/youtube/v3/search`,
+				searchParams: new sb.URLParams()
+					.set("q", query)
+					.set("key", key)
+					.set("type", "video")
+					.set("part", "snippet")
+					.set("maxResults", "10")
+					.set("sort", "relevance")
+					.toString()
+			}).json();
+
+			return items.map(i => ({
+				ID: i.id.videoId,
+				title: i.snippet.title
+			}));
 		}
 
 		/**

@@ -19,8 +19,7 @@
     "duration-parser": "github:supinic/duration-parser",
     "language-iso-codes": "github:supinic/language-iso-codes",
     "long-timeout": "github:supinic/long-timeout",
-    "track-link-parser": "github:supinic/track-link-parser",
-    "youtube-utils": "github:supinic/youtube-utils"
+    "track-link-parser": "github:supinic/track-link-parser"
   },
   "author": "Supinic",
   "license": "ISC"
