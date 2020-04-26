@@ -108,7 +108,7 @@ module.exports = (function (Module) {
 						result.push(values[i]);
 					}
 
-					return result.join("");
+					return result.join("").trim();
 				},
 				groupDigits: (strings, ...values) => {
 					const result = [];
