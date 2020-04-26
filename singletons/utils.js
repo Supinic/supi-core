@@ -129,16 +129,6 @@ module.exports = (function (Module) {
 		}
 
 		/**
-		 * Promisified request
-		 * @param {...*} args
-		 * @returns {Promise<string>}
-		 */
-		async request(...args) {
-			console.warn("sb.Utils.request is deprecated! use sb.Got instead.");
-			return await requestPromise(...args);
-		}
-
-		/**
 		 * Capitalizes the string's first letter.
 		 * @param {string} string
 		 * @returns {string}
