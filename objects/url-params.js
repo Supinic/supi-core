@@ -45,6 +45,15 @@ module.exports = class URLParams {
 		return clone;
 	}
 
+	[Symbol.toPrimitive] (hint) {
+		if (hint === "number") {
+			throw new Error("Cannot convert URLParams to number");
+		}
+		else {
+			return this.toString();
+		}
+	}
+
 	valueOf () {
 		return this.toString();
 	}
