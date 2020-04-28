@@ -8,6 +8,9 @@ module.exports = class RecordUpdater {
 	#set = [];
 	#where = [];
 
+	#priority = "normal";
+	#ignoreDuplicates = false;
+
 	/**
 	 * Creates a new Recordset instance.
 	 * @param {Query} query
@@ -16,6 +19,22 @@ module.exports = class RecordUpdater {
 	constructor (query) {
 		/** @type {Query} */
 		this.#query = query;
+	}
+
+	priority (value) {
+		if (!["normal", "low"].includes(value)) {
+			throw new sb.Error({
+				message: "Incorrect priority value",
+				args: { value }
+			});
+		}
+
+		this.#priority = value;
+		return this;
+	}
+
+	ignoreDuplicates () {
+		this.#ignoreDuplicates = true;
 	}
 
 	/**
@@ -95,8 +114,10 @@ module.exports = class RecordUpdater {
 		const sql = [];
 		const set = [];
 		const { columns } = await this.#query.getDefinition(this.#update.database, this.#update.table);
+		const priority = (this.#priority === "low") ? "LOW_PRIORITY " : "";
+		const ignore = (this.#ignoreDuplicates) ? "IGNORE " : "";
 
-		sql.push("UPDATE `" + this.#update.database + "`.`" + this.#update.table + "`");
+		sql.push(`UPDATE ${priority} ${ignore} \`${this.#update.database}\`.\`${this.#update.table}\``);
 
 		for (const { column, value } of this.#set) {
 			const definition = columns.find(i => i.name === column);
