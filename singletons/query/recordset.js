@@ -46,6 +46,7 @@ module.exports = class Recordset {
 	 */
 	flat (field) {
 		this.#flat = field;
+		return this;
 	}
 
 	/**
@@ -55,6 +56,7 @@ module.exports = class Recordset {
 	 */
 	use (option, value) {
 		this.#options[option] = value;
+		return this;
 	}
 
 	/**
