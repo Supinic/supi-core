@@ -363,6 +363,98 @@ module.exports = (function (Module) {
 		}
 
 		/**
+		 * Fetches a Youtube playlist as an array of video IDs.
+		 * Optionally, limits the amount of videos fetched.
+		 * @param {Object} options
+		 * @params {string} options.key Google/Youtube API key
+		 * @params {string} options.playlistID Youtube playlist ID
+		 * @params {number} [options.perPage = 50] How many videos should be fetched per page.
+		 * @params {number} [options.limit] Limit the number of videos.
+		 * @params {string} [options.limitAction]
+		 * @returns {Promise<string[]>}
+		 */
+		async fetchYoutubePlaylist (options = {}) {
+			if (!options.key) {
+				throw new sb.Error({
+					message: "No API key provided"
+				});
+			}
+			else if (!options.playlistID) {
+				throw new sb.Error({
+					message: "No playlist ID provided"
+				});
+			}
+
+			const limit = options.limit ?? Infinity;
+			const baseParams = new sb.URLParams()
+				.set("part", "snippet")
+				.set("key", options.key)
+				.set("maxResults", options.perPage ?? 50)
+				.set("playlistId", options.playlistID);
+
+			let pageToken = null;
+			const result = [];
+			do {
+				const loopParams = baseParams.clone();
+				if (pageToken) {
+					loopParams.set("pageToken", pageToken);
+				}
+
+				const { body: data, statusCode } = await sb.Got({
+					url: "https://www.googleapis.com/youtube/v3/playlistItems",
+					searchParams: loopParams.toString(),
+					throwHttpErrors: false,
+					responseType: "json"
+				});
+
+				if (statusCode !== 200) {
+					return {
+						success: false,
+						reason: "not-found"
+					};
+				}
+
+				pageToken = data.nextPageToken;
+				result.push(...data.items.map(i => ({
+					ID: i.snippet.resourceId.videoId,
+					title: i.snippet.title,
+					channelTitle: i.snippet.channelTitle,
+					published: new sb.Date(i.snippet.publishedAt),
+					position: i.snippet.position
+				})));
+
+				if (options.limitAction === "trim" && result.length > limit) {
+					return result.slice(0, limit);
+				}
+				else if (data.pageInfo.totalResults > limit) {
+					if (options.limitAction === "error") {
+						throw new sb.Error({
+							message: "Maximum amount of videos exceeded!",
+							args: {
+								limit,
+								amount: data.pageInfo.totalResults
+							}
+						});
+					}
+					else if (options.limitAction === "return") {
+						return {
+							success: false,
+							reason: "limit-exceeded",
+							limit,
+							amount: data.pageInfo.totalResults
+						};
+					}
+				}
+
+			} while (pageToken);
+
+			return {
+				success: true,
+				result
+			};
+		}
+
+		/**
 		 * Pads a number with specified number of zeroes.
 		 * @param {number} number
 		 * @param {number} padding
