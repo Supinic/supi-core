@@ -36,6 +36,15 @@ module.exports = class URLParams {
 		)).join("&");
 	}
 
+	clone () {
+		const clone = new URLParams(this.#char);
+		for (const [key, value] of this.#values) {
+			clone.set(key, value);
+		}
+
+		return clone;
+	}
+
 	valueOf () {
 		return this.toString();
 	}
