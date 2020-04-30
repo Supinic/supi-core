@@ -10,7 +10,6 @@
     "random-js": "latest",
     "rss-parser": "latest",
     "transliteration": "latest",
-    "youtube-search": "latest",
     "got": "latest",
     "ffprobe": "^1.1.0",
     "node-vlc-http": "github:supinic/node-vlc-http",
