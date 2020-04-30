@@ -35,6 +35,7 @@ module.exports = class RecordUpdater {
 
 	ignoreDuplicates () {
 		this.#ignoreDuplicates = true;
+		return this;
 	}
 
 	/**
