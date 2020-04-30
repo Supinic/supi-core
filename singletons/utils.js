@@ -73,12 +73,8 @@ module.exports = (function (Module) {
 		constructor () {
 			super();
 
-			this.Cheerio  = null;
+			this.Cheerio = null;
 			this.Transliterate = null;
-
-			this.YoutubeUtils = require("youtube-utils");
-			this.fs = require("fs");
-
 			this.languageISO = require("language-iso-codes");
 
 			//this.nativeRandom = new Random();
@@ -970,7 +966,6 @@ module.exports = (function (Module) {
 
 		/** @inheritDoc */
 		destroy () {
-			this.YoutubeUtils = null;
 			this.duration = null;
 			this.mersenneRandom = null;
 		}
