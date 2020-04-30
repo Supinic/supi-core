@@ -3,7 +3,6 @@ module.exports = (function (Module) {
 	"use strict";
 
 	const RandomJS = require("random-js");
-	const requestPromise = require("custom-request-promise");
 	const { parse: urlParser } = require("url");
 	const parseDuration = require("duration-parser");
 	const ffprobe = require("ffprobe");
@@ -20,12 +19,25 @@ module.exports = (function (Module) {
 	};
 
 	return class Utils extends Module {
-		#linkParser = null;
+		#modules = Object.seal({
+			linkParser: null,
+			languageIsoCodes: null
+		});
+
+		get modules () { return this.#modules; }
+
+		get languageISO () {
+			if (!this.#modules.languageIsoCodes) {
+				this.#modules.languageIsoCodes = new require("language-iso-codes");
+			}
+
+			return this.#modules.languageIsoCodes;
+		}
 
 		get linkParser () {
-			if (!this.#linkParser) {
+			if (!this.#modules.linkParser) {
 				const LinkParserFactory = require("track-link-parser");
-				this.#linkParser = new LinkParserFactory({
+				this.#modules.linkParser = new LinkParserFactory({
 					youtube: {
 						key: sb.Config.get("API_GOOGLE_YOUTUBE")
 					},
@@ -40,7 +52,7 @@ module.exports = (function (Module) {
 				});
 			}
 
-			return this.#linkParser;
+			return this.#modules.linkParser;
 		}
 
 		/** @inheritDoc */
@@ -75,9 +87,6 @@ module.exports = (function (Module) {
 
 			this.Cheerio = null;
 			this.Transliterate = null;
-			this.languageISO = require("language-iso-codes");
-
-			//this.nativeRandom = new Random();
 			this.mersenneRandom = new RandomJS.Random(RandomJS.MersenneTwister19937.autoSeed());
 
 			this.htmlEntities = {
