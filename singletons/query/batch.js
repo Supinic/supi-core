@@ -76,14 +76,15 @@ module.exports = class Batch {
 	/**
 	 * Executes the INSERT statement for bound database, table and columns.
 	 * Automatically clears itself after the statement is executed.
+	 * @param {Object} options Additional options
+	 * @param {boolean} options.ignore If true, batch will use `INSERT IGNORE INTO`.
+	 * @param {Function} options.duplicate If set, will use the result of this callback to create ON DUPLICATE KEY clausule.
 	 * @returns {Promise<void>}
 	 */
-	async insert () {
+	async insert (options = {}) {
 		if (this.records.length === 0) {
 			return;
 		}
-
-		// this.records = objects
 
 		let stringColumns = [];
 		let data = this.records.map(() => []);
@@ -97,12 +98,21 @@ module.exports = class Batch {
 			}
 		}
 
+		const { duplicate, ignore } = options;
+		if (duplicate && ignore) {
+			throw new sb.Error({
+				message: "Cannot set ignore and duplicate at the same time"
+			});
+		}
+
 		data = data.filter(i => i.length !== 0);
 		if (data.length !== 0) {
 			await this.query.raw([
-				"INSERT INTO `" + this.database + "`.`" + this.table + "`",
+				`INSERT ${ignore ? "IGNORE" : ""} INTO`,
+				this.database + "`.`" + this.table + "`",
 				"(" + stringColumns.join(", ") + ")",
-				"VALUES ("  + data.map(row => row.join(", ")).join("), (") + ")"
+				"VALUES ("  + data.map(row => row.join(", ")).join("), (") + ")",
+				(duplicate ? duplicate(data, stringColumns) : "")
 			].join(" "));
 		}
 
