@@ -35,7 +35,6 @@ module.exports = (function (Module) {
 			return new Promise((resolve, reject) => {
 				this.client.get("statuses/user_timeline", Twitter.userParams(user, 1), (err, resp) => {
 					if (err) {
-						sb.SystemLogger.send("Command.Warning", err.toString());
 						resolve({
 							success: false,
 							text: "Twitter account '" + user + "' not found, or it is protected."
