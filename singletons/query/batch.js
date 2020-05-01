@@ -109,7 +109,7 @@ module.exports = class Batch {
 		if (data.length !== 0) {
 			await this.query.raw([
 				`INSERT ${ignore ? "IGNORE" : ""} INTO`,
-				this.database + "`.`" + this.table + "`",
+				"`" + this.database + "`.`" + this.table + "`",
 				"(" + stringColumns.join(", ") + ")",
 				"VALUES ("  + data.map(row => row.join(", ")).join("), (") + ")",
 				(duplicate ? duplicate(data, stringColumns) : "")
