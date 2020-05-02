@@ -7,7 +7,7 @@ module.exports = (function () {
 	const iv = randomBytes(16);
 	const type = "aes-256-ofb";
 
-	const nonStrictNotifications = {};
+	const nonStrictNotifications = new Map();
 
 	const encode = (string) => {
 		const cipher = createCipheriv(type, key, iv);
@@ -150,6 +150,7 @@ module.exports = (function () {
 		}
 
 		static async reloadData () {
+			nonStrictNotifications.clear();
 			await Config.loadData();
 		}
 
@@ -181,8 +182,8 @@ module.exports = (function () {
 					});
 				}
 				else {
-					if (!nonStrictNotifications[variable]) {
-						nonStrictNotifications[variable] = true;
+					if (!nonStrictNotifications.has(variable)) {
+						nonStrictNotifications.set(variable, true);
 						console.debug("Non-strict Config.get", variable);
 					}
 
