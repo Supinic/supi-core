@@ -7,6 +7,8 @@ module.exports = (function () {
 	const iv = randomBytes(16);
 	const type = "aes-256-ofb";
 
+	const nonStrictNotifications = {};
+
 	const encode = (string) => {
 		const cipher = createCipheriv(type, key, iv);
 		cipher.update(string);
@@ -164,16 +166,28 @@ module.exports = (function () {
 		 /**
 		 * Fetches the given configuration variable
 		 * @param {string} variable Variable name
+		 * @param {boolean} strict=true If true, the config variable must exist, otherwise an error is thrown. If false,
+		 * then undefined is return should the variable not exist.
 		 * @returns {*}
 		 * @throws {sb.Error} If variable does not exists
 		 */
-		static get (variable) {
+		static get (variable, strict = true) {
 			const target = Config.data.get(variable);
 			if (!target) {
-				throw new sb.Error({
-					message: "Configuration variable does not exist",
-					args: variable
-				});
+				if (strict) {
+					throw new sb.Error({
+						message: "Configuration variable does not exist",
+						args: variable
+					});
+				}
+				else {
+					if (!nonStrictNotifications[variable]) {
+						nonStrictNotifications[variable] = true;
+						console.debug("Non-strict Config.get", variable);
+					}
+
+					return undefined;
+				}
 			}
 
 			return target.value;
