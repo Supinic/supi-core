@@ -154,10 +154,10 @@ module.exports = (function () {
 		/**
 		 * Checks if given configuration variable exists.
 		 * @param {string} variable Variable name
-		 * @param {boolean} strict If true, the config value must also not be null in addition to existing
+		 * @param {boolean} strict=true If true, the config variable must also not be null in addition to existing
 		 * @returns {boolean}
 		 */
-		static has (variable, strict) {
+		static has (variable, strict = true) {
 			return (Config.data.has(variable) && (!strict || Config.get(variable) !== null));
 		}
 
