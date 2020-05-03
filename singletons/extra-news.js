@@ -11,6 +11,8 @@ module.exports = (function (Module) {
 	 * @type ExtraNews()
 	 */
 	return class ExtraNews extends Module {
+		#tableExists;
+
 		/**
 		 * @inheritDoc
 		 * @returns {ExtraNews}
@@ -75,13 +77,24 @@ module.exports = (function (Module) {
 		 * @returns {Promise<ExtraNews>}
 		 */
 		async loadData () {
-			this.data = (await sb.Query.getRecordset(rs => rs
-				.select("*")
-				.from("data", "Extra_News")
-			)).map(row => {
-				row.Endpoints = JSON.parse(row.Endpoints);
-				return row;
-			});
+			if (typeof this.#tableExists !== "boolean") {
+				this.#tableExists = await sb.Query.isTablePresent("data", "Extra_News");
+			}
+
+			if (this.#tableExists) {
+				const data = await sb.Query.getRecordset(rs => rs
+					.select("*")
+					.from("data", "Extra_News")
+				);
+
+				this.data = data.map(row => {
+					row.Endpoints = JSON.parse(row.Endpoints);
+					return row;
+				});
+			}
+			else {
+				this.data = [];
+			}
 
 			return this;
 		}
