@@ -1,11 +1,25 @@
 /* global sb */
+const mandatoryConfigs = [
+	"TWITTER_CONSUMER_KEY",
+	"TWITTER_CONSUMER_SECRET",
+	"TWITTER_ACCESS_TOKEN_KEY",
+	"TWITTER_ACCESS_TOKEN_SECRET"
+];
+
 module.exports = (function (Module) {
 	"use strict";
 
 	return class Twitter extends Module {
 		static singleton () {
 			if (!Twitter.module) {
-				Twitter.module = new Twitter();
+				const missingConfigs = mandatoryConfigs.filter(key => !sb.Config.has(key));
+				if (missingConfigs.length !== 0) {
+					console.debug("Missing Twitter config(s), module creation skipped", { missingConfigs });
+					Twitter.module = {};
+				}
+				else {
+					Twitter.module = new Twitter();
+				}
 			}
 			return Twitter.module;
 		}
