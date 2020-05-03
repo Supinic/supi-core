@@ -1,6 +1,6 @@
 {
   "name": "supi-core",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Supinic's projects' core modules, created in a global namespace",
   "main": "index.js",
   "dependencies": {
@@ -12,6 +12,7 @@
     "transliteration": "latest",
     "got": "latest",
     "ffprobe": "^1.1.0",
+    "twitter": "latest",
     "node-vlc-http": "github:supinic/node-vlc-http",
     "async-markov": "github:supinic/async-markov",
     "custom-request-promise": "github:supinic/custom-request-promise",
