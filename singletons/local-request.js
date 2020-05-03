@@ -1,4 +1,9 @@
 /* global sb */
+const mandatoryConfigs = [
+	"LOCAL_IP",
+	"LOCAL_PLAY_SOUNDS_PORT"
+];
+
 module.exports = (function (Module) {
 	"use strict";
 
@@ -14,8 +19,16 @@ module.exports = (function (Module) {
 		 */
 		static async singleton () {
 			if (!LocalRequest.module) {
-				LocalRequest.module = new LocalRequest();
+				const missingConfigs = mandatoryConfigs.filter(key => !sb.Config.has(key));
+				if (missingConfigs.length !== 0) {
+					console.debug("Missing LocalRequest config(s), module creation skipped", { missingConfigs });
+					LocalRequest.module = {};
+				}
+				else {
+					LocalRequest.module = new LocalRequest();
+				}
 			}
+
 			return LocalRequest.module;
 		}
 

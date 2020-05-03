@@ -1,13 +1,11 @@
 /* global sb */
 module.exports = (function (Module) {
-	if (!process.env.PROJECT_TYPE) {
-		return class Empty {
-			static singleton () { return Empty; }
-		};
-	}
-
 	const http = require("http");
 	const url = require("url");
+	const mandatoryConfigs = [
+		"INTERNAL_REQUEST_PORT_SITE",
+		"INTERNAL_REQUEST_PORT_BOT"
+	];
 
 	return class InternalRequest extends Module {
 		/**
@@ -16,8 +14,16 @@ module.exports = (function (Module) {
 		 */
 		static async singleton() {
 			if (!InternalRequest.module) {
-				InternalRequest.module = await new InternalRequest();
+				const missingConfigs = mandatoryConfigs.filter(key => !sb.Config.has(key));
+				if (missingConfigs.length !== 0) {
+					console.debug("Missing InternalRequest config(s), module creation skipped", { missingConfigs });
+					InternalRequest.module = {};
+				}
+				else {
+					InternalRequest.module = await new InternalRequest();
+				}
 			}
+
 			return InternalRequest.module;
 		}
 

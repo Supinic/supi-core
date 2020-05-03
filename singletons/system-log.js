@@ -28,7 +28,7 @@ module.exports = (function (Module) {
 		 * @returns {Promise<void>}
 		 */
 		async send (tag, description = null, channel = null, user = null) {
-			if (!sb.Config.get("GENERAL_LOGGING_ENABLED")) {
+			if (!sb.Config.get("GENERAL_LOGGING_ENABLED", false)) {
 				return;
 			}
 
@@ -55,7 +55,7 @@ module.exports = (function (Module) {
 		 * @returns {Promise<void>}
 		 */
 		async sendError (tag, error, ...args) {
-			if (!sb.Config.get("ERROR_LOGGING_ENABLED")) {
+			if (!sb.Config.get("ERROR_LOGGING_ENABLED", false)) {
 				return;
 			}
 
