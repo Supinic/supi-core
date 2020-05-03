@@ -2,8 +2,8 @@
 module.exports = (function () {
 	"use strict";
 
-	const Markov = require("markov-json").default;
-	const CustomMarkov = require("async-markov");
+	let Markov = null;
+	let CustomMarkov = null;
 
 	return class MarkovChain {
 		#model = null;
@@ -11,6 +11,13 @@ module.exports = (function () {
 
 		/** @override */
 		static async initialize () {
+			try {
+				Markov = require("markov-json").default;
+			}
+			catch {
+				console.debug("MarkovChain could not be initialized - missing module markov-json");
+			}
+
 			MarkovChain.data = [];
 			return MarkovChain;
 		}
@@ -164,6 +171,18 @@ module.exports = (function () {
 			}
 		}
 
-		static get AsyncMarkov () { return CustomMarkov };
+		static get AsyncMarkov () {
+			if (CustomMarkov === null) {
+				try {
+					CustomMarkov = require("async-markov");
+				}
+				catch {
+					console.debug("async-markov module could not be loaded");
+					CustomMarkov = {};
+				}
+			}
+
+			return CustomMarkov;
+		};
 	};
 })();
