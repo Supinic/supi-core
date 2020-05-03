@@ -161,6 +161,23 @@ module.exports = (function (Module) {
 		}
 
 		/**
+		 * Returns a boolean determining if a given database (schema) - table combination exists.
+		 * @param {string} database
+		 * @param {string} table
+		 * @returns {Promise<boolean>}
+		 */
+		async isTablePresent (database, table) {
+			const exists = await this.getRecordset(rs => rs
+				.select("1")
+				.from("INFORMATION_SCHEMA", "TABLES")
+				.where("TABLE_SCHEMA = %s", database)
+				.where("TABLE_NAME = %s", table)
+			);
+
+			return (exists.length !== 0);
+		}
+
+		/**
 		 * Creates a condition string, based on the same syntax Recordset uses
 		 * @param {Function} callback
 		 * @returns {string}
