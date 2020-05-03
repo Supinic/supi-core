@@ -12,6 +12,7 @@
     "transliteration": "latest",
     "got": "latest",
     "ffprobe": "^1.1.0",
+    "twitter": "latest",
     "node-vlc-http": "github:supinic/node-vlc-http",
     "async-markov": "github:supinic/async-markov",
     "custom-request-promise": "github:supinic/custom-request-promise",
