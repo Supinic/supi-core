@@ -15,7 +15,6 @@
     "twitter": "latest",
     "node-vlc-http": "github:supinic/node-vlc-http",
     "async-markov": "github:supinic/async-markov",
-    "custom-request-promise": "github:supinic/custom-request-promise",
     "duration-parser": "github:supinic/duration-parser",
     "language-iso-codes": "github:supinic/language-iso-codes",
     "long-timeout": "github:supinic/long-timeout",
