@@ -592,6 +592,9 @@ module.exports = (function (Module) {
 			else if (caseFrom === "snake" && caseTo === "camel") {
 				words = text.split("_");
 			}
+			else if (caseFrom === "kebab" && caseTo === "camel") {
+				words = text.split("-");
+			}
 			else if (caseFrom === "text" && caseTo === "camel") {
 				words = text.split(" ");
 			}
@@ -599,6 +602,9 @@ module.exports = (function (Module) {
 			let result = "";
 			if (caseTo === "snake") {
 				result = words.map(i => this.capitalize(i)).join("_");
+			}
+			else if (caseTo === "snake") {
+				result = words.join("-");
 			}
 			else if (caseTo === "camel") {
 				result = words.map((i, ind) => (ind === 0) ? i.toLowerCase() : this.capitalize(i)).join("");
