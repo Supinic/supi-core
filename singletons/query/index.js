@@ -325,6 +325,10 @@ module.exports = (function (Module) {
 
 				return (value === true) ? "1" : "0";
 			}
+			else if (targetType === "SET" && Array.isArray(value)) {
+				const string = this.escapeString(value.join(","));
+				return `'${string}'`;
+			}
 			else if (targetType === "TIME" || targetType === "DATE" || targetType === "DATETIME" || targetType === "TIMESTAMP")  {
 				if (value instanceof Date) {
 					value = new sb.Date(value);
