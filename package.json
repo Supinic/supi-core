@@ -12,7 +12,7 @@
     "transliteration": "latest",
     "got": "^10.7.0",
     "ffprobe": "^1.1.0",
-    "twitter": "latest",
+    "twitter-lite": "^0.11.0",
     "node-vlc-http": "github:supinic/node-vlc-http",
     "async-markov": "github:supinic/async-markov",
     "duration-parser": "github:supinic/duration-parser",
