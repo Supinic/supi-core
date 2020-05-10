@@ -981,7 +981,7 @@ module.exports = (function (Module) {
 			const space = (addSpace) ? " " : "";
 			const prefixes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"];
 			const digits = Math.ceil(Math.log10(number + 1));
-			const multiplier = Math.trunc(digits / 3) - 1;
+			const multiplier = Math.trunc((digits - 1) / 3);
 			const rounded = this.round(number / (10 ** (multiplier * 3)), places);
 
 			return `${rounded}${space}${prefixes[multiplier]}${unit}`;
