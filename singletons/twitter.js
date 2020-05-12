@@ -38,7 +38,7 @@ module.exports = (function (Module) {
 		 * @param {boolean} [options.includeUser=false] Whether or not to include the user object in each tweet.
 		 * @returns {Promise<Object>}
 		 */
-		fetchTweets (options = {}) {
+		async fetchTweets (options = {}) {
 			if (!options.username && !options.userID) {
 				throw new sb.Error({
 					message: "No twitter user identifier provided (ID or name)"
@@ -50,14 +50,27 @@ module.exports = (function (Module) {
 				});
 			}
 
-			return this.client.get("statuses/user_timeline", {
-				screen_name: options.username ?? null,
-				user_id: options.userID ?? null,
-				count: options.count ?? 1,
-				trim_user: !options.includeUser,
-				exclude_replies: !options.includeReplies,
-				include_rts: !options.includeRetweets
-			});
+			try {
+				const data = await this.client.get("statuses/user_timeline", {
+					screen_name: options.username ?? null,
+					user_id: options.userID ?? null,
+					count: options.count ?? 1,
+					trim_user: !options.includeUser,
+					exclude_replies: !options.includeReplies,
+					include_rts: !options.includeRetweets
+				});
+
+				return {
+					error: null,
+					data
+				};
+			}
+			catch (e) {
+				return {
+					error: e,
+					data: null
+				};
+			}
 		}
 
 		get client () {
