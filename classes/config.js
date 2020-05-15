@@ -74,57 +74,65 @@ module.exports = (function () {
 				});
 			}
 
-			switch (this.#Type) {
-				case "boolean":
-					this.#Value = (value === "1");
-					break;
-				case "string":
-					this.#Value = String(value);
-					break;
-				case "number":
-					this.#Value = Number(value);
-					break;
-				case "date":
-					this.#Value = new sb.Date(value);
-					break;
-				case "regex":
-					// Split to obtain flags - if none are present, none will be used
-					try {
-						this.#Value = new RegExp(...value.replace(/^\/|\/$/g, "").split(/\/(?=[gmi])/).filter(Boolean));
-					}
-					catch (e) {
-						console.warn("Incorrect value for config regex", e);
-						this.#Value = /.*/;
-					}
-					break;
-				case "array":
-				case "object":
-					try {
-						this.#Value = JSON.parse(value);
-					}
-					catch (e) {
-						console.warn(`Config variable ${name} has invalid definition`, e);
-						this.#Value = (type === "array") ? [] : {};
-					}
-					break;
-				case "function":
-					try {
-						this.#Value = eval(value);
-						if (typeof this.#Value !== "function") {
-							console.warn(`Config function variable ${name} does not return a function`, e);
-							this.#Value = function empty () { };
+			if (value === null) {
+				this.#Value = null;
+			}
+			else {
+				switch (this.#Type) {
+					case "boolean":
+						this.#Value = (value === "1");
+						break;
+					case "string":
+						this.#Value = String(value);
+						break;
+					case "number":
+						this.#Value = Number(value);
+						break;
+					case "date":
+						this.#Value = new sb.Date(value);
+						break;
+					case "regex":
+						// Split to obtain flags - if none are present, none will be used
+						try {
+							this.#Value = new RegExp(...value.replace(/^\/|\/$/g, "")
+								.split(/\/(?=[gmi])/)
+								.filter(Boolean));
 						}
-					}
-					catch (e) {
-						console.warn(`Config function variable ${name} has invalid definition`, e);
-						this.#Value = function empty () { };
-					}
-					break;
+						catch (e) {
+							console.warn("Incorrect value for config regex", e);
+							this.#Value = /.*/;
+						}
+						break;
+					case "array":
+					case "object":
+						try {
+							this.#Value = JSON.parse(value);
+						}
+						catch (e) {
+							console.warn(`Config variable ${name} has invalid definition`, e);
+							this.#Value = (type === "array") ? [] : {};
+						}
+						break;
+					case "function":
+						try {
+							this.#Value = eval(value);
+							if (typeof this.#Value !== "function") {
+								console.warn(`Config function variable ${name} does not return a function`, e);
+								this.#Value = function empty () {
+								};
+							}
+						}
+						catch (e) {
+							console.warn(`Config function variable ${name} has invalid definition`, e);
+							this.#Value = function empty () {
+							};
+						}
+						break;
 
-				default: throw new sb.Error({
-					message: "Unrecognized config variable type",
-					args: this.#Type
-				});
+					default: throw new sb.Error({
+							message: "Unrecognized config variable type", args: this.#Type
+						});
+				}
 			}
 		}
 		
