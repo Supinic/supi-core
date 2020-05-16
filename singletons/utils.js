@@ -557,7 +557,7 @@ module.exports = (function (Module) {
 
 		parseChrono (string, referenceDate = null, options = {}) {
 			const chronoData = this.chrono.parse(string, referenceDate, options);
-			if (!chronoData) {
+			if (chronoData.length === 0) {
 				return null;
 			}
 
