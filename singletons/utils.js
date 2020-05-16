@@ -20,6 +20,7 @@ module.exports = (function (Module) {
 
 	return class Utils extends Module {
 		#modules = Object.seal({
+			chrono: null,
 			linkParser: null,
 			languageIsoCodes: null
 		});
@@ -53,6 +54,14 @@ module.exports = (function (Module) {
 			}
 
 			return this.#modules.linkParser;
+		}
+
+		get chrono () {
+			if (!this.#modules.chrono) {
+				this.#modules.chrono = require("chrono-node");
+			}
+
+			return this.#modules.chrono;
 		}
 
 		/** @inheritDoc */
@@ -544,6 +553,10 @@ module.exports = (function (Module) {
 		 */
 		parseDuration (string, unit) {
 			return parseDuration(string, unit);
+		}
+
+		parseChrono (string, referenceDate = null, options = {}) {
+			return this.chrono.parseDate(string, referenceDate, options);
 		}
 
 		/**
