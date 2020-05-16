@@ -561,10 +561,10 @@ module.exports = (function (Module) {
 				return null;
 			}
 
-			const date = this.chrono.parseDate(string, referenceDate, options);
 			const [chrono] = chronoData;
 			return {
-				date,
+				date: chrono.start.date(),
+				component: chrono.start,
 				text: chrono.text
 			};
 		}
