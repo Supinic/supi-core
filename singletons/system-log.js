@@ -63,7 +63,7 @@ module.exports = (function (Module) {
 			row.setValues({
 				Type: tag,
 				Message: error.message ?? null,
-				Stack: error.stack,
+				Stack: error.stack ?? null,
 				Arguments: (args) ? JSON.stringify(args) : null
 			});
 
