@@ -55,7 +55,7 @@ module.exports = (function (Module) {
 		 * @returns {Promise<void>}
 		 */
 		async sendError (tag, error, ...args) {
-			if (!sb.Config.get("ERROR_LOGGING_ENABLED", false)) {
+			if (!sb.Config.get("LOG_ERROR_ENABLED", false)) {
 				return;
 			}
 
