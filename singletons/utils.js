@@ -555,6 +555,30 @@ module.exports = (function (Module) {
 			return parseDuration(string, unit);
 		}
 
+		/**
+		 * Parses a simple video duration in the format HH:MM:SS.vvv to seconds.
+		 * Each part is voluntary, [HH:][MM:]SS[.vvv]
+		 * @param {string} string
+		 * @returns {number|null}
+		 */
+		parseVideoDuration (string) {
+			const parts = string.split(":");
+			if (parts.length === 0) {
+				return Number(string) ?? null;
+			}
+
+			parts.splice(3);
+
+			let mult = 1;
+			let number = 0;
+			for (let i = parts.length - 1; i >= 0; i--) {
+				number += Number(parts[i]) * mult;
+				mult *= 60;
+			}
+
+			return number ?? null;
+		}
+
 		parseChrono (string, referenceDate = null, options = {}) {
 			const chronoData = this.chrono.parse(string, referenceDate, options);
 			if (chronoData.length === 0) {
