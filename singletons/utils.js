@@ -163,7 +163,7 @@ module.exports = (function (Module) {
 				return "right now!";
 			}
 
-			let string = "";
+			let string;
 			const delta = Math.abs(now.valueOf() - target.valueOf());
 			const [prefix, suffix] = (target > now) ? ["in ", ""] : ["", " ago"];
 
@@ -260,7 +260,7 @@ module.exports = (function (Module) {
 		wrapString (string, length) {
 			string = string.replace(/\r?\n/g, " ").replace(/\s+/g, " ");
 			return (string.length >= length)
-				? (string.slice(0, length - 3) + "...")
+				? (string.slice(0, length - 1) + "…")
 				: string;
 		}
 
