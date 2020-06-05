@@ -235,7 +235,7 @@ module.exports = (function (Module) {
 			for (const column of data.meta) {
 				obj.columns.push({
 					name: column.name(),
-					type: column.type,
+					type: (Boolean(column.flags & Query.flagMask["SET"])) ? "SET" : column.type,
 					notNull: !!(column.flags & Query.flagMask["NOT_NULL"]),
 					primaryKey: !!(column.flags & Query.flagMask["PRIMARY_KEY"]),
 					unsigned: !!(column.flags & Query.flagMask["UNSIGNED"])
