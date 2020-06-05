@@ -236,9 +236,9 @@ module.exports = (function (Module) {
 				obj.columns.push({
 					name: column.name(),
 					type: (Boolean(column.flags & Query.flagMask["SET"])) ? "SET" : column.type,
-					notNull: !!(column.flags & Query.flagMask["NOT_NULL"]),
-					primaryKey: !!(column.flags & Query.flagMask["PRIMARY_KEY"]),
-					unsigned: !!(column.flags & Query.flagMask["UNSIGNED"])
+					notNull: Boolean(column.flags & Query.flagMask["NOT_NULL"]),
+					primaryKey: Boolean(column.flags & Query.flagMask["PRIMARY_KEY"]),
+					unsigned: Boolean(column.flags & Query.flagMask["UNSIGNED"])
 				});
 			}
 
