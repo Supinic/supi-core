@@ -82,8 +82,7 @@ module.exports = (function (Module) {
 					].join(" ");
 
 					msg = await sb.Master.prepareMessage(msg, channelData);
-
-					sb.Master.send(msg, channelData);
+					await channelData.send(msg);
 				}
 			}
 			else if (query.type === "reload") {
