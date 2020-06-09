@@ -22,7 +22,8 @@ module.exports = (function (Module) {
 		#modules = Object.seal({
 			chrono: null,
 			linkParser: null,
-			languageIsoCodes: null
+			languageIsoCodes: null,
+			rss: null
 		});
 
 		get modules () { return this.#modules; }
@@ -1008,6 +1009,14 @@ module.exports = (function (Module) {
 		groupDigits (number, separator = " ") {
 			const local = new Intl.NumberFormat().format(number);
 			return local.replace(/,/g, separator);
+		}
+
+		parseRSS (url) {
+			if (!this.#modules.rss) {
+				this.#modules.rss = new (require("rss-parser"))();
+			}
+
+			return this.#modules.rss.parseURL(url);
 		}
 
 		async getMediaFileData (link) {
