@@ -42,34 +42,10 @@ module.exports = (function (Module) {
 		/**
 		 * Sends a request to play a playsound locally.
 		 * @param name
-		 * @param system
-		 * @returns {Promise<boolean|number>}
-		 * Returns a number (the cooldown remaining) if the cooldown hasn't passed yet.
+		 * @returns {Promise<boolean>}
 		 * Returns boolean, if a request was sent - true, if the sound was played; false, if there was an error.
 		 */
-		async playAudio (name, system = false) {
-			if (!system) {
-				const now = sb.Date.now();
-				if (!this.playsoundCooldowns[name]) {
-					this.playsoundCooldowns[name] = 0;
-				}
-
-				const playsound = (await sb.Query.getRecordset(rs => rs
-					.select("Cooldown")
-					.from("data", "Playsound")
-					.where("Filename = %s", name)
-				))[0];
-
-				if (!playsound) {
-					return false;
-				}
-				else if (this.playsoundCooldowns[name] > now) {
-					return Math.abs(this.playsoundCooldowns[name] - now);
-				}
-
-				this.playsoundCooldowns[name] = now + playsound.Cooldown;
-			}
-
+		async playAudio (name) {
 			const result = await sb.Got(this.url + "/?audio=" + name);
 			return (result === "true");
 		}
