@@ -34,8 +34,6 @@ module.exports = (function (Module) {
 
 		constructor () {
 			super();
-
-			this.playsoundCooldowns = {};
 			this.url = sb.Config.get("LOCAL_IP") + ":" + sb.Config.get("LOCAL_PLAY_SOUNDS_PORT");
 		}
 
