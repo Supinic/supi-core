@@ -45,7 +45,7 @@ module.exports = (function (Module) {
 		 */
 		async playAudio (name) {
 			const result = await sb.Got(this.url + "/?audio=" + name);
-			return (result === "true");
+			return (result === "OK");
 		}
 
 		async playSpecialAudio (options = {}) {
