@@ -44,7 +44,7 @@ module.exports = (function (Module) {
 		 * Returns boolean, if a request was sent - true, if the sound was played; false, if there was an error.
 		 */
 		async playAudio (name) {
-			const result = await sb.Got(this.url + "/?audio=" + name);
+			const result = await sb.Got(this.url + "/?audio=" + name).text();
 			return (result === "OK");
 		}
 
