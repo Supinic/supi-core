@@ -137,7 +137,9 @@ module.exports = class RecordUpdater {
 		}
 
 		sql.push("SET " + set.join(", "));
-		(this.#where.length !== 0) && sql.push("WHERE (" + this.#where.join(") AND (") + ")");
+		if (this.#where.length !== 0) {
+			sql.push("WHERE (" + this.#where.join(") AND (") + ")");
+		}
 
 		return sql;
 	}
