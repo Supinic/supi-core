@@ -137,7 +137,26 @@ module.exports = (function (Module) {
 			return await ru.fetch();
 		}
 
-		async batchUpdate (data, callback) {
+		/**
+		 * Performs a configurable batched update.
+		 * Supports staggering, grouping statements into transactions, and more.
+		 * @param {Object[]} data List of rows to update
+		 * @param {Object} options Configurable options object
+		 * @params {Function} options.callback Callback that gets passed into the RecordUpdater instances
+		 * @returns {Promise<void>}
+		 */
+		async batchUpdate (data, options = {}) {
+			const { batchSize, callback, staggerDelay } = options;
+			if (typeof callback !== "function") {
+				throw new sb.Error({
+					message: `Callback must be a function, received ${typeof callback}`
+				});
+			}
+
+			const limit = (sb.Utils.isValidInteger(batchSize))
+				? batchSize
+				: updateBatchLimit;
+
 			const queries = await Promise.all(data.map(async row => {
 				const ru = new RecordUpdater(this);
 				callback(ru, row);
@@ -146,16 +165,27 @@ module.exports = (function (Module) {
 				return sql.join(" ") + ";";
 			}));
 
-			for (let i = 0; i <= queries.length; i += updateBatchLimit) {
-				const transaction = await this.getTransaction();
-				const slice = queries.slice(i, i + updateBatchLimit);
+			if (sb.Utils.isValidInteger(staggerDelay)) {
+				let counter = 0;
+				for (let i = 0; i <= queries.length; i += limit) {
+					const slice = queries.slice(i, i + limit).join("\n");
 
-				try {
-					await transaction.query(slice.join("\n"));
-					await transaction.commit();
+					setTimeout(Query.staggeredUpdateHandler, (counter * staggerDelay), slice);
+					counter++;
 				}
-				catch {
-					await transaction.rollback();
+			}
+			else {
+				for (let i = 0; i <= queries.length; i += limit) {
+					const transaction = await this.getTransaction();
+					const slice = queries.slice(i, i + limit);
+
+					try {
+						await transaction.query(slice.join("\n"));
+						await transaction.commit();
+					}
+					catch {
+						await transaction.rollback();
+					}
 				}
 			}
 		}
@@ -509,7 +539,19 @@ module.exports = (function (Module) {
 				"NUM_FLAG": 32768
 			};
 		}
-		
+
+		static async staggeredUpdateHandler (queryString) {
+			const transaction = await this.getTransaction();
+
+			try {
+				await transaction.query(queryString);
+				await transaction.commit();
+			}
+			catch {
+				await transaction.rollback();
+			}
+		}
+
 		/**
 		 * Regex used to parse out format symbols.
 		 * @returns {RegExp}
