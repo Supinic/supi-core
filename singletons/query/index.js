@@ -168,9 +168,22 @@ module.exports = (function (Module) {
 			if (sb.Utils.isValidInteger(staggerDelay)) {
 				let counter = 0;
 				for (let i = 0; i <= queries.length; i += limit) {
-					const slice = queries.slice(i, i + limit).join("\n");
+					let slice = queries.slice(i, i + limit).join("\n");
 
-					setTimeout(Query.staggeredUpdateHandler, (counter * staggerDelay), slice);
+					setTimeout(async () => {
+						const transaction = await this.getTransaction();
+						try {
+							await transaction.query(slice);
+							await transaction.commit();
+						}
+						catch {
+							await transaction.rollback();
+						}
+						finally {
+							slice = null;
+						}
+					}, (counter * staggerDelay));
+
 					counter++;
 				}
 			}
@@ -515,7 +528,7 @@ module.exports = (function (Module) {
 				});
 			}
 		}
-		
+
 		static get sqlKeywords () {
 			return [ "SUM", "COUNT", "AVG" ];
 		}
@@ -538,18 +551,6 @@ module.exports = (function (Module) {
 				"ON_UPDATE_NOW_FLAG": 8192,
 				"NUM_FLAG": 32768
 			};
-		}
-
-		static async staggeredUpdateHandler (queryString) {
-			const transaction = await this.getTransaction();
-
-			try {
-				await transaction.query(queryString);
-				await transaction.commit();
-			}
-			catch {
-				await transaction.rollback();
-			}
 		}
 
 		/**
