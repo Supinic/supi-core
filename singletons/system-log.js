@@ -60,7 +60,7 @@ module.exports = (function (Module) {
 			}
 
 			let context = {};
-			if (args[0]?.constructor === Object) {
+			if (args[0] && typeof args[0] === "object") {
 				context = args.shift();
 			}
 
