@@ -59,11 +59,17 @@ module.exports = (function (Module) {
 				return;
 			}
 
+			let context = {};
+			if (args[0]?.constructor === Object) {
+				context = args.shift();
+			}
+
 			const row = await sb.Query.getRow("chat_data", "Error");
 			row.setValues({
 				Type: tag,
 				Message: error.message ?? null,
 				Stack: error.stack ?? null,
+				Context: JSON.stringify(context),
 				Arguments: (args) ? JSON.stringify(args) : null
 			});
 
