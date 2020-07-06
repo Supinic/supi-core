@@ -989,7 +989,7 @@ module.exports = (function (Module) {
 					score: i,
 					string: targets[ind],
 					original: originalTargets[ind],
-					includes: Boolean(targets[i].includes(from))
+					includes: Boolean(targets[ind].includes(from))
 				}));
 			}
 			else {
