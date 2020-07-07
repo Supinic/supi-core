@@ -92,10 +92,25 @@ module.exports = (function (Module) {
 				else if (query.module === "reminder") {
 					await sb.Reminder.reloadData();
 				}
+				else if (query.module === "user") {
+					if (query.username) {
+						sb.User.data.delete(query.username);
+					}
+					else if (query.userID) {
+						const userData = sb.User.getByProperty("ID", query.userID);
+						if (userData) {
+							sb.User.data.delete(userData.Name);
+						}
+					}
+					else {
+						throw new sb.Error({
+							message: "No valid user identifier provided", args: query
+						});
+					}
+				}
 				else {
 					throw new sb.Error({
-						message: "Unrecognized module",
-						args: query.module
+						message: "Unrecognized module", args: query.module
 					});
 				}
 			}
