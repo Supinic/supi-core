@@ -80,17 +80,33 @@ module.exports = (function () {
 			else {
 				switch (this.#Type) {
 					case "boolean":
-						this.#Value = (value === "1");
+						if (typeof value === "boolean") {
+							this.#Value = value;
+						}
+						else if (value === "0" || value === "1") {
+							this.#Value = (value === "1");
+							console.warn("Deprecated: Boolean config!");
+						}
+						else {
+							throw new sb.Error({
+								message: "Unsupported Config boolean value", args: value
+							});
+						}
+
 						break;
+
 					case "string":
 						this.#Value = String(value);
 						break;
+
 					case "number":
 						this.#Value = Number(value);
 						break;
+
 					case "date":
 						this.#Value = new sb.Date(value);
 						break;
+
 					case "regex":
 						// Split to obtain flags - if none are present, none will be used
 						try {
@@ -103,6 +119,7 @@ module.exports = (function () {
 							this.#Value = /.*/;
 						}
 						break;
+
 					case "array":
 					case "object":
 						try {
@@ -113,6 +130,7 @@ module.exports = (function () {
 							this.#Value = (type === "array") ? [] : {};
 						}
 						break;
+
 					case "function":
 						try {
 							this.#Value = eval(value);
@@ -129,7 +147,8 @@ module.exports = (function () {
 						}
 						break;
 
-					default: throw new sb.Error({
+					default:
+						throw new sb.Error({
 							message: "Unrecognized config variable type", args: this.#Type
 						});
 				}
@@ -214,15 +233,12 @@ module.exports = (function () {
 			const target = Config.data.get(variable);
 			if (!target) {
 				throw new sb.Error({
-					message: "Configuration variable does not exist",
-					args: variable
+					message: "Configuration variable does not exist", args: variable
 				});
 			}
-
-			if (!target.editable) {
+			else if (!target.editable) {
 				throw new sb.Error({
-					message: "Configuration variable is not editable",
-					args: variable
+					message: "Configuration variable is not editable", args: variable
 				});
 			}
 
