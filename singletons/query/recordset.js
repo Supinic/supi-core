@@ -287,20 +287,13 @@ module.exports = class Recordset {
 	 */
 	reference (options = {}) {
 		const {
-			sourceDatabase = this.#from.database,
-			sourceTable = this.#from.table,
-			sourceField = "ID",
+			sourceDatabase = this.#from.database, sourceTable = this.#from.table, sourceField = "ID",
 
-			referenceDatabase = this.#from.database,
-			referenceTable,
+			targetDatabase = this.#from.database, targetTable, targetField = "ID", targetAlias = null,
 
-			targetDatabase = this.#from.database,
-			targetTable,
-			targetField = "ID",
+			referenceDatabase = this.#from.database, referenceTable, referenceFieldSource = sourceTable, referenceFieldTarget = targetTable,
 
-			fields = [],
-			collapseOn,
-			left = false
+			fields = [], collapseOn, left = false
 		} = options;
 
 		const joinType = (left) ? "leftJoin" : "join";
@@ -316,17 +309,14 @@ module.exports = class Recordset {
 			fromField: sourceField,
 			toDatabase: referenceDatabase,
 			toTable: referenceTable,
-			// Yes, this field is literally the name of the source table. This is a strict, rigid requirement
-			// for the database structure!
-			toField: sourceTable
+			toField: referenceFieldSource,
+			alias: targetAlias
 		});
 
 		this[joinType]({
 			fromDatabase: referenceDatabase,
 			fromTable: referenceTable,
-			// Yes, this field is literally the name of the target table. This is a strict, rigid requirement
-			// for the database structure!
-			fromField: targetTable,
+			fromField: referenceFieldTarget,
 			toDatabase: targetDatabase,
 			toTable: targetTable,
 			toField: targetField
