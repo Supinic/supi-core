@@ -1,5 +1,6 @@
 module.exports = (function () {
 	const Got = require("got");
+	const FormData = require("form-data");
 
 	Got.initialize = async function () {
 		Got.instances = {};
@@ -60,6 +61,8 @@ module.exports = (function () {
 	};
 
 	Got.specificName = "Got";
+
+	Got.FormData = FormData;
 
 	return Got;
 })();
