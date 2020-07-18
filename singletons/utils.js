@@ -459,6 +459,15 @@ module.exports = (function (Module) {
 							amount: data.pageInfo.totalResults
 						};
 					}
+					else {
+						return {
+							success: true,
+							reason: "limit-exceeded",
+							amount: data.pageInfo.totalResults,
+							result,
+							limit
+						};
+					}
 				}
 
 			} while (pageToken);
