@@ -95,7 +95,13 @@ module.exports = (function (Module) {
 
 			if (this.#loggingThreshold !== null && (timing.end - timing.start) > (this.#loggingThreshold * 1e6)) {
 				console.warn("Query time threshold exceeded", {
-					timing,
+					timing: {
+						full: Number(timing.end - timing.start) / 1e6,
+						getConnection: Number(timing.connection - timing.start) / 1e6,
+						query: Number(timing.result - timing.connection) / 1e6,
+						cleanup: Number(timing.end - timing.result) / 1e6
+					},
+					hrtime: timing,
 					query,
 					timestamp: new sb.Date().sqlDateTime(),
 					stack: new Error().stack
