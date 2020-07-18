@@ -10,7 +10,9 @@ module.exports = (function (Module) {
 
 	const updateBatchLimit = 1000;
 	const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
-	
+
+	let loggingThreshold = null;
+
 	/**
 	 * Query represents every possible access to the database.
 	 * Exposes multiple ways to access:
@@ -75,13 +77,30 @@ module.exports = (function (Module) {
 		 */
 		async raw (...args) {
 			const query = args.join("\n");
+			const timing = {
+				start: process.hrtime.bigint()
+			};
+
 			const connector = await this.pool.getConnection();
+			timing.connection = process.hrtime.bigint();
 
 			const result = connector.query({
 				sql: query,
 				multipleStatements: true
 			});
+			timing.result = process.hrtime.bigint();
+
 			await connector.end();
+			timing.end = process.hrtime.bigint();
+
+			if (loggingThreshold !== null && (timing.end - timing.start) > (loggingThreshold * 1e6)) {
+				console.warn("Query exceeded time threshold", {
+					timing,
+					query,
+					timestamp: new sb.Date().sqlDateTime(),
+					stack: new Error().stack
+				});
+			}
 
 			return result;
 		}
@@ -527,6 +546,21 @@ module.exports = (function (Module) {
 					args: type
 				});
 			}
+		}
+
+		static setLogThreshold (value) {
+			if (typeof value !== "number") {
+				throw new sb.Error({
+					message: "Logging threshold must be a number",
+					args: { value }
+				});
+			}
+
+			loggingThreshold = value;
+		}
+
+		static disableLogThreshold () {
+			loggingThreshold = null;
 		}
 
 		static get sqlKeywords () {
