@@ -11,8 +11,6 @@ module.exports = (function (Module) {
 	const updateBatchLimit = 1000;
 	const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
 
-	let loggingThreshold = null;
-
 	/**
 	 * Query represents every possible access to the database.
 	 * Exposes multiple ways to access:
@@ -24,6 +22,8 @@ module.exports = (function (Module) {
 	 * @type Query()
 	 */
 	return class Query extends Module {
+		#loggingThreshold = null;
+
 		/**
 		 * @inheritDoc
 		 * @returns {Query}
@@ -93,8 +93,8 @@ module.exports = (function (Module) {
 			await connector.end();
 			timing.end = process.hrtime.bigint();
 
-			if (loggingThreshold !== null && (timing.end - timing.start) > (loggingThreshold * 1e6)) {
-				console.warn("Query exceeded time threshold", {
+			if (this.#loggingThreshold !== null && (timing.end - timing.start) > (this.#loggingThreshold * 1e6)) {
+				console.warn("Query time threshold exceeded", {
 					timing,
 					query,
 					timestamp: new sb.Date().sqlDateTime(),
@@ -548,7 +548,7 @@ module.exports = (function (Module) {
 			}
 		}
 
-		static setLogThreshold (value) {
+		setLogThreshold (value) {
 			if (typeof value !== "number") {
 				throw new sb.Error({
 					message: "Logging threshold must be a number",
@@ -556,11 +556,11 @@ module.exports = (function (Module) {
 				});
 			}
 
-			loggingThreshold = value;
+			this.#loggingThreshold = value;
 		}
 
-		static disableLogThreshold () {
-			loggingThreshold = null;
+		disableLogThreshold () {
+			this.#loggingThreshold = null;
 		}
 
 		static get sqlKeywords () {
