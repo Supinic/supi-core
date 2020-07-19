@@ -23,6 +23,7 @@ module.exports = (function (Module) {
 	 */
 	return class Query extends Module {
 		#loggingThreshold = null;
+		#definitionPromises = new Map();
 
 		/**
 		 * @inheritDoc
@@ -284,34 +285,41 @@ module.exports = (function (Module) {
 		 * @returns {Promise<TableDefinition>}
 		 */
 		async getDefinition (database, table) {
+			const key = database + "." + table;
 			if (this.tableDefinitions[database] && this.tableDefinitions[database][table]) {
 				return this.tableDefinitions[database][table];
 			}
-
-			const path = this.escapeIdentifier(database) + "." + this.escapeIdentifier(table);
-			const escapedPath = "`" + this.escapeIdentifier(database) + "`.`" + this.escapeIdentifier(table) + "`";
-			this.tableDefinitions[database] = this.tableDefinitions[database] || {};
-			let obj = {
-				name: table,
-				database: database,
-				path: path,
-				escapedPath: escapedPath,
-				columns: []
-			};
-
-			const data = await this.raw("SELECT * FROM " + path + " WHERE 1 = 0");
-			for (const column of data.meta) {
-				obj.columns.push({
-					name: column.name(),
-					type: (Boolean(column.flags & Query.flagMask["SET"])) ? "SET" : column.type,
-					notNull: Boolean(column.flags & Query.flagMask["NOT_NULL"]),
-					primaryKey: Boolean(column.flags & Query.flagMask["PRIMARY_KEY"]),
-					unsigned: Boolean(column.flags & Query.flagMask["UNSIGNED"])
-				});
+			else if (this.#definitionPromises.has(key)) {
+				return this.#definitionPromises.get(key);
 			}
 
-			this.tableDefinitions[database][table] = obj;
-			return this.tableDefinitions[database][table];
+			const promise = (async () => {
+				const path = this.escapeIdentifier(database) + "." + this.escapeIdentifier(table);
+				const escapedPath = "`" + this.escapeIdentifier(database) + "`.`" + this.escapeIdentifier(table) + "`";
+				this.tableDefinitions[database] = this.tableDefinitions[database] || {};
+				let obj = {
+					name: table, database: database, path: path, escapedPath: escapedPath, columns: []
+				};
+
+				const data = await this.raw("SELECT * FROM " + path + " WHERE 1 = 0");
+				for (const column of data.meta) {
+					obj.columns.push({
+						name: column.name(),
+						type: (Boolean(column.flags & Query.flagMask["SET"])) ? "SET" : column.type,
+						notNull: Boolean(column.flags & Query.flagMask["NOT_NULL"]),
+						primaryKey: Boolean(column.flags & Query.flagMask["PRIMARY_KEY"]),
+						unsigned: Boolean(column.flags & Query.flagMask["UNSIGNED"])
+					});
+				}
+
+				this.tableDefinitions[database][table] = obj;
+				this.#definitionPromises.delete(key);
+
+				return this.tableDefinitions[database][table];
+			})();
+
+			this.#definitionPromises.set(key, promise);
+			return promise;
 		}
 
 		/**
