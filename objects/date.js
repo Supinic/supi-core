@@ -30,6 +30,11 @@ module.exports = class Date extends global.Date {
 	 * @param {*} args
 	 */
 	constructor(...args) {
+		if (args.length > 1 && args.every(i => typeof i === "number")) {
+			// Subtract one from the month parameter, because of how stupid the JS Date constructor does it.
+			args[1] = args[1] - 1;
+		}
+
 		super(...args);
 	}
 
