@@ -11,6 +11,38 @@ module.exports = (function () {
 	 */
 	return class Cron {
 		/**
+		 * Unique numeric cron identifier
+		 * @type {number|Symbol}
+		 */
+		ID;
+
+		/**
+		 * Unique cron name
+		 * @type {sb.Date}
+		 */
+		Name;
+
+		/**
+		 * Cron expression that specifies when a job is being executed
+		 * @type {string}
+		 */
+		Expression;
+
+		/**
+		 * Execution function of the cron job
+		 * @type {Function}
+		 */
+		Code;
+
+		/**
+		 * Any sort of custom data usable by the cron.
+		 * @type {Object}
+		 */
+		data = {};
+		started = false;
+		job = null;
+
+		/**
 		 * @param {Object} data
 		 * @param {number} data.User_Alias
 		 * @param {sb.Date} data.Started
@@ -18,44 +50,43 @@ module.exports = (function () {
 		 * @param {boolean} data.Silent
 		 */
 		constructor (data) {
-			/**
-			 * Unique numeric cron identifier
-			 * @type {User.ID}
-			 */
-			this.ID = data.ID;
+			this.ID = data.ID ?? Symbol();
 
-			/**
-			 * Unique cron name
-			 * @type {sb.Date}
-			 */
 			this.Name = data.Name;
+			if (typeof this.Name !== "string") {
+				throw new sb.Error({
+					message: "Cron name must be provided and be a string",
+					args: data
+				});
+			}
 
-			/**
-			 * Any sort of custom data usable by the cron.
-			 * @type {Object}
-			 */
-			this.data = {};
-
-			/**
-			 * Cron expression that specifies when a job is being executed
-			 * @type {string}
-			 */
 			this.Expression = data.Expression;
-
-			/**
-			 * Execution function of the cron job
-			 * @type {Function}
-			 */
-			try {
-				this.Code = eval(data.Code);
-			}
-			catch (e) {
-				console.warn(`Cron ${data.Name} has invalid definition`, e);
-				this.Code = () => {};
+			if (typeof this.Expression !== "string") {
+				throw new sb.Error({
+					message: "Cron time expression must be provided and be a string",
+					args: data
+				});
 			}
 
-			this.started = false;
-			this.job = null;
+			if (typeof data.Code === "string") {
+				try {
+					data.Code = eval(data.Code);
+				}
+				catch (e) {
+					console.warn(`Cron ${data.Name} has invalid definition`, e);
+					data.Code = () => {};
+				}
+			}
+
+			if (typeof data.Code === "function") {
+				this.Code = data.Code.bind(this);
+			}
+			else {
+				throw new sb.Error({
+					message: "Cron code must be a function",
+					args: data
+				});
+			}
 		}
 
 		/**
@@ -136,6 +167,27 @@ module.exports = (function () {
 			Cron.data = [];
 
 			await Cron.loadData();
+		}
+
+		static get (identifier) {
+			if (identifier instanceof Cron) {
+				return identifier;
+			}
+			else if (typeof identifier === "string") {
+			    return Cron.data.filter(i => i.Name === identifier) ?? null;
+			}
+			else if (typeof identifier === "number" || typeof identifier === "symbol") {
+				return Cron.data.find(i => i.ID === identifier) ?? null;
+			}
+			else {
+				throw new sb.Error({
+					message: "Invalid cron identifier type",
+					args: {
+						identifier,
+						type: typeof identifier
+					}
+				});
+			}
 		}
 
 		/**
