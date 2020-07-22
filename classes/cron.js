@@ -84,11 +84,8 @@ module.exports = (function () {
 				}
 			}
 
-			if (data.Defer === null) {
-				this.Defer = null;
-			}
-			else if (data.Defer?.constructor === Object) {
-				this.Defer = data.Defer.slice(0, 2);
+			if (data.Defer === null || data.Defer?.constructor === Object) {
+				this.Defer = data.Defer;
 			}
 			else {
 				throw new sb.Error({
