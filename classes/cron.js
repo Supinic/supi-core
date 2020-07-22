@@ -29,6 +29,12 @@ module.exports = (function () {
 		Expression;
 
 		/**
+		 * Array of two numbers, specifying whether and by how much a cron job should be randomly postponed by.
+		 * @type {Object|null}
+		 */
+		Defer;
+
+		/**
 		 * Execution function of the cron job
 		 * @type {Function}
 		 */
@@ -68,6 +74,28 @@ module.exports = (function () {
 				});
 			}
 
+			if (typeof data.Defer === "string") {
+				try {
+					data.Defer = JSON.parse(data.Code);
+				}
+				catch (e) {
+					console.warn(`Cron ${data.Name} has invalid defer definition`, e);
+					data.Code = null;
+				}
+			}
+
+			if (data.Defer === null) {
+				this.Defer = null;
+			}
+			else if (data.Defer?.constructor === Object) {
+				this.Defer = data.Defer.slice(0, 2);
+			}
+			else {
+				throw new sb.Error({
+					message: "If provided, defer must be an object"
+				});
+			}
+
 			if (typeof data.Code === "string") {
 				try {
 					data.Code = eval(data.Code);
@@ -103,7 +131,20 @@ module.exports = (function () {
 				return this;
 			}
 
-			this.job = new CronJob(this.Expression, () => this.Code());
+			if (this.Defer) {
+				this.job = new CronJob(this.Expression, () => {
+					const timeout = sb.Utils.random(
+						this.Defer.start ?? 0,
+						this.Defer.end
+					);
+
+					setTimeout(() => this.Code(), timeout);
+				});
+			}
+			else {
+				this.job = new CronJob(this.Expression, () => this.Code());
+			}
+
 			this.job.start();
 			this.started = true;
 
