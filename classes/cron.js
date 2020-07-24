@@ -45,7 +45,17 @@ module.exports = (function () {
 		 * @type {Object}
 		 */
 		data = {};
+
+		/**
+		 * Represents the cron's current status.
+		 * @type {boolean}
+		 */
 		started = false;
+
+		/**
+		 * The cron job from module "cron" itself.
+		 * @type {CronJob}
+		 */
 		job = null;
 
 		/**
@@ -168,6 +178,12 @@ module.exports = (function () {
 			return this;
 		}
 
+		destroy () {
+			if (this.job && this.started) {
+				this.stop();
+			}
+		}
+
 		/** @override */
 		static async initialize () {
 			Cron.data = [];
@@ -177,34 +193,48 @@ module.exports = (function () {
 		}
 
 		static async loadData () {
-			const types = ["All"];
-			if (process.env.PROJECT_TYPE === "bot") {
-				types.push("Bot");
-			}
-			else if (process.env.PROJECT_TYPE === "site") {
-				types.push("Website");
-			}
-
 			Cron.data = (await sb.Query.getRecordset(rs => rs
 				.select("*")
 				.from("chat_data", "Cron")
-				.where("Type IN %s+", types)
+				.where("Type IN %s+", Cron.types)
 				.where("Active = %b", true)
 			)).map(row => new Cron(row).start());
 		}
 
 		static async reloadData () {
-			if (Cron.data.length > 0) {
-				for (const cron of Cron.data) {
-					if (cron.started) {
-						cron.stop();
-					}
-				}
+			for (const cron of Cron.data) {
+				cron.destroy();
 			}
 
 			Cron.data = [];
-
 			await Cron.loadData();
+		}
+
+		static async reloadSpecific (...list) {
+			const reloadingCrons = list.map(i => Cron.get(i)).filter(Boolean);
+			if (reloadingCrons.length === 0) {
+				throw new sb.Error({
+					message: "No valid crons provided"
+				});
+			}
+
+			const data = await sb.Query.getRecordset(rs => rs
+				.select("*")
+				.from("chat_data", "Cron")
+				.where("ID IN %n+", reloadingCrons.map(i => i.ID))
+				.where("Type IN %s+", Cron.types)
+				.where("Active = %b", true)
+			);
+
+			for (const record of data) {
+				const existingIndex = Cron.data.findIndex(i => i.ID === record.ID);
+				Cron.data[existingIndex].destroy();
+				Cron.data[existingIndex] = null;
+
+				const newCron = new Cron(record);
+				Cron.data[existingIndex] = newCron;
+				newCron.start();
+			}
 		}
 
 		static get (identifier) {
@@ -226,6 +256,18 @@ module.exports = (function () {
 					}
 				});
 			}
+		}
+
+		static get types () {
+			const types = ["All"];
+			if (process.env.PROJECT_TYPE === "bot") {
+				types.push("Bot");
+			}
+			else if (process.env.PROJECT_TYPE === "site") {
+				types.push("Website");
+			}
+
+			return types;
 		}
 
 		/**
