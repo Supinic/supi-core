@@ -180,18 +180,18 @@ module.exports = (function (Module) {
 				string = minutes + "m, " + seconds + "s";
 			}
 			else if (delta < Utils.timeUnits.d.ms) {
-				const hours = Math.trunc(delta / Utils.timeUnits.h.ms);
-				const minutes = Math.trunc(delta / Utils.timeUnits.m.ms) % Utils.timeUnits.h.m;
+				const hours = this.round(delta / Utils.timeUnits.h.ms);
+				const minutes = this.round(delta / Utils.timeUnits.m.ms) % Utils.timeUnits.h.m;
 				string = hours + "h, " + minutes + "m";
 			}
 			else if (delta < Utils.timeUnits.y.ms) {
-				const days = Math.trunc(delta / Utils.timeUnits.d.ms);
-				const hours = Math.trunc(delta / Utils.timeUnits.h.ms) % Utils.timeUnits.d.h;
+				const days = this.round(delta / Utils.timeUnits.d.ms);
+				const hours = this.round(delta / Utils.timeUnits.h.ms) % Utils.timeUnits.d.h;
 				string = days + "d, " + hours + "h";
 			}
 			else {
-				const years = Math.trunc(delta / Utils.timeUnits.y.ms);
-				const days = Math.trunc(delta / Utils.timeUnits.d.ms) % Utils.timeUnits.y.d;
+				const years = this.round(delta / Utils.timeUnits.y.ms);
+				const days = this.round(delta / Utils.timeUnits.d.ms) % Utils.timeUnits.y.d;
 				string = years + "y, " + days + "d";
 			}
 
