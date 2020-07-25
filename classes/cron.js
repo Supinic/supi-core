@@ -94,7 +94,7 @@ module.exports = (function () {
 				}
 			}
 
-			if (data.Defer === null || data.Defer?.constructor === Object) {
+			if (!data.Defer || data.Defer?.constructor === Object) {
 				this.Defer = data.Defer;
 			}
 			else {
