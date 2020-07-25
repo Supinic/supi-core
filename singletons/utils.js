@@ -66,7 +66,7 @@ module.exports = (function (Module) {
 		}
 
 		/** @inheritDoc */
-		static singleton() {
+		static singleton () {
 			if (!Utils.module) {
 				Utils.module = new Utils();
 			}
@@ -175,8 +175,8 @@ module.exports = (function (Module) {
 				string = this.round(delta / Utils.timeUnits.s.ms, 2) + "s";
 			}
 			else if (delta < Utils.timeUnits.h.ms) {
-				const minutes = Math.trunc(delta / Utils.timeUnits.m.ms);
-				const seconds = Math.trunc((delta / Utils.timeUnits.s.ms ) % Utils.timeUnits.m.s);
+				const minutes = this.round(delta / Utils.timeUnits.m.ms);
+				const seconds = this.round((delta / Utils.timeUnits.s.ms ) % Utils.timeUnits.m.s);
 				string = minutes + "m, " + seconds + "s";
 			}
 			else if (delta < Utils.timeUnits.d.ms) {
@@ -206,7 +206,7 @@ module.exports = (function (Module) {
 		 * @param {"asc"|"desc"} [orderBy] Direction to order the result Map by
 		 * @returns {Map<string, number>} The amount of times a word has been used in the message
 		 */
-		toDictionary(message, orderBy = "asc") {
+		toDictionary (message, orderBy = "asc") {
 			const arr = message.replace(/\s+/g, " ").trim().split(" ");
 			let dictionary = new Map(arr.map(i => [i, 0]));
 			arr.forEach(i => dictionary.set(i, dictionary.get(i) + 1));
@@ -227,7 +227,7 @@ module.exports = (function (Module) {
 		 * @param {number} [places]
 		 * @returns {number}
 		 */
-		round(number, places = 0) {
+		round (number, places = 0) {
 			return (Math.round(number * (10 ** places))) / (10 ** places);
 		}
 
@@ -280,7 +280,7 @@ module.exports = (function (Module) {
 		 * @param {Array} arr
 		 * @returns {*}
 		 */
-		randArray(arr) {
+		randArray (arr) {
 			return (arr.length === 0)
 				? undefined
 				: arr[this.random(0, arr.length - 1)];
@@ -348,7 +348,7 @@ module.exports = (function (Module) {
 		 * @param {string} string
 		 * @returns {string}
 		 */
-		removeAccents(string) {
+		removeAccents (string) {
 			return string.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 		}
 
@@ -484,7 +484,7 @@ module.exports = (function (Module) {
 		 * @param {number} padding
 		 * @returns {string}
 		 */
-		zf(number, padding) {
+		zf (number, padding) {
 			return ("0".repeat(padding) + number).slice(-padding);
 		}
 
