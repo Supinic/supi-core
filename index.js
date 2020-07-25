@@ -13,6 +13,7 @@ module.exports = (async function (namespace = "sb", options = {}) {
 		"classes/config",
 		"singletons/utils",
 		"singletons/cooldown-manager",
+		"classes/cron",
 		"singletons/logger",
 		"singletons/system-log",
 		"singletons/vlc-connector",
@@ -31,7 +32,6 @@ module.exports = (async function (namespace = "sb", options = {}) {
 		"classes/afk",
 		"classes/banphrase",
 		"classes/reminder",
-		"classes/cron",
 		"classes/markov-chain",
 	];
 
