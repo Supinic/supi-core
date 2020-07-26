@@ -175,23 +175,40 @@ module.exports = (function (Module) {
 				string = this.round(delta / Utils.timeUnits.s.ms, 2) + "s";
 			}
 			else if (delta < Utils.timeUnits.h.ms) {
-				const minutes = this.round(delta / Utils.timeUnits.m.ms);
-				const seconds = this.round((delta / Utils.timeUnits.s.ms ) % Utils.timeUnits.m.s);
+				// Discards the data carried in the last 3 digits, aka milliseconds.
+				// E.g. 119999ms should be parsed as "2min, 0sec"; not "1min, 59sec" because of a single millisecond.
+				// Rounding to -3 turns 119999 to 120000, which makes the rounding work properly.
+				const trimmed = this.round(delta, -3);
+
+				const minutes = Math.trunc(trimmed / Utils.timeUnits.m.ms);
+				const seconds = Math.trunc((trimmed / Utils.timeUnits.s.ms ) % Utils.timeUnits.m.s);
 				string = minutes + "m, " + seconds + "s";
 			}
 			else if (delta < Utils.timeUnits.d.ms) {
-				const hours = this.round(delta / Utils.timeUnits.h.ms);
-				const minutes = this.round(delta / Utils.timeUnits.m.ms) % Utils.timeUnits.h.m;
+				// Discards the data carried in the last 5 digits - mostly seconds.
+				// Removing one second from a time delta in (hours, minutes) should not affect the result.
+				const trimmed = this.round(delta, -5);
+
+				const hours = Math.trunc(trimmed / Utils.timeUnits.h.ms);
+				const minutes = Math.trunc(trimmed / Utils.timeUnits.m.ms) % Utils.timeUnits.h.m;
 				string = hours + "h, " + minutes + "m";
 			}
 			else if (delta < Utils.timeUnits.y.ms) {
-				const days = this.round(delta / Utils.timeUnits.d.ms);
-				const hours = this.round(delta / Utils.timeUnits.h.ms) % Utils.timeUnits.d.h;
+				// Discards the data carried in the last 6 digits - mostly minutes.
+				// Removing one minute from a time delta in (days, hours) should not affect the result.
+				const trimmed = this.round(delta, -6);
+
+				const days = Math.trunc(trimmed / Utils.timeUnits.d.ms);
+				const hours = Math.trunc(trimmed / Utils.timeUnits.h.ms) % Utils.timeUnits.d.h;
 				string = days + "d, " + hours + "h";
 			}
 			else {
-				const years = this.round(delta / Utils.timeUnits.y.ms);
-				const days = this.round(delta / Utils.timeUnits.d.ms) % Utils.timeUnits.y.d;
+				// Discards the data carried in the last 7 digits - mostly hours.
+				// Removing one hour from a time delta in (years, days) should not affect the result.
+				const trimmed = this.round(delta, -7);
+
+				const years = Math.trunc(trimmed / Utils.timeUnits.y.ms);
+				const days = Math.trunc(trimmed / Utils.timeUnits.d.ms) % Utils.timeUnits.y.d;
 				string = years + "y, " + days + "d";
 			}
 
