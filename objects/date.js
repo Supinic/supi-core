@@ -22,7 +22,16 @@ module.exports = class Date extends global.Date {
 	 * @returns {boolean}
 	 */
 	static equals(from, to) {
-		return from.valueOf() === to.valueOf();
+		const fromValue = from?.valueOf();
+		const toValue = to?.valueOf();
+		if (typeof fromValue !== "number") {
+			throw new Error("from value cannot be converted to a number");
+		}
+		else if (typeof toValue !== "number") {
+			throw new Error("to value cannot be converted to a number");
+		}
+
+		return (fromValue === toValue);
 	}
 
 	/**
