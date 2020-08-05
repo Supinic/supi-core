@@ -4,6 +4,11 @@ module.exports = (function () {
 
 	const CronJob = require("cron").CronJob;
 
+	const logging = {
+		active: false,
+		filter: null
+	};
+
 	/**
 	 * Represents a function that's executed every some time
 	 * @memberof sb
@@ -145,11 +150,23 @@ module.exports = (function () {
 						this.Defer.end
 					);
 
-					setTimeout(() => this.Code(), timeout);
+					setTimeout(() => {
+						if (logging.active && (!log.filter || log.filter(this))) {
+							console.log("Cron fired", this);
+						}
+
+						this.Code();
+					}, timeout);
 				});
 			}
 			else {
-				this.job = new CronJob(this.Expression, () => this.Code());
+				this.job = new CronJob(this.Expression, () => {
+					if (logging.active && (!log.filter || log.filter(this))) {
+						console.log("Cron fired", this);
+					}
+
+					this.Code();
+				});
 			}
 
 			this.job.start();
@@ -182,6 +199,18 @@ module.exports = (function () {
 			if (this.job && this.started) {
 				this.stop();
 			}
+		}
+
+		static startExecutionLog (filterCallback) {
+			logging.active = true;
+			if (typeof filterCallback === "function") {
+				logging.filter = filterCallback;
+			}
+		}
+
+		static stopExecutionLog () {
+			logging.active = false;
+			logging.filter = null;
 		}
 
 		/** @override */
