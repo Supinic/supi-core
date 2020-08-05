@@ -151,7 +151,7 @@ module.exports = (function () {
 					);
 
 					setTimeout(() => {
-						if (logging.active && (!log.filter || log.filter(this))) {
+						if (logging.active && (!logging.filter || logging.filter(this))) {
 							console.log("Cron fired", this);
 						}
 
@@ -161,7 +161,7 @@ module.exports = (function () {
 			}
 			else {
 				this.job = new CronJob(this.Expression, () => {
-					if (logging.active && (!log.filter || log.filter(this))) {
+					if (logging.active && (!logging.filter || logging.filter(this))) {
 						console.log("Cron fired", this);
 					}
 
