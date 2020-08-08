@@ -28,6 +28,7 @@ module.exports = (async function (namespace = "sb", options = {}) {
 		"classes/filter",
 		"classes/command",
 		"classes/channel",
+		"classes/chat-module",
 		"classes/user",
 		"classes/afk",
 		"classes/banphrase",
