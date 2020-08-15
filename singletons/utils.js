@@ -317,7 +317,7 @@ module.exports = (function (Module) {
 					seconds -= (hr * Utils.timeUnits.h.s);
 				}
 				const min = Math.floor(seconds / Utils.timeUnits.m.s);
-				stuff.push(min);
+				stuff.push(stuff.length ? this.zf(min, 2) : min);
 				seconds -= (min * Utils.timeUnits.m.s);
 				stuff.push(this.zf(seconds, 2));
 
