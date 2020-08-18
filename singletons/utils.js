@@ -1066,6 +1066,56 @@ module.exports = (function (Module) {
 			return `${rounded}${space}${prefixes[multiplier]}${unit}`;
 		}
 
+		/**
+		 * Splits a given string into a given amount of "messages", where each contains up to `limit` characters.
+		 * Only splits on entire words
+		 * @param {string} message
+		 * @param {number} limit
+		 * @param {number} messageCount
+		 * @returns {[]}
+		 */
+		partitionString (message, limit, messageCount) {
+			if (!this.isValidInteger(limit)) {
+				throw new sb.Error({
+					message: "Limit must be a positive integer"
+				});
+			}
+
+			const words = [];
+			const regex = new RegExp(".{1," + limit + "}", "g");
+			for (const rawWord of message.split(" ")) {
+				if (rawWord.length > limit) {
+					words.push(...rawWord.match(regex));
+				}
+				else {
+					words.push(rawWord);
+				}
+			}
+
+			const result = [];
+			let buffer = [];
+			let counter = 0;
+			let messages = 1;
+
+			for (const word of words) {
+				buffer.push(word);
+				counter += word.length + 1;
+
+				if (counter >= limit) {
+					counter = 0;
+					result.push(buffer.join(" "));
+					buffer = [];
+					messages++;
+				}
+
+				if (messages > messageCount) {
+					break;
+				}
+			}
+
+			return result;
+		}
+
 		get modulePath () { return "utils"; }
 
 		/** @inheritDoc */
