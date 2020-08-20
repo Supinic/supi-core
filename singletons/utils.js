@@ -1096,6 +1096,7 @@ module.exports = (function (Module) {
 			let buffer = [];
 			let counter = 0;
 			let messages = 1;
+			let loopBroken = false;
 
 			for (const word of words) {
 				buffer.push(word);
@@ -1109,8 +1110,13 @@ module.exports = (function (Module) {
 				}
 
 				if (messages > messageCount) {
+					loopBroken = true;
 					break;
 				}
+			}
+
+			if (!loopBroken) {
+				result.push(buffer.join(" "));
 			}
 
 			return result;
