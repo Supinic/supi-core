@@ -245,6 +245,15 @@ module.exports = (function (Module) {
 			return (Math.round(number * (10 ** places))) / (10 ** places);
 		}
 
+		escapeHTML (string) {
+			return string
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;")
+				.replace(/"/g, "&quot;")
+				.replace(/'/g, "&#39;")
+				.replace(/&/g, "&amp;");
+		}
+
 		/**
 		 * @todo Finish documentation
 		 * @param {string} string
