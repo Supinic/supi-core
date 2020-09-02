@@ -24,6 +24,7 @@ module.exports = (function (Module) {
 	return class Query extends Module {
 		#loggingThreshold = null;
 		#definitionPromises = new Map();
+		activeConnections = new Set();
 
 		/**
 		 * @inheritDoc
@@ -84,6 +85,7 @@ module.exports = (function (Module) {
 
 			const connector = await this.pool.getConnection();
 			timing.connection = process.hrtime.bigint();
+			this.activeConnections.add(connector.threadId);
 
 			const result = connector.query({
 				sql: query,
@@ -92,6 +94,7 @@ module.exports = (function (Module) {
 			timing.result = process.hrtime.bigint();
 
 			await connector.end();
+			this.activeConnections.delete(connector.threadId);
 			timing.end = process.hrtime.bigint();
 
 			if (this.#loggingThreshold !== null && (timing.end - timing.start) > (this.#loggingThreshold * 1e6)) {

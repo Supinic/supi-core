@@ -13,6 +13,7 @@ module.exports = (async function (namespace = "sb", options = {}) {
 		"classes/config",
 		"singletons/utils",
 		"classes/cron",
+		"singletons/cache",
 		"singletons/cooldown-manager",
 		"singletons/logger",
 		"singletons/system-log",
