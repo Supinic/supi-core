@@ -56,7 +56,7 @@ module.exports = (function (Module) {
 			}
 
 			this.#server.disconnect();
-			this.#ready = false
+			this.#active = false
 		}
 
 		async set (data = {}) {
