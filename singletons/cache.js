@@ -102,6 +102,18 @@ module.exports = (function (Module) {
 			return await this.#server.get(key);
 		}
 
+		async delete (keyIdentifier) {
+			if (!this.#active) {
+				throw new sb.Error({
+					message: "Redis server is not connected"
+				});
+			}
+
+			const key = Cache.resolveKey(keyIdentifier);
+
+			return await this.#server.del(key);
+		}
+
 		/**
 		 * Cleans up and destroys the singleton caching instance
 		 */
