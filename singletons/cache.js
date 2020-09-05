@@ -76,6 +76,10 @@ module.exports = (function (Module) {
 				JSON.stringify(data.value)
 			];
 
+			if (typeof data.specificKey === "string") {
+				args[0] += "-" + data.specificKey;
+			}
+
 			if (data.expiry) {
 				if (!sb.Utils.isValidInteger(data.expiry)) {
 					throw new sb.Error({
