@@ -98,8 +98,7 @@ module.exports = (function (Module) {
 			}
 
 			const key = Cache.resolveKey(keyIdentifier);
-
-			return await this.#server.get(key);
+			return JSON.parse(await this.#server.get(key));
 		}
 
 		async delete (keyIdentifier) {
