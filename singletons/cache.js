@@ -139,7 +139,9 @@ module.exports = (function (Module) {
 		}
 
 		async getByPrefix (prefix, options = {}) {
-			const data = await this.#server.scan("0", "MATCH", `${prefix}*`);
+			const result = await this.#server.scan("0", "MATCH", `${prefix}${GROUP_DELIMITER}*`);
+			const data = result[1];
+
 			const values = await Promise.all(data.map(i => this.#server.get(i)));
 			const list = [];
 
