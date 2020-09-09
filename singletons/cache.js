@@ -3,6 +3,9 @@ module.exports = (function (Module) {
 
 	const Redis = require("ioredis");
 
+	const GROUP_DELIMITER = "\b";
+	const ITEM_DELIMITER = "\u{E0000}";
+
 	return class Cache extends Module {
 		/** @type {Redis} */
 		#server = null;
@@ -117,6 +120,51 @@ module.exports = (function (Module) {
 			return await this.#server.del(key);
 		}
 
+		async setByPrefix (prefix, value, options = {}) {
+			if (typeof prefix === "undefined") {
+				throw new sb.Error({
+					message: "No key providded"
+				});
+			}
+			if (typeof value === "undefined") {
+				throw new sb.Error({
+					message: "No value providded"
+				});
+			}
+
+			return await this.set({
+				key: Cache.resolvePrefix(prefix, options.keys ?? []),
+				value: JSON.stringify(value)
+			});
+		}
+
+		async getByPrefix (prefix, options = {}) {
+			const data = await this.#server.scan("0", "MATCH", `${prefix}*`);
+			const values = await Promise.all(data.map(i => this.#server.get(i)));
+			const list = [];
+
+			let i = 0;
+			for (const item of data) {
+				const itemObject = {
+					prefix,
+					fullKey: item,
+					value: JSON.parse(values[i]),
+					extraKeys: {}
+				};
+
+				const rest = item.split(GROUP_DELIMITER).slice(1);
+				for (const key of rest) {
+					const [name, value] = key.split(ITEM_DELIMITER);
+					itemObject.keys[name] = value;
+				}
+
+				i++;
+				list.push(itemObject);
+			}
+
+			return list;
+		}
+
 		/**
 		 * Cleans up and destroys the singleton caching instance
 		 */
@@ -158,6 +206,16 @@ module.exports = (function (Module) {
 					}
 				});
 			}
+		}
+
+		static resolvePrefix (mainKey, keys) {
+			keys = Object.entries(keys);
+			if (keys.length === 0) {
+				return mainKey;
+			}
+
+			const rest = keys.map(([key, value]) => `${key}${ITEM_DELIMITER}${value}`).sort();
+			return [mainKey, ...rest].join(GROUP_DELIMITER);
 		}
 
 		get modulePath () { return "cache"; }
