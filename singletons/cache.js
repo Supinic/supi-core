@@ -132,9 +132,15 @@ module.exports = (function (Module) {
 				});
 			}
 
+			const optionsMap = new Map(Object.entries(options));
+			const keys = optionsMap.get("keys") ?? [];
+			optionsMap.delete("keys");
+
+			const rest = Object.fromEntries(optionsMap);
 			return await this.set({
-				key: Cache.resolvePrefix(prefix, options.keys ?? []),
-				value: JSON.stringify(value)
+				key: Cache.resolvePrefix(prefix, keys),
+				value: JSON.stringify(value),
+				...rest
 			});
 		}
 
@@ -151,7 +157,7 @@ module.exports = (function (Module) {
 					prefix,
 					fullKey: item,
 					value: JSON.parse(values[i]),
-					extraKeys: {}
+					keys: {}
 				};
 
 				const rest = item.split(GROUP_DELIMITER).slice(1);
