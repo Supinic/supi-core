@@ -133,7 +133,7 @@ module.exports = (function (Module) {
 			}
 
 			const optionsMap = new Map(Object.entries(options));
-			const keys = optionsMap.get("keys") ?? [];
+			const keys = optionsMap.get("keys") ?? {};
 			optionsMap.delete("keys");
 
 			const rest = Object.fromEntries(optionsMap);
