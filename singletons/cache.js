@@ -145,6 +145,13 @@ module.exports = (function (Module) {
 		}
 
 		async getByPrefix (prefix, options = {}) {
+			const extraKeys = options.keys ?? [];
+			const key = Cache.resolvePrefix(prefix, extraKeys);
+
+			return JSON.parse(await this.#server.get(key));
+		}
+
+		async getCursorByPrefix (prefix, options = {}) {
 			const result = await this.#server.scan("0", "MATCH", `${prefix}${GROUP_DELIMITER}*`);
 			const data = result[1];
 
