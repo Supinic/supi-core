@@ -226,6 +226,10 @@ module.exports = (function (Module) {
 			return [mainKey, ...rest].join(GROUP_DELIMITER);
 		}
 
+		get active () { return this.#active; }
+
+		get server () { return this.#server; }
+
 		get modulePath () { return "cache"; }
 	};
 });
