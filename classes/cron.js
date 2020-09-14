@@ -95,7 +95,7 @@ module.exports = (function () {
 				}
 				catch (e) {
 					console.warn(`Cron ${data.Name} has invalid defer definition`, e);
-					data.Code = null;
+					data.Defer = null;
 				}
 			}
 
