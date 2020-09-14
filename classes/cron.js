@@ -91,7 +91,7 @@ module.exports = (function () {
 
 			if (typeof data.Defer === "string") {
 				try {
-					data.Defer = JSON.parse(data.Code);
+					data.Defer = JSON.parse(data.Defer);
 				}
 				catch (e) {
 					console.warn(`Cron ${data.Name} has invalid defer definition`, e);
