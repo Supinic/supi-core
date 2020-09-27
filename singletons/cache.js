@@ -139,7 +139,7 @@ module.exports = (function (Module) {
 			const rest = Object.fromEntries(optionsMap);
 			return await this.set({
 				key: Cache.resolvePrefix(prefix, keys),
-				value: JSON.stringify(value),
+				value,
 				...rest
 			});
 		}
@@ -148,7 +148,7 @@ module.exports = (function (Module) {
 			const extraKeys = options.keys ?? [];
 			const key = Cache.resolvePrefix(prefix, extraKeys);
 
-			return JSON.parse(await this.#server.get(key));
+			return await this.#server.get(key);
 		}
 
 		async getCursorByPrefix (prefix, options = {}) {
