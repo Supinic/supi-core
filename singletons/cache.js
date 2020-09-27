@@ -126,6 +126,17 @@ module.exports = (function (Module) {
 					message: "No key providded"
 				});
 			}
+			else if (typeof prefix?.getCacheKey === "function") {
+				const object = prefix;
+				const cacheOptions = (typeof value === "object") ? value : options;
+
+				return await this.set({
+					key: object.getCacheKey(),
+					value: object,
+					...cacheOptions
+				});
+			}
+
 			if (typeof value === "undefined") {
 				throw new sb.Error({
 					message: "No value providded"
