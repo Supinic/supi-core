@@ -148,7 +148,7 @@ module.exports = (function (Module) {
 			const extraKeys = options.keys ?? [];
 			const key = Cache.resolvePrefix(prefix, extraKeys);
 
-			return await this.#server.get(key);
+			return await this.get(key);
 		}
 
 		async getCursorByPrefix (prefix, options = {}) {
