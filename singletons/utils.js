@@ -379,9 +379,12 @@ module.exports = (function (Module) {
 		 * Fetches info about a provided Youtube video.
 		 * @param {string} query Search string
 		 * @param {string} key Youtube API key
+		 * @param {object} options = {} additional options
+		 * @param {number} [options.maxResults]
+		 * @param {boolean} [options.single]
 		 * @returns {Promise<string>}
 		 */
-		async searchYoutube (query, key) {
+		async searchYoutube (query, key, options = {}) {
 			const { items } = await sb.Got({
 				url: `https://www.googleapis.com/youtube/v3/search`,
 				searchParams: new sb.URLParams()
@@ -389,15 +392,20 @@ module.exports = (function (Module) {
 					.set("key", key)
 					.set("type", "video")
 					.set("part", "snippet")
-					.set("maxResults", "10")
+					.set("maxResults", options.maxResults ?? "10")
 					.set("sort", "relevance")
 					.toString()
 			}).json();
 
-			return items.map(i => ({
-				ID: i.id.videoId,
-				title: i.snippet.title
-			}));
+			if (options.single) {
+				return items[0] ?? null;
+			}
+			else {
+				return items.map(i => ({
+					ID: i.id.videoId,
+					title: i.snippet.title
+				}));
+			}
 		}
 
 		/**
