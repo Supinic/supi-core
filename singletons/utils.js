@@ -385,6 +385,17 @@ module.exports = (function (Module) {
 		 * @returns {Promise<string>}
 		 */
 		async searchYoutube (query, key, options = {}) {
+			const params = { ...options };
+			if (params.single) {
+				if (typeof params.maxResults !== "undefined") {
+					throw new sb.Error({
+						message: "Cannot combine params maxResults and single"
+					});
+				}
+
+				params.maxResults = 1;
+			}
+
 			const { items } = await sb.Got({
 				url: `https://www.googleapis.com/youtube/v3/search`,
 				searchParams: new sb.URLParams()
@@ -392,20 +403,19 @@ module.exports = (function (Module) {
 					.set("key", key)
 					.set("type", "video")
 					.set("part", "snippet")
-					.set("maxResults", options.maxResults ?? "10")
+					.set("maxResults", params.maxResults ?? "10")
 					.set("sort", "relevance")
 					.toString()
 			}).json();
 
-			if (options.single) {
-				return items[0] ?? null;
-			}
-			else {
-				return items.map(i => ({
-					ID: i.id.videoId,
-					title: i.snippet.title
-				}));
-			}
+			const videoList = items.map(i => ({
+				ID: i.id.videoId,
+				title: i.snippet.title
+			}));
+
+			return (params.single)
+				? videoList[0] ?? null
+				: videoList;
 		}
 
 		/**
