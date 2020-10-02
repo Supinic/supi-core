@@ -544,12 +544,18 @@ module.exports = (function (Module) {
 					if (!Array.isArray(param)) {
 						throw new sb.Error({ message: "Expected Array, got " + param });
 					}
+					else if (param.some(i => typeof i !== "string")) {
+						throw new sb.Error({ message: "Array must contain strings only" });
+					}
 					
 					return "(" + param.map(i => this.escapeString(i)).map(i => `'${i}'`).join(",") + ")";
 
 				case "n+":
 					if (!Array.isArray(param)) {
 						throw new sb.Error({ message: "Expected Array, got " + param });
+					}
+					else if (param.some(i => typeof i !== "number" || Number.isNaN(i))) {
+						throw new sb.Error({ message: "Array must contain proper numbers only" });
 					}
 					
 					return "(" + param.join(",") + ")";
