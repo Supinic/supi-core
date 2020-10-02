@@ -517,6 +517,9 @@ module.exports = (function (Module) {
 					if (typeof param !== "number") {
 						throw new sb.Error({ message: "Expected number, got " + param });
 					}
+					else if (Number.isNaN(param)) {
+						throw new sb.Error({ message: `Cannot use ${param} as a number in SQL` });
+					}
 					
 					return String(param);
 
