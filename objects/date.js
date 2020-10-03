@@ -35,6 +35,28 @@ module.exports = class Date extends global.Date {
 	}
 
 	/**
+	 * Calculates Leap Days between two dates.
+	 * First Converts values to epoch to reliably use sb.Date.leapYearsBeforeDate
+	 * @param {sb.Date|Date|number} from
+	 * @param {sb.Date} to
+	 * @returns {number}
+	 */
+	static leapDaysInInterval(from, to) {
+		const fromValue = from?.valueOf();
+		const toValue = to?.valueOf();
+
+		if (typeof fromValue !== "number") {
+			throw new Error("from value cannot be converted to a number");
+		}
+		else if (typeof toValue !== "number") {
+			throw new Error("to value cannot be converted to a number");
+		}
+
+		return new sb.Date(toValue).leapYearsBeforeDate() - new sb.Date(fromValue).leapYearsBeforeDate();
+	}
+
+
+	/**
 	 * Creates the instance. Uses the same constructor as native Date does.
 	 * @param {*} args
 	 */
@@ -211,6 +233,14 @@ module.exports = class Date extends global.Date {
 	addMilliseconds(ms) {
 		this.milliseconds += ms;
 		return this;
+	}
+
+	leapYearsBeforeDate() {
+		//If the Date occurs before the possible leap day ignore the year.
+		const yearCount = this.getMonth() <= 2 ? 
+				this.getFullYear() - 1 : 
+				this.getFullYear();
+		return Math.floor(yearCount / 4); 
 	}
 
 	get dayOfTheWeek () {

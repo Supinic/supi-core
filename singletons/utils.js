@@ -156,16 +156,22 @@ module.exports = (function (Module) {
 		 * Returns a formatted string, specifying an amount of time delta from current date to provided date.
 		 * @param {sb.Date|Date|number} target
 		 * @param {boolean} [skipAffixes] if true, the affixes "in X hours" or "X hours ago" will be omitted
+		 * @param {boolean} accountForLeapYears
 		 * @returns {string}
 		 */
-		timeDelta (target, skipAffixes = false) {
+		timeDelta (target, skipAffixes = false, accountForLeapYears=false) {
 			const now = new sb.Date();
 			if (sb.Date.equals(now, target)) {
 				return "right now!";
 			}
 
+			const leapDaysOffset = accountForLeapYears
+				? sb.Date.leapDaysInInterval(target, now) *
+				Utils.timeUnits.d.ms
+				: 0; 
+
 			let string;
-			const delta = Math.abs(now.valueOf() - target.valueOf());
+			const delta = Math.abs(now.valueOf() - target.valueOf() - leapDaysOffset);
 			const [prefix, suffix] = (target > now) ? ["in ", ""] : ["", " ago"];
 
 			if (delta < Utils.timeUnits.s.ms) {
