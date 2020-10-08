@@ -165,15 +165,12 @@ module.exports = (function (Module) {
 				deltaTo = new sb.Date();
 			}
 
-			if (sb.Date.equals(deltaTo, target)) {
-				return "right now!";
+			if (!(target instanceof sb.Date)) {
+				target = new sb.Date(target.valueOf());
 			}
 
-			if (typeof target === "number") {
-				target = new sb.Date(target);
-			}
-			else {
-				target = new sb.Date(target.valueOf());
+			if (sb.Date.equals(deltaTo, target)) {
+				return "right now!";
 			}
 
 			let prefix;
