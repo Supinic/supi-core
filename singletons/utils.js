@@ -156,11 +156,13 @@ module.exports = (function (Module) {
 		 * Returns a formatted string, specifying an amount of time delta from current date to provided date.
 		 * @param {sb.Date|Date|number} target
 		 * @param {boolean} [skipAffixes] if true, the affixes "in X hours" or "X hours ago" will be omitted
+		 * @param {boolean} [respectLeapYears] If true, shows a time difference spanning a whole year as `1y` regardless
+		 * of the actual length of the year. If disabled, a year is always counted to be 365 * 24 hours. Defaults to false
 		 * @param {sb.Date} [deltaTo] If set, calculate time delta between target and deltaTo. If undefined, calculate
 		 * delta between target and the current time.
 		 * @returns {string}
 		 */
-		timeDelta (target, skipAffixes = false, deltaTo = undefined) {
+		timeDelta (target, skipAffixes = false, respectLeapYears = false, deltaTo = undefined) {
 			if (deltaTo === undefined) {
 				deltaTo = new sb.Date();
 			}
@@ -175,55 +177,11 @@ module.exports = (function (Module) {
 				return "right now!";
 			}
 
-			let prefix;
-			let suffix;
-			let earlier;
-			let later;
-			if (target > deltaTo) {
-				prefix = "in ";
-				suffix = "";
-				earlier = deltaTo;
-				later = target;
-			} else {
-				prefix = "";
-				suffix = " ago";
-				earlier = target;
-				later = deltaTo;
-			}
-
 			let string;
-			const delta = later.valueOf() - earlier.valueOf();
+			const delta = Math.abs(deltaTo.valueOf() - target.valueOf());
+			const [prefix, suffix] = (target > deltaTo) ? ["in ", ""] : ["", " ago"];
 
-			// special case for >1 year that respects leap years.
-			const earlierPlusOneYear = earlier.clone();
-			earlierPlusOneYear.setUTCFullYear(earlierPlusOneYear.getUTCFullYear() + 1);
-
-			// this rounds the `later` date to a value so that the difference between `earlier` and `laterRounded` is
-			// a whole number of seconds. Avoids issues with floating point rounding stuff where the difference
-			// between the dates is just below a whole number of years.
-			const roundedDelta = this.round(delta, -4);
-			const laterRounded = later.clone();
-			laterRounded.setTime(earlier.valueOf() + roundedDelta);
-
-			if (earlierPlusOneYear <= laterRounded) {
-				// Difference is 1 year or more.
-
-				// Figure out how many years the difference is.
-				const years = laterRounded.getUTCFullYear() - earlier.getUTCFullYear();
-
-				// now only a difference of <1 year remains.
-				// Then calculate the remaining time range -> The remaining time delta is then represented by
-				// `earlierPlusYears` and `laterRounded`
-				const earlierPlusYears = earlier.clone();
-				earlierPlusYears.setUTCFullYear(earlierPlusYears.getUTCFullYear() + years);
-				const remainingDelta = this.round(laterRounded.valueOf() - earlierPlusYears.valueOf(), -4);
-
-				const days = Math.trunc(remainingDelta / Utils.timeUnits.d.ms);
-
-				string = `${years}y, ${days}d`
-			}
-			// all other cases are timezone insensitive (days, hours, minutes, seconds, milliseconds)
-			else if (delta < Utils.timeUnits.s.ms) {
+			if (delta < Utils.timeUnits.s.ms) {
 				string = delta + "ms";
 			}
 			else if (delta < Utils.timeUnits.m.ms) {
@@ -247,13 +205,54 @@ module.exports = (function (Module) {
 				const minutes = Math.trunc(trimmed / Utils.timeUnits.m.ms) % Utils.timeUnits.h.m;
 				string = hours + "h, " + minutes + "m";
 			}
-			else {
+			else if (delta < Utils.timeUnits.y.ms) {
 				// Removing any amount of milliseconds from a time delta in (days, minutes) should not affect the result.
 				const trimmed = this.round(delta, -3);
 
 				const days = Math.trunc(trimmed / Utils.timeUnits.d.ms);
 				const hours = Math.trunc(trimmed / Utils.timeUnits.h.ms) % Utils.timeUnits.d.h;
 				string = days + "d, " + hours + "h";
+			}
+			else if (respectLeapYears) { // 365 days or more
+				let [earlier, later] = (deltaTo < target) ? [deltaTo, target] : [target, deltaTo];
+
+				// Removing any amount of milliseconds from a time delta in (days, minutes) should not affect the result.
+				const trimmed = this.round(delta, -3);
+
+				const laterRounded = new sb.Date(earlier.valueOf() + trimmed);
+
+				// how many whole years lie between the dates?
+				let years = laterRounded.getUTCFullYear() - earlier.getUTCFullYear();
+				// now only a difference of <1 year remains.
+				// Then calculate the remaining time range -> The remaining time delta is then represented by
+				// `earlierPlusYears` and `laterRounded`
+				const earlierPlusYears = earlier.clone();
+				earlierPlusYears.setUTCFullYear(earlierPlusYears.getUTCFullYear() + years);
+
+				// this is in case `earlier` lies later "in the year" then `later`.
+				// E.g. earlier=December 1 2019, later=January 1 2021 calculates
+				// a year difference of `2`, but the number we want (whole years) is
+				// 1.
+				// I suppose a `if` would work too but I'm too afraid I would be missing edge cases by doing that.
+				// Most of the time the while loop will run 0 or 1 times.
+				while (earlierPlusYears.valueOf() > later) {
+					earlierPlusYears.setUTCFullYear(earlierPlusYears.getUTCFullYear() - 1);
+					years--;
+				}
+
+				// Calculate number of remaining days
+				const remainingDelta = this.round(laterRounded.valueOf() - earlierPlusYears.valueOf(), -4);
+				const days = Math.trunc(remainingDelta / Utils.timeUnits.d.ms);
+
+				string = `${years}y, ${days}d`
+			}
+			else { // 365 days or more
+				// Removing any amount of seconds from a time delta in (years, days) should not affect the result.
+				const trimmed = this.round(delta, -4);
+
+				const years = Math.trunc(trimmed / Utils.timeUnits.y.ms);
+				const days = Math.trunc(trimmed / Utils.timeUnits.d.ms) % Utils.timeUnits.y.d;
+				string = years + "y, " + days + "d";
 			}
 
 			return (skipAffixes)

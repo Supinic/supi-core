@@ -23,7 +23,8 @@
 		const DAY = 24 * HOUR;
 		const YEAR = 365 * DAY;
 
-		const timeDelta = (t, b, d) => sb.Utils.timeDelta(t, b ?? false, d ?? new sb.Date(0));
+		const timeDelta = (target, skipAffixes, respectLeapYears, deltaTo) =>
+			sb.Utils.timeDelta(target, skipAffixes ?? false, respectLeapYears ?? false, deltaTo ?? new sb.Date(0));
 
 		it("checks types properly", function () {
 			assert.doesNotThrow(() => timeDelta(new Date()));
@@ -161,11 +162,33 @@
 			// now is 2020-01-01, the date to calculate to is 2030-01-01
 			assert.strictEqual(
 				timeDelta(
-					new sb.Date('January 1, 2030 00:00:00'),
+					new sb.Date('January 5, 2030 00:00:00 UTC'),
+					false,
 					true,
-					new sb.Date('January 1, 2020 00:00:00')
+					new sb.Date('January 1, 2020 00:00:00 UTC')
 				),
-				"10y, 0d"
+				"in 10y, 4d"
+			)
+			// reverse
+			assert.strictEqual(
+				timeDelta(
+					new sb.Date('December 29, 2019 00:00:00 UTC'),
+					false,
+					true,
+					new sb.Date('January 1, 2030 00:00:00 UTC')
+				),
+				"10y, 3d ago"
+			)
+
+			// mode with leap year calculation disabled
+			assert.strictEqual(
+				timeDelta(
+					new sb.Date('January 1, 2030 00:00:00 UTC'),
+					true,
+					false,
+					new sb.Date('January 1, 2020 00:00:00 UTC')
+				),
+				"10y, 3d"
 			)
 		});
 	});
