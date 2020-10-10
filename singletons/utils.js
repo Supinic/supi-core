@@ -5,7 +5,8 @@ module.exports = (function (Module) {
 	const RandomJS = require("random-js");
 	const { parse: urlParser } = require("url");
 	const parseDuration = require("duration-parser");
-	const ffprobe = require("ffprobe");
+    const ffprobe = require("ffprobe");
+    const diceRollEval = require("dice-roll-eval");
 
 	const byteUnits = {
 		si: {
@@ -1193,7 +1194,19 @@ module.exports = (function (Module) {
 			}
 
 			return result;
-		}
+        }
+
+        /**
+         * Evaluates an expression in standard dice notation form
+         * 
+         * @param {string} input
+         * @param {number} limit max number of rolls in a single evaluation
+         * @returns {number}
+         * @throws {Error}
+         */
+        evalDiceRoll(input, limit) {
+            return diceRollEval(input, limit, (min, max) => sb.Utils.random(min, max));
+        }
 
 		get modulePath () { return "utils"; }
 
