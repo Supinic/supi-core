@@ -5,8 +5,8 @@ module.exports = (function (Module) {
 	const RandomJS = require("random-js");
 	const { parse: urlParser } = require("url");
 	const parseDuration = require("duration-parser");
-    const ffprobe = require("ffprobe");
-    const diceRollEval = require("dice-roll-eval");
+	const ffprobe = require("ffprobe");
+	const diceRollEval = require("dice-roll-eval");
 
 	const byteUnits = {
 		si: {
@@ -1200,11 +1200,11 @@ module.exports = (function (Module) {
          * Evaluates an expression in standard dice notation form
          * 
          * @param {string} input
-         * @param {number} limit max number of rolls in a single evaluation
+         * @param {number} limit max number of rolls in a single evaluation. Defaults to 10.
          * @returns {number}
          * @throws {Error}
          */
-        evalDiceRoll(input, limit) {
+        evalDiceRoll(input, limit = 10) {
             return diceRollEval(input, limit, (min, max) => sb.Utils.random(min, max));
         }
 
