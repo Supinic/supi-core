@@ -218,8 +218,8 @@ module.exports = (function (Module) {
 				});
 			}
 
-			if (typeof value?.toRedis === "function") {
-				return value.toRedis();
+			if (typeof value?.getCacheKey === "function") {
+				return value.getCacheKey();
 			}
 			else if (typeof value !== "object") {
 				return String(value);
