@@ -439,7 +439,7 @@ denque@^1.1.0, denque@^1.4.1:
 
 "dice-roll-eval@github:jprochazk/dice-roll-eval":
   version "1.0.0"
-  resolved "https://codeload.github.com/jprochazk/dice-roll-eval/tar.gz/44c72e1b9630c50251e6e21ce8699e1c0dc1773b"
+  resolved "https://codeload.github.com/jprochazk/dice-roll-eval/tar.gz/1a9a5ca0344d99e20b158a62de6c5d8b4762896c"
 
 diff@4.0.2:
   version "4.0.2"
