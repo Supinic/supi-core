@@ -93,20 +93,14 @@ module.exports = (function (Module) {
 					await sb.Reminder.reloadData();
 				}
 				else if (query.module === "user") {
-					if (query.username) {
-						sb.User.data.delete(query.username);
-					}
-					else if (query.userID) {
-						const userData = sb.User.getByProperty("ID", query.userID);
-						if (userData) {
-							sb.User.data.delete(userData.Name);
-						}
-					}
-					else {
+					if (typeof query.username !== "string") {
 						throw new sb.Error({
-							message: "No valid user identifier provided", args: query
+							message: "No valid user identifier provided",
+							args: query
 						});
 					}
+
+					await sb.User.invalidateUserCache(query.username);
 				}
 				else {
 					throw new sb.Error({
