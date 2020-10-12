@@ -54,7 +54,7 @@ module.exports = (function (Module) {
 					password: process.env.MARIA_PASSWORD,
 					connectionLimit: process.env.MARIA_CONNECTION_LIMIT || 300,
 					multipleStatements: true,
-					leakDetectionTImeout: 60_000
+					leakDetectionTimeout: 60_000
 				});
 			}
 			else if (process.env.MARIA_HOST) {
