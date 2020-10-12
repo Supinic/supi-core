@@ -211,6 +211,7 @@ module.exports = (function (Module) {
 							await transaction.rollback();
 						}
 						finally {
+							await transaction.end();
 							slice = null;
 						}
 					}, (counter * staggerDelay));
