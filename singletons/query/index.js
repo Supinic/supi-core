@@ -53,7 +53,8 @@ module.exports = (function (Module) {
 					user: process.env.MARIA_USER,
 					password: process.env.MARIA_PASSWORD,
 					connectionLimit: process.env.MARIA_CONNECTION_LIMIT || 300,
-					multipleStatements: true
+					multipleStatements: true,
+					leakDetectionTImeout: 60_000
 				});
 			}
 			else if (process.env.MARIA_HOST) {
@@ -62,7 +63,8 @@ module.exports = (function (Module) {
 					host: process.env.MARIA_HOST,
 					password: process.env.MARIA_PASSWORD,
 					connectionLimit: process.env.MARIA_CONNECTION_LIMIT || 300,
-					multipleStatements: true
+					multipleStatements: true,
+					leakDetectionTImeout: 60_000
 				});
 			}
 			else {
