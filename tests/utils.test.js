@@ -1,6 +1,6 @@
 (async () => {
 	const assert = require("assert");
-	const unmockedDate = require("../objects/date.js");
+	const Date = require("../objects/date.js");
 	const range = (from, to) => [...Array(to - from + 1)].map((i, ind) => ind + from);
 
 	globalThis.sb = {
@@ -15,12 +15,7 @@
 		]
 	});
 
-	sb.Date = class ZeroMockedDate extends unmockedDate {
-		constructor () {
-			super();
-			this.setTime(0);
-		}
-	};
+	sb.Date = Date;
 
 	describe("timeDelta", () => {
 		const MINUTE = 60_000;
@@ -28,7 +23,8 @@
 		const DAY = 24 * HOUR;
 		const YEAR = 365 * DAY;
 
-		const timeDelta = sb.Utils.timeDelta.bind(sb.Utils);
+		const timeDelta = (target, skipAffixes, respectLeapYears, deltaTo) =>
+			sb.Utils.timeDelta(target, skipAffixes ?? false, respectLeapYears ?? false, deltaTo ?? new sb.Date(0));
 
 		it("checks types properly", function () {
 			assert.doesNotThrow(() => timeDelta(new Date()));
@@ -48,23 +44,23 @@
 		});
 
 		it("returns a special value for delta === 0", () => {
-			const date = new unmockedDate(0);
+			const date = new sb.Date(0);
 			assert.strictEqual(timeDelta(date), "right now!");
 		});
 
 		it("parses milliseconds-specific times properly", () => {
-			const futureDate = new unmockedDate(10);
+			const futureDate = new sb.Date(10);
 			assert.strictEqual(timeDelta(futureDate), "in 10ms");
 			assert.strictEqual(timeDelta(futureDate, true), "10ms");
 
-			const pastDate = new unmockedDate(-10);
+			const pastDate = new sb.Date(-10);
 			assert.strictEqual(timeDelta(pastDate), "10ms ago");
 			assert.strictEqual(timeDelta(pastDate, true), "10ms");
 		});
 
 		it("parses seconds properly", () => {
 			for (let i = 1_000; i < 60_000; i += 10) {
-				const futureDate = new unmockedDate(i);
+				const futureDate = new sb.Date(i);
 				const expectedLongString = `in ${i / 1000}s`;
 				const expectedShortString = `${i / 1000}s`;
 
@@ -73,7 +69,7 @@
 			}
 
 			for (let i = -1_000; i > -60_000; i -= 50) {
-				const pastDate = new unmockedDate(i);
+				const pastDate = new sb.Date(i);
 				const expectedLongString = `${Math.abs(i) / 1000}s ago`;
 				const expectedShortString = `${Math.abs(i) / 1000}s`;
 
@@ -88,7 +84,7 @@
 			const expectedShortString = "30s";
 			const rounded = [29995, 29996, 29997, 29998, 29999, 30000, 30001, 30002, 30003, 30004];
 			for (const time of rounded) {
-				const date = new unmockedDate(time);
+				const date = new sb.Date(time);
 				assert.strictEqual(timeDelta(date), expectedLongString, "Input: " + time);
 				assert.strictEqual(timeDelta(date, true), expectedShortString, "Input: " + time);
 			}
@@ -103,7 +99,7 @@
 			for (const [range, string] of definition) {
 				for (const time of range) {
 					assert.strictEqual(
-						timeDelta(new unmockedDate(time), true),
+						timeDelta(new sb.Date(time), true),
 						string,
 						"Input: " + time
 					);
@@ -120,7 +116,7 @@
 			for (const [range, string] of definition) {
 				for (const time of range) {
 					assert.strictEqual(
-						timeDelta(new unmockedDate(time), true),
+						timeDelta(new sb.Date(time), true),
 						string,
 						"Input: " + time
 					);
@@ -137,7 +133,7 @@
 			for (const [range, string] of definition) {
 				for (const time of range) {
 					assert.strictEqual(
-						timeDelta(new unmockedDate(time), true),
+						timeDelta(new sb.Date(time), true),
 						string,
 						"Input: " + time
 					);
@@ -154,12 +150,46 @@
 			for (const [range, string] of definition) {
 				for (const time of range) {
 					assert.strictEqual(
-						timeDelta(new unmockedDate(time), true),
+						timeDelta(new sb.Date(time), true),
 						string,
 						"Input: " + time
 					);
 				}
 			}
+		});
+
+		it("shows leap years as 1y", () => {
+			// now is 2020-01-01, the date to calculate to is 2030-01-01
+			assert.strictEqual(
+				timeDelta(
+					new sb.Date('January 5, 2030 00:00:00 UTC'),
+					false,
+					true,
+					new sb.Date('January 1, 2020 00:00:00 UTC')
+				),
+				"in 10y, 4d"
+			)
+			// reverse
+			assert.strictEqual(
+				timeDelta(
+					new sb.Date('December 29, 2019 00:00:00 UTC'),
+					false,
+					true,
+					new sb.Date('January 1, 2030 00:00:00 UTC')
+				),
+				"10y, 3d ago"
+			)
+
+			// mode with leap year calculation disabled
+			assert.strictEqual(
+				timeDelta(
+					new sb.Date('January 1, 2030 00:00:00 UTC'),
+					true,
+					false,
+					new sb.Date('January 1, 2020 00:00:00 UTC')
+				),
+				"10y, 3d"
+			)
 		});
 	});
 })();
