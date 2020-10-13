@@ -8,6 +8,7 @@
     "cheerio": "latest",
     "chrono-node": "^1.4.6",
     "cron": "latest",
+    "dice-roll-eval": "github:jprochazk/dice-roll-eval",
     "duration-parser": "github:supinic/duration-parser",
     "ffprobe": "^1.1.0",
     "form-data": "^3.0.0",
