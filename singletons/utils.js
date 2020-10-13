@@ -1177,8 +1177,10 @@ module.exports = (function (Module) {
 
 				if (counter >= limit) {
 					counter = 0;
+
+					buffer.pop();
 					result.push(buffer.join(" "));
-					buffer = [];
+					buffer = [word];
 					messages++;
 				}
 
