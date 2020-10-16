@@ -1,7 +1,6 @@
 module.exports = (async function (namespace = "sb", options = {}) {
 	global[namespace] = {};
 
-	const SingletonTemplate = require("./singleton-template");
 	const files = [
 		"objects/date",
 		"objects/error",
@@ -57,8 +56,7 @@ module.exports = (async function (namespace = "sb", options = {}) {
 			global[namespace][component.name] = component;
 		}
 		else if (type === "singletons") {
-			component = component(SingletonTemplate);
-			global[namespace][component.name] = await component.singleton();
+			globalThis[namespace][component.name] = await component.singleton();
 		}
 		else if (type === "classes") {
 			if (skipData.includes(file)) {

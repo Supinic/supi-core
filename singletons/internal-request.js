@@ -1,5 +1,4 @@
-/* global sb */
-module.exports = (function (Module) {
+module.exports = (function () {
 	const http = require("http");
 	const url = require("url");
 	const mandatoryConfigs = [
@@ -7,7 +6,7 @@ module.exports = (function (Module) {
 		"INTERNAL_REQUEST_PORT_BOT"
 	];
 
-	return class InternalRequest extends Module {
+	return class InternalRequest extends require("./template.js") {
 		/**
 		 * @inheritDoc
 		 * @returns {InternalRequest}
@@ -172,4 +171,4 @@ module.exports = (function (Module) {
 			this.data = null;
 		}
 	};
-});
+})();

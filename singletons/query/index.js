@@ -1,5 +1,5 @@
 /* global sb */
-module.exports = (function (Module) {
+module.exports = (function () {
 	"use strict";
 	const Maria = require("mariadb");
 	const Batch = require("./batch.js");
@@ -7,6 +7,7 @@ module.exports = (function (Module) {
 	const RecordDeleter = require("./record-deleter.js");
 	const RecordUpdater = require("./record-updater.js");
 	const Row = require("./row.js");
+	const Template = require("../template.js");
 
 	const updateBatchLimit = 1000;
 	const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
@@ -21,7 +22,7 @@ module.exports = (function (Module) {
 	 * @name sb.Query
 	 * @type Query()
 	 */
-	return class Query extends Module {
+	return class Query extends Template {
 		#loggingThreshold = null;
 		#definitionPromises = new Map();
 		activeConnections = new Set();
@@ -635,7 +636,7 @@ module.exports = (function (Module) {
 		}
 
 	};
-});
+})();
 
 /**
  * @callback RecordsetCallback

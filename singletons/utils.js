@@ -1,5 +1,4 @@
-/* global sb */
-module.exports = (function (Module) {
+module.exports = (function () {
 	"use strict";
 
 	const RandomJS = require("random-js");
@@ -19,7 +18,7 @@ module.exports = (function (Module) {
 		}
 	};
 
-	return class Utils extends Module {
+	return class Utils extends require("./template.js") {
 		#modules = Object.seal({
 			chrono: null,
 			linkParser: null,
@@ -1218,4 +1217,4 @@ module.exports = (function (Module) {
 			this.mersenneRandom = null;
 		}
 	};
-});
+})();

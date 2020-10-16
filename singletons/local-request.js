@@ -1,18 +1,16 @@
-/* global sb */
-const mandatoryConfigs = [
-	"LOCAL_IP",
-	"LOCAL_PLAY_SOUNDS_PORT"
-];
-
-module.exports = (function (Module) {
+module.exports = (function () {
 	"use strict";
 
+	const mandatoryConfigs = [
+		"LOCAL_IP",
+		"LOCAL_PLAY_SOUNDS_PORT"
+	];
+
 	/**
-	 * @todo description
-	 * @name sb.LocalRequest
-	 * @type LocalRequest()
+	 * This module connects the different major supi-core requiring processes together via HTTP.
+	 * @type LocalRequest
 	 */
-	return class LocalRequest extends Module {
+	return class LocalRequest extends require("./template.js") {
 		/**
 		 * @inheritDoc
 		 * @returns {LocalRequest}
@@ -88,4 +86,4 @@ module.exports = (function (Module) {
 
 		destroy () { }
 	};
-});
+})();

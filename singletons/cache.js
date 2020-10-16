@@ -1,4 +1,4 @@
-module.exports = (function (Module) {
+module.exports = (function () {
 	"use strict";
 
 	const Redis = require("ioredis");
@@ -6,7 +6,7 @@ module.exports = (function (Module) {
 	const GROUP_DELIMITER = "\b";
 	const ITEM_DELIMITER = "\u{E0000}";
 
-	return class Cache extends Module {
+	return class Cache extends require("./template.js") {
 		/** @type {Redis} */
 		#server = null;
 		#active = false;
@@ -250,4 +250,4 @@ module.exports = (function (Module) {
 
 		get modulePath () { return "cache"; }
 	};
-});
+})();

@@ -1,11 +1,12 @@
 /* global sb */
-module.exports = (function (Module) {
+module.exports = (function () {
 	"use strict";
 
 	const defaultTimeout = 10000;
 	const Workerpool = require("workerpool");
+	const Template = require("../template.js");
 
-	return class MathWorker extends Module {
+	return class MathWorker extends Template {
 		static singleton () {
 			if (!MathWorker.module) {
 				MathWorker.module = new MathWorker(sb.Config.get("MATH_TIMEOUT"));
@@ -35,4 +36,4 @@ module.exports = (function (Module) {
 			this.pool = null;
 		}
 	};
-});
+})();
