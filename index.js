@@ -60,10 +60,10 @@ module.exports = (async function (namespace = "sb", options = {}) {
 		}
 		else if (type === "classes") {
 			if (skipData.includes(file)) {
-				global[namespace][component.specificName ?? component.name] = component;
+				globalThis[namespace][component.specificName ?? component.name] = component;
 			}
 			else {
-				global[namespace][component.specificName ?? component.name] = await component.initialize();
+				globalThis[namespace][component.specificName ?? component.name] = await component.initialize();
 			}
 		}
 
