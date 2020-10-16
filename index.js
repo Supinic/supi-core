@@ -1,5 +1,5 @@
 module.exports = (async function (namespace = "sb", options = {}) {
-	global[namespace] = {};
+	globalThis[namespace] = {};
 
 	const files = [
 		"objects/date",
@@ -53,7 +53,7 @@ module.exports = (async function (namespace = "sb", options = {}) {
 		let component = require("./" + file);
 
 		if (type === "objects") {
-			global[namespace][component.name] = component;
+			globalThis[namespace][component.name] = component;
 		}
 		else if (type === "singletons") {
 			globalThis[namespace][component.name] = await component.singleton();
