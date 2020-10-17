@@ -139,7 +139,7 @@ module.exports = class Cron extends require("./template.js") {
 		}
 
 		// For "foreign" contexts, make sure to disabled the Cron so it is unavailable.
-		if (!Cron.types.includes(data.Type)) {
+		if (data.Type && !Cron.types.includes(data.Type)) {
 			this.#disabled = true;
 		}
 	}
