@@ -37,6 +37,13 @@ module.exports = class Cron extends require("./template.js") {
 	Code;
 
 	/**
+	 * Determines in which contexts the cron is going to be run.
+	 * If the current context is different, the cron will be disabled instead, preventing it from running.
+	 * @type {"All"|"Bot"|"Website"}
+	 */
+	Type;
+
+	/**
 	 * Any sort of custom data usable by the cron.
 	 * @type {Object}
 	 */
@@ -54,17 +61,23 @@ module.exports = class Cron extends require("./template.js") {
 	 */
 	job = null;
 
+	/**
+	 * If disabled, the cron is paused in its current state and cannot be started.
+	 * @type {boolean}
+	 */
+	#disabled = false;
+
 	// </editor-fold>
 
 	static Job = require("cron").CronJob;
+	static #serializableProperties = {
+		Name: { type: "string" },
+		Expression: { type: "string" },
+		Defer: { type: "json" },
+		Type: { type: "string" },
+		Code: { type: "descriptor" }
+	};
 
-	/**
-	 * @param {Object} data
-	 * @param {number} data.User_Alias
-	 * @param {sb.Date} data.Started
-	 * @param {string} data.Text
-	 * @param {boolean} data.Silent
-	 */
 	constructor (data) {
 		super();
 
@@ -124,6 +137,11 @@ module.exports = class Cron extends require("./template.js") {
 				args: data
 			});
 		}
+
+		// For "foreign" contexts, make sure to disabled the Cron so it is unavailable.
+		if (!Cron.types.includes(data.Type)) {
+			this.#disabled = true;
+		}
 	}
 
 	/**
@@ -131,6 +149,13 @@ module.exports = class Cron extends require("./template.js") {
 	 * @returns {Cron}
 	 */
 	start () {
+		if (this.#disabled) {
+			throw new sb.Error({
+				message: "Cannot start a disabled cron",
+				args: { ID: this.ID }
+			});
+		}
+
 		if (this.started) {
 			return this;
 		}
@@ -188,21 +213,41 @@ module.exports = class Cron extends require("./template.js") {
 		this.job = null;
 	}
 
-	async serialize () {
-		throw new sb.Error({
-			message: "Not implemented yet"
-		});
+	async serialize (options = {}) {
+		if (typeof this.ID !== "number") {
+			throw new sb.Error({
+				message: "Cannot serialize an anonymous Cron",
+				args: {
+					ID: this.ID,
+					Name: this.Name
+				}
+			});
+		}
+
+		const row = await sb.Query.getRow("chat_data", "Cron");
+		await row.load(this.ID);
+
+		return await super.serialize(row, Cron.#serializableProperties, options);
 	}
+
+	get disabled () { return this.#disabled; }
 
 	static async loadData () {
 		const data = await sb.Query.getRecordset(rs => rs
 			.select("*")
 			.from("chat_data", "Cron")
-			.where("Type IN %s+", Cron.types)
 			.where("Active = %b", true)
 		);
 
-		Cron.data = data.map(row => new Cron(row).start());
+		Cron.data = [];
+		for (const row of data) {
+			const cron = new Cron(row);
+			if (!cron.disabled) {
+				cron.start();
+			}
+
+			Cron.data.push(cron);
+		}
 	}
 
 	static async reloadData () {
