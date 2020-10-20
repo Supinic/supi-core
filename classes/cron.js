@@ -104,10 +104,10 @@ module.exports = class Cron extends require("./template.js") {
 		}
 		else if (typeof data.Defer === "string") {
 			try {
-				this.Defer = JSON.parse(data.Defer);
+				this.Defer = eval(data.Defer)();
 			}
 			catch (e) {
-				console.warn(`Cron ${data.Name} has invalid JSON defer definition`, e);
+				console.warn(`Cron ${data.Name} has invalid string-function defer definition`, e);
 				this.Defer = null;
 			}
 		}
