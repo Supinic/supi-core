@@ -37,13 +37,6 @@ module.exports = class Cron extends require("./template.js") {
 	Code;
 
 	/**
-	 * Determines in which contexts the cron is going to be run.
-	 * If the current context is different, the cron will be disabled instead, preventing it from running.
-	 * @type {"All"|"Bot"|"Website"}
-	 */
-	Type;
-
-	/**
 	 * Any sort of custom data usable by the cron.
 	 * @type {Object}
 	 */
@@ -99,7 +92,7 @@ module.exports = class Cron extends require("./template.js") {
 			});
 		}
 
-		if (data.Defer === null) {
+		if (!data.Defer) {
 			this.Defer = null;
 		}
 		else if (typeof data.Defer === "string") {
@@ -123,8 +116,11 @@ module.exports = class Cron extends require("./template.js") {
 
 		if (this.Defer !== null && this.Defer?.constructor !== Object) {
 			throw new sb.Error({
-				message: "If not null, the Defer definition must result in an object",
-				args: { type: typeof this.Defer }
+				message: "If provided, the Defer definition must result in an object",
+				args: {
+					ID: this.ID,
+					type: typeof this.Defer
+				}
 			});
 		}
 
