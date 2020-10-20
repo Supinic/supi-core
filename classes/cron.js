@@ -99,22 +99,32 @@ module.exports = class Cron extends require("./template.js") {
 			});
 		}
 
-		if (typeof data.Defer === "string") {
+		if (data.Defer === null) {
+			this.Defer = null;
+		}
+		else if (typeof data.Defer === "string") {
 			try {
-				data.Defer = JSON.parse(data.Defer);
+				this.Defer = JSON.parse(data.Defer);
 			}
 			catch (e) {
-				console.warn(`Cron ${data.Name} has invalid defer definition`, e);
-				data.Defer = null;
+				console.warn(`Cron ${data.Name} has invalid JSON defer definition`, e);
+				this.Defer = null;
+			}
+		}
+		else if (typeof data.Defer === "function") {
+			try {
+				this.Defer = data.Defer();
+			}
+			catch (e) {
+				console.warn(`Cron ${data.Name} has invalid function defer definition`, e);
+				this.Defer = null;
 			}
 		}
 
-		if (!data.Defer || data.Defer?.constructor === Object) {
-			this.Defer = data.Defer;
-		}
-		else {
+		if (this.Defer !== null && this.Defer?.constructor !== Object) {
 			throw new sb.Error({
-				message: "If provided, defer must be an object"
+				message: "If not null, the Defer definition must result in an object",
+				args: { type: typeof this.Defer }
 			});
 		}
 
