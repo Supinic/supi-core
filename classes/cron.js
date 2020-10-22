@@ -100,7 +100,14 @@ module.exports = class Cron extends require("./template.js") {
 				this.Defer = eval(data.Defer)();
 			}
 			catch (e) {
-				console.warn(`Cron ${data.Name} has invalid string-function defer definition`, e);
+				console.warn(`Cron has invalid Defer definition`, {
+					cron: this,
+					defer: data.Defer,
+					type: typeof data.Defer,
+					error: e,
+					data
+				});
+
 				this.Defer = null;
 			}
 		}
@@ -109,19 +116,26 @@ module.exports = class Cron extends require("./template.js") {
 				this.Defer = data.Defer();
 			}
 			catch (e) {
-				console.warn(`Cron ${data.Name} has invalid function defer definition`, e);
+				console.warn(`Cron has invalid Defer definition`, {
+					cron: this,
+					defer: data.Defer,
+					type: typeof data.Defer,
+					error: e,
+					data
+				});
+
 				this.Defer = null;
 			}
 		}
 
-		if (this.Defer !== null && this.Defer?.constructor !== Object) {
-			throw new sb.Error({
-				message: "If provided, the Defer definition must result in an object",
-				args: {
-					ID: this.ID,
-					type: typeof this.Defer
-				}
+		if (this.Defer !== null && typeof this.Defer !== "object") {
+			console.warn(`Cron Defer resulted in invalid type`, {
+				cron: this,
+				defer: data.Defer,
+				data
 			});
+
+			this.Defer = null;
 		}
 
 		if (typeof data.Code === "string") {
@@ -144,7 +158,7 @@ module.exports = class Cron extends require("./template.js") {
 			});
 		}
 
-		// For "foreign" contexts, make sure to disabled the Cron so it is unavailable.
+		// For "foreign" contexts, make sure to disable the Cron so it is unavailable.
 		if (data.Type && !Cron.types.includes(data.Type)) {
 			this.#disabled = true;
 		}
