@@ -95,6 +95,9 @@ module.exports = class Cron extends require("./template.js") {
 		if (!data.Defer) {
 			this.Defer = null;
 		}
+		else if (typeof data.Defer === "object") {
+			this.Defer = data.Defer;
+		}
 		else if (typeof data.Defer === "string") {
 			try {
 				this.Defer = eval(data.Defer)();
