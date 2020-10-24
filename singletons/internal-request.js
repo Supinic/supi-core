@@ -116,6 +116,37 @@ module.exports = (function () {
 					queue: sb.VideoLANConnector.videoQueue
 				});
 			}
+			else if (query.type === "join-channel") {
+				if (!query.platform) {
+					throw new sb.Error({
+						message: "Platform must be provided",
+						args: { query }
+					});
+				}
+
+				const platformData = sb.Platform.get(query.platform);
+				if (!platformData) {
+					throw new sb.Error({
+						message: "Invalid platform provided",
+						args: { query }
+					});
+				}
+				else if (platformData.Name !== "twitch") {
+					throw new sb.Error({
+						message: "Joining new channels is currently only supported on Twitch",
+						args: { query }
+					});
+				}
+
+				if (!query.channel) {
+					throw new sb.Error({
+						message: "Channel must be provided",
+						args: { query }
+					});
+				}
+
+				await platformData.client.join(query.channel);
+			}
 
 			res.end("OK");
 		}
