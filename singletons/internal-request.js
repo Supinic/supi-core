@@ -85,24 +85,26 @@ module.exports = (function () {
 				}
 			}
 			else if (query.type === "reload") {
-				if (query.module === "afk") {
-					await sb.AwayFromKeyboard.reloadData();
-				}
-				else if (query.module === "reminder") {
-					await sb.Reminder.reloadData();
-				}
-				else if (query.module === "user") {
-					if (typeof query.username !== "string") {
-						throw new sb.Error({
-							message: "No valid user identifier provided",
-							args: query
-						});
+				switch (query.module) {
+					case "afk": await sb.AwayFromKeyboard.reloadData(); break;
+
+					case "channel": await sb.Channel.reloadData(); break;
+
+					case "reminder": await sb.Reminder.reloadData(); break;
+
+					case "user": {
+						if (typeof query.username !== "string") {
+							throw new sb.Error({
+								message: "No valid user identifier provided",
+								args: query
+							});
+						}
+
+						await sb.User.invalidateUserCache(query.username);
+						break;
 					}
 
-					await sb.User.invalidateUserCache(query.username);
-				}
-				else {
-					throw new sb.Error({
+					default: throw new sb.Error({
 						message: "Unrecognized module", args: query.module
 					});
 				}
