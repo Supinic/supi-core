@@ -1064,14 +1064,14 @@ module.exports = (function () {
 		/**
 		 * Returns the best fit for given string, based on Levenshtein distance.
 		 * @param {string} from
-		 * @param {string[]} targets
+		 * @param {string[]} originalTargets
 		 * @param {Object} [options]
 		 * @param {boolean} [options.ignoreCase] if true, all cases will be ignored
 		 * @param {boolean} [options.fullResult] if true, a full Object[] will be returned
 		 * @returns {string|Object[]}
 		 */
-		selectClosestString (from, targets, options = {}) {
-			const originalTargets = targets.slice(0);
+		selectClosestString (from, originalTargets, options = {}) {
+			const targets = originalTargets.slice(0);
 			if (options.ignoreCase) {
 				from = from.toLowerCase();
 				for (let i = 0; i < targets.length; i++) {
@@ -1081,19 +1081,21 @@ module.exports = (function () {
 
 			const scoreArray = targets.map((i, ind) => this.jaroWinklerSimilarity(from, targets[ind]));
 			if (options.fullResult) {
-				return scoreArray.map((i, ind) => ({
+				const result = scoreArray.map((i, ind) => ({
 					score: i,
 					string: targets[ind],
 					original: originalTargets[ind],
 					includes: Boolean(targets[ind].includes(from))
 				}));
+
+				return result.sort((a, b) => b.score - a.score);
 			}
 			else {
 				let champion = null;
 				let score = -Infinity;
 				for (let i = 0; i < scoreArray.length; i++) {
 					if (targets[i].includes(from) && score < scoreArray[i]) {
-						champion = targets[i];
+						champion = originalTargets[i];
 						score = scoreArray[i];
 					}
 				}
