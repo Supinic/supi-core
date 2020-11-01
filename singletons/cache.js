@@ -24,6 +24,9 @@ module.exports = (function () {
 			if (sb.Config.has("REDIS_CONFIGURATION", false)) {
 				this.connect(sb.Config.get("REDIS_CONFIGURATION"));
 			}
+			else {
+				console.warn("No Redis configuration detected - skipped sb.Cache initialization");
+			}
 		}
 
 		connect (configuration) {
@@ -36,9 +39,14 @@ module.exports = (function () {
 				this.#server.connect();
 				this.#active = true;
 			}
-			else if (!configuration || typeof configuration !== "object") {
+			else if (!configuration) {
 				throw new sb.Error({
 					message: "Connection configuration not provided"
+				});
+			}
+			else if (typeof configuration !== "object" && typeof configuration !== "string") {
+				throw new sb.Error({
+					message: "When provided, Redis connection configuration must be an object or string"
 				});
 			}
 
