@@ -127,13 +127,10 @@ module.exports = (function () {
 				});
 			}
 			else if (typeof prefix?.getCacheKey === "function") {
-				const object = prefix;
-				const cacheOptions = (typeof value === "object") ? value : options;
-
 				return await this.set({
-					key: object.getCacheKey(),
-					value: object,
-					...cacheOptions
+					key: prefix.getCacheKey(), // prefix is the object with cache-key method
+					value,
+					...options
 				});
 			}
 
