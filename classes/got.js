@@ -77,7 +77,7 @@ module.exports = (function () {
 		},
 
 		get: function (target, property) {
-			return target[property];
+			return target[property] ?? GotModule[property];
 		}
 	});
 })();
