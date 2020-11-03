@@ -77,7 +77,9 @@ module.exports = (function () {
 		},
 
 		get: function (target, property) {
-			return target[property] ?? GotModule[property];
+			return (typeof target[property] !== "undefined")
+				? target[property]
+				: GotModule[property];
 		}
 	});
 })();
