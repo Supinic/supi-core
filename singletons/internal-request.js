@@ -145,6 +145,11 @@ module.exports = (function () {
 					});
 				}
 
+				const channelData = sb.Channel.get(query.channel);
+				if (channelData) {
+					await channelData.setup();
+				}
+
 				await platformData.client.join(query.channel);
 			}
 
