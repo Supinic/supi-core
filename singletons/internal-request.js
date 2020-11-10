@@ -145,12 +145,8 @@ module.exports = (function () {
 					});
 				}
 
-				const channelData = sb.Channel.get(query.channel);
-				if (channelData) {
-					await channelData.setup();
-				}
-
-				await platformData.client.join(query.channel);
+				const joinCommand = sb.Command.get("joinchannel");
+				await joinCommand.execute({ platform: platformData }, "#" + query.channel);
 			}
 
 			res.end("OK");
