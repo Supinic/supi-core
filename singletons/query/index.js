@@ -564,12 +564,20 @@ module.exports = (function () {
 					
 					return "(" + param.join(",") + ")";
 
-				case "*like*":
+				case "like":
+				case "*like":
+				case "like*":
+				case "*like*": {
 					if (typeof param !== "string") {
 						throw new sb.Error({ message: "Expected string, got " + param });
 					}
-					
-					return " LIKE '%" + this.escapeLikeString(param) + "%'";
+
+					const start = (type.startsWith("*")) ? "%" : "";
+					const end = (type.endsWith("*")) ? "%" : "";
+					const string = this.escapeLikeString(param);
+
+					return ` LIKE '${start}${string}${end}'`;
+				}
 
 				default: throw new sb.Error({
 					message: "Unknown Recordset replace parameter",
