@@ -66,6 +66,7 @@ module.exports = class Cron extends require("./template.js") {
 	static #serializableProperties = {
 		Name: { type: "string" },
 		Expression: { type: "string" },
+		Description: { type: "string" },
 		Defer: { type: "json" },
 		Type: { type: "string" },
 		Code: { type: "descriptor" }
