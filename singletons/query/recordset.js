@@ -235,7 +235,19 @@ module.exports = class Recordset {
 			this.#join.push(left + "JOIN " + dot + " ON `" + this.#from.table + "`.`" + (customField || target) + "` = " + dot + ".ID");
 		}
 		else if (database && database.constructor === Object) {
-			const {toDatabase = this.#from.database, toTable, toField, fromTable, fromField, alias, condition, on} = database;
+			const {
+				toDatabase = this.#from.database,
+				toTable,
+				toField,
+
+				fromTable = this.#from.table,
+				fromField,
+
+				alias,
+				condition,
+				on
+			} = database;
+
 			if (!toTable || !toDatabase) {
 				throw new sb.Error({
 					message: "Missing compulsory arguments for join",
