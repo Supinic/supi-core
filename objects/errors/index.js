@@ -4,6 +4,7 @@ module.exports = (function () {
 
 	const subtypes = [
 		"api.js",
+		"generic-request",
 		"not-implemented"
 	];
 
