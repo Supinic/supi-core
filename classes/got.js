@@ -99,7 +99,7 @@ module.exports = (function () {
 
 	return new Proxy(Got, {
 		apply: function (target, thisArg, args) {
-			if (args.length === 1 && typeof args[0] === "string") {
+			if (typeof args[0] === "string") {
 				const instance = sb.Got.get(args[0]);
 				if (instance) {
 					return instance(...args.slice(1));
