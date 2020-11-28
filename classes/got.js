@@ -4,6 +4,7 @@ module.exports = (function () {
 
 	class Got extends require("./template.js") {
 		static async initialize () {
+			Got.data = [];
 			Got.instances = {};
 			return super.initialize();
 		}
@@ -24,10 +25,6 @@ module.exports = (function () {
 					options = eval(row.Options)();
 				}
 
-				const instance = GotModule.extend(options);
-				instance.ID = row.ID;
-				instance.Parent = null;
-
 				// Sets up theoretically infinite parent levels
 				if (row.Parent) {
 					const path = [];
@@ -46,24 +43,43 @@ module.exports = (function () {
 						parent = Object.values(parent).find(i => i?.ID === hop);
 					}
 
-					parent[row.Name] = instance;
+					const instance = parent.extend(options);
+					instance.ID = row.ID;
 					instance.Parent = parent;
+
+					parent[row.Name] = instance;
+					Got.data.push(instance);
 				}
 				else {
+					const instance = GotModule.extend(options);
 					Got.instances[row.Name] = instance;
+					Got.data.push(instance);
 				}
 			}
 		}
 
 		static async reloadData () {
+			Got.data = [];
 			Got.instances = {};
 			await Got.loadData();
 		}
 
 		static get (identifier) {
-			throw new sb.Error({
-				message: "Not yet implemented"
-			});
+			if (identifier instanceof Got) {
+				return identifier;
+			}
+			else if (typeof identifier === "number") {
+				return Got.data.find(i => i.ID === identifier) ?? null;
+			}
+			else if (typeof identifier === "string") {
+				return Got.data.find(i => i.Name === identifier) ?? null;
+			}
+			else {
+				throw new sb.Error({
+					message: "Invalid user identifier type",
+					args: { id: identifier, type: typeof identifier }
+				});
+			}
 		}
 
 		static get specificName () { return "Got"; }
