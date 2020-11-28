@@ -11,11 +11,12 @@ module.exports = (function () {
 				.orderBy("Parent ASC")
 			);
 
-			let index = 0;
+			let count = 0;
 			while (data.length > 0) {
+				const index = count % data.length;
 				const row = data[index % data.length];
 				if (row.Parent && !Got.data.find(i => i.ID === row.Parent)) {
-					index++;
+					count++;
 					continue;
 				}
 
@@ -38,7 +39,7 @@ module.exports = (function () {
 				}
 
 				data.splice(index, 1);
-				index++;
+				count++;
 			}
 		}
 
