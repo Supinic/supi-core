@@ -64,26 +64,26 @@ module.exports = (function () {
 		}
 
 		static get instances () {
-			console.warn("Got.instances access deprecated");
+			console.warn("deprecated Got.instances access");
 
 			const path = [];
-			const accessProxy = new Proxy({}, {
+			const fn = (...args) => {
+				sb.Got.get(path[path.length - 1]);
+				if (!instance) {
+					throw new sb.Error({
+						message: "Got instance does not exist",
+						args: { path }
+					});
+				}
+
+				return instance(...args);
+			};
+
+			const accessProxy = new Proxy(fn, {
 				get: function (target, property) {
 					path.push(property);
 					return accessProxy;
-				},
-
-				apply: function (target, thisArg, args) {
-					const instance = sb.Got.get(path[path.length - 1]);
-					if (!instance) {
-						throw new sb.Error({
-							message: "Got instance does not exist",
-							args: { path }
-						});
-					}
-
-					return instance(...args);
-				},
+				}
 			});
 
 			return accessProxy;
