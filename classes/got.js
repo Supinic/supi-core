@@ -4,6 +4,7 @@ module.exports = (function () {
 
 	class Got extends require("./template.js") {
 		static async loadData () {
+			Got.data = [];
 			const data = await sb.Query.getRecordset(rs => rs
 				.select("*")
 				.from("data", "Got_Instance")
