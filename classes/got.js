@@ -1,6 +1,7 @@
 module.exports = (function () {
 	const FormData = require("form-data");
 	const GotModule = require("got");
+	const SymbolID = Symbol("ID");
 
 	class Got extends require("./template.js") {
 		static async loadData () {
@@ -15,7 +16,7 @@ module.exports = (function () {
 			while (data.length > 0) {
 				const index = count % data.length;
 				const row = data[index % data.length];
-				if (row.Parent && !Got.data.find(i => i.ID === row.Parent)) {
+				if (row.Parent && !Got.data.find(i => i[SymbolID] === row.Parent)) {
 					count++;
 					continue;
 				}
@@ -28,16 +29,17 @@ module.exports = (function () {
 					options = eval(row.Options)();
 				}
 
+				let instance;
 				if (row.Parent) {
-					const parent = Got.data.find(i => i.ID === row.Parent);
-					const instance = parent.extend(options);
-					Got.data.push(instance);
+					const parent = Got.data.find(i => i[SymbolID] === row.Parent);
+					instance = parent.extend(options);
 				}
 				else {
-					const instance = GotModule.extend(options);
-					Got.data.push(instance);
+					instance = GotModule.extend(options);
 				}
 
+				instance[SymbolID] = row.ID;
+				Got.data.push(instance);
 				data.splice(index, 1);
 				count++;
 			}
@@ -48,7 +50,7 @@ module.exports = (function () {
 				return identifier;
 			}
 			else if (typeof identifier === "number") {
-				return Got.data.find(i => i.ID === identifier) ?? null;
+				return Got.data.find(i => i[SymbolID] === identifier) ?? null;
 			}
 			else if (typeof identifier === "string") {
 				return Got.data.find(i => i.Name === identifier) ?? null;
