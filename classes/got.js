@@ -56,7 +56,7 @@ module.exports = (function () {
 				return Got.data.find(i => i[SymbolID] === identifier) ?? null;
 			}
 			else if (typeof identifier === "string") {
-				return Got.data.find(i => i.Name === identifier) ?? null;
+				return Got.data.find(i => i[SymbolName] === identifier) ?? null;
 			}
 			else {
 				throw new sb.Error({
