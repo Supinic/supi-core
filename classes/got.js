@@ -3,9 +3,11 @@ module.exports = (function () {
 	const GotModule = require("got");
 
 	class Got extends require("./template.js") {
+		static #instances = {};
+		
 		static async initialize () {
 			Got.data = [];
-			Got.instances = {};
+			Got.#instances = {};
 			return super.initialize();
 		}
 
@@ -38,7 +40,7 @@ module.exports = (function () {
 						currentID = current?.Parent ?? null;
 					}
 
-					let parent = Got.instances;
+					let parent = Got.#instances;
 					for (const hop of path.reverse()) {
 						parent = Object.values(parent).find(i => i?.ID === hop);
 					}
@@ -52,7 +54,7 @@ module.exports = (function () {
 				}
 				else {
 					const instance = GotModule.extend(options);
-					Got.instances[row.Name] = instance;
+					Got.#instances[row.Name] = instance;
 					Got.data.push(instance);
 				}
 			}
@@ -60,7 +62,7 @@ module.exports = (function () {
 
 		static async reloadData () {
 			Got.data = [];
-			Got.instances = {};
+			Got.#instances = {};
 			await Got.loadData();
 		}
 
@@ -82,6 +84,11 @@ module.exports = (function () {
 			}
 		}
 
+		static get instances () {
+			console.warn("got.instances - deprecated access");
+			return Got.#instances;
+		}
+
 		static get specificName () { return "Got"; }
 
 		static get FormData () { return FormData; }
@@ -89,6 +96,13 @@ module.exports = (function () {
 
 	return new Proxy(Got, {
 		apply: function (target, thisArg, args) {
+			if (args.length === 1 && typeof args[0] === "string") {
+				const instance = sb.Got.get(args[0]);
+				if (instance) {
+					return instance(...args.slice(1));
+				}
+			}
+
 			return GotModule(...args);
 		},
 
