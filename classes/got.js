@@ -13,7 +13,7 @@ module.exports = (function () {
 
 			let index = 0;
 			while (data.length > 0) {
-				const row = data[index++ % data.length];
+				const row = data[index % data.length];
 				if (row.Parent && !Got.data.find(i => i.ID === row.Parent)) {
 					index++;
 					continue;
