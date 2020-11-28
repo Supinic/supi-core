@@ -3,14 +3,6 @@ module.exports = (function () {
 	const GotModule = require("got");
 
 	class Got extends require("./template.js") {
-		static #instances = {};
-		
-		static async initialize () {
-			Got.data = [];
-			Got.#instances = {};
-			return super.initialize();
-		}
-
 		static async loadData () {
 			const data = await sb.Query.getRecordset(rs => rs
 				.select("*")
@@ -18,7 +10,14 @@ module.exports = (function () {
 				.orderBy("Parent ASC")
 			);
 
-			for (const row of data) {
+			let index = 0;
+			while (data.length > 0) {
+				const row = data[index++ % data.length];
+				if (row.Parent && !Got.data.find(i => i.ID === row.Parent)) {
+					index++;
+					continue;
+				}
+
 				let options = {};
 				if (row.Options_Type === "JSON") {
 					options = JSON.parse(row.Options);
@@ -27,43 +26,19 @@ module.exports = (function () {
 					options = eval(row.Options)();
 				}
 
-				// Sets up theoretically infinite parent levels
 				if (row.Parent) {
-					const path = [];
-					let currentID = row.Parent;
-					while (currentID) {
-						const current = data.find(i => i.ID === currentID);
-						if (current) {
-							path.push(current.ID);
-						}
-
-						currentID = current?.Parent ?? null;
-					}
-
-					let parent = Got.#instances;
-					for (const hop of path.reverse()) {
-						parent = Object.values(parent).find(i => i?.ID === hop);
-					}
-
+					const parent = Got.data.find(i => i.ID === row.Parent);
 					const instance = parent.extend(options);
-					instance.ID = row.ID;
-					instance.Parent = parent;
-
-					parent[row.Name] = instance;
 					Got.data.push(instance);
 				}
 				else {
 					const instance = GotModule.extend(options);
-					Got.#instances[row.Name] = instance;
 					Got.data.push(instance);
 				}
-			}
-		}
 
-		static async reloadData () {
-			Got.data = [];
-			Got.#instances = {};
-			await Got.loadData();
+				data.splice(index, 1);
+				index++;
+			}
 		}
 
 		static get (identifier) {
@@ -85,8 +60,29 @@ module.exports = (function () {
 		}
 
 		static get instances () {
-			console.warn("got.instances - deprecated access");
-			return Got.#instances;
+			console.warn("Got.instances access deprecated");
+
+			const path = [];
+			const accessProxy = new Proxy({}, {
+				get: function (target, property) {
+					path.push(property);
+					return accessProxy;
+				},
+
+				apply: function (target, thisArg, args) {
+					const instance = sb.Got.get(path[path.length - 1]);
+					if (!instance) {
+						throw new sb.Error({
+							message: "Got instance does not exist",
+							args: { path }
+						});
+					}
+
+					return instance(...args);
+				},
+			});
+
+			return accessProxy;
 		}
 
 		static get specificName () { return "Got"; }
