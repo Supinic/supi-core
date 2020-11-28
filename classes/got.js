@@ -2,6 +2,7 @@ module.exports = (function () {
 	const FormData = require("form-data");
 	const GotModule = require("got");
 	const SymbolID = Symbol("ID");
+	const SymbolName = Symbol("Name");
 
 	class Got extends require("./template.js") {
 		static async loadData () {
@@ -39,6 +40,8 @@ module.exports = (function () {
 				}
 
 				instance[SymbolID] = row.ID;
+				instance[SymbolName] = row.Name;
+
 				Got.data.push(instance);
 				data.splice(index, 1);
 				count++;
@@ -68,7 +71,7 @@ module.exports = (function () {
 
 			const path = [];
 			const fn = (...args) => {
-				sb.Got.get(path[path.length - 1]);
+				const instance = sb.Got.get(path[path.length - 1]);
 				if (!instance) {
 					throw new sb.Error({
 						message: "Got instance does not exist",
