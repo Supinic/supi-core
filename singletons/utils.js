@@ -837,7 +837,7 @@ module.exports = (function () {
 				return userData.Twitch_ID;
 			}
 			else {
-				const channelInfo = await sb.Got.instances.Twitch.Helix({
+				const channelInfo = await sb.Got("Helix", {
 					url: "users",
 					throwHttpErrors: false,
 					searchParams: new sb.URLParams()
