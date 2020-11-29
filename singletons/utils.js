@@ -831,6 +831,8 @@ module.exports = (function () {
 		 * @returns {Promise<null|number>}
 		 */
 		async getTwitchID (user) {
+			console.warn("deprecated: Utils.getTwitchID");
+
 			let userData = await sb.User.get(user, true);
 
 			if (userData && userData.Twitch_ID) {
