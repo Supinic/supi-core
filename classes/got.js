@@ -1,7 +1,6 @@
 module.exports = (function () {
 	const FormData = require("form-data");
 	const GotModule = require("got");
-	const SymbolID = Symbol("ID");
 	const SymbolName = Symbol("Name");
 
 	class Got extends require("./template.js") {
@@ -17,7 +16,7 @@ module.exports = (function () {
 			while (data.length > 0) {
 				const index = count % data.length;
 				const row = data[index % data.length];
-				if (row.Parent && !Got.data.find(i => i[SymbolID] === row.Parent)) {
+				if (row.Parent && !Got.data.find(i => i[SymbolName] === row.Parent)) {
 					count++;
 					continue;
 				}
@@ -32,14 +31,13 @@ module.exports = (function () {
 
 				let instance;
 				if (row.Parent) {
-					const parent = Got.data.find(i => i[SymbolID] === row.Parent);
+					const parent = Got.data.find(i => i[SymbolName] === row.Parent);
 					instance = parent.extend(options);
 				}
 				else {
 					instance = GotModule.extend(options);
 				}
 
-				instance[SymbolID] = row.ID;
 				instance[SymbolName] = row.Name;
 
 				Got.data.push(instance);
@@ -51,9 +49,6 @@ module.exports = (function () {
 		static get (identifier) {
 			if (identifier instanceof Got) {
 				return identifier;
-			}
-			else if (typeof identifier === "number") {
-				return Got.data.find(i => i[SymbolID] === identifier) ?? null;
 			}
 			else if (typeof identifier === "string") {
 				return Got.data.find(i => i[SymbolName] === identifier) ?? null;
