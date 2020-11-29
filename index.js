@@ -21,10 +21,11 @@ module.exports = (async function (namespace = "sb", options = {}) {
 		"singletons/internal-request",
 		"singletons/local-request",
 		"singletons/runtime",
+
+		"classes/got",
 		"singletons/pastebin",
 
 		"classes/platform",
-		"classes/got",
 		"classes/filter",
 		"classes/command",
 		"classes/channel",
