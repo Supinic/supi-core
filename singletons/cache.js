@@ -182,7 +182,7 @@ module.exports = (function () {
 
 			const searchKey = prefixKey.join(GROUP_DELIMITER);
 			const scan = await this.#server.scan("0", "MATCH", searchKey, "COUNT", options.count ?? "5000");
-			const results = [scan[1]];
+			const results = [...scan[1]];
 
 			let i = scan[0];
 			while (i !== "0") {
