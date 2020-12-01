@@ -167,33 +167,36 @@ module.exports = (function () {
 			return await this.get(key);
 		}
 
-		async getCursorByPrefix (prefix, options = {}) {
-			const result = await this.#server.scan("0", "MATCH", `${prefix}${GROUP_DELIMITER}*`);
-			const data = result[1];
-
-			const values = await Promise.all(data.map(i => this.#server.get(i)));
-			const list = [];
-
-			let i = 0;
-			for (const item of data) {
-				const itemObject = {
-					prefix,
-					fullKey: item,
-					value: JSON.parse(values[i]),
-					keys: {}
-				};
-
-				const rest = item.split(GROUP_DELIMITER).slice(1);
-				for (const key of rest) {
-					const [name, value] = key.split(ITEM_DELIMITER);
-					itemObject.keys[name] = value;
+		async getKeysByPrefix (prefix, options) {
+			const extraKeys = options.keys ?? {};
+			for (const [key, value] of Object.entries(extraKeys)) {
+				if (value === null || value === undefined) {
+					extraKeys[key] = "";
 				}
-
-				i++;
-				list.push(itemObject);
 			}
 
-			return list;
+			const prefixKey = Cache.resolvePrefix(prefix, extraKeys);
+			const searchKey = prefixKey.split(GROUP_DELIMITER).join("*");
+
+			const scan = await this.#server.scan("0", "MATCH", searchKey, "COUNT", options.count ?? "5000");
+			const results = [scan[1]];
+
+			let i = scan[0];
+			while (i !== "0") {
+				const result = await this.#server.scan(i, "MATCH", searchKey, "COUNT", options.count ?? "5000");
+
+				i = result[0];
+				results.push(result[1]);
+			}
+
+			return results;
+		}
+
+		async getKeyValuesByPrefix (prefix, options) {
+			const keys = await this.getKeysByPrefix(prefix, options);
+			const promises = keys.map(async i => await this.get(i));
+
+			return await Promise.all(promises);
 		}
 
 		/**
