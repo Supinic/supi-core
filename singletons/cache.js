@@ -161,7 +161,7 @@ module.exports = (function () {
 		}
 
 		async getByPrefix (prefix, options = {}) {
-			const extraKeys = options.keys ?? [];
+			const extraKeys = options.keys ?? {};
 			const key = Cache.resolvePrefix(prefix, extraKeys);
 
 			return await this.get(key);
