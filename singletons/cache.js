@@ -167,8 +167,8 @@ module.exports = (function () {
 			return await this.get(key);
 		}
 
-		async getKeysByPrefix (prefix, options) {
-			const prefixKey = [prefix, GROUP_DELIMITER]
+		async getKeysByPrefix (prefix, options = {}) {
+			const prefixKey = [prefix];
 			const extraKeys = options.keys ?? {};
 
 			for (const [key, value] of Object.entries(extraKeys)) {
