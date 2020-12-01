@@ -3,8 +3,8 @@ module.exports = (function () {
 
 	const Redis = require("ioredis");
 
-	const GROUP_DELIMITER = "\b";
-	const ITEM_DELIMITER = "\u{E0000}";
+	const GROUP_DELIMITER = "\a";
+	const ITEM_DELIMITER = "\b";
 
 	return class Cache extends require("./template.js") {
 		/** @type {Redis} */
@@ -168,16 +168,19 @@ module.exports = (function () {
 		}
 
 		async getKeysByPrefix (prefix, options) {
+			const prefixKey = [prefix, GROUP_DELIMITER]
 			const extraKeys = options.keys ?? {};
+
 			for (const [key, value] of Object.entries(extraKeys)) {
 				if (value === null || value === undefined) {
-					extraKeys[key] = "";
+					prefixKey.push(key, ITEM_DELIMITER, "*");
+				}
+				else {
+					prefixKey.push(key, ITEM_DELIMITER, String(value));
 				}
 			}
 
-			const prefixKey = Cache.resolvePrefix(prefix, extraKeys);
-			const searchKey = prefixKey.split(GROUP_DELIMITER).join("*");
-
+			const searchKey = prefixKey.join(GROUP_DELIMITER);
 			const scan = await this.#server.scan("0", "MATCH", searchKey, "COUNT", options.count ?? "5000");
 			const results = [scan[1]];
 
@@ -186,7 +189,7 @@ module.exports = (function () {
 				const result = await this.#server.scan(i, "MATCH", searchKey, "COUNT", options.count ?? "5000");
 
 				i = result[0];
-				results.push(result[1]);
+				results.push(...result[1]);
 			}
 
 			return results;
