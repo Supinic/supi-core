@@ -1,10 +1,10 @@
 module.exports = class Runtime extends require("./template.js") {
-	data = {};
-
-	#scriptHotloads = 0;
-	#commandsUsed = 0;
-	#rejectedCommands = 0;
-	#banphraseTimeouts = {};
+	#cachePrefix = "runtime";
+	#resetPending = {
+		commands: true,
+		rejectedCommands: true,
+		banphraseTimeouts: true
+	};
 
 	static singleton () {
 		if (!Runtime.module) {
@@ -15,48 +15,93 @@ module.exports = class Runtime extends require("./template.js") {
 
 	/**
 	 * Increments the used command counter by 1.
-	 * Yes, that's all it does, what did you expect?
 	 */
-	incrementCommandsCounter () {
-		this.#commandsUsed++;
+	async incrementCommandsCounter () {
+		if (this.#resetPending.commands) {
+			this.#resetPending.commands = false;
+
+			await sb.Cache.setByPrefix(this.#cachePrefix, 1, {
+				keys: { type: "commands" }
+			});
+		}
+		else {
+			const currentValue = await this.commands;
+			await sb.Cache.setByPrefix(this.#cachePrefix, currentValue + 1, {
+				keys: { type: "commands" }
+			});
+		}
 	}
 
 	/*
 	 * Increments the rejected command counter by 1.
-	 * Yes, that's all it does, this class is very simple, should have figured that out already.
 	 */
-	incrementRejectedCommands () {
-		this.#rejectedCommands++;
+	async incrementRejectedCommands () {
+		if (this.#resetPending.rejectedCommands) {
+			this.#resetPending.rejectedCommands = false;
+
+			await sb.Cache.setByPrefix(this.#cachePrefix, 1, {
+				keys: { type: "rejected-commands" }
+			});
+		}
+		else {
+			const currentValue = await this.rejectedCommands;
+			await sb.Cache.setByPrefix(this.#cachePrefix, currentValue + 1, {
+				keys: { type: "rejected-commands" }
+			});
+		}
 	}
 
 	/**
 	 * Increments the banphrase timeout counter by 1.
-	 * You get the point.
+	 * @param {string|number} channel
 	 */
-	incrementBanphraseTimeouts (channel) {
-		if (!this.#banphraseTimeouts[channel]) {
-			this.#banphraseTimeouts[channel] = 0;
+	async incrementBanphraseTimeouts (channel) {
+		let currentValue;
+		if (this.#resetPending.banphraseTimeouts) {
+			this.#resetPending.banphraseTimeouts = false;
+
+			await sb.Cache.setByPrefix(this.#cachePrefix, {}, {
+				keys: { type: "banphrase-timeouts" }
+			});
+
+			currentValue = {};
 		}
 
-		this.#banphraseTimeouts[channel]++;
+		if (!currentValue) {
+			currentValue = await this.banphraseTimeouts;
+		}
+
+		if (!currentValue[channel]) {
+			currentValue[chhanel] = 1;
+		}
+		else {
+			currentValue[channel]++;
+		}
+
+		await sb.Cache.setByPrefix(this.#cachePrefix, currentValue, {
+			keys: { type: "banphrase-timeouts" }
+		});
 	}
 
-	/**
-	 * Increments the script hot-load counter by 1.
-	 * Yes that's it.
-	 */
-	incrementScriptHotloaded () {
-		this.#scriptHotloads++;
+	destroy () {}
+
+	get commands () {
+		return sb.Cache.getByPrefix(this.#cachePrefix, {
+			keys: { type: "commands" }
+		});
 	}
 
-	destroy () {
-		this.data = null;
+	get rejectedCommands () {
+		return sb.Cache.getByPrefix(this.#cachePrefix, {
+			keys: { type: "rejected-commands" }
+		});
 	}
 
-	get commandsUsed () { return this.#commandsUsed; }
-	get rejectedCommands () { return this.#rejectedCommands; }
-	get banphraseTimeouts () { return this.#banphraseTimeouts; }
-	get scriptHotloads () { return this.#scriptHotloads; }
+	get banphraseTimeouts () {
+		return sb.Cache.getByPrefix(this.#cachePrefix, {
+			keys: { type: "banphrase-timeouts" }
+		});
+	}
 
 	get modulePath () { return "runtime"; }
 };
