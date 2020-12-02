@@ -72,7 +72,7 @@ module.exports = class Runtime extends require("./template.js") {
 		}
 
 		if (!currentValue[channel]) {
-			currentValue[chhanel] = 1;
+			currentValue[channel] = 1;
 		}
 		else {
 			currentValue[channel]++;
