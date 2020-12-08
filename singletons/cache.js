@@ -96,6 +96,11 @@ module.exports = (function () {
 					message: "Cannot combine expiry and expireAt parameters"
 				});
 			}
+			else if ((data.expiry || data.expiresAt) && data.keepTTL) {
+				throw new sb.Error({
+					message: "Cannot combine expiry/expiresAt params with keepTTL"
+				});
+			}
 
 			if (data.expiry) {
 				if (!sb.Utils.isValidInteger(data.expiry)) {
@@ -127,6 +132,10 @@ module.exports = (function () {
 				}
 
 				args.push("PX", (data.expiresAt - now));
+			}
+			
+			if (data.keepTTL) {
+				args.push("KEEPTTL");
 			}
 
 			// Possible extension for NX/XX can go here
