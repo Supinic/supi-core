@@ -91,15 +91,42 @@ module.exports = (function () {
 				args[0] += "-" + data.specificKey;
 			}
 
+			if (data.expiry && data.timedExpiry) {
+				throw new sb.Error({
+					message: "Cannot combine expiry and expireAt parameters"
+				});
+			}
+
 			if (data.expiry) {
 				if (!sb.Utils.isValidInteger(data.expiry)) {
 					throw new sb.Error({
-						message: "If provided, data.expiry must be a valid positive integer"
+						message: "If provided, expiry must be a valid positive integer",
+						args: { data }
 					});
 				}
 
 				args.push("PX", data.expiry);
 			}
+
+			if (data.timedExpiry) {
+				if (!sb.Utils.isValidInteger(data.timedExpiry)) {
+					throw new sb.Error({
+						message: "If provided, expireAt must be a valid positive integer",
+						args: { data }
+					});
+				}
+
+				const now = sb.Date.now();
+				if (now > expireAt) {
+					throw new sb.Error({
+						message: "expireAt must not be in the past",
+						args: { now, data }
+					});
+				}
+
+				args.push("PX", (data.timedExpiry - now));
+			}
+
 			// Possible extension for NX/XX can go here
 
 			return await this.#server.set(...args);
