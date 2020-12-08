@@ -109,6 +109,8 @@ module.exports = (function () {
 			}
 
 			if (data.expiresAt) {
+				data.expiresAt = data.expiresAt.valueOf();
+
 				if (!sb.Utils.isValidInteger(data.expiresAt)) {
 					throw new sb.Error({
 						message: "If provided, expiresAt must be a valid positive integer",
@@ -117,7 +119,7 @@ module.exports = (function () {
 				}
 
 				const now = sb.Date.now();
-				if (now > expireAt) {
+				if (now > data.expiresAt) {
 					throw new sb.Error({
 						message: "expiresAt must not be in the past",
 						args: { now, data }
