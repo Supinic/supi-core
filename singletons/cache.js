@@ -91,7 +91,7 @@ module.exports = (function () {
 				args[0] += "-" + data.specificKey;
 			}
 
-			if (data.expiry && data.timedExpiry) {
+			if (data.expiry && data.expiresAt) {
 				throw new sb.Error({
 					message: "Cannot combine expiry and expireAt parameters"
 				});
@@ -108,10 +108,10 @@ module.exports = (function () {
 				args.push("PX", data.expiry);
 			}
 
-			if (data.timedExpiry) {
-				if (!sb.Utils.isValidInteger(data.timedExpiry)) {
+			if (data.expiresAt) {
+				if (!sb.Utils.isValidInteger(data.expiresAt)) {
 					throw new sb.Error({
-						message: "If provided, expireAt must be a valid positive integer",
+						message: "If provided, expiresAt must be a valid positive integer",
 						args: { data }
 					});
 				}
@@ -119,12 +119,12 @@ module.exports = (function () {
 				const now = sb.Date.now();
 				if (now > expireAt) {
 					throw new sb.Error({
-						message: "expireAt must not be in the past",
+						message: "expiresAt must not be in the past",
 						args: { now, data }
 					});
 				}
 
-				args.push("PX", (data.timedExpiry - now));
+				args.push("PX", (data.expiresAt - now));
 			}
 
 			// Possible extension for NX/XX can go here
