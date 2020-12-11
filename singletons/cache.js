@@ -155,6 +155,8 @@ module.exports = (function () {
 				else {
 					args.push("KEEPTTL");
 				}
+
+				args.push("XX"); // never set a KEEPTTL key if it doesn't already exist
 			}
 
 			// Possible extension for NX/XX can go here
