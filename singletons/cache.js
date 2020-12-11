@@ -333,6 +333,8 @@ module.exports = (function () {
 
 		get active () { return this.#active; }
 
+		get version () { return this.#version; }
+
 		get server () { return this.#server; }
 
 		get modulePath () { return "cache"; }
