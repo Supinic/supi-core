@@ -10,6 +10,7 @@ module.exports = (function () {
 		/** @type {Redis} */
 		#server = null;
 		#active = false;
+		#version = null;
 
 		static singleton () {
 			if (!Cache.module) {
@@ -52,6 +53,16 @@ module.exports = (function () {
 
 			this.#server = new Redis(configuration);
 			this.#active = true;
+
+			this.#server.info().then(data => {
+				const versionData = data.split("\n").find(i => i.startsWith("redis_version"));
+				if (versionData) {
+					this.#version = versionData.split(":")[1].split(".").map(Number);
+				}
+				else {
+					console.warn("Could not find Redis version!", { info: data });
+				}
+			});
 		}
 
 		disconnect () {
