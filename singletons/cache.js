@@ -146,7 +146,15 @@ module.exports = (function () {
 			}
 			
 			if (data.keepTTL) {
-				args.push("KEEPTTL");
+				if (!this.#version || this.#version[0] < 6) {
+					const existingTTL = await this.#server.pttl(data[0]);
+					if (existingTTL >= 0) {
+						args.push("PX", existingTTL);
+					}
+				}
+				else {
+					args.push("KEEPTTL");
+				}
 			}
 
 			// Possible extension for NX/XX can go here
