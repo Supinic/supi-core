@@ -147,7 +147,7 @@ module.exports = (function () {
 			
 			if (data.keepTTL) {
 				if (!this.#version || this.#version[0] < 6) {
-					const existingTTL = await this.#server.pttl(data[0]);
+					const existingTTL = await this.#server.pttl(args[0]);
 					if (existingTTL >= 0) {
 						args.push("PX", existingTTL);
 					}
@@ -311,7 +311,8 @@ module.exports = (function () {
 			}
 
 			const rest = [];
-			for (const [key, value] of keys) {
+			for (const [key, rawValue] of keys) {
+				const value = String(rawValue);
 				if (key.includes(GROUP_DELIMITER) || key.includes(ITEM_DELIMITER)) {
 					throw new sb.Error({
 						message: "Cache prefix keys cannot contain reserved characters",
