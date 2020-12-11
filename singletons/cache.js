@@ -3,8 +3,8 @@ module.exports = (function () {
 
 	const Redis = require("ioredis");
 
-	const GROUP_DELIMITER = "\a";
-	const ITEM_DELIMITER = "\b";
+	const GROUP_DELIMITER = String.fromCharCode(7);
+	const ITEM_DELIMITER =  String.fromCharCode(8);
 
 	return class Cache extends require("./template.js") {
 		/** @type {Redis} */
@@ -289,8 +289,25 @@ module.exports = (function () {
 				return mainKey;
 			}
 
-			const rest = keys.map(([key, value]) => `${key}${ITEM_DELIMITER}${value}`).sort();
-			return [mainKey, ...rest].join(GROUP_DELIMITER);
+			const rest = [];
+			for (const [key, value] of keys) {
+				if (key.includes(GROUP_DELIMITER) || key.includes(ITEM_DELIMITER)) {
+					throw new sb.Error({
+						message: "Cache prefix keys cannot contain reserved characters",
+						args: { key, value }
+					});
+				}
+				else if (value.includes(GROUP_DELIMITER) || value.includes(ITEM_DELIMITER)) {
+					throw new sb.Error({
+						message: "Cache prefix vaolues cannot contain reserved characters",
+						args: { key, value }
+					});
+				}
+
+				rest.push(`${key}${ITEM_DELIMITER}${value}`);
+			}
+
+			return [mainKey, ...rest.sort()].join(GROUP_DELIMITER);
 		}
 
 		get active () { return this.#active; }
