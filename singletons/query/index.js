@@ -170,6 +170,94 @@ module.exports = (function () {
 		}
 
 		/**
+		 * Creates a new Row instance.
+		 * @param {string} database Database of the table
+		 * @param {string} table Name of the table
+		 * @returns {Promise<Row>}
+		 */
+		async getRow (database, table) {
+			return await new Row(this, database, table);
+		}
+
+		/**
+		 * Returns a new Batch instance.
+		 * @param {string} database Database of the table
+		 * @param {string} table Name of the table
+		 * @param {string[]} columns Column names to insert into given table
+		 * @returns {Promise<Batch>}
+		 */
+		async getBatch (database, table, columns) {
+			return await new Batch(this, database, table, columns);
+		}
+
+		isRecordset (input) { return (input instanceof Recordset); }
+		isRecordDeleter (input) { return (input instanceof RecordDeleter); }
+		isRecordUpdater (input) { return (input instanceof RecordUpdater); }
+		isRow (input) { return (input instanceof Row); }
+		isBatch (input) { return (input instanceof Batch); }
+
+		/**
+		 * Fetches the definition of a specific table.
+		 * @param {string} database
+		 * @param {string} table
+		 * @returns {Promise<TableDefinition>}
+		 */
+		async getDefinition (database, table) {
+			const key = database + "." + table;
+			if (this.tableDefinitions[database] && this.tableDefinitions[database][table]) {
+				return this.tableDefinitions[database][table];
+			}
+			else if (this.#definitionPromises.has(key)) {
+				return this.#definitionPromises.get(key);
+			}
+
+			const promise = (async () => {
+				const path = this.escapeIdentifier(database) + "." + this.escapeIdentifier(table);
+				const escapedPath = "`" + this.escapeIdentifier(database) + "`.`" + this.escapeIdentifier(table) + "`";
+				this.tableDefinitions[database] = this.tableDefinitions[database] || {};
+				let obj = {
+					name: table, database: database, path: path, escapedPath: escapedPath, columns: []
+				};
+
+				const data = await this.raw("SELECT * FROM " + path + " WHERE 1 = 0");
+				for (const column of data.meta) {
+					obj.columns.push({
+						name: column.name(),
+						type: (Boolean(column.flags & Query.flagMask["SET"])) ? "SET" : column.type,
+						notNull: Boolean(column.flags & Query.flagMask["NOT_NULL"]),
+						primaryKey: Boolean(column.flags & Query.flagMask["PRIMARY_KEY"]),
+						unsigned: Boolean(column.flags & Query.flagMask["UNSIGNED"])
+					});
+				}
+
+				this.tableDefinitions[database][table] = obj;
+				this.#definitionPromises.delete(key);
+
+				return this.tableDefinitions[database][table];
+			})();
+
+			this.#definitionPromises.set(key, promise);
+			return promise;
+		}
+
+		/**
+		 * Returns a boolean determining if a given database (schema) - table combination exists.
+		 * @param {string} database
+		 * @param {string} table
+		 * @returns {Promise<boolean>}
+		 */
+		async isTablePresent (database, table) {
+			const exists = await this.getRecordset(rs => rs
+				.select("1")
+				.from("INFORMATION_SCHEMA", "TABLES")
+				.where("TABLE_SCHEMA = %s", database)
+				.where("TABLE_NAME = %s", table)
+			);
+
+			return (exists.length !== 0);
+		}
+
+		/**
 		 * Performs a configurable batched update.
 		 * Supports staggering, grouping statements into transactions, and more.
 		 * @param {Object[]} data List of rows to update
@@ -237,23 +325,6 @@ module.exports = (function () {
 		}
 
 		/**
-		 * Returns a boolean determining if a given database (schema) - table combination exists.
-		 * @param {string} database
-		 * @param {string} table
-		 * @returns {Promise<boolean>}
-		 */
-		async isTablePresent (database, table) {
-			const exists = await this.getRecordset(rs => rs
-				.select("1")
-				.from("INFORMATION_SCHEMA", "TABLES")
-				.where("TABLE_SCHEMA = %s", database)
-				.where("TABLE_NAME = %s", table)
-			);
-
-			return (exists.length !== 0);
-		}
-
-		/**
 		 * Creates a condition string, based on the same syntax Recordset uses
 		 * @param {Function} callback
 		 * @returns {string}
@@ -262,71 +333,6 @@ module.exports = (function () {
 			const rs = new Recordset(this);
 			callback(rs);
 			return rs.toCondition();
-		}
-
-		/**
-		 * Creates a new Row instance.
-		 * @param {string} database Database of the table
-		 * @param {string} table Name of the table
-		 * @returns {Promise<Row>}
-		 */
-		async getRow (database, table) {
-			return await new Row(this, database, table);
-		}
-
-		/**
-		 * Returns a new Batch instance.
-		 * @param {string} database Database of the table
-		 * @param {string} table Name of the table
-		 * @param {string[]} columns Column names to insert into given table
-		 * @returns {Promise<Batch>}
-		 */
-		async getBatch (database, table, columns) {
-			return await new Batch(this, database, table, columns);
-		}
-
-		/**
-		 * Fetches the definition of a specific table.
-		 * @param {string} database
-		 * @param {string} table
-		 * @returns {Promise<TableDefinition>}
-		 */
-		async getDefinition (database, table) {
-			const key = database + "." + table;
-			if (this.tableDefinitions[database] && this.tableDefinitions[database][table]) {
-				return this.tableDefinitions[database][table];
-			}
-			else if (this.#definitionPromises.has(key)) {
-				return this.#definitionPromises.get(key);
-			}
-
-			const promise = (async () => {
-				const path = this.escapeIdentifier(database) + "." + this.escapeIdentifier(table);
-				const escapedPath = "`" + this.escapeIdentifier(database) + "`.`" + this.escapeIdentifier(table) + "`";
-				this.tableDefinitions[database] = this.tableDefinitions[database] || {};
-				let obj = {
-					name: table, database: database, path: path, escapedPath: escapedPath, columns: []
-				};
-
-				const data = await this.raw("SELECT * FROM " + path + " WHERE 1 = 0");
-				for (const column of data.meta) {
-					obj.columns.push({
-						name: column.name(),
-						type: (Boolean(column.flags & Query.flagMask["SET"])) ? "SET" : column.type,
-						notNull: Boolean(column.flags & Query.flagMask["NOT_NULL"]),
-						primaryKey: Boolean(column.flags & Query.flagMask["PRIMARY_KEY"]),
-						unsigned: Boolean(column.flags & Query.flagMask["UNSIGNED"])
-					});
-				}
-
-				this.tableDefinitions[database][table] = obj;
-				this.#definitionPromises.delete(key);
-
-				return this.tableDefinitions[database][table];
-			})();
-
-			this.#definitionPromises.set(key, promise);
-			return promise;
 		}
 
 		/**
