@@ -231,6 +231,15 @@ module.exports = class Row {
 		return this;
 	}
 
+	/**
+	 * Determines if a property exists on the row instance.
+	 * @param {string} property
+	 * @returns {boolean}
+	 */
+	hasProperty (property) {
+		return (typeof this.#values[property] !== "undefined");
+	}
+
 	/** @type {Object} */
 	get valuesObject () { return Object.assign({}, this.#values); }
 	get originalValues () { return this.#originalValues; }
