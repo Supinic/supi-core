@@ -17,6 +17,10 @@ module.exports = class Runtime extends require("./template.js") {
 	 * Increments the used command counter by 1.
 	 */
 	async incrementCommandsCounter () {
+		if (!sb.Redis || !sb.Redis.active) {
+			return;
+		}
+
 		if (this.#resetPending.commands) {
 			this.#resetPending.commands = false;
 
@@ -36,6 +40,10 @@ module.exports = class Runtime extends require("./template.js") {
 	 * Increments the rejected command counter by 1.
 	 */
 	async incrementRejectedCommands () {
+		if (!sb.Redis || !sb.Redis.active) {
+			return;
+		}
+
 		if (this.#resetPending.rejectedCommands) {
 			this.#resetPending.rejectedCommands = false;
 
@@ -56,6 +64,10 @@ module.exports = class Runtime extends require("./template.js") {
 	 * @param {string|number} channel
 	 */
 	async incrementBanphraseTimeouts (channel) {
+		if (!sb.Redis || !sb.Redis.active) {
+			return;
+		}
+
 		let currentValue;
 		if (this.#resetPending.banphraseTimeouts) {
 			this.#resetPending.banphraseTimeouts = false;
@@ -86,18 +98,30 @@ module.exports = class Runtime extends require("./template.js") {
 	destroy () {}
 
 	get commands () {
+		if (!sb.Redis || !sb.Redis.active) {
+			return 0;
+		}
+
 		return sb.Cache.getByPrefix(this.#cachePrefix, {
 			keys: { type: "commands" }
 		});
 	}
 
 	get rejectedCommands () {
+		if (!sb.Redis || !sb.Redis.active) {
+			return 0;
+		}
+
 		return sb.Cache.getByPrefix(this.#cachePrefix, {
 			keys: { type: "rejected-commands" }
 		});
 	}
 
 	get banphraseTimeouts () {
+		if (!sb.Redis || !sb.Redis.active) {
+			return 0;
+		}
+
 		return sb.Cache.getByPrefix(this.#cachePrefix, {
 			keys: { type: "banphrase-timeouts" }
 		});
