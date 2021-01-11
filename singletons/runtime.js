@@ -17,7 +17,7 @@ module.exports = class Runtime extends require("./template.js") {
 	 * Increments the used command counter by 1.
 	 */
 	async incrementCommandsCounter () {
-		if (!sb.Redis || !sb.Redis.active) {
+		if (!sb.Cache || !sb.Cache.active) {
 			return;
 		}
 
@@ -40,7 +40,7 @@ module.exports = class Runtime extends require("./template.js") {
 	 * Increments the rejected command counter by 1.
 	 */
 	async incrementRejectedCommands () {
-		if (!sb.Redis || !sb.Redis.active) {
+		if (!sb.Cache || !sb.Cache.active) {
 			return;
 		}
 
@@ -64,7 +64,7 @@ module.exports = class Runtime extends require("./template.js") {
 	 * @param {string|number} channel
 	 */
 	async incrementBanphraseTimeouts (channel) {
-		if (!sb.Redis || !sb.Redis.active) {
+		if (!sb.Cache || !sb.Cache.active) {
 			return;
 		}
 
@@ -98,7 +98,7 @@ module.exports = class Runtime extends require("./template.js") {
 	destroy () {}
 
 	get commands () {
-		if (!sb.Redis || !sb.Redis.active) {
+		if (!sb.Cache || !sb.Cache.active) {
 			return 0;
 		}
 
@@ -108,7 +108,7 @@ module.exports = class Runtime extends require("./template.js") {
 	}
 
 	get rejectedCommands () {
-		if (!sb.Redis || !sb.Redis.active) {
+		if (!sb.Cache || !sb.Cache.active) {
 			return 0;
 		}
 
@@ -118,7 +118,7 @@ module.exports = class Runtime extends require("./template.js") {
 	}
 
 	get banphraseTimeouts () {
-		if (!sb.Redis || !sb.Redis.active) {
+		if (!sb.Cache || !sb.Cache.active) {
 			return 0;
 		}
 
