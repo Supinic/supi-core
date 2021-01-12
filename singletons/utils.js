@@ -1202,15 +1202,18 @@ module.exports = (function () {
 		}
 
 		/**
-		 * Evaluates an expression in standard dice notation form
-		 * 
+		 * Evaluates an expression in standard dice notation form		 *
 		 * @param {string} input
-		 * @param {number} limit max number of rolls in a single evaluation. Defaults to 10.
+		 * @param {number} limit max number of rolls in a single evaluation
 		 * @returns {number}
 		 * @throws {Error}
 		 */
-		evalDiceRoll(input, limit = 10) {
-			return diceRollEval(input, limit, (min, max) => sb.Utils.random(min, max));
+		evalDiceRoll(input, limit) {
+			return diceRollEval(input, {
+				limit,
+				strict: false,
+				rng: (min, max) => sb.Utils.random(min, max)
+			});
 		}
 
 		get modulePath () { return "utils"; }
