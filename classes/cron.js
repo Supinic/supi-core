@@ -3,6 +3,7 @@
  * @memberof sb
  * @type Cron
  */
+const { CronJob } = require("cron");
 module.exports = class Cron extends require("./template.js") {
 	//<editor-fold defaultstate="collapsed" desc="=== INSTANCE PROPERTIES ===">
 
@@ -62,7 +63,7 @@ module.exports = class Cron extends require("./template.js") {
 
 	// </editor-fold>
 
-	static Job = require("cron").CronJob;
+	static Job = CronJob;
 	static #serializableProperties = {
 		Name: { type: "string" },
 		Expression: { type: "string" },
