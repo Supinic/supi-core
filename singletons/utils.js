@@ -1,11 +1,7 @@
 module.exports = (function () {
 	"use strict";
 
-	const RandomJS = require("random-js");
 	const { parse: urlParser } = require("url");
-	const parseDuration = require("duration-parser");
-	const ffprobe = require("ffprobe");
-	const diceRollEval = require("dice-roll-eval");
 
 	const byteUnits = {
 		si: {
@@ -18,51 +14,62 @@ module.exports = (function () {
 		}
 	};
 
-	return class Utils extends require("./template.js") {
-		#modules = Object.seal({
-			chrono: null,
-			linkParser: null,
-			languageIsoCodes: null,
-			rss: null
-		});
+	const moduleMap = {
+		cheerio: () => require("cheerio"),
+		chrono: () => require("chrono-node"),
+		linkParser: () => {
+			const LinkParserFactory = require("track-link-parser");
+			return new LinkParserFactory({
+				youtube: {
+					key: sb.Config.get("API_GOOGLE_YOUTUBE")
+				},
+				bilibili: {
+					appKey: sb.Config.get("BILIBILI_APP_KEY"),
+					token: sb.Config.get("BILIBILI_PRIVATE_TOKEN"),
+					userAgentDescription: sb.Config.get("BILIBILI_USER_AGENT")
+				},
+				soundcloud: {
+					key: sb.Config.get("SOUNDCLOUD_CLIENT_ID")
+				}
+	         });
+		},
+		languageISO: () => require("language-iso-codes"),
+		rss: () => new (require("rss-parser"))(),
+		random: () => {
+			const RandomJS = require("random-js");
+			return new RandomJS.Random(RandomJS.MersenneTwister19937.autoSeed());
+		},
+		parseDuration: () => require("duration-parser"),
+		ffprobe: () => require("ffprobe"),
+		diceRollEval: () => require("dice-roll-eval"),
+		transliterate: () => require("transliteration").transliterate
+	};
 
-		get modules () { return this.#modules; }
-
-		get languageISO () {
-			if (!this.#modules.languageIsoCodes) {
-				this.#modules.languageIsoCodes = new require("language-iso-codes");
+	// this object has the same keys as moduleMap, but all values are `null`.
+	const modules = Object.seal(Object.fromEntries(Object.keys(moduleMap).map(i => [i, null])));
+	const moduleProxy = new Proxy(modules, {
+		get: function (target, property) {
+			if (!modules[property]) {
+				modules[property] = moduleMap[property]();
 			}
 
-			return this.#modules.languageIsoCodes;
+			return modules[property];
+		}
+	})
+
+	return class Utils extends require("./template.js") {
+		get modules () {
+			return moduleProxy;
+		}
+
+		get languageISO () {
+			console.warn("Deprecated access Utils.languageISO");
+			return this.modules.languageISO;
 		}
 
 		get linkParser () {
-			if (!this.#modules.linkParser) {
-				const LinkParserFactory = require("track-link-parser");
-				this.#modules.linkParser = new LinkParserFactory({
-					youtube: {
-						key: sb.Config.get("API_GOOGLE_YOUTUBE")
-					},
-					bilibili: {
-						appKey: sb.Config.get("BILIBILI_APP_KEY"),
-						token: sb.Config.get("BILIBILI_PRIVATE_TOKEN"),
-						userAgentDescription: sb.Config.get("BILIBILI_USER_AGENT")
-					},
-					soundcloud: {
-						key: sb.Config.get("SOUNDCLOUD_CLIENT_ID")
-					}
-				});
-			}
-
-			return this.#modules.linkParser;
-		}
-
-		get chrono () {
-			if (!this.#modules.chrono) {
-				this.#modules.chrono = require("chrono-node");
-			}
-
-			return this.#modules.chrono;
+			console.warn("Deprecated access Utils.linkParser");
+			return this.modules.linkParser;
 		}
 
 		/** @inheritDoc */
@@ -94,10 +101,6 @@ module.exports = (function () {
 		 */
 		constructor () {
 			super();
-
-			this.Cheerio = null;
-			this.Transliterate = null;
-			this.mersenneRandom = new RandomJS.Random(RandomJS.MersenneTwister19937.autoSeed());
 
 			this.htmlEntities = {
 				"nbsp": " ",
@@ -341,7 +344,7 @@ module.exports = (function () {
 		 * @returns {number}
 		 */
 		random (min, max) {
-			return this.mersenneRandom.integer(min, max);
+			return this.modules.random.integer(min, max);
 		}
 
 		/**
@@ -677,7 +680,7 @@ module.exports = (function () {
 		}
 
 		parseChrono (string, referenceDate = null, options = {}) {
-			const chronoData = this.chrono.parse(string, referenceDate, options);
+			const chronoData = this.modules.chrono.parse(string, referenceDate, options);
 			if (chronoData.length === 0) {
 				return null;
 			}
@@ -699,6 +702,8 @@ module.exports = (function () {
 		 * @returns {Promise<null|User>}
 		 */
 		async getDiscordUserDataFromMentions (stringUser, options) {
+			console.warn("Deprecated getDiscordUserDataFromMentions");
+
 			let result = null;
 
 			if (options && options.mentions) {
@@ -790,11 +795,7 @@ module.exports = (function () {
 		 * @returns {string}
 		 */
 		transliterate (...args) {
-			if (!this.Transliterate) {
-				this.Transliterate = require("transliteration").transliterate;
-			}
-
-			return this.Transliterate(...args);
+			return this.modules.transliterate(...args);
 		}
 
 		/**
@@ -831,8 +832,6 @@ module.exports = (function () {
 		 * @returns {Promise<null|number>}
 		 */
 		async getTwitchID (user) {
-			console.warn("deprecated: Utils.getTwitchID");
-
 			let userData = await sb.User.get(user, true);
 
 			if (userData && userData.Twitch_ID) {
@@ -873,11 +872,7 @@ module.exports = (function () {
 		 * @returns {Cheerio}
 		 */
 		cheerio (html) {
-			if (!this.Cheerio) {
-				this.Cheerio = require("cheerio");
-			}
-
-			return this.Cheerio.load(html);
+			return this.modules.cheerio.load(html);
 		}
 
 		formatByteSize (number, digits = 3, type = "si") {
@@ -1112,11 +1107,7 @@ module.exports = (function () {
 		}
 
 		parseRSS (url) {
-			if (!this.#modules.rss) {
-				this.#modules.rss = new (require("rss-parser"))();
-			}
-
-			return this.#modules.rss.parseURL(url);
+			return this.modules.rss.parseURL(url);
 		}
 
 		async getMediaFileData (link) {
@@ -1209,7 +1200,7 @@ module.exports = (function () {
 		 * @throws {Error}
 		 */
 		evalDiceRoll(input, limit) {
-			return diceRollEval(input, {
+			return this.modules.diceRollEval(input, {
 				limit,
 				strict: false,
 				rng: (min, max) => sb.Utils.random(min, max)
