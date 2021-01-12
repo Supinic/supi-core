@@ -63,12 +63,12 @@ module.exports = (function () {
 		}
 
 		get languageISO () {
-			console.warn("Deprecated access Utils.languageISO");
+			console.debug("Deprecated access Utils.languageISO");
 			return this.modules.languageISO;
 		}
 
 		get linkParser () {
-			console.warn("Deprecated access Utils.linkParser");
+			console.debug("Deprecated access Utils.linkParser");
 			return this.modules.linkParser;
 		}
 
