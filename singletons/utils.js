@@ -652,7 +652,7 @@ module.exports = (function () {
 		 * @returns {number|{time: number, ranges: Object[]}}
 		 */
 		parseDuration (string, unit) {
-			return parseDuration(string, unit);
+			return this.modules.parseDuration(string, unit);
 		}
 
 		/**
