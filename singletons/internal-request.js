@@ -105,7 +105,28 @@ module.exports = (function () {
 					}
 
 					default: throw new sb.Error({
-						message: "Unrecognized module", args: query.module
+						message: "Unsupported module for operation reload",
+						args: query.module
+					});
+				}
+			}
+			else if (query.type === "reload-specific") {
+				if (!query.specificID) {
+					throw new sb.Error({
+						message: "Specific ID must be provided for reload-specific",
+						args: query.module
+					});
+				}
+
+				const ID = Number(query.specificID);
+				switch (query.module) {
+					case "afk": await sb.AwayFromKeyboard.reloadSpecific(ID); break;
+
+					case "reminder": await sb.Reminder.reloadSpecific(ID); break;
+
+					default: throw new sb.Error({
+						message: "Unsupported module for operation reload-specific",
+						args: query.module
 					});
 				}
 			}
@@ -199,6 +220,7 @@ module.exports = (function () {
 				this.subscriptions.splice(index, 1);
 			}
 		}
+
 		get modulePath () { return "internal-request"; }
 
 		destroy () {
