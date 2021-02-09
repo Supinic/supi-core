@@ -1113,7 +1113,7 @@ module.exports = (function () {
 		async getMediaFileData (link) {
 			try {
 				const path = sb.Config.get("FFMPEG_PATH");
-				const { streams } = await ffprobe(link, { path });
+				const { streams } = await this.modules.ffprobe(link, { path });
 				return {
 					duration: Number(streams[0].duration),
 					bitrate: Number(streams[0].bit_rate)
