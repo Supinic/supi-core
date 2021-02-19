@@ -867,6 +867,20 @@ module.exports = (function () {
 		}
 
 		/**
+		 * Returns the URL's path. Returns null if it is empty.
+		 * @param {string} stringURL
+		 * @returns {null|string}
+		 */
+		getPathFromURL (stringURL) {
+			const url = urlParser(stringURL);
+			const path = (url.path ?? "").replace(/^\//, "");
+
+			return (path.length === 0)
+				? null
+				: path;
+		}
+
+		/**
 		 * Utils wrapper for the cheerio module.
 		 * @param {string} html
 		 * @returns {Cheerio}
