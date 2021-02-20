@@ -288,10 +288,20 @@ module.exports = (function () {
 		 * Rounds a number to given amount of decimal places.
 		 * @param {number} number
 		 * @param {number} [places]
+		 * @param {Object} options = {}
+		 * @param {"ceil"|"floor"|"round"|"trunc"} [options.direction]
 		 * @returns {number}
 		 */
-		round (number, places = 0) {
-			return (Math.round(number * (10 ** places))) / (10 ** places);
+		round (number, places = 0, options = {}) {
+			const direction = options.direction ?? "round";
+			if (!["ceil", "floor", "round", "trunc"].includes(direction)) {
+				throw new sb.Error({
+					message: "Invalid round direction provided",
+					args: arguments
+				});
+			}
+
+			return (Math[direction](number * (10 ** places))) / (10 ** places);
 		}
 
 		escapeHTML (string) {
