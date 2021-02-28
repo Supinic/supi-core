@@ -61,6 +61,34 @@ module.exports = (function () {
 			}
 		}
 
+		static gql (gqlOptions = {}) {
+			if (!gqlOptions.query) {
+				throw new sb.Error({
+					message: "Missing parameter query for GQL request",
+					args: { gqlOptions }
+				});
+			}
+
+			const options = {
+				method: "POST",
+				body: {
+					query: gqlOptions.query
+				}
+			};
+
+			delete gqlOptions.query;
+
+			if (gqlOptions.token) {
+				options.headers = (gqlOptions.headers) ? { ...gqlOptions.headers } : {};
+				options.headers.Authorization = `Bearer ${gqlOptions.token}`;
+
+				delete gqlOptions.headers;
+				delete gqlOptions.token;
+			}
+
+			return GotModule({ ...gqlOptions, ...options });
+		}
+
 		static get instances () {
 			console.warn("deprecated Got.instances access");
 
