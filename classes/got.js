@@ -71,7 +71,8 @@ module.exports = (function () {
 
 			const options = {
 				method: "POST",
-				body: {
+				responseType: "json",
+				json: {
 					query: gqlOptions.query
 				}
 			};
