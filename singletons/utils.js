@@ -1098,7 +1098,7 @@ module.exports = (function () {
 		 * @param {boolean} [options.ignoreCase] if true, all cases will be ignored
 		 * @param {boolean} [options.fullResult] if true, a full array of ClosestStringDescriptor-s will be returned. Mutually exclusive with descriptor
 		 * @param {boolean} [options.descriptor] if true, a ClosestStringDescriptor will be returned. Mutually exclusive with fullResult
-		 * @returns {string|ClosestStringDescriptor|ClosestStringDescriptor[]}
+		 * @returns {null|string|ClosestStringDescriptor|ClosestStringDescriptor[]} null if nothing found, otherwise result based on options
 		 */
 		selectClosestString (from, originalTargets, options = {}) {
 			const targets = originalTargets.slice(0);
@@ -1132,6 +1132,10 @@ module.exports = (function () {
 						score = scoreArray[i];
 						index = i;
 					}
+				}
+
+				if (!champion) {
+					return null;
 				}
 
 				if (options.descriptor) {
