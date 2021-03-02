@@ -1083,13 +1083,22 @@ module.exports = (function () {
 		}
 
 		/**
+		 * @typedef {Object} ClosestStringDescriptor
+		 * @property {string} string
+		 * @property {string} original
+		 * @property {number} index
+		 * @property {number} score
+		 * @property {boolean} includes
+		 */
+		/**
 		 * Returns the best fit for given string, based on Levenshtein distance.
 		 * @param {string} from
 		 * @param {string[]} originalTargets
 		 * @param {Object} [options]
 		 * @param {boolean} [options.ignoreCase] if true, all cases will be ignored
-		 * @param {boolean} [options.fullResult] if true, a full Object[] will be returned
-		 * @returns {string|Object[]}
+		 * @param {boolean} [options.fullResult] if true, a full array of ClosestStringDescriptor-s will be returned. Mutually exclusive with descriptor
+		 * @param {boolean} [options.descriptor] if true, a ClosestStringDescriptor will be returned. Mutually exclusive with fullResult
+		 * @returns {string|ClosestStringDescriptor|ClosestStringDescriptor[]}
 		 */
 		selectClosestString (from, originalTargets, options = {}) {
 			const targets = originalTargets.slice(0);
@@ -1103,9 +1112,10 @@ module.exports = (function () {
 			const scoreArray = targets.map((i, ind) => this.jaroWinklerSimilarity(from, targets[ind]));
 			if (options.fullResult) {
 				const result = scoreArray.map((i, ind) => ({
-					score: i,
 					string: targets[ind],
 					original: originalTargets[ind],
+					score: i,
+					index: ind,
 					includes: Boolean(targets[ind].includes(from))
 				}));
 
@@ -1114,14 +1124,28 @@ module.exports = (function () {
 			else {
 				let champion = null;
 				let score = -Infinity;
+				let index = -1;
+
 				for (let i = 0; i < scoreArray.length; i++) {
 					if (targets[i].includes(from) && score < scoreArray[i]) {
 						champion = originalTargets[i];
 						score = scoreArray[i];
+						index = i;
 					}
 				}
 
-				return champion;
+				if (options.descriptor) {
+					return {
+						string: targets[index],
+						original: originalTargets[index],
+						score,
+						includes: Boolean(targets[index].includes(from)),
+						index
+					};
+				}
+				else {
+					return champion;
+				}
 			}
 		}
 
