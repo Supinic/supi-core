@@ -21,6 +21,7 @@ module.exports = (async function (namespace = "sb", options = {}) {
 		"singletons/internal-request",
 		"singletons/local-request",
 		"singletons/runtime",
+		"singletons/sandbox",
 
 		"classes/got",
 		"singletons/pastebin",
