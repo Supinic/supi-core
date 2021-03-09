@@ -1279,7 +1279,7 @@ module.exports = (function () {
 
 			return {
 				statusCode,
-				link: body.data.link
+				link: body.data?.link ?? null
 			};
 		}
 
