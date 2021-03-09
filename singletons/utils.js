@@ -1315,7 +1315,7 @@ module.exports = (function () {
 					"Api-Key": sb.Config.get("API_DEEP_AI")
 				},
 				form: {
-					image: `https://i.imgur.com/${link}`
+					image: link
 				}
 			});
 
