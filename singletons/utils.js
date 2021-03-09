@@ -1300,7 +1300,7 @@ module.exports = (function () {
 			});
 
 			return {
-				statusCode,
+				statusCode: response.statusCode,
 				link: response.body ?? null
 			};
 		}
