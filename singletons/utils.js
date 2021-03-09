@@ -1259,6 +1259,76 @@ module.exports = (function () {
 			});
 		}
 
+		async uploadToImgur (fileData, link = "random") {
+			const formData = new sb.Got.FormData();
+			formData.append("image", fileData, link); // !!! FILE NAME MUST BE SET, OR THE API NEVER RESPONDS !!!
+
+			const { statusCode, body } = await sb.Got({
+				url: "https://api.imgur.com/3/image",
+				responseType: "json",
+				method: "POST",
+				throwHttpErrors: false,
+				headers: {
+					...formData.getHeaders(),
+					Authorization: "Client-ID c898c0bb848ca39"
+				},
+				body: formData.getBuffer(),
+				retry: 0,
+				timeout: 10000
+			});
+
+			return {
+				statusCode,
+				link: body.data.link
+			};
+		}
+
+		async uploadToNuuls (fileData) {
+			const form = new sb.Got.FormData();
+			form.append("attachment", fileData, "file.jpg");
+
+			const response = await sb.Got({
+				method: "POST",
+				throwHttpErrors: false,
+				url: "https://i.nuuls.com/upload",
+				headers: {
+					...form.getHeaders()
+				},
+				body: form.getBuffer(),
+				retry: 0,
+				timeout: 10000
+			});
+
+			return {
+				statusCode,
+				link: response.body
+			};
+		}
+
+		async checkPictureNSFW (link) {
+			const { statusCode, body: data } = await sb.Got({
+				method: "POST",
+				responseType: "json",
+				throwHttpErrors: false,
+				url: "https://api.deepai.org/api/nsfw-detector",
+				headers: {
+					"Api-Key": sb.Config.get("API_DEEP_AI")
+				},
+				form: {
+					image: `https://i.imgur.com/${link}`
+				}
+			});
+
+			return {
+				statusCode,
+				data: {
+					id: data.id ?? null,
+					score: data.output?.nsfw_score ?? null,
+					detections: data.output?.detections ?? null
+				}
+			};
+		}
+
 		get modulePath () { return "utils"; }
 
 		/** @inheritDoc */
