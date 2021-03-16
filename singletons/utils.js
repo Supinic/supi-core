@@ -375,10 +375,10 @@ module.exports = (function () {
 		 * @returns {string}
 		 */
 		formatTime (seconds = 0, videoStyle = false) {
-			seconds = Number(seconds);
-			let stuff = [];
-
+			const stuff = [];
 			if (videoStyle) {
+				seconds = Math.trunc(seconds);
+
 				if (seconds >= Utils.timeUnits.h.s) {
 					const hr = Math.floor(seconds / Utils.timeUnits.h.s);
 					stuff.push(hr);
