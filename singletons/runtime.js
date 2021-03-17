@@ -5,6 +5,7 @@ module.exports = class Runtime extends require("./template.js") {
 		rejectedCommands: true,
 		banphraseTimeouts: true
 	};
+	#started = new sb.Date();
 
 	static singleton () {
 		if (!Runtime.module) {
@@ -96,6 +97,8 @@ module.exports = class Runtime extends require("./template.js") {
 	}
 
 	destroy () {}
+
+	get started () { return this.#started; }
 
 	get commands () {
 		if (!sb.Cache || !sb.Cache.active) {
