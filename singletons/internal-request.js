@@ -80,7 +80,7 @@ module.exports = (function () {
 						track.values.Name + " by " + track.values.Author
 					].join(" ");
 
-					msg = await sb.Master.prepareMessage(msg, channelData);
+					msg = await channelData.prepareMessage(msg);
 					await channelData.send(msg);
 				}
 			}
