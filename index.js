@@ -34,8 +34,7 @@ module.exports = (async function (namespace = "sb", options = {}) {
 		"classes/user",
 		"classes/afk",
 		"classes/banphrase",
-		"classes/reminder",
-		"classes/markov-chain",
+		"classes/reminder"
 	];
 
 	const { blacklist, whitelist, skipData = [] } = options;
