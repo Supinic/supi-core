@@ -167,7 +167,11 @@ module.exports = (function () {
 				}
 
 				const joinCommand = sb.Command.get("joinchannel");
-				await joinCommand.execute({ params: {}, platform: platformData }, "#" + query.channel);
+				const context = sb.Command.createFakeContext(joinCommand, {
+					platform: platformData
+				});
+
+				await joinCommand.execute(context, "#" + query.channel);
 			}
 
 			res.end("OK");
