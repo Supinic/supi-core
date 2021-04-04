@@ -147,7 +147,7 @@ module.exports = class Row {
 			}
 
 			outputData = await this.query.raw([
-				"UPDATE " + this.escapedPath,
+				"UPDATE " + this.#definition.escapedPath,
 				"SET " + setColumns.join(", "),
 				"WHERE " + this.query.escapeIdentifier(this.fieldPK.name) + " = " + this.escapedPK
 			].join(" "));
@@ -164,7 +164,7 @@ module.exports = class Row {
 
 			const ignore = (options.ignore === true ? "IGNORE " : "");
 			outputData = await this.query.send([
-				"INSERT " + ignore + "INTO " + this.escapedPath,
+				"INSERT " + ignore + "INTO " + this.#definition.escapedPath,
 				"(" + columns.join(",") + ")",
 				"VALUES (" + values.join(",") + ")"
 			].join(" "));
@@ -192,7 +192,7 @@ module.exports = class Row {
 	async delete () {
 		if (this.PK !== null) {
 			await this.query.send([
-				"DELETE FROM " + this.escapedPath,
+				"DELETE FROM " + this.#definition.escapedPath,
 				"WHERE " + this.query.escapeIdentifier(this.fieldPK.name) + " = " + this.escapedPK
 			].join(" "));
 			this.#loaded = false;
