@@ -220,7 +220,7 @@ module.exports = (function () {
 					name: table, database: database, path: path, escapedPath: escapedPath, columns: []
 				};
 
-				const data = await this.raw("SELECT * FROM " + path + " WHERE 1 = 0");
+				const data = await this.raw("SELECT * FROM " + escapedPath + " WHERE 1 = 0");
 				for (const column of data.meta) {
 					obj.columns.push({
 						name: column.name(),
