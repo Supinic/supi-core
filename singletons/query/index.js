@@ -62,7 +62,7 @@ module.exports = (function () {
 				this.pool = Maria.createPool({
 					user: process.env.MARIA_USER,
 					host: process.env.MARIA_HOST,
-					port: process.env.MARIA_PORT ?? 3306,
+					port: process.env.MARIA_PORT || 3306,
 					password: process.env.MARIA_PASSWORD,
 					connectionLimit: process.env.MARIA_CONNECTION_LIMIT || 300,
 					multipleStatements: true,
