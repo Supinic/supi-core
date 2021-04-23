@@ -177,6 +177,13 @@ module.exports = class Config extends require("./template.js") {
 	static get (variable, strict = true) {
 		const target = Config.data.get(variable);
 		if (!target) {
+			// Attempt to fall back to process.env - this is only going to be predictable, if the only variables set
+			// to process.env are string. Since process.env cannot hold non-string values, the type will otherwise be lost.
+			const env = process.env[variable];
+			if (env) {
+				return env;
+			}
+
 			if (strict) {
 				throw new sb.Error({
 					message: "Configuration variable does not exist",
