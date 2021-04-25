@@ -163,7 +163,7 @@ module.exports = class Config extends require("./template.js") {
 	 * @returns {boolean}
 	 */
 	static has (variable, strict = true) {
-		const target = Config.get(variable);
+		const target = Config.get(variable, false);
 
 		return (strict)
 			? (target !== null && target !== undefined)
