@@ -521,9 +521,14 @@ module.exports = class Recordset {
 
 		for (const row of data) {
 			row[target] = keyMap.get(row[collapser]);
-		}
 
-		return data;
+			if (row[target].length === 1) {
+				const allNull = !Object.values(row[target][0]).some(Boolean);
+				if (allNull) {
+					row[target] = [];
+				}
+			}
+		}
 	}
 };
 
