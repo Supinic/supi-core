@@ -266,7 +266,7 @@ module.exports = class Recordset {
 				result += "ON " + on;
 			}
 			else {
-				result += " ON `" + fromTable + "`.`" + fromField + "` = `" + toTable + "`.`" + toField + "`";
+				result += " ON `" + fromTable + "`.`" + fromField + "` = `" + (alias ?? toTable) + "`.`" + toField + "`";
 				if (condition) {
 					result += " AND " + condition;
 				}
