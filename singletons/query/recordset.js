@@ -2,6 +2,8 @@
 /**
  * Represents the result of a SELECT statement with (usually) more than one result row.
  */
+
+const ROW_COLLAPSED = Symbol("row-collapsed");
 module.exports = class Recordset {
 	#query = null;
 	#fetchSingle = false;
@@ -440,6 +442,8 @@ module.exports = class Recordset {
 			if (reference.collapseOn) {
 				result = Recordset.collapseReferencedData(result, reference);
 			}
+
+			result = result.filter(i => !i[ROW_COLLAPSED]);
 		}
 
 		// result.sql = sql;
@@ -451,18 +455,16 @@ module.exports = class Recordset {
 	static collapseReferencedData (originalData, options) {
 		const keyMap = new Map();
 		const data = JSON.parse(JSON.stringify(originalData));
-		const { collapseOn: key, target, columns } = options;
+		const { collapseOn: collapser, target, columns } = options;
 		const regex = new RegExp("^" + target + "_");
 
 		for (let i = data.length - 1; i >= 0; i--) {
-			let skip = false;
 			const row = data[i];
-			
-			if (!keyMap.has(row[key])) {
-				keyMap.set(row[key], []);
+			if (!keyMap.has(row[collapser])) {
+				keyMap.set(row[collapser], []);
 			}
 			else {
-				skip = true;
+				data[i][ROW_COLLAPSED] = true;
 			}
 			
 			const copiedProperties = {};
@@ -470,18 +472,25 @@ module.exports = class Recordset {
 				copiedProperties[column.replace(regex, "")] = row[column];
 				delete row[column];
 			}
-			
-			if (skip) {
-				data.splice(i, 1);
+
+			let addProperties = true;
+			for (const value of keyMap.get(row[collapser])) {
+				const skip = Object.keys(value).every(i => value[i] === copiedProperties[i]);
+				if (skip) {
+					addProperties = false;
+					break;
+				}
 			}
-			
-			keyMap.get(row[key]).push(copiedProperties);
+
+			if (addProperties) {
+				keyMap.get(row[collapser]).push(copiedProperties);
+			}
 		}
-		
+
 		for (const row of data) {
-			row[target] = keyMap.get(row[key]);
+			row[target] = keyMap.get(row[collapser]);
 		}
-		
+
 		return data;
 	}
 };
