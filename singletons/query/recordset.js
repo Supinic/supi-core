@@ -346,7 +346,7 @@ module.exports = class Recordset {
 			this.#reference.push({
 				collapseOn: collapseOn ?? null,
 				columns: fields,
-				target: targetTable
+				target: targetAlias ?? targetTable
 			});
 		}
 		else if (targetTable && !referenceTable) {
@@ -364,7 +364,7 @@ module.exports = class Recordset {
 			this.#reference.push({
 				collapseOn: collapseOn ?? null,
 				columns: fields,
-				target: targetTable
+				target: targetAlias ?? targetTable
 			});
 		}
 		else {
