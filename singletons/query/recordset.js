@@ -297,7 +297,7 @@ module.exports = class Recordset {
 	}
 
 	/**
-	 *
+	 * For more info and detailed usage, check `./reference.md`
 	 */
 	reference (options = {}) {
 		const {
@@ -438,9 +438,11 @@ module.exports = class Recordset {
 			}
 		}
 
-		for (const reference of this.#reference) {
-			if (reference.collapseOn) {
-				result = Recordset.collapseReferencedData(result, reference);
+		if (this.#reference.length > 0) {
+			for (const reference of this.#reference) {
+				if (reference.collapseOn) {
+					result = Recordset.collapseReferencedData(result, reference);
+				}
 			}
 
 			result = result.filter(i => !i[ROW_COLLAPSED]);
