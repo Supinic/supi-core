@@ -316,6 +316,9 @@ module.exports = class Recordset {
 			referenceFieldTarget = targetTable,
 
 			condition,
+			referenceCondition,
+			targetCondition,
+
 			fields = [],
 			collapseOn,
 			left = true
@@ -330,7 +333,8 @@ module.exports = class Recordset {
 				fromField: sourceField,
 				toDatabase: referenceDatabase,
 				toTable: referenceTable,
-				toField: referenceFieldSource
+				toField: referenceFieldSource,
+				condition: referenceCondition
 			});
 
 			this[joinType]({
@@ -340,7 +344,8 @@ module.exports = class Recordset {
 				toDatabase: targetDatabase,
 				toTable: targetTable,
 				toField: targetField,
-				alias: targetAlias
+				alias: targetAlias,
+				condition: targetCondition
 			});
 
 			this.#reference.push({
