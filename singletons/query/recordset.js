@@ -301,46 +301,77 @@ module.exports = class Recordset {
 	 */
 	reference (options = {}) {
 		const {
-			sourceDatabase = this.#from.database, sourceTable = this.#from.table, sourceField = "ID",
+			sourceDatabase = this.#from.database,
+			sourceTable = this.#from.table,
+			sourceField = "ID",
 
-			targetDatabase = this.#from.database, targetTable, targetField = "ID", targetAlias = null,
+			targetDatabase = this.#from.database,
+			targetTable,
+			targetField = "ID",
+			targetAlias = null,
 
-			referenceDatabase = this.#from.database, referenceTable, referenceFieldSource = sourceTable, referenceFieldTarget = targetTable,
+			referenceDatabase = this.#from.database,
+			referenceTable,
+			referenceFieldSource = sourceTable,
+			referenceFieldTarget = targetTable,
 
-			fields = [], collapseOn, left = false
+			condition,
+			fields = [],
+			collapseOn,
+			left = false
 		} = options;
 
 		const joinType = (left) ? "leftJoin" : "join";
-		if (!referenceTable || !targetTable) {
-			throw new sb.Error({
-				message: "Both referenceTable and targetTable must be filled in!"
+
+		if (referenceTable && targetTable) {
+			this[joinType]({
+				fromDatabase: sourceDatabase,
+				fromTable: sourceTable,
+				fromField: sourceField,
+				toDatabase: referenceDatabase,
+				toTable: referenceTable,
+				toField: referenceFieldSource,
+				alias: targetAlias
+			});
+
+			this[joinType]({
+				fromDatabase: referenceDatabase,
+				fromTable: referenceTable,
+				fromField: referenceFieldTarget,
+				toDatabase: targetDatabase,
+				toTable: targetTable,
+				toField: targetField
+			});
+
+			this.#reference.push({
+				collapseOn: collapseOn ?? null,
+				columns: fields,
+				target: targetTable
 			});
 		}
+		else if (targetTable && !referenceTable) {
+			this[joinType]({
+				fromDatabase: sourceDatabase,
+				fromTable: sourceTable,
+				fromField: sourceField,
+				toDatabase: targetDatabase,
+				toTable: targetTable,
+				toField: targetField,
+				alias: targetAlias,
+				condition
+			});
 
-		this[joinType]({
-			fromDatabase: sourceDatabase,
-			fromTable: sourceTable,
-			fromField: sourceField,
-			toDatabase: referenceDatabase,
-			toTable: referenceTable,
-			toField: referenceFieldSource,
-			alias: targetAlias
-		});
-
-		this[joinType]({
-			fromDatabase: referenceDatabase,
-			fromTable: referenceTable,
-			fromField: referenceFieldTarget,
-			toDatabase: targetDatabase,
-			toTable: targetTable,
-			toField: targetField
-		});
-
-		this.#reference.push({
-			collapseOn: collapseOn ?? null,
-			columns: fields,
-			target: targetTable
-		});
+			this.#reference.push({
+				collapseOn: collapseOn ?? null,
+				columns: fields,
+				target: targetTable
+			});
+		}
+		else {
+			throw new sb.Error({
+				message: "Too many missing table specifications"
+			});
+		}
 
 		return this;
 	}
