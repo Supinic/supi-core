@@ -441,7 +441,7 @@ module.exports = class Recordset {
 		if (this.#reference.length > 0) {
 			for (const reference of this.#reference) {
 				if (reference.collapseOn) {
-					result = Recordset.collapseReferencedData(result, reference);
+					Recordset.collapseReferencedData(result, reference);
 				}
 			}
 
@@ -454,9 +454,8 @@ module.exports = class Recordset {
 			: result;
 	}
 
-	static collapseReferencedData (originalData, options) {
+	static collapseReferencedData (data, options) {
 		const keyMap = new Map();
-		const data = JSON.parse(JSON.stringify(originalData));
 		const { collapseOn: collapser, target, columns } = options;
 		const regex = new RegExp("^" + target + "_");
 
@@ -468,7 +467,7 @@ module.exports = class Recordset {
 			else {
 				data[i][ROW_COLLAPSED] = true;
 			}
-			
+
 			const copiedProperties = {};
 			for (const column of columns) {
 				copiedProperties[column.replace(regex, "")] = row[column];
