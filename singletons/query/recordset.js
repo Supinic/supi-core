@@ -318,7 +318,7 @@ module.exports = class Recordset {
 			condition,
 			fields = [],
 			collapseOn,
-			left = false
+			left = true
 		} = options;
 
 		const joinType = (left) ? "leftJoin" : "join";
