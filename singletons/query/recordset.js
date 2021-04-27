@@ -330,8 +330,7 @@ module.exports = class Recordset {
 				fromField: sourceField,
 				toDatabase: referenceDatabase,
 				toTable: referenceTable,
-				toField: referenceFieldSource,
-				alias: targetAlias
+				toField: referenceFieldSource
 			});
 
 			this[joinType]({
@@ -340,7 +339,8 @@ module.exports = class Recordset {
 				fromField: referenceFieldTarget,
 				toDatabase: targetDatabase,
 				toTable: targetTable,
-				toField: targetField
+				toField: targetField,
+				alias: targetAlias
 			});
 
 			this.#reference.push({
