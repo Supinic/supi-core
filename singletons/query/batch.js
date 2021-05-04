@@ -43,7 +43,7 @@ module.exports = class Batch {
 				}
 			}
 
-			this.columns = definition.columns;
+			this.columns = definition.columns.filter(column => columns.includes(column.name));
 			this.ready = true;
 			return this;
 		})();
