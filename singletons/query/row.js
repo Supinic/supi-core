@@ -200,7 +200,10 @@ module.exports = class Row {
 		else {
 			throw new sb.Error({
 				message: "In order to delete the row, it must be loaded.",
-				args: this.fullTable
+				args: {
+					database: this.#definition.database,
+					table: this.#definition.name
+				}
 			});
 		}
 	}
