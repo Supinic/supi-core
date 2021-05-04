@@ -123,7 +123,7 @@ module.exports = class Row {
 		if (primaryKey.constructor === Object) {
 			for (const [key, value] of Object.entries(primaryKey)) {
 				const column = this.#definition.columns.find(i => i.name === key);
-				if (!check) {
+				if (!column) {
 					throw new sb.Error({
 						message: `Cannot load Row - unrecognized column "${key}"`,
 						args: {
@@ -132,7 +132,7 @@ module.exports = class Row {
 						}
 					});
 				}
-				else if (!check.primaryKey) {
+				else if (!column.primaryKey) {
 					throw new sb.Error({
 						message: `Cannot load Row - column "${key}" is not primary`,
 						args: {
