@@ -173,7 +173,10 @@ module.exports = (function () {
 		 * @returns {Promise<Row>}
 		 */
 		async getRow (database, table) {
-			return await new Row(this, database, table);
+			const row = new Row(this, database, table);
+			await row.initialize();
+
+			return row;
 		}
 
 		/**
@@ -223,7 +226,9 @@ module.exports = (function () {
 						type: (Boolean(column.flags & Query.flagMask["SET"])) ? "SET" : column.type,
 						notNull: Boolean(column.flags & Query.flagMask["NOT_NULL"]),
 						primaryKey: Boolean(column.flags & Query.flagMask["PRIMARY_KEY"]),
-						unsigned: Boolean(column.flags & Query.flagMask["UNSIGNED"])
+						unsigned: Boolean(column.flags & Query.flagMask["UNSIGNED"]),
+						autoIncrement: Boolean(column.flags & Query.flagMask["AUTO_INCREMENT"]),
+						zeroFill: Boolean(column.flags & Query.flagMask["ZERO_FILL"])
 					});
 				}
 
@@ -659,6 +664,7 @@ module.exports = (function () {
  * @property {string} database Database of table
  * @property {string} name Name of table
  * @property {string} path {@link TableDefinition#database} . {@link TableDefinition#name}
+ * @property {string} escapedPath like `.path`, but escaped with backticks
  * @property {ColumnDefinition[]} columns Column definition
  */
 
@@ -669,6 +675,8 @@ module.exports = (function () {
  * @property {boolean} notNull If true, column can be set to null
  * @property {boolean} primaryKey If true, column is the primary key or a part of it
  * @property {boolean} unsigned If true, a numeric column is unsigned
+ * @property {boolean} autoIncrement If true, the column is an AUTO_INCREMENT primary key
+ * @property {boolean} zeorFill If true, the column is a numeric field left-filled with zeroes
  */
 
 /**
