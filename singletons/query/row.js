@@ -376,7 +376,7 @@ module.exports = class Row {
 	 */
 	_getPrimaryKeyConditions () {
 		const conditions = [];
-		for (const column of Object.entries(this.#primaryKeyFields)) {
+		for (const column of this.#primaryKeyFields) {
 			const parsedValue = this.#query.convertToSQL(this.#values[column.name], column.type);
 			const identifier = this.#query.escapeIdentifier(column.name);
 
