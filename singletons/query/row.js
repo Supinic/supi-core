@@ -6,6 +6,8 @@
 module.exports = class Row {
 	/** @type {TableDefinition} */
 	#definition;
+	/** @type {Query} */
+	#query;
 
 	#values = {};
 	#originalValues = {};
@@ -15,13 +17,13 @@ module.exports = class Row {
 			if (!this.#initialized) {
 				throw new sb.Error({
 					message: "Cannot get row value - row not initialized",
-					args: this.getErrorInfo()
+					args: this._getErrorInfo()
 				});
 			}
 			else if (typeof target[name] === "undefined") {
 				throw new sb.Error({
 					message: `Cannot get row value - column "${name}" does not exist`,
-					args: this.getErrorInfo()
+					args: this._getErrorInfo()
 				});
 			}
 
@@ -31,13 +33,13 @@ module.exports = class Row {
 			if (!this.#initialized) {
 				throw new sb.Error({
 					message: "Cannot set row value - row not initialized",
-					args: this.getErrorInfo()
+					args: this._getErrorInfo()
 				});
 			}
 			else if (typeof target[name] === "undefined") {
 				throw new sb.Error({
 					message: `Cannot set row value - column "${name}" does not exist`,
-					args: this.getErrorInfo()
+					args: this._getErrorInfo()
 				});
 			}
 
@@ -51,29 +53,30 @@ module.exports = class Row {
 	#deleted = false;
 
 	/**
-	 * Creates a new Row instance
+	 * Creates a new Row instance.
+	 * Binds the current instance of Query to the row for internal use
 	 * @param {Query} query
-	 * @param {string} database
-	 * @param {string} table
-	 * @returns {Promise<Row>}
+	 * @returns {Row}
 	 */
-	constructor (query, database, table) {
-		if (!database || !table) {
-			throw new sb.Error({
-				message: "Cannot constructor row - missing database/table",
-				args: {
-					database: database,
-					table
-				}
-			});
-		}
-
-		/** @type {Query} */
-		this.query = query;
+	constructor (query) {
+		this.#query = query;
 	}
 
-	async initialize () {
-		this.#definition = await this.query.getDefinition(database, table);
+	/**
+	 * Initializes the row with database + table definitions
+	 * @param {string} database
+	 * @param {string} table
+	 * @returns {Promise<Row>} returns self
+	 */
+	async initialize (database, table) {
+		if (!database || !table) {
+			throw new sb.Error({
+				message: "Cannot initialize row - missing database/table",
+				args: { database, table }
+			});
+		}
+		
+		this.#definition = await this.#query.getDefinition(database, table);
 		for (const column of this.#definition.columns) {
 			this.#values[column.name] = Symbol.for("unset");
 			this.#originalValues[column.name] = Symbol.for("unset");
@@ -89,7 +92,7 @@ module.exports = class Row {
 
 	/**
 	 * Loads a row based on its primary key.
-	 * @param {*} primaryKey Single primitive value, or an Object of primitives for multi-column PKs
+	 * @param {*} primaryKey Single primitive value for implied PK, or an Object of primitives for multi-column PKs
 	 * @param {boolean} ignoreError = false If true, the method will not throw on non-existing row; rather returns an unloaded row
 	 * @returns {Promise<Row>}
 	 */
@@ -97,20 +100,20 @@ module.exports = class Row {
 		if (!this.#initialized) {
 			throw new sb.Error({
 				message: "Cannot load row - not initialized",
-				args: this.getErrorInfo()
+				args: this._getErrorInfo()
 			});
 		}
 
 		if (primaryKey === null || typeof primaryKey === "undefined") {
 			throw new sb.Error({
 				message: "Cannot load Row - no primary key provided",
-				args: this.getErrorInfo()
+				args: this._getErrorInfo()
 			});
 		}
 		else if (this.#primaryKeyFields.length === 0) {
 			throw new sb.Error({
 				message: "Cannot load Row - table has no primary keys",
-				args: this.getErrorInfo()
+				args: this._getErrorInfo()
 			});
 		}
 
@@ -124,7 +127,7 @@ module.exports = class Row {
 					throw new sb.Error({
 						message: `Cannot load Row - unrecognized column "${key}"`,
 						args: {
-							...this.getErrorInfo(),
+							...this._getErrorInfo(),
 							column: key
 						}
 					});
@@ -133,14 +136,14 @@ module.exports = class Row {
 					throw new sb.Error({
 						message: `Cannot load Row - column "${key}" is not primary`,
 						args: {
-							...this.getErrorInfo(),
+							...this._getErrorInfo(),
 							column: key
 						}
 					});
 				}
 
-				const parsedValue = this.query.convertToSQL(value, column.type);
-				const identifier = this.query.escapeIdentifier(key);
+				const parsedValue = this.#query.convertToSQL(value, column.type);
+				const identifier = this.#query.escapeIdentifier(key);
 
 				conditions.push(`${identifier} = ${parsedValue}`);
 			}
@@ -151,20 +154,20 @@ module.exports = class Row {
 				throw new sb.Error({
 					message: "Cannot use implied PK - table has multiple PKs",
 					args: {
-						...this.getErrorInfo(),
+						...this._getErrorInfo(),
 						primaryKeys: pks
 					}
 				});
 			}
 
 			const column = this.#primaryKeyFields;
-			const parsedValue = this.query.convertToSQL(primaryKey, column.type);
-			const identifier = this.query.escapeIdentifier(key);
+			const parsedValue = this.#query.convertToSQL(primaryKey, column.type);
+			const identifier = this.#query.escapeIdentifier(key);
 
 			conditions.push(`${identifier} = ${parsedValue}`);
 		}
 
-		const data = await this.query.raw([
+		const data = await this.#query.raw([
 			"SELECT * FROM " + this.#definition.escapedPath,
 			"WHERE " + conditions.join(" AND ")
 		].join(" "));
@@ -177,7 +180,7 @@ module.exports = class Row {
 				throw new sb.Error({
 					message: "No row data found for provided primary key(s)",
 					args: {
-						...this.getErrorInfo(),
+						...this._getErrorInfo(),
 						loadedKey: primaryKey
 					}
 				});
@@ -185,7 +188,7 @@ module.exports = class Row {
 		}
 
 		for (const column of this.#definition.columns) {
-			const value = this.query.convertToJS(data[0][column.name], column.type);
+			const value = this.#query.convertToJS(data[0][column.name], column.type);
 			this.#values[column.name] = value;
 			this.#originalValues[column.name] = value;
 		}
@@ -206,7 +209,7 @@ module.exports = class Row {
 		if (!this.#initialized) {
 			throw new sb.Error({
 				message: "Cannot save row - not initialized",
-				args: this.getErrorInfo()
+				args: this._getErrorInfo()
 			});
 		}
 
@@ -216,8 +219,8 @@ module.exports = class Row {
 			for (const column of this.#definition.columns) {
 				if (this.#originalValues[column.name] === this.#values[column.name]) continue;
 
-				const identifier = this.query.escapeIdentifier(column.name);
-				const value = this.query.convertToSQL(this.#values[column.name], column.type);
+				const identifier = this.#query.escapeIdentifier(column.name);
+				const value = this.#query.convertToSQL(this.#values[column.name], column.type);
 				setColumns.push(`${identifier} = ${value}`);
 			}
 
@@ -226,8 +229,8 @@ module.exports = class Row {
 				return false;
 			}
 
-			const conditions = this.getPrimaryKeyConditions();
-			outputData = await this.query.raw([
+			const conditions = this._getPrimaryKeyConditions();
+			outputData = await this.#query.raw([
 				"UPDATE " + this.#definition.escapedPath,
 				"SET " + setColumns.join(", "),
 				"WHERE " + conditions.join(" AND ")
@@ -241,13 +244,13 @@ module.exports = class Row {
 					continue;
 				}
 
-				columns.push(this.query.escapeIdentifier(column.name));
-				values.push(this.query.convertToSQL(this.#values[column.name], column.type));
+				columns.push(this.#query.escapeIdentifier(column.name));
+				values.push(this.#query.convertToSQL(this.#values[column.name], column.type));
 			}
 
 			const ignore = (options.ignore === true) ? "IGNORE " : "";
 
-			outputData = await this.query.send([
+			outputData = await this.#query.send([
 				"INSERT " + ignore + "INTO " + this.#definition.escapedPath,
 				"(" + columns.join(",") + ")",
 				"VALUES (" + values.join(",") + ")"
@@ -272,14 +275,14 @@ module.exports = class Row {
 		if (!this.#initialized) {
 			throw new sb.Error({
 				message: "Cannot delete row - not initialized",
-				args: this.getErrorInfo()
+				args: this._getErrorInfo()
 			});
 		}
 
 		if (this.#loaded) {
-			const conditions = this.getPrimaryKeyConditions();
+			const conditions = this._getPrimaryKeyConditions();
 
-			await this.query.send([
+			await this.#query.send([
 				"DELETE FROM " + this.#definition.escapedPath,
 				"WHERE " + conditions.join(" AND ")
 			].join(" "));
@@ -290,7 +293,7 @@ module.exports = class Row {
 		else {
 			throw new sb.Error({
 				message: "Row is not loaded - cannot delete",
-				args: this.getErrorInfo()
+				args: this._getErrorInfo()
 			});
 		}
 	}
@@ -303,7 +306,7 @@ module.exports = class Row {
 		if (!this.#initialized) {
 			throw new sb.Error({
 				message: "Cannot reset row - not initialized",
-				args: this.getErrorInfo()
+				args: this._getErrorInfo()
 			});
 		}
 
@@ -323,7 +326,7 @@ module.exports = class Row {
 		if (!this.#initialized) {
 			throw new sb.Error({
 				message: "Cannot set column values - row not initialized",
-				args: this.getErrorInfo()
+				args: this._getErrorInfo()
 			});
 		}
 
@@ -343,28 +346,39 @@ module.exports = class Row {
 		if (!this.#initialized) {
 			throw new sb.Error({
 				message: "Cannot check property - row not initialized",
-				args: this.getErrorInfo()
+				args: this._getErrorInfo()
 			});
 		}
 
 		return (typeof this.#values[property] !== "undefined");
 	}
 
-	getErrorInfo () {
+	/**
+	 * Creates and returns a simple Object with the Row's identifiers
+	 * @returns {RowErrorIdentifier}
+	 * @private
+	 */
+	_getErrorInfo () {
 		return {
 			database: this.#definition.database,
 			table: this.#definition.name,
 			primaryKeys: this.#primaryKeyFields.map(i => i.name),
-			loaded: this.#loaded,
-			deleted: this.#deleted
+			deleted: this.#deleted,
+			initialized: this.#initialized,
+			loaded: this.#loaded
 		};
 	}
 
-	getPrimaryKeyConditions () {
+	/**
+	 * Returns a list of conditions based on the Row's primary keys and values
+	 * @returns {string[]}
+	 * @private
+	 */
+	_getPrimaryKeyConditions () {
 		const conditions = [];
 		for (const column of Object.entries(this.#primaryKeyFields)) {
-			const parsedValue = this.query.convertToSQL(value, column.type);
-			const identifier = this.query.escapeIdentifier(key);
+			const parsedValue = this.#query.convertToSQL(value, column.type);
+			const identifier = this.#query.escapeIdentifier(key);
 
 			conditions.push(`(${identifier} = ${parsedValue})`);
 		}
@@ -392,3 +406,13 @@ module.exports = class Row {
 	get initialized () { return this.#initialized; }
 	get loaded () { return this.#loaded; }
 };
+
+/**
+ * @typedef {Object} RowErrorIdentifier
+ * @property {string} database
+ * @property {string} table
+ * @property {ColumnDefinition[]} primaryKeys
+ * @property {boolean} deleted
+ * @property {boolean} initialized
+ * @property {boolean} loaded
+ */

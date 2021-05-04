@@ -173,8 +173,9 @@ module.exports = (function () {
 		 * @returns {Promise<Row>}
 		 */
 		async getRow (database, table) {
-			const row = new Row(this, database, table);
-			await row.initialize();
+			/** @type {Row} */
+			const row = new Row(this);
+			await row.initialize(database, table);
 
 			return row;
 		}
