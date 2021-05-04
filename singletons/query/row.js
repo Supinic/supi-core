@@ -160,7 +160,7 @@ module.exports = class Row {
 				});
 			}
 
-			const column = this.#primaryKeyFields;
+			const [column] = this.#primaryKeyFields;
 			const parsedValue = this.#query.convertToSQL(primaryKey, column.type);
 			const identifier = this.#query.escapeIdentifier(column.name);
 
