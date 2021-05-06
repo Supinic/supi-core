@@ -6,7 +6,7 @@
   "dependencies": {
     "async-markov": "github:supinic/async-markov",
     "cheerio": "^1.0.0-rc.5",
-    "chrono-node": "^1.4.6",
+    "chrono-node": "^2.2.4",
     "cron": "latest",
     "dice-roll-eval": "github:jprochazk/dice-roll-eval",
     "duration-parser": "github:supinic/duration-parser",

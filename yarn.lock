@@ -250,12 +250,12 @@ chokidar@3.5.1:
   optionalDependencies:
     fsevents "~2.3.1"
 
-chrono-node@^1.4.6:
-  version "1.4.8"
-  resolved "https://registry.yarnpkg.com/chrono-node/-/chrono-node-1.4.8.tgz#10af3f4ed025fa5c6a9abeb7922927584f07f2ef"
-  integrity sha512-WwfW4/+i1e6tHx5opw/VCfxXnai12/tT5GK+wSHwKtdb0ZkAoxRGIfL8IzuFr/JEQTw4DxevysyX6+YbZSRKLQ==
+chrono-node@^2.2.4:
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/chrono-node/-/chrono-node-2.2.4.tgz#0fa169e1d158935bb1d541010046f6107576347d"
+  integrity sha512-58ERHGfWtWzBxckF9ZyFuwJjcreLDr7C79lHEynSqZ7J8y1JfMa8ok1TvCCf/TOZmkGME1ZSaEEb0DqqWaNFHg==
   dependencies:
-    dayjs "^1.8.19"
+    dayjs "^1.10.0"
 
 cliui@^7.0.2:
   version "7.0.4"
@@ -332,7 +332,7 @@ css-what@^4.0.0:
   resolved "https://registry.yarnpkg.com/css-what/-/css-what-4.0.0.tgz#35e73761cab2eeb3d3661126b23d7aa0e8432233"
   integrity sha512-teijzG7kwYfNVsUh2H/YN62xW3KK9YhXEgSlbxMlcyjPNvdKJqFx5lrwlJgoFP1ZHlB89iGDlo/JyshKeRhv5A==
 
-dayjs@^1.8.19:
+dayjs@^1.10.0:
   version "1.10.4"
   resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.10.4.tgz#8e544a9b8683f61783f570980a8a80eaf54ab1e2"
   integrity sha512-RI/Hh4kqRc1UKLOAf/T5zdMMX5DQIlDxwUe3wSyMMnEbGunnpENCdbUgM+dW7kXidZqCttBrmw7BhN4TMddkCw==
