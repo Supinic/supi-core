@@ -203,6 +203,7 @@ module.exports = class Row {
 	 * If not, saves an existing row (UPDATE).
 	 * @param {Object} options
 	 * @param {boolean} [options.ignore] If true, INSERT will be executed as INSERT IGNORE (ignores duplicate keys)
+	 * @param {boolean} [options.skipLoad] If true, the row will not re-load itself after saving
 	 * @returns {Promise<Object>}
 	 */
 	async save (options = {}) {
@@ -250,6 +251,7 @@ module.exports = class Row {
 
 			const ignore = (options.ignore === true) ? "IGNORE " : "";
 
+			// @todo use INSERT RETURNING, see below
 			outputData = await this.#query.send([
 				"INSERT " + ignore + "INTO " + this.#definition.escapedPath,
 				"(" + columns.join(",") + ")",
@@ -261,7 +263,10 @@ module.exports = class Row {
 				this.#values[autoIncrementPK.name] = outputData.insertId;
 			}
 
-			await this.load(this.PK);
+			if (!options.skipLoad) {
+				// @todo with MariaDB 10.5+, use INSERT RETURNING to fetch inserted data immediately insted of having to re-load the Row
+				await this.load(this.PK);
+			}
 		}
 
 		return outputData;
