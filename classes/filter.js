@@ -56,7 +56,7 @@ module.exports = class Filter extends require("./template.js") {
 
 		/**
 		 * Specific filter data, usually only applicable to Cooldown and Arguments filter types.
-		 * @type {SpecificFilterData}
+		 * @type {CooldownFilterData|ArgumentsFilterData}
 		 */
 		this.Data = null;
 		if (data.Data) {
@@ -86,48 +86,59 @@ module.exports = class Filter extends require("./template.js") {
 		}
 
 		if (this.Data) {
-			if (this.Type === "Args" && !parsedData.args) {
-				console.warn("Invalid filter data - missing Args data", { filter: this.ID, data: this.Data });
-			}
-			else if (this.Type === "Cooldown" && !parsedData.cooldown) {
-				console.warn("Invalid filter data - missing Cooldown data", { filter: this.ID, data: this.Data });
-			}
-			else if (this.Type === "Args") {
-				this.#filterData = [];
+			if (this.Type === "Args") {
+				if (!this.Data.args) {
+					console.warn("Invalid Args filter - missing args object");
+				}
+				else {
+					this.#filterData = [];
 
-				for (const arg of this.Data.args) {
-					const obj = {};
-					if (i.type === "regex") {
-						obj.regex = new RegExp(i.value[0], i.value[1] ?? "");
-					}
-					else if (i.type === "string") {
-						obj.string = i.value;
-					}
-					else {
-						console.warn("Invalid filter Args item - type", { arg, filter: this.ID });
-						continue;
-					}
+					for (const arg of this.Data.args) {
+						const obj = {};
+						if (i.type === "regex") {
+							obj.regex = new RegExp(i.value[0], i.value[1] ?? "");
+						}
+						else if (i.type === "string") {
+							obj.string = i.value;
+						}
+						else {
+							console.warn("Invalid filter Args item - type", { arg, filter: this.ID });
+							continue;
+						}
 
-					if (typeof i.index === "number") {
-						obj.index = i.index;
-						obj.range = [];
-					}
-					else if (Array.isArray(i.range === "number")) {
-						obj.range = [...i.range].slice(0, 2);
-					}
-					else if (typeof i.range === "string") {
-						obj.range = i.range.split("..").map(Number).slice(0, 2);
-					}
-					else {
-						console.warn("Invalid filter Args item - index", { arg, filter: this.ID });
-						continue;
-					}
+						if (typeof i.index === "number") {
+							obj.index = i.index;
+							obj.range = [];
+						}
+						else if (Array.isArray(i.range === "number")) {
+							obj.range = [...i.range].slice(0, 2);
+						}
+						else if (typeof i.range === "string") {
+							obj.range = i.range.split("..").map(Number).slice(0, 2);
+						}
+						else {
+							console.warn("Invalid filter Args item - index", { arg, filter: this.ID });
+							continue;
+						}
 
-					this.#filterData.push(obj);
+						this.#filterData.push(obj);
+
+
+						console.warn("Invalid filter data - missing Args data", { filter: this.ID, data: this.Data });
+					}
 				}
 			}
 			else if (this.Type === "Cooldown") {
-				console.warn("Not yet implemented", { filter: this });
+				const { multiplier, override } = this.Data;
+				if (typeof multiplier !== "number" && typeof override !== "number") {
+					console.warn("Invalid Cooldown filter - missing multiplier/override");
+				}
+				else if (typeof multiplier === "number" && typeof override === "number") {
+					console.warn("Invalid Cooldown filter - using both multiplier and override");
+				}
+				else {
+					this.#filterData = { ...this.Data };
+				}
 			}
 		}
 
@@ -164,28 +175,46 @@ module.exports = class Filter extends require("./template.js") {
 
 	/**
 	 * For custom-data-related Filters, this method applies filter data to the provided data object.
-	 * @param {FilterType} type
-	 * @param {Object} data
-	 * @returns {boolean} True if the filter does apply to the provided data; false otherwise
+	 * @param {Array|number} data
+	 * @returns {*} Returned type depends on filter type - Args {boolean} or Cooldown {number}
 	 */
-	applyDataFilter (type, data) {
-		if (type !== this.Type) {
-			return false;
-		}
-		else if (Array.isArray(data.args)) {
+	applyData (data) {
+		if (this.Type === "Args" && Array.isArray(data)) {
 			for (const item of this.#filterData) {
 				const { index, range, regex, string } = item;
-				for (let i = 0; i < data.args.length; i++) {
+				for (let i = 0; i < data.length; i++) {
 					const positionCheck = (i === index || (range[0] <= index && index <= range[1]));
-					const valueCheck = ((string && data.args[i] === string) || (regex && data.args[i].test(regex)));
+					const valueCheck = ((string && data[i] === string) || (regex && data[i].test(regex)));
 					if (positionCheck && valueCheck) {
 						return true;
 					}
 				}
 			}
 		}
+		else if (this.Type === "Cooldown" && (data === null || typeof data === "number")) {
+			const value = data ?? 0; // `null` cooldowns are treated as zero
+			const { multiplier, override, respect } = this.#filterData;
 
-		return false;
+			if (typeof override === "number") {
+				if (respect === false) {
+					return override;
+				}
+				else {
+					return (override > value) ? data : override;
+				}
+			}
+			else if (typeof multiplier === "number") {
+				if (data === null) {
+					return data;
+				}
+
+				return Math.round(value * multiplier);
+			}
+		}
+
+		throw new sb.Error({
+			message: "Invalid combination of input data and filter type"
+		});
 	}
 
 	get priority () {
@@ -297,6 +326,7 @@ module.exports = class Filter extends require("./template.js") {
 		return Filter.data.filter(row => (
 			row.Active
 			&& (!type || type === row.Type)
+			&& (options.skipUserCheck || (row.User_Alias === (options.user?.ID ?? null) || row.User_Alias === null))
 			&& (row.Channel === (options.channel?.ID ?? null) || row.Channel === null)
 			&& (row.Command === (options.command?.ID ?? null) || row.Command === null)
 			&& (row.Invocation === (options.invocation ?? null) || row.Invocation === null)
@@ -317,7 +347,10 @@ module.exports = class Filter extends require("./template.js") {
 
 		let userTo = null;
 		const channel = options.channel ?? Symbol("private-message");
-		const localFilters = Filter.getLocals(null, options);
+		const localFilters = Filter.getLocals(null, {
+			...options,
+			skipUserCheck: true
+		});
 
 		if (command.Flags.whitelist) {
 			const whitelist = localFilters.find((
@@ -340,18 +373,21 @@ module.exports = class Filter extends require("./template.js") {
 		}
 
 		if (command.Flags.optOut && userTo) {
-			const optout = localFilters.find(i => (
+			const optout = localFilters.find(i =>
 				i.Type === "Opt-out"
 				&& i.User_Alias === userTo.ID
-			));
+			);
 
 			if (optout) {
+				const targetType = (optout.Invocation) ? "command invocation" : "command";
+				const targetAmount = (optout.Command) ? "this" : "every";
+
 				return {
 					success: false,
 					reason: "opt-out",
 					filter: optout,
 					reply: (optout.Response === "Auto")
-						? "🚫 That user has opted out from being the command target!"
+						? `🚫 That user has opted out from being the target of ${targetAmount} ${targetType}!`
 						: (optout.Response === "Reason")
 							? optout.Reason
 							: null
@@ -368,12 +404,15 @@ module.exports = class Filter extends require("./template.js") {
 			));
 
 			if (block) {
+				const targetType = (block.Invocation) ? "command invocation" : "command";
+				const targetAmount = (block.Command) ? "this" : "every";
+
 				return {
 					success: false,
 					reason: "block",
 					filter: block,
 					reply: (block.Response === "Auto")
-						? "🚫 That user has opted out from being the target of your command!"
+						? `⛔ That user has blocked you from being the target of ${targetAmount} ${targetType}!`
 						: (block.Response === "Reason")
 							? block.Reason
 							: null
@@ -389,11 +428,14 @@ module.exports = class Filter extends require("./template.js") {
 		if (blacklist) {
 			let reply = null;
 			if (blacklist.Response === "Reason") {
-				reply = blacklist.Response;
+				reply = blacklist.Reason;
 			}
 			else if (blacklist.Response === "Auto") {
-				if (blacklist.Channel && blacklist.Command && blacklist.User_Alias) {
-					reply = "You cannot execute that command in this channel.";
+				if (blacklist.Channel && blacklist.User_Alias && blacklist.Command && blacklist.Invocation) {
+					reply = "You cannot execute this command invocation in this channel.";
+				}
+				else if (blacklist.Channel && blacklist.User_Alias && blacklist.Command) {
+					reply = "You cannot execute this command in this channel.";
 				}
 				else if (blacklist.Channel && blacklist.Command) {
 					reply = "This command cannot be executed in this channel.";
@@ -401,11 +443,17 @@ module.exports = class Filter extends require("./template.js") {
 				else if (blacklist.Channel && blacklist.User_Alias) {
 					reply = "You cannot execute any commands in this channel.";
 				}
+				else if (blacklist.User_Alias && blacklist.Command && blacklist.Invocation) {
+					reply = "You cannot execute this command invocation in any channel.";
+				}
 				else if (blacklist.User_Alias && blacklist.Command) {
 					reply = "You cannot execute this command in any channel.";
 				}
 				else if (blacklist.User_Alias) {
 					reply = "You cannot execute any commands in any channel.";
+				}
+				else if (blacklist.Command && blacklist.Invocation) {
+					reply = "This command invocation cannot be executed anywhere.";
 				}
 				else if (blacklist.Command) {
 					reply = "This command cannot be executed anywhere.";
@@ -430,22 +478,19 @@ module.exports = class Filter extends require("./template.js") {
 
 		let channelLive = null;
 		if (channel instanceof sb.Channel) {
-			if (typeof channel.isLive === "function") {
-				channelLive = await channel.isLive();
-			}
-			else {
-				channelLive = channel.sessionData?.live ?? null;
-			}
+			const streamData = await channel.getStreamData();
+			channelLive = streamData.live ?? false;
 		}
 
 		const offlineOnly = localFilters.find(i => i.Type === "Offline-only");
 		if (offlineOnly && channelLive === true) {
+			const targetType = (offlineOnly.Invocation) ? "command invocation" : "command";
 			return {
 				success: false,
 				reason: "offline-only",
 				filter: offlineOnly,
 				reply: (offlineOnly.Response === "Auto")
-					? "🚫 This command is only available when the channel is offline!"
+					? `🚫 This ${targetType} is only available when the channel is offline!`
 					: (offlineOnly.Response === "Reason")
 						? offlineOnly.Reason
 						: null
@@ -454,12 +499,13 @@ module.exports = class Filter extends require("./template.js") {
 
 		const onlineOnly = localFilters.find(i => i.Type === "Online-only");
 		if (onlineOnly && channelLive === false) {
+			const targetType = (onlineOnly.Invocation) ? "command invocation" : "command";
 			return {
 				success: false,
 				reason: "online-only",
 				filter: onlineOnly,
 				reply: (onlineOnly.Response === "Auto")
-					? "🚫 This command is only available when the channel is online!"
+					? `🚫 This ${targetType} is only available when the channel is online!`
 					: (onlineOnly.Response === "Reason")
 						? onlineOnly.Reason
 						: null
@@ -510,7 +556,7 @@ module.exports = class Filter extends require("./template.js") {
 		return filter;
 	}
 
-	static async getMentionStatus (options) {
+	static getMentionStatus (options) {
 		const filters = Filter.getLocals("Unmention", {
 			...options,
 			channel: options.channel ?? Symbol("private-message")
@@ -527,12 +573,15 @@ module.exports = class Filter extends require("./template.js") {
 	 * @param {Object} options
 	 */
 	static async applyUnping (options) {
-		const filters = Filter.getLocals("Unping",  options);
+		const filters = Filter.getLocals("Unping",  {
+			...options,
+			skipUserCheck: true
+		});
 
 		let { string } = options;
 		const unpingUsers = await sb.User.getMultiple(filters.map(i => i.User_Alias));
 		for (const user of unpingUsers) {
-			const regex = new RegExp(String.raw `(^|[,:;\s]+)(${user.Name})([,:;\s]|$)`, "gi");
+			const regex = new RegExp(String.raw `(^|[@#,:;\s]+)(${user.Name})([,:;\s]|$)`, "gi");
 			string = string.replace(regex, (match, prefix, name, suffix) => (
 				`${prefix}${name[0]}\u{E0000}${name.slice(1)}${suffix}`
 			));
@@ -541,19 +590,59 @@ module.exports = class Filter extends require("./template.js") {
 		return string;
 	}
 
-	static async getCooldownOverrides (options) {
-		return Filter.getLocals("Cooldown", options).sort((a, b) => b.priority - a.priority);
+	static getCooldownModifiers (options) {
+		const filters = Filter.getLocals("Cooldown", options).sort((a, b) => b.priority - a.priority);
+		return filters[0] ?? null;
 	}
 
-	static async getFlags (options) {
-		return Filter.getLocals("Flags", options);
+	static getFlags (options) {
+		const flags = {};
+		const flagData = Filter.getLocals("Flags", options).sort((a, b) => a.priority - b.priority);
+
+		for (const flag of flagData) {
+			Object.assign(flags, flag.Data);
+		}
+
+		return flags;
+	}
+
+	static async reloadSpecific (...list) {
+		if (list.length === 0) {
+			return false;
+		}
+
+		const promises = list.map(async (ID) => {
+			const row = await sb.Query.getRow("chat_data", "Filter");
+			await row.load(ID);
+
+			const existingIndex = Filter.data.findIndex(i => i.ID === ID);
+			if (existingIndex !== -1) {
+				Filter.data[existingIndex].destroy();
+				Filter.data.splice(existingIndex, 1);
+			}
+
+			if (!row.values.Active) {
+				return;
+			}
+
+			const banphrase = new Filter(row.valuesObject);
+			Filter.data.push(banphrase);
+		});
+
+		await Promise.all(promises);
+		return true;
 	}
 };
 
 /**
- * @typedef {Object} SpecificFilterData
- * @property {Array} [cooldowns]
- * @property {Array} [args]
+ * @typedef {Object} CooldownFilterData
+ * @property {number} multiplier - mutually exclusive with `override`
+ * @property {number} override - mutually exclusive with `multiplier`
+ */
+
+/**
+ * @typedef {Object} ArgumentsFilterData
+ * @todo
  */
 
 /**

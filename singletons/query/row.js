@@ -5,25 +5,41 @@
  */
 module.exports = class Row {
 	/** @type {TableDefinition} */
-	#definition = null;
-	#primaryKey = null;
-	#primaryKeyField = null;
+	#definition;
+	/** @type {Query} */
+	#query;
+
 	#values = {};
 	#originalValues = {};
+	#primaryKeyFields = [];
 	#valueProxy = new Proxy(this.#values, {
 		get: (target, name) => {
-			if (typeof target[name] === "undefined") {
+			if (!this.#initialized) {
 				throw new sb.Error({
-					message: "Getting value: Column " + name + " does not exist"
+					message: "Cannot get row value - row not initialized",
+					args: this._getErrorInfo()
+				});
+			}
+			else if (typeof target[name] === "undefined") {
+				throw new sb.Error({
+					message: `Cannot get row value - column "${name}" does not exist`,
+					args: this._getErrorInfo()
 				});
 			}
 
 			return target[name];
 		},
 		set: (target, name, value) => {
-			if (typeof target[name] === "undefined") {
+			if (!this.#initialized) {
 				throw new sb.Error({
-					message: "Setting value: Column " + name + " does not exist"
+					message: "Cannot set row value - row not initialized",
+					args: this._getErrorInfo()
+				});
+			}
+			else if (typeof target[name] === "undefined") {
+				throw new sb.Error({
+					message: `Cannot set row value - column "${name}" does not exist`,
+					args: this._getErrorInfo()
 				});
 			}
 
@@ -31,86 +47,148 @@ module.exports = class Row {
 			return true;
 		}
 	});
+
+	#initialized = false;
 	#loaded = false;
+	#deleted = false;
 
 	/**
-	 * Creates a new Row instance
+	 * Creates a new Row instance.
+	 * Binds the current instance of Query to the row for internal use
 	 * @param {Query} query
+	 * @returns {Row}
+	 */
+	constructor (query) {
+		this.#query = query;
+	}
+
+	/**
+	 * Initializes the row with database + table definitions
 	 * @param {string} database
 	 * @param {string} table
-	 * @returns {Promise<Row>}
+	 * @returns {Promise<Row>} returns self
 	 */
-	constructor (query, database, table) {
+	async initialize (database, table) {
 		if (!database || !table) {
 			throw new sb.Error({
-				message: "Row: database and table must be provided",
-				args: {
-					db: database,
-					table: table
-				}
+				message: "Cannot initialize row - missing database/table",
+				args: { database, table }
 			});
 		}
+		
+		this.#definition = await this.#query.getDefinition(database, table);
+		for (const column of this.#definition.columns) {
+			this.#values[column.name] = Symbol.for("unset");
+			this.#originalValues[column.name] = Symbol.for("unset");
 
-		/** @type {Query} */
-		this.query = query;
-
-		return (async () => {
-			this.#definition = await this.query.getDefinition(database, table);
-			for (const column of this.#definition.columns) {
-				this.#values[column.name] = Symbol.for("unset");
-				this.#originalValues[column.name] = Symbol.for("unset");
-
-				if (column.primaryKey) {
-					this.#primaryKeyField = column;
-				}
+			if (column.primaryKey) {
+				this.#primaryKeyFields.push(column);
 			}
+		}
 
-			return this;
-		})();
+		this.#initialized = true;
+		return this;
 	}
 
 	/**
 	 * Loads a row based on its primary key.
-	 * @param {number} primaryKey
-	 * @param {boolean} ignoreError
+	 * @param {*} primaryKey Single primitive value for implied PK, or an Object of primitives for multi-column PKs
+	 * @param {boolean} ignoreError = false If true, the method will not throw on non-existing row; rather returns an unloaded row
 	 * @returns {Promise<Row>}
 	 */
-	async load (primaryKey, ignoreError) {
-		if (typeof primaryKey === "undefined") {
+	async load (primaryKey, ignoreError = false) {
+		if (!this.#initialized) {
 			throw new sb.Error({
-				message: "Primary key must be passed to Row.load"
+				message: "Cannot load row - not initialized",
+				args: this._getErrorInfo()
 			});
 		}
 
-		if (this.#primaryKey && this.#primaryKey !== primaryKey) {
-			this.reset();
+		if (primaryKey === null || typeof primaryKey === "undefined") {
+			throw new sb.Error({
+				message: "Cannot load Row - no primary key provided",
+				args: this._getErrorInfo()
+			});
 		}
-		this.#primaryKey = primaryKey;
+		else if (this.#primaryKeyFields.length === 0) {
+			throw new sb.Error({
+				message: "Cannot load Row - table has no primary keys",
+				args: this._getErrorInfo()
+			});
+		}
 
-		const data = await this.query.raw([
+		this.reset();
+
+		let conditions = [];
+		if (primaryKey.constructor === Object) {
+			for (const [key, value] of Object.entries(primaryKey)) {
+				const column = this.#definition.columns.find(i => i.name === key);
+				if (!column) {
+					throw new sb.Error({
+						message: `Cannot load Row - unrecognized column "${key}"`,
+						args: {
+							...this._getErrorInfo(),
+							column: key
+						}
+					});
+				}
+				else if (!column.primaryKey) {
+					throw new sb.Error({
+						message: `Cannot load Row - column "${key}" is not primary`,
+						args: {
+							...this._getErrorInfo(),
+							column: key
+						}
+					});
+				}
+
+				const parsedValue = this.#query.convertToSQL(value, column.type);
+				const identifier = this.#query.escapeIdentifier(key);
+
+				conditions.push(`${identifier} = ${parsedValue}`);
+			}
+		}
+		else {
+			if (this.#primaryKeyFields.length > 1) {
+				const pks = this.#primaryKeyFields.map(i => i.name);
+				throw new sb.Error({
+					message: "Cannot use implied PK - table has multiple PKs",
+					args: {
+						...this._getErrorInfo(),
+						primaryKeys: pks
+					}
+				});
+			}
+
+			const [column] = this.#primaryKeyFields;
+			const parsedValue = this.#query.convertToSQL(primaryKey, column.type);
+			const identifier = this.#query.escapeIdentifier(column.name);
+
+			conditions.push(`${identifier} = ${parsedValue}`);
+		}
+
+		const data = await this.#query.raw([
 			"SELECT * FROM " + this.#definition.escapedPath,
-			"WHERE " + this.query.escapeIdentifier(this.fieldPK.name) + " = " + this.escapedPK
+			"WHERE " + conditions.join(" AND ")
 		].join(" "));
 
 		if (!data[0]) {
 			if (ignoreError) {
-				this.#values[this.fieldPK.name] = primaryKey;
 				return this;
 			}
 			else {
 				throw new sb.Error({
-					message: "Row load failed - no such PK",
+					message: "No row data found for provided primary key(s)",
 					args: {
-						primaryKeyField: this.fieldPK,
-						primaryKey: this.PK,
-						table: this.path
+						...this._getErrorInfo(),
+						loadedKey: primaryKey
 					}
 				});
 			}
 		}
 
 		for (const column of this.#definition.columns) {
-			const value = this.query.convertToJS(data[0][column.name], column.type);
+			const value = this.#query.convertToJS(data[0][column.name], column.type);
 			this.#values[column.name] = value;
 			this.#originalValues[column.name] = value;
 		}
@@ -125,60 +203,69 @@ module.exports = class Row {
 	 * If not, saves an existing row (UPDATE).
 	 * @param {Object} options
 	 * @param {boolean} [options.ignore] If true, INSERT will be executed as INSERT IGNORE (ignores duplicate keys)
+	 * @param {boolean} [options.skipLoad] If true, the row will not re-load itself after saving
 	 * @returns {Promise<Object>}
 	 */
 	async save (options = {}) {
-		let outputData = null;
+		if (!this.#initialized) {
+			throw new sb.Error({
+				message: "Cannot save row - not initialized",
+				args: this._getErrorInfo()
+			});
+		}
 
-		if (this.PK !== null && this.#loaded) { // UPDATE
-			let setColumns = [];
+		let outputData;
+		if (this.#loaded) { // UPDATE
+			const setColumns = [];
 			for (const column of this.#definition.columns) {
 				if (this.#originalValues[column.name] === this.#values[column.name]) continue;
 
-				setColumns.push(
-					this.query.escapeIdentifier(column.name) +
-					" = " +
-					this.query.convertToSQL(this.#values[column.name], column.type)
-				);
+				const identifier = this.#query.escapeIdentifier(column.name);
+				const value = this.#query.convertToSQL(this.#values[column.name], column.type);
+				setColumns.push(`${identifier} = ${value}`);
 			}
 
-			if (setColumns.length === 0) { // no update necessary
+			// no update necessary, skip
+			if (setColumns.length === 0) {
 				return false;
 			}
 
-			outputData = await this.query.raw([
-				"UPDATE " + this.path,
+			const conditions = this._getPrimaryKeyConditions();
+			outputData = await this.#query.raw([
+				"UPDATE " + this.#definition.escapedPath,
 				"SET " + setColumns.join(", "),
-				"WHERE " + this.query.escapeIdentifier(this.fieldPK.name) + " = " + this.escapedPK
+				"WHERE " + conditions.join(" AND ")
 			].join(" "));
 		}
 		else { // INSERT
 			let columns = [];
 			let values = [];
 			for (const column of this.#definition.columns) {
-				if (this.#values[column.name] === Symbol.for("unset")) continue;
+				if (this.#values[column.name] === Symbol.for("unset")) {
+					continue;
+				}
 
-				columns.push(this.query.escapeIdentifier(column.name));
-				values.push(this.query.convertToSQL(this.#values[column.name], column.type));
+				columns.push(this.#query.escapeIdentifier(column.name));
+				values.push(this.#query.convertToSQL(this.#values[column.name], column.type));
 			}
 
-			const ignore = (options.ignore === true ? "IGNORE " : "");
-			outputData = await this.query.send([
-				"INSERT " + ignore + "INTO " + this.path,
+			const ignore = (options.ignore === true) ? "IGNORE " : "";
+
+			// @todo use INSERT RETURNING, see below
+			outputData = await this.#query.send([
+				"INSERT " + ignore + "INTO " + this.#definition.escapedPath,
 				"(" + columns.join(",") + ")",
 				"VALUES (" + values.join(",") + ")"
 			].join(" "));
 
 			if (outputData.insertId !== 0) {
-				this.#primaryKey = outputData.insertId;
-				await this.load(this.#primaryKey);
+				const autoIncrementPK = this.#primaryKeyFields.find(i => i.autoIncrement);
+				this.#values[autoIncrementPK.name] = outputData.insertId;
 			}
-			else if (columns.indexOf(this.fieldPK.name) !== -1) {
-				this.#primaryKey = this.#values[this.fieldPK.name];
-				await this.load(this.#primaryKey);
-			}
-			else {
-				this.#primaryKey = null;
+
+			if (!options.skipLoad) {
+				// @todo with MariaDB 10.5+, use INSERT RETURNING to fetch inserted data immediately insted of having to re-load the Row
+				await this.load(this.PK);
 			}
 		}
 
@@ -190,17 +277,28 @@ module.exports = class Row {
 	 * @returns {Promise<void>}
 	 */
 	async delete () {
-		if (this.PK !== null) {
-			await this.query.send([
-				"DELETE FROM " + this.path,
-				"WHERE " + this.query.escapeIdentifier(this.fieldPK.name) + " = " + this.escapedPK
+		if (!this.#initialized) {
+			throw new sb.Error({
+				message: "Cannot delete row - not initialized",
+				args: this._getErrorInfo()
+			});
+		}
+
+		if (this.#loaded) {
+			const conditions = this._getPrimaryKeyConditions();
+
+			await this.#query.send([
+				"DELETE FROM " + this.#definition.escapedPath,
+				"WHERE " + conditions.join(" AND ")
 			].join(" "));
+
 			this.#loaded = false;
+			this.#deleted = true;
 		}
 		else {
 			throw new sb.Error({
-				message: "In order to delete the row, it must be loaded.",
-				args: this.fullTable
+				message: "Row is not loaded - cannot delete",
+				args: this._getErrorInfo()
 			});
 		}
 	}
@@ -210,8 +308,14 @@ module.exports = class Row {
 	 * Resets the data of the currently loaded row.
 	 */
 	reset () {
+		if (!this.#initialized) {
+			throw new sb.Error({
+				message: "Cannot reset row - not initialized",
+				args: this._getErrorInfo()
+			});
+		}
+
 		this.#loaded = false;
-		this.#primaryKey = null;
 		for (const column of this.#definition.columns) {
 			this.#values[column.name] = Symbol.for("unset");
 			this.#originalValues[column.name] = Symbol.for("unset");
@@ -224,6 +328,13 @@ module.exports = class Row {
 	 * @returns {Row}
 	 */
 	setValues (data) {
+		if (!this.#initialized) {
+			throw new sb.Error({
+				message: "Cannot set column values - row not initialized",
+				args: this._getErrorInfo()
+			});
+		}
+
 		for (const [key, value] of Object.entries(data)) {
 			this.values[key] = value;
 		}
@@ -237,33 +348,76 @@ module.exports = class Row {
 	 * @returns {boolean}
 	 */
 	hasProperty (property) {
+		if (!this.#initialized) {
+			throw new sb.Error({
+				message: "Cannot check property - row not initialized",
+				args: this._getErrorInfo()
+			});
+		}
+
 		return (typeof this.#values[property] !== "undefined");
+	}
+
+	/**
+	 * Creates and returns a simple Object with the Row's identifiers
+	 * @returns {RowErrorIdentifier}
+	 * @private
+	 */
+	_getErrorInfo () {
+		return {
+			database: this.#definition.database,
+			table: this.#definition.name,
+			primaryKeys: this.#primaryKeyFields.map(i => i.name),
+			deleted: this.#deleted,
+			initialized: this.#initialized,
+			loaded: this.#loaded
+		};
+	}
+
+	/**
+	 * Returns a list of conditions based on the Row's primary keys and values
+	 * @returns {string[]}
+	 * @private
+	 */
+	_getPrimaryKeyConditions () {
+		const conditions = [];
+		for (const column of this.#primaryKeyFields) {
+			const parsedValue = this.#query.convertToSQL(this.#values[column.name], column.type);
+			const identifier = this.#query.escapeIdentifier(column.name);
+
+			conditions.push(`(${identifier} = ${parsedValue})`);
+		}
+
+		return conditions;
 	}
 
 	/** @type {Object} */
 	get valuesObject () { return Object.assign({}, this.#values); }
-	get originalValues () { return this.#originalValues; }
-	get PK () { return this.#primaryKey; }
-	get fieldPK () { return this.#primaryKeyField; }
-	get escapedPK () {
-		if (this.PK === null) {
-			throw new sb.Error({
-				message: "Row has no PK"
-			});
-		}
-		return this.query.convertToSQL(this.PK, this.fieldPK.type);
-	}
+
 	get values () { return this.#valueProxy; }
-	get definition () { return this.#definition || null; }
-	get path () {
-		if (this.#definition) {
-			return this.#definition.path;
+	get originalValues () { return this.#originalValues; }
+
+	get PK () {
+		const obj = {};
+		for (const column of this.#primaryKeyFields) {
+			obj[column.name] = this.#values[column.name];
 		}
-		else {
-			throw new sb.Error({
-				message: "This row has no definition, yet"
-			});
-		}
+
+		return obj;
 	}
+
+	get definition () { return this.#definition || null; }
+	get deleted () { return this.#deleted; }
+	get initialized () { return this.#initialized; }
 	get loaded () { return this.#loaded; }
 };
+
+/**
+ * @typedef {Object} RowErrorIdentifier
+ * @property {string} database
+ * @property {string} table
+ * @property {ColumnDefinition[]} primaryKeys
+ * @property {boolean} deleted
+ * @property {boolean} initialized
+ * @property {boolean} loaded
+ */

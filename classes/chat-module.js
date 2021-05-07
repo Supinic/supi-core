@@ -9,6 +9,7 @@ module.exports = class ChatModule extends require("./template.js") {
 
 	ID;
 	Name;
+	/** @type {ChatModuleEvent[]} */
 	Events;
 	Active = true;
 	Code;
@@ -79,8 +80,8 @@ module.exports = class ChatModule extends require("./template.js") {
 				else {
 					const listener = (function chatModuleBinding (context) {
 						if (typeof this.Code !== "function") {
-							console.warn("Attempting to run a destroyed chat module event", { context, chatModule: this.Name });
-							this.detachAll(true);
+							console.warn("Destroyed chat module's code invoked! Module was automatically detached", { context, chatModule: this });
+							channelData.events.off(event, listener);
 							return;
 						}
 
@@ -241,6 +242,10 @@ module.exports = class ChatModule extends require("./template.js") {
 	}
 
 	static async reloadSpecific (...list) {
+		if (list.length === 0) {
+			return false;
+		}
+
 		const existingModules = list.map(i => ChatModule.get(i)).filter(Boolean);
 		for (const chatModule of existingModules) {
 			const index = ChatModule.data.findIndex(i => i === chatModule);
@@ -257,6 +262,8 @@ module.exports = class ChatModule extends require("./template.js") {
 			const chatModule = ChatModule.#create(row);
 			ChatModule.data.push(chatModule);
 		}
+
+		return true;
 	}
 
 	static getChannelModules (channel) {
@@ -333,7 +340,7 @@ module.exports = class ChatModule extends require("./template.js") {
 		let args = [];
 		if (rawArgs !== null) {
 			try {
-				args = JSON.parse(rawArgs);
+				args = eval(rawArgs);
 			}
 			catch (e) {
 				console.warn(e);
@@ -420,3 +427,7 @@ module.exports = class ChatModule extends require("./template.js") {
 		super.destroy();
 	}
 };
+
+/**
+ * @typedef {"message"|"online"|"offline"|"raid"|"subscription"} ChatModuleEvent
+ */

@@ -50,12 +50,10 @@ module.exports = (function () {
 
 			if (process.env.MARIA_SOCKET_PATH) {
 				this.pool = Maria.createPool({
-					socketPath: "/var/run/mysqld/mysqld.sock",
 					user: process.env.MARIA_USER,
 					password: process.env.MARIA_PASSWORD,
-					connectionLimit: process.env.MARIA_CONNECTION_LIMIT || 300,
-					multipleStatements: true,
-					leakDetectionTimeout: 60_000
+					socketPath: process.env.MARIA_SOCKET_PATH,
+					connectionLimit: process.env.MARIA_CONNECTION_LIMIT ?? 25
 				});
 			}
 			else if (process.env.MARIA_HOST) {
@@ -64,9 +62,7 @@ module.exports = (function () {
 					host: process.env.MARIA_HOST,
 					port: process.env.MARIA_PORT || 3306,
 					password: process.env.MARIA_PASSWORD,
-					connectionLimit: process.env.MARIA_CONNECTION_LIMIT || 300,
-					multipleStatements: true,
-					leakDetectionTImeout: 60_000
+					connectionLimit: process.env.MARIA_CONNECTION_LIMIT ?? 25
 				});
 			}
 			else {
@@ -177,7 +173,11 @@ module.exports = (function () {
 		 * @returns {Promise<Row>}
 		 */
 		async getRow (database, table) {
-			return await new Row(this, database, table);
+			/** @type {Row} */
+			const row = new Row(this);
+			await row.initialize(database, table);
+
+			return row;
 		}
 
 		/**
@@ -220,14 +220,16 @@ module.exports = (function () {
 					name: table, database: database, path: path, escapedPath: escapedPath, columns: []
 				};
 
-				const data = await this.raw("SELECT * FROM " + path + " WHERE 1 = 0");
+				const data = await this.raw("SELECT * FROM " + escapedPath + " WHERE 1 = 0");
 				for (const column of data.meta) {
 					obj.columns.push({
 						name: column.name(),
 						type: (Boolean(column.flags & Query.flagMask["SET"])) ? "SET" : column.type,
 						notNull: Boolean(column.flags & Query.flagMask["NOT_NULL"]),
 						primaryKey: Boolean(column.flags & Query.flagMask["PRIMARY_KEY"]),
-						unsigned: Boolean(column.flags & Query.flagMask["UNSIGNED"])
+						unsigned: Boolean(column.flags & Query.flagMask["UNSIGNED"]),
+						autoIncrement: Boolean(column.flags & Query.flagMask["AUTO_INCREMENT"]),
+						zeroFill: Boolean(column.flags & Query.flagMask["ZERO_FILL"])
 					});
 				}
 
@@ -663,6 +665,7 @@ module.exports = (function () {
  * @property {string} database Database of table
  * @property {string} name Name of table
  * @property {string} path {@link TableDefinition#database} . {@link TableDefinition#name}
+ * @property {string} escapedPath like `.path`, but escaped with backticks
  * @property {ColumnDefinition[]} columns Column definition
  */
 
@@ -673,6 +676,8 @@ module.exports = (function () {
  * @property {boolean} notNull If true, column can be set to null
  * @property {boolean} primaryKey If true, column is the primary key or a part of it
  * @property {boolean} unsigned If true, a numeric column is unsigned
+ * @property {boolean} autoIncrement If true, the column is an AUTO_INCREMENT primary key
+ * @property {boolean} zeorFill If true, the column is a numeric field left-filled with zeroes
  */
 
 /**

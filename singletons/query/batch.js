@@ -34,14 +34,16 @@ module.exports = class Batch {
 					throw new sb.Error({
 						message: "Unrecognized Batch column",
 						args: {
-							table: table,
-							column: definition.columns.filter(i => column.name !== i).map(i => i.name).join(", ")
+							database: db,
+							table,
+							unrecognizedColumn: column,
+							tableColumns: definition.columns.join(", ")
 						}
 					});
 				}
 			}
 
-			this.columns = definition.columns.filter(column => columns.indexOf(column.name) !== -1);
+			this.columns = definition.columns.filter(column => columns.includes(column.name));
 			this.ready = true;
 			return this;
 		})();

@@ -284,6 +284,10 @@ module.exports = class Cron extends require("./template.js") {
 	}
 
 	static async reloadSpecific (...list) {
+		if (list.length === 0) {
+			return false;
+		}
+
 		const reloadingCrons = list.map(i => Cron.get(i)).filter(Boolean);
 		if (reloadingCrons.length === 0) {
 			throw new sb.Error({
@@ -308,6 +312,8 @@ module.exports = class Cron extends require("./template.js") {
 			Cron.data[existingIndex] = newCron;
 			newCron.start();
 		}
+
+		return true;
 	}
 
 	static get (identifier) {

@@ -2,6 +2,8 @@
 /**
  * Represents the result of a SELECT statement with (usually) more than one result row.
  */
+
+const ROW_COLLAPSED = Symbol("row-collapsed");
 module.exports = class Recordset {
 	#query = null;
 	#fetchSingle = false;
@@ -264,7 +266,7 @@ module.exports = class Recordset {
 				result += "ON " + on;
 			}
 			else {
-				result += " ON `" + fromTable + "`.`" + fromField + "` = `" + toTable + "`.`" + toField + "`";
+				result += " ON `" + fromTable + "`.`" + fromField + "` = `" + (alias ?? toTable) + "`.`" + toField + "`";
 				if (condition) {
 					result += " AND " + condition;
 				}
@@ -295,50 +297,86 @@ module.exports = class Recordset {
 	}
 
 	/**
-	 *
+	 * For more info and detailed usage, check `./reference.md`
 	 */
 	reference (options = {}) {
 		const {
-			sourceDatabase = this.#from.database, sourceTable = this.#from.table, sourceField = "ID",
+			sourceDatabase = this.#from.database,
+			sourceTable = this.#from.table,
+			sourceField = "ID",
 
-			targetDatabase = this.#from.database, targetTable, targetField = "ID", targetAlias = null,
+			targetDatabase = this.#from.database,
+			targetTable,
+			targetField = "ID",
+			targetAlias = null,
 
-			referenceDatabase = this.#from.database, referenceTable, referenceFieldSource = sourceTable, referenceFieldTarget = targetTable,
+			referenceDatabase = this.#from.database,
+			referenceTable,
+			referenceFieldSource = sourceTable,
+			referenceFieldTarget = targetTable,
 
-			fields = [], collapseOn, left = false
+			condition,
+			referenceCondition,
+			targetCondition,
+
+			fields = [],
+			collapseOn,
+			left = true
 		} = options;
 
 		const joinType = (left) ? "leftJoin" : "join";
-		if (!referenceTable || !targetTable) {
-			throw new sb.Error({
-				message: "Both referenceTable and targetTable must be filled in!"
+
+		if (referenceTable && targetTable) {
+			this[joinType]({
+				fromDatabase: sourceDatabase,
+				fromTable: sourceTable,
+				fromField: sourceField,
+				toDatabase: referenceDatabase,
+				toTable: referenceTable,
+				toField: referenceFieldSource,
+				condition: referenceCondition
+			});
+
+			this[joinType]({
+				fromDatabase: referenceDatabase,
+				fromTable: referenceTable,
+				fromField: referenceFieldTarget,
+				toDatabase: targetDatabase,
+				toTable: targetTable,
+				toField: targetField,
+				alias: targetAlias,
+				condition: targetCondition
+			});
+
+			this.#reference.push({
+				collapseOn: collapseOn ?? null,
+				columns: fields,
+				target: targetAlias ?? targetTable
 			});
 		}
+		else if (targetTable && !referenceTable) {
+			this[joinType]({
+				fromDatabase: sourceDatabase,
+				fromTable: sourceTable,
+				fromField: sourceField,
+				toDatabase: targetDatabase,
+				toTable: targetTable,
+				toField: targetField,
+				alias: targetAlias,
+				condition
+			});
 
-		this[joinType]({
-			fromDatabase: sourceDatabase,
-			fromTable: sourceTable,
-			fromField: sourceField,
-			toDatabase: referenceDatabase,
-			toTable: referenceTable,
-			toField: referenceFieldSource,
-			alias: targetAlias
-		});
-
-		this[joinType]({
-			fromDatabase: referenceDatabase,
-			fromTable: referenceTable,
-			fromField: referenceFieldTarget,
-			toDatabase: targetDatabase,
-			toTable: targetTable,
-			toField: targetField
-		});
-
-		this.#reference.push({
-			collapseOn: collapseOn ?? null,
-			columns: fields,
-			target: targetTable
-		});
+			this.#reference.push({
+				collapseOn: collapseOn ?? null,
+				columns: fields,
+				target: targetAlias ?? targetTable
+			});
+		}
+		else {
+			throw new sb.Error({
+				message: "Too many missing table specifications"
+			});
+		}
 
 		return this;
 	}
@@ -436,10 +474,14 @@ module.exports = class Recordset {
 			}
 		}
 
-		for (const reference of this.#reference) {
-			if (reference.collapseOn) {
-				result = Recordset.collapseReferencedData(result, reference);
+		if (this.#reference.length > 0) {
+			for (const reference of this.#reference) {
+				if (reference.collapseOn) {
+					Recordset.collapseReferencedData(result, reference);
+				}
 			}
+
+			result = result.filter(i => !i[ROW_COLLAPSED]);
 		}
 
 		// result.sql = sql;
@@ -448,41 +490,50 @@ module.exports = class Recordset {
 			: result;
 	}
 
-	static collapseReferencedData (originalData, options) {
+	static collapseReferencedData (data, options) {
 		const keyMap = new Map();
-		const data = JSON.parse(JSON.stringify(originalData));
-		const { collapseOn: key, target, columns } = options;
+		const { collapseOn: collapser, target, columns } = options;
 		const regex = new RegExp("^" + target + "_");
 
 		for (let i = data.length - 1; i >= 0; i--) {
-			let skip = false;
 			const row = data[i];
-			
-			if (!keyMap.has(row[key])) {
-				keyMap.set(row[key], []);
+			if (!keyMap.has(row[collapser])) {
+				keyMap.set(row[collapser], []);
 			}
 			else {
-				skip = true;
+				data[i][ROW_COLLAPSED] = true;
 			}
-			
+
 			const copiedProperties = {};
 			for (const column of columns) {
 				copiedProperties[column.replace(regex, "")] = row[column];
 				delete row[column];
 			}
-			
-			if (skip) {
-				data.splice(i, 1);
+
+			let addProperties = true;
+			for (const value of keyMap.get(row[collapser])) {
+				const skip = Object.keys(value).every(i => value[i] === copiedProperties[i]);
+				if (skip) {
+					addProperties = false;
+					break;
+				}
 			}
-			
-			keyMap.get(row[key]).push(copiedProperties);
+
+			if (addProperties) {
+				keyMap.get(row[collapser]).push(copiedProperties);
+			}
 		}
-		
+
 		for (const row of data) {
-			row[target] = keyMap.get(row[key]);
+			row[target] = keyMap.get(row[collapser]);
+
+			if (row[target].length === 1) {
+				const allNull = !Object.values(row[target][0]).some(Boolean);
+				if (allNull) {
+					row[target] = [];
+				}
+			}
 		}
-		
-		return data;
 	}
 };
 

@@ -3,7 +3,8 @@
  * @memberof sb
  * @type Channel
  */
-module.exports = class Channel extends require("./template.js") {
+const Template = require("./template.js");
+module.exports = class Channel extends Template {
     static redisPrefix = "sb-channel";
 
     /** @alias {Channel} */
@@ -95,24 +96,6 @@ module.exports = class Channel extends require("./template.js") {
          * @type {number|null}
          */
         this.NSFW = data.NSFW;
-
-        /**
-         * If not null, every message will be run through this code. Used for moderation, or other functionalities.
-         * Callback arguments:
-         * {Object} options
-         * {"message"|"data"} type Message if setting the message, Data if checking other platform data
-         * {User} [user] User data (only if type === "message")
-         * {string} [command] Data ommand name (only if type === "data")
-         * {string} [string] Data ommand string (only if type === "data")
-         * @type {Function|null}
-         */
-        try {
-            this.Custom_Code = data.Custom_Code ? eval(data.Custom_Code) : null;
-        }
-        catch (e) {
-            console.warn("Incorrect channel custom code definition!", this.ID, e);
-            this.Custom_Code = null;
-        }
 
         /**
          * If not null, every message sent to this channel will also be mirrored to the channel with this ID.
@@ -263,6 +246,15 @@ module.exports = class Channel extends require("./template.js") {
      */
     send (message) {
         return this.Platform.send(message, this);
+    }
+
+    async getStreamData () {
+        const streamData = await this.getCacheData("stream-data");
+        return streamData ?? {};
+    }
+
+    async setStreamData (data) {
+        return await this.setCacheData("stream-data", data, { expiry: 3_600_000 });
     }
 
     async toggleAmbassador (userData) {
@@ -496,6 +488,10 @@ module.exports = class Channel extends require("./template.js") {
 
     static async reloadSpecific (...list) {
         const channelsData = list.map(i => Channel.get(i)).filter(Boolean);
+        if (channelsData.length === 0) {
+            return false;
+        }
+
         const data = await sb.Query.getRecordset(rs => rs
             .select("*")
             .from("chat_data", "Channel")
@@ -522,6 +518,8 @@ module.exports = class Channel extends require("./template.js") {
 
             Channel.data.push(newChannelData);
         }
+
+        return true;
     }
 };
 
