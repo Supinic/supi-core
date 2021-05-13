@@ -18,7 +18,6 @@ module.exports = (async function (namespace = "sb", options = {}) {
 		"singletons/system-log",
 		"singletons/vlc-connector",
 		"singletons/twitter",
-		"singletons/internal-request",
 		"singletons/local-request",
 		"singletons/runtime",
 		"singletons/sandbox",
