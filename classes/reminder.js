@@ -6,7 +6,8 @@
  */
 module.exports = class Reminder extends require("./template.js") {
     static LongTimeout = require("long-timeout");
-    
+    static data = [];
+
     /** @type {Reminder} */
     constructor (data) {
         super();

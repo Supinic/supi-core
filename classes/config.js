@@ -11,6 +11,7 @@ module.exports = class Config extends require("./template.js") {
 	#Secret;
 	#Editable;
 
+	static data = new Map();
 	static nonStrictNotifications = new Map();
 
 	constructor (data) {
