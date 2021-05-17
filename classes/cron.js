@@ -63,7 +63,6 @@ module.exports = class Cron extends require("./template.js") {
 
 	// </editor-fold>
 
-	static data = [];
 	static Job = CronJob;
 	static #serializableProperties = {
 		Name: { type: "string" },

@@ -6,8 +6,6 @@
 module.exports = class Filter extends require("./template.js") {
 	#filterData = null;
 
-	static data = [];
-
 	constructor (data) {
 		super();
 

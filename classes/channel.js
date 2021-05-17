@@ -6,7 +6,6 @@
 const Template = require("./template.js");
 module.exports = class Channel extends Template {
     static redisPrefix = "sb-channel";
-    static data = [];
 
     /** @alias {Channel} */
     constructor (data) {

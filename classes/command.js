@@ -183,7 +183,6 @@ class Command extends require("./template.js") {
 
 	// </editor-fold>
 
-	static data = [];
 	static #privateMessageChannelID = Symbol("private-message-channel");
 	static #serializableProperties = {
 		Name: { type: "string" },

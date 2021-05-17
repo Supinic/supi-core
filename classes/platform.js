@@ -11,8 +11,6 @@ module.exports = class Platform extends require("./template.js") {
 	#controller = null;
 	#userMessagePromises = new Map();
 
-	static data = [];
-
 	/**
 	 * @param {Object} data
 	 * @param {number} data.User_Alias

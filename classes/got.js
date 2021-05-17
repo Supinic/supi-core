@@ -4,9 +4,6 @@ module.exports = (function () {
 	const SymbolName = Symbol("Name");
 
 	class Got extends require("./template.js") {
-
-		static data = [];
-
 		static async loadData () {
 			Got.data = [];
 			const data = await sb.Query.getRecordset(rs => rs

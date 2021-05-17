@@ -4,9 +4,6 @@
  * @type AwayFromKeyboard
  */
 module.exports = class AwayFromKeyboard extends require("./template.js") {
-
-	static data = [];
-
 	constructor (data) {
 		super();
 

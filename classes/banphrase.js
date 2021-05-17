@@ -84,8 +84,6 @@ module.exports = (function () {
 		 */
 		data = {};
 
-		static data = [];
-
 		constructor (data) {
 			super();
 
