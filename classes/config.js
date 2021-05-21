@@ -1,7 +1,6 @@
 /**
  * Represents configuration variables saved in the database.
  * @memberof sb
- * @type Config
  */
 module.exports = class Config extends require("./template.js") {
 	#Name;

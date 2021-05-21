@@ -1,3 +1,7 @@
+/**
+ * Represents a single `Got` instance with its own default options
+ * @memberof sb
+ */
 module.exports = (function () {
 	const FormData = require("form-data");
 	const GotModule = require("got");

@@ -1,7 +1,6 @@
 /**
  * Represents a function that's executed every some time
  * @memberof sb
- * @type Cron
  */
 const { CronJob } = require("cron");
 module.exports = class Cron extends require("./template.js") {

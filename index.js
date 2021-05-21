@@ -1,5 +1,10 @@
 module.exports = (async function (namespace = "sb", options = {}) {
-	globalThis[namespace] = {};
+	/**
+	 * Global namespace wrapper.
+	 * @namespace
+	 * @type {Object}
+	 */
+	globalThis.sb = {};
 
 	const files = [
 		"objects/date",
