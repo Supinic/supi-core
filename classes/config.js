@@ -111,8 +111,7 @@ module.exports = class Config extends require("./template.js") {
 						this.#Value = eval(value);
 						if (typeof this.#Value !== "function") {
 							console.warn(`Function config variable is not typeof function`, { value });
-							this.#Value = function empty () {
-							};
+							this.#Value = () => undefined;
 						}
 					}
 					catch (e) {
