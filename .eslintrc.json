@@ -133,7 +133,7 @@
         "no-useless-computed-key": "warn",
         "no-useless-rename": "error",
         "no-var": "error",
-        "object-shorthand": "warn",
+        "object-shorthand": ["warn", "properties"],
         "prefer-arrow-callback": "warn",
         "prefer-const": ["warn", {
             "destructuring": "all"
