@@ -759,7 +759,7 @@ module.exports = (function () {
 			if (caseTo === "snake") {
 				result = words.map(i => this.capitalize(i)).join("_");
 			}
-			else if (caseTo === "snake") {
+			else if (caseTo === "kebab") {
 				result = words.join("-");
 			}
 			else if (caseTo === "camel") {
