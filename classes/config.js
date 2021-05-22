@@ -101,7 +101,7 @@ module.exports = class Config extends require("./template.js") {
 						this.#Value = JSON.parse(value);
 					}
 					catch (e) {
-						console.warn(`Config variable ${name} has invalid definition`, e);
+						console.warn(`Object config variable has invalid definition`, { value, e });
 						this.#Value = (this.#Type === "array") ? [] : {};
 					}
 					break;
@@ -110,15 +110,14 @@ module.exports = class Config extends require("./template.js") {
 					try {
 						this.#Value = eval(value);
 						if (typeof this.#Value !== "function") {
-							console.warn(`Config function variable ${name} does not return a function`, e);
+							console.warn(`Function config variable is not typeof function`, { value });
 							this.#Value = function empty () {
 							};
 						}
 					}
 					catch (e) {
-						console.warn(`Config function variable ${name} has invalid definition`, e);
-						this.#Value = function empty () {
-						};
+						console.warn(`Object config variable has invalid definition`, { value, e });
+						this.#Value = () => undefined;
 					}
 					break;
 

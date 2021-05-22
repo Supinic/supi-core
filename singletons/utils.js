@@ -31,7 +31,7 @@ module.exports = (function () {
 				soundcloud: {
 					key: sb.Config.get("SOUNDCLOUD_CLIENT_ID")
 				}
-	         });
+			 });
 		},
 		languageISO: () => require("language-iso-codes"),
 		rss: () => new (require("rss-parser"))(),
@@ -732,7 +732,7 @@ module.exports = (function () {
 
 			return result;
 		}
-		
+
 		convertCase (text, caseFrom, caseTo) {
 			if (typeof text !== "string") {
 				throw new sb.Error({

@@ -320,7 +320,7 @@ module.exports = class Cron extends require("./template.js") {
 			return identifier;
 		}
 		else if (typeof identifier === "string") {
-		    return Cron.data.find(i => i.Name === identifier) ?? null;
+			return Cron.data.find(i => i.Name === identifier) ?? null;
 		}
 		else if (typeof identifier === "number" || typeof identifier === "symbol") {
 			return Cron.data.find(i => i.ID === identifier) ?? null;
