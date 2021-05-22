@@ -27,7 +27,13 @@
   },
   "author": "Supinic",
   "license": "AGPL-3.0",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
   "devDependencies": {
-    "mocha": "^8.1.0"
+    "mocha": "^8.1.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.1.0"
   }
 }
