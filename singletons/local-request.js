@@ -84,6 +84,6 @@ module.exports = (function () {
 
 		get modulePath () { return "local-request"; }
 
-		destroy () { }
+		destroy () {}
 	};
 })();

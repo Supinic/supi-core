@@ -273,10 +273,8 @@ module.exports = class Recordset {
 
 			this.#join.push(result);
 		}
-		else if (target && target.constructor === Object) {
-			if (typeof target.raw === "string") {
-				this.#join.push(`${left}JOIN ${target.raw}`);
-			}
+		else if (target && target.constructor === Object && typeof target.raw === "string") {
+			this.#join.push(`${left}JOIN ${target.raw}`);
 		}
 
 		return this;
