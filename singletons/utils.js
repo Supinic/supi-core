@@ -57,18 +57,75 @@ module.exports = (function () {
 		}
 	})
 
+	/**
+	 * Conscise collection of "helper" and "utility" methods.
+	 * @memberof sb
+	 */
 	return class Utils extends require("./template.js") {
+		/** Numeric constants to convert between any two time units. */
+		static timeUnits = {
+			y: {d: 365, h: 8760, m: 525600, s: 31536000, ms: 31536000.0e3 },
+			d: {h: 24, m: 1440, s: 86400, ms: 86400.0e3},
+			h: {m: 60, s: 3600, ms: 3600.0e3},
+			m: {s: 60, ms: 60.0e3},
+			s: {ms: 1.0e3}
+		};
+
+		/** List of named HTML entities and their identifiers */
+		static htmlEntities = {
+			"nbsp": " ",
+			"lt": "<",
+			"gt": ">",
+			"amp": "&",
+			"quot": "\"",
+			"apos": "'",
+			"cent": "¢",
+			"pound": "£",
+			"yen": "¥",
+			"euro": "€",
+			"copy": "©",
+			"reg": "®",
+		};
+
+		/** Collection of string template "tag" functions */
+		tag = {
+			trim: (strings, ...values) => {
+				const result = [];
+				for (let i = 0; i < strings.length; i++) {
+					result.push(strings[i].replace(/\s+/g, " "));
+					result.push(values[i]);
+				}
+
+				return result.join("").trim();
+			},
+			groupDigits: (strings, ...values) => {
+				const result = [];
+				for (let i = 0; i < strings.length; i++) {
+					result.push(strings[i]);
+
+					if (typeof values[i] === "number") {
+						result.push(this.groupDigits(values[i]));
+					}
+					else {
+						result.push(values[i]);
+					}
+				}
+
+				return result.join("");
+			}
+		};
+
 		get modules () {
 			return moduleProxy;
 		}
 
 		get languageISO () {
-			console.debug("Deprecated access Utils.languageISO");
+			console.warn("Deprecated access Utils.languageISO");
 			return this.modules.languageISO;
 		}
 
 		get linkParser () {
-			console.debug("Deprecated access Utils.linkParser");
+			console.warn("Deprecated access Utils.linkParser");
 			return this.modules.linkParser;
 		}
 
@@ -78,72 +135,6 @@ module.exports = (function () {
 				Utils.module = new Utils();
 			}
 			return Utils.module;
-		}
-
-		/**
-		 * Returns onversion numbers between two time units.
-		 * @returns {Object}
-		 */
-		static get timeUnits () {
-			return {
-				y: {d: 365, h: 8760, m: 525600, s: 31536000, ms: 31536000.0e3},
-				d: {h: 24, m: 1440, s: 86400, ms: 86400.0e3},
-				h: {m: 60, s: 3600, ms: 3600.0e3},
-				m: {s: 60, ms: 60.0e3},
-				s: {ms: 1.0e3}
-			};
-		}
-
-		/**
-		 * Class containing various utility methods that don't fit elsewhere.
-		 * @name sb.Utils
-		 * @type Utils()
-		 */
-		constructor () {
-			super();
-
-			this.htmlEntities = {
-				"nbsp": " ",
-				"lt": "<",
-				"gt": ">",
-				"amp": "&",
-				"quot": "\"",
-				"apos": "'",
-				"cent": "¢",
-				"pound": "£",
-				"yen": "¥",
-				"euro": "€",
-				"copy": "©",
-				"reg": "®",
-			};
-
-			const self = this;
-			this.tag = {
-				trim: (strings, ... values) => {
-					const result = [];
-					for (let i = 0; i < strings.length; i++) {
-						result.push(strings[i].replace(/\s+/g, " "));
-						result.push(values[i]);
-					}
-
-					return result.join("").trim();
-				},
-				groupDigits: (strings, ...values) => {
-					const result = [];
-					for (let i = 0; i < strings.length; i++) {
-						result.push(strings[i]);
-
-						if (typeof values[i] === "number") {
-							result.push(self.groupDigits(values[i]));
-						}
-						else {
-							result.push(values[i]);
-						}
-					}
-
-					return result.join("");
-				}
-			};
 		}
 
 		/**
@@ -304,6 +295,11 @@ module.exports = (function () {
 			return (Math[direction](number * (10 ** places))) / (10 ** places);
 		}
 
+		/**
+		 * Escapes the most common problematic characters as HTML entity sequences
+		 * @param string
+		 * @returns {string}
+		 */
 		escapeHTML (string) {
 			return string
 				.replace(/&/g, "&amp;")
@@ -314,14 +310,14 @@ module.exports = (function () {
 		}
 
 		/**
-		 * @todo Finish documentation
+		 * Fixes an HTML string by replacing all escape sequences with their character representations
 		 * @param {string} string
 		 * @returns {string}
 		 */
 		fixHTML (string) {
 			return string.replace(/&#?(?<identifier>[a-z0-9]+);/g, (...params) => {
 				const {identifier} = params.pop();
-				return this.htmlEntities[identifier] || String.fromCharCode(Number(identifier));
+				return Utils.htmlEntities[identifier] || String.fromCharCode(Number(identifier));
 			});
 		}
 
@@ -893,12 +889,20 @@ module.exports = (function () {
 		/**
 		 * Utils wrapper for the cheerio module.
 		 * @param {string} html
-		 * @returns {Cheerio}
+		 * @returns {*} CheerioAPI
 		 */
 		cheerio (html) {
-			return this.modules.cheerio.load(html);
+			const cheerio = require("cheerio");
+			return cheerio.load(html);
 		}
 
+		/**
+		 * Formats a number representing byte count into the closest matching SI/IEM prefix.
+		 * @param {number} number
+		 * @param {number} digits
+		 * @param {"iem"|"si"} type
+		 * @returns {string}
+		 */
 		formatByteSize (number, digits = 3, type = "si") {
 			if (type !== "si" && type !== "iem") {
 				throw new sb.Error({
@@ -924,10 +928,10 @@ module.exports = (function () {
 		}
 
 		/**
-		 * Creates a random string using the characters provided.
-		 * If not provided, uses the base ASCII alphabet.
+		 * Creates a random string using the characters provided, or the base ASCII alphabet.
 		 * @param {number} length
 		 * @param {string|string[]} [characters]
+		 * @returns {string}
 		 */
 		randomString (length, characters) {
 			if (!characters) {
@@ -938,14 +942,14 @@ module.exports = (function () {
 			}
 			else if (!Array.isArray(characters) || characters.some(i => typeof i !== "string")) {
 				throw new sb.Error({
-					message: "Invalid input",
+					message: "Invalid input format",
 					args: { characters, length }
 				});
 			}
 
 			const result = [];
 			for (let i = 0; i < length; i++) {
-				result.push(sb.Utils.randArray(characters));
+				result.push(this.randArray(characters));
 			}
 
 			return result.join("");
@@ -1153,15 +1157,31 @@ module.exports = (function () {
 			}
 		}
 
+		/**
+		 * Returns a string that represents the input number with digits grouped together
+		 * @param {number} number
+		 * @param {string} separator
+		 * @returns {string}
+		 */
 		groupDigits (number, separator = " ") {
 			const local = new Intl.NumberFormat().format(number);
 			return local.replace(/,/g, separator);
 		}
 
-		parseRSS (url) {
-			return this.modules.rss.parseURL(url);
+		/**
+		 * Parses an RSS string into JS object format.
+		 * @param {string} xml
+		 * @returns {Promise<RSSParserResult>}
+		 */
+		async parseRSS (xml) {
+			return await this.modules.rss.parseString(xml);
 		}
 
+		/**
+		 * Uses ffmpeg to probe a file for its media file data.
+		 * @param {string} link
+		 * @returns {Promise<{duration: number, bitrate: number}|null>}
+		 */
 		async getMediaFileData (link) {
 			try {
 				const path = sb.Config.get("FFMPEG_PATH");
@@ -1176,6 +1196,14 @@ module.exports = (function () {
 			}
 		}
 
+		/**
+		 * Formats a number to return a simplified string with the best matching SI prefix.
+		 * @param {number} number
+		 * @param {string} unit
+		 * @param {number} places
+		 * @param {boolean} addSpace
+		 * @returns {string}
+		 */
 		formatSI (number, unit = "", places = 0, addSpace = false) {
 			const space = (addSpace) ? " " : "";
 			const prefixes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"];
@@ -1245,13 +1273,13 @@ module.exports = (function () {
 		}
 
 		/**
-		 * Evaluates an expression in standard dice notation form		 *
+		 * Evaluates an expression in standard dice notation form
 		 * @param {string} input
 		 * @param {number} limit max number of rolls in a single evaluation
 		 * @returns {number}
 		 * @throws {Error}
 		 */
-		evalDiceRoll(input, limit) {
+		evalDiceRoll (input, limit) {
 			return this.modules.diceRollEval(input, {
 				limit,
 				strict: false,
@@ -1259,6 +1287,12 @@ module.exports = (function () {
 			});
 		}
 
+		/**
+		 * Uploads a file to {@link https://imgur.com}
+		 * @param {Buffer} fileData
+		 * @param {string} link
+		 * @returns {Promise<FileUploadResult>}
+		 */
 		async uploadToImgur (fileData, link = "random") {
 			const formData = new sb.Got.FormData();
 			formData.append("image", fileData, link); // !!! FILE NAME MUST BE SET, OR THE API NEVER RESPONDS !!!
@@ -1283,6 +1317,11 @@ module.exports = (function () {
 			};
 		}
 
+		/**
+		 * Uploads a file to {@link https://i.nuuls.com}
+		 * @param {Buffer} fileData
+		 * @returns {Promise<FileUploadResult>}
+		 */
 		async uploadToNuuls (fileData) {
 			const form = new sb.Got.FormData();
 			form.append("attachment", fileData, "file.jpg");
@@ -1305,6 +1344,11 @@ module.exports = (function () {
 			};
 		}
 
+		/**
+		 * Checks an image provided via URL for its NSFW score.
+		 * @param {string} link
+		 * @returns {Promise<NSFWDetectionResult>}
+		 */
 		async checkPictureNSFW (link) {
 			const { statusCode, body: data } = await sb.Got({
 				method: "POST",
@@ -1318,6 +1362,12 @@ module.exports = (function () {
 					image: link
 				}
 			});
+
+			if (data.output?.detections) {
+				for (const item of data.output.detections) {
+					item.confidence = Number(item.confidence);
+				}
+			}
 
 			return {
 				statusCode,
@@ -1334,7 +1384,54 @@ module.exports = (function () {
 		/** @inheritDoc */
 		destroy () {
 			this.duration = null;
-			this.mersenneRandom = null;
 		}
 	};
 })();
+
+/**
+ * @typedef {Object} NSFWDetectionResult
+ * @property {number} statusCode
+ * @property {Object} data
+ * @property {string} data.id
+ * @property {number} data.score
+ * @property {NSFWDetectionItem[]} data.detections
+ */
+
+/**
+ * @typedef {Object} NSFWDetectionItem
+ * @property {number[]} bounding_box Array of four numbers determining the bounding box coordinates
+ * @property {number} confidence
+ * @property {string} name
+ */
+
+/**
+ * @typedef {Object} FileUploadResult
+ * @property {number} statusCode
+ * @property {string} link
+ */
+
+/**
+ * @typedef {Object} RSSParserResult
+ * @property {string} description
+ * @property {Object} image
+ * @property {string} image.link
+ * @property {string} image.title
+ * @property {string} image.url
+ * @property {RSSArticle[]} items
+ * @property {string} language
+ * @property {string} link
+ * @property {string} title
+ */
+
+/**
+ * @typedef {Object} RSSArticle
+ * @property {string} author
+ * @property {string[]} categories
+ * @property {string} content
+ * @property {string} contentSnippet
+ * @property {string} creator
+ * @property {string} isoDate
+ * @property {string} link
+ * @property {string} pubDate
+ * @property {string} title
+ */
