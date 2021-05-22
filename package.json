@@ -29,7 +29,8 @@
   "license": "AGPL-3.0",
   "scripts": {
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "test": "mocha ./tests --recursive --exit"
   },
   "devDependencies": {
     "mocha": "^8.1.0",
