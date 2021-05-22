@@ -58,22 +58,22 @@ module.exports = (async function (namespace = "sb", options = {}) {
 		let component = require("./" + file);
 
 		if (type === "objects") {
-			globalThis[namespace][component.name] = component;
+			sb[component.name] = component;
 		}
 		else if (type === "singletons") {
-			globalThis[namespace][component.name] = await component.singleton();
+			sb[component.name] = await component.singleton();
 		}
 		else if (type === "classes") {
 			if (skipData.includes(file)) {
-				globalThis[namespace][component.specificName ?? component.name] = component;
+				sb[component.specificName ?? component.name] = component;
 			}
 			else {
-				globalThis[namespace][component.specificName ?? component.name] = await component.initialize();
+				sb[component.specificName ?? component.name] = await component.initialize();
 			}
 		}
 
 		const end = process.hrtime.bigint();
-		console.log(component.name + " loaded in " + Number(end - start) / 1.0e6 + " ms");
+		console.log(component.name + " loaded in " + Number(end - start) / 1e6 + " ms");
 	}
 
 	console.groupEnd();
