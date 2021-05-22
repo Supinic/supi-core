@@ -1058,8 +1058,8 @@ module.exports = (function () {
 			let transpositions = 0;
 			for (let i = 0; i < from.length; i++) {
 				if (fromMatches[i] === true) {
-					let j = null;
-					for (let j = start; j < target.length; j++) {
+					let j;
+					for (j = start; j < target.length; j++) {
 						if (targetMatches[j] === true) {
 							start = j + 1;
 							break;
