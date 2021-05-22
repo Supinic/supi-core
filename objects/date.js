@@ -172,7 +172,7 @@ module.exports = class Date extends global.Date {
 					this.setMilliseconds(0);
 					break;
 				default:
-					throw new Error("Unrecognized time unit " + unit);
+					throw new Error(`Unrecognized time unit ${unit}`);
 			}
 		}
 		return this;

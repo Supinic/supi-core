@@ -97,7 +97,7 @@ module.exports = class RecordDeleter {
 		sql.push(`DELETE FROM \`${this.#deleteFrom.database}\`.\`${this.#deleteFrom.table}\``);
 
 		if (this.#where.length !== 0) {
-			sql.push("WHERE (" + this.#where.join(") AND (") + ")");
+			sql.push(`WHERE (${this.#where.join(") AND (")})`);
 		}
 		else if (!this.#confirmedFullDelete) {
 			throw new sb.Error({

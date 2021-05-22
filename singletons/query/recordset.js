@@ -232,8 +232,8 @@ module.exports = class Recordset {
 	 */
 	join (database, target, customField, left = "") {
 		if (typeof target === "string") {
-			const dot = (database) ? (database + ".`" + target + "`") : ("`" + target + "`");
-			this.#join.push(left + "JOIN " + dot + " ON `" + this.#from.table + "`.`" + (customField || target) + "` = " + dot + ".ID");
+			const dot = (database) ? (`${database}.\`${target}\``) : (`\`${target}\``);
+			this.#join.push(`${left}JOIN ${dot} ON \`${this.#from.table}\`.\`${customField || target}\` = ${dot}.ID`);
 		}
 		else if (database && database.constructor === Object) {
 			const {
@@ -256,18 +256,18 @@ module.exports = class Recordset {
 				});
 			}
 
-			let result = left + "JOIN `" + toDatabase + "`.`" + toTable + "`";
+			let result = `${left}JOIN \`${toDatabase}\`.\`${toTable}\``;
 			if (alias) {
-				result += " AS `" + alias + "` ";
+				result += ` AS \`${alias}\` `;
 			}
 
 			if (on) {
-				result += "ON " + on;
+				result += `ON ${on}`;
 			}
 			else {
-				result += " ON `" + fromTable + "`.`" + fromField + "` = `" + (alias ?? toTable) + "`.`" + toField + "`";
+				result += ` ON \`${fromTable}\`.\`${fromField}\` = \`${alias ?? toTable}\`.\`${toField}\``;
 				if (condition) {
-					result += " AND " + condition;
+					result += ` AND ${condition}`;
 				}
 			}
 
@@ -275,7 +275,7 @@ module.exports = class Recordset {
 		}
 		else if (target && target.constructor === Object) {
 			if (typeof target.raw === "string") {
-				this.#join.push(left + "JOIN " + target.raw);
+				this.#join.push(`${left}JOIN ${target.raw}`);
 			}
 		}
 
@@ -386,7 +386,7 @@ module.exports = class Recordset {
 	 */
 	toCondition () {
 		if (this.#where.length !== 0) {
-			return "(" + this.#where.join(") AND (") + ")";
+			return `(${this.#where.join(") AND (")})`;
 		}
 		else {
 			return "";
@@ -410,15 +410,15 @@ module.exports = class Recordset {
 		}
 
 		const sql = [];
-		sql.push("SELECT " + this.#select.map(select => this.#query.escapeIdentifier(select)).join(", "));
-		(this.#from) && sql.push("FROM `" + this.#from.database + "`.`" + this.#from.table + "`");
+		sql.push(`SELECT ${this.#select.map(select => this.#query.escapeIdentifier(select)).join(", ")}`);
+		(this.#from) && sql.push(`FROM \`${this.#from.database}\`.\`${this.#from.table}\``);
 		(this.#join.length !== 0) && sql.push(this.#join.join(" "));
-		(this.#where.length !== 0) && sql.push("WHERE (" + this.#where.join(") AND (") + ")");
-		(this.#groupBy.length !== 0) && sql.push("GROUP BY " + this.#groupBy.join(", "));
-		(this.#having.length !== 0) && sql.push("HAVING " + this.#having.join(", "));
-		(this.#orderBy.length !== 0) && sql.push("ORDER BY " + this.#orderBy.join(", "));
-		(this.#limit !== null) && sql.push("LIMIT " + this.#limit);
-		(this.#offset !== null) && sql.push("OFFSET " + this.#offset);
+		(this.#where.length !== 0) && sql.push(`WHERE (${this.#where.join(") AND (")})`);
+		(this.#groupBy.length !== 0) && sql.push(`GROUP BY ${this.#groupBy.join(", ")}`);
+		(this.#having.length !== 0) && sql.push(`HAVING ${this.#having.join(", ")}`);
+		(this.#orderBy.length !== 0) && sql.push(`ORDER BY ${this.#orderBy.join(", ")}`);
+		(this.#limit !== null) && sql.push(`LIMIT ${this.#limit}`);
+		(this.#offset !== null) && sql.push(`OFFSET ${this.#offset}`);
 
 		return sql;
 	}
@@ -492,7 +492,7 @@ module.exports = class Recordset {
 	static collapseReferencedData (data, options) {
 		const keyMap = new Map();
 		const { collapseOn: collapser, target, columns } = options;
-		const regex = new RegExp("^" + target + "_");
+		const regex = new RegExp(`^${target}_`);
 
 		for (let i = data.length - 1; i >= 0; i--) {
 			const row = data[i];

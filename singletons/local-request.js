@@ -32,7 +32,7 @@ module.exports = (function () {
 
 		constructor () {
 			super();
-			this.url = sb.Config.get("LOCAL_IP") + ":" + sb.Config.get("LOCAL_PLAY_SOUNDS_PORT");
+			this.url = `${sb.Config.get("LOCAL_IP")}:${sb.Config.get("LOCAL_PLAY_SOUNDS_PORT")}`;
 		}
 
 		/**
@@ -42,7 +42,7 @@ module.exports = (function () {
 		 * Returns boolean, if a request was sent - true, if the sound was played; false, if there was an error.
 		 */
 		async playAudio (name) {
-			const result = await sb.Got(this.url + "/?audio=" + name).text();
+			const result = await sb.Got(`${this.url}/?audio=${name}`).text();
 			return (result === "OK");
 		}
 
@@ -58,12 +58,12 @@ module.exports = (function () {
 				params.set("limit", options.limit);
 			}
 
-			const result = await sb.Got(this.url + "/?" + params.toString()).text();
+			const result = await sb.Got(`${this.url}/?${params.toString()}`).text();
 			return (result === "true");
 		}
 
 		async checkTextToSpeech () {
-			const result = await sb.Got(this.url + "/?ttsCheck=true");
+			const result = await sb.Got(`${this.url}/?ttsCheck=true`);
 
 			return (result === "true");
 		}
@@ -78,7 +78,7 @@ module.exports = (function () {
 				params.set("limit", options.limit);
 			}
 
-			const result = await sb.Got(this.url + "/?" + params.toString()).text();
+			const result = await sb.Got(`${this.url}/?${params.toString()}`).text();
 			return (result === "true");
 		}
 

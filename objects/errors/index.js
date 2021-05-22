@@ -10,12 +10,12 @@ module.exports = (function () {
 
 	for (const file of subtypes) {
 		try {
-			const mod = require("./" + file);
+			const mod = require(`./${file}`);
 			result[mod.name] = mod;
-			console.log("Error module " + file + " imported", result);
+			console.log(`Error module ${file} imported`, result);
 		}
 		catch (e) {
-			console.log("Import of error module " + file + " failed", e.message);
+			console.log(`Import of error module ${file} failed`, e.message);
 		}
 	}
 

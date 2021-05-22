@@ -177,10 +177,10 @@ module.exports = (function () {
 			const [prefix, suffix] = (target > deltaTo) ? ["in ", ""] : ["", " ago"];
 
 			if (delta < Utils.timeUnits.s.ms) {
-				string = delta + "ms";
+				string = `${delta}ms`;
 			}
 			else if (delta < Utils.timeUnits.m.ms) {
-				string = this.round(delta / Utils.timeUnits.s.ms, 2) + "s";
+				string = `${this.round(delta / Utils.timeUnits.s.ms, 2)}s`;
 			}
 			else if (delta < Utils.timeUnits.h.ms) {
 				// Discards the data carried in the last 3 digits, aka milliseconds.
@@ -190,7 +190,7 @@ module.exports = (function () {
 
 				const minutes = Math.trunc(trimmed / Utils.timeUnits.m.ms);
 				const seconds = Math.trunc((trimmed / Utils.timeUnits.s.ms) % Utils.timeUnits.m.s);
-				string = minutes + "m, " + seconds + "s";
+				string = `${minutes}m, ${seconds}s`;
 			}
 			else if (delta < Utils.timeUnits.d.ms) {
 				// Removing one millisecond from a time delta in (hours, minutes) should not affect the result.
@@ -198,7 +198,7 @@ module.exports = (function () {
 
 				const hours = Math.trunc(trimmed / Utils.timeUnits.h.ms);
 				const minutes = Math.trunc(trimmed / Utils.timeUnits.m.ms) % Utils.timeUnits.h.m;
-				string = hours + "h, " + minutes + "m";
+				string = `${hours}h, ${minutes}m`;
 			}
 			else if (delta < Utils.timeUnits.y.ms) {
 				// Removing any amount of milliseconds from a time delta in (days, minutes) should not affect the result.
@@ -206,7 +206,7 @@ module.exports = (function () {
 
 				const days = Math.trunc(trimmed / Utils.timeUnits.d.ms);
 				const hours = Math.trunc(trimmed / Utils.timeUnits.h.ms) % Utils.timeUnits.d.h;
-				string = days + "d, " + hours + "h";
+				string = `${days}d, ${hours}h`;
 			}
 			else if (respectLeapYears) { // 365 days or more
 				const [earlier, later] = (deltaTo < target) ? [deltaTo, target] : [target, deltaTo];
@@ -247,7 +247,7 @@ module.exports = (function () {
 
 				const years = Math.trunc(trimmed / Utils.timeUnits.y.ms);
 				const days = Math.trunc(trimmed / Utils.timeUnits.d.ms) % Utils.timeUnits.y.d;
-				string = years + "y, " + days + "d";
+				string = `${years}y, ${days}d`;
 			}
 
 			return (skipAffixes)
@@ -340,7 +340,7 @@ module.exports = (function () {
 		wrapString (string, length) {
 			string = string.replace(/\r?\n/g, " ").replace(/\s+/g, " ");
 			return (string.length >= length)
-				? (string.slice(0, length - 1) + "…")
+				? (`${string.slice(0, length - 1)}…`)
 				: string;
 		}
 
@@ -391,21 +391,21 @@ module.exports = (function () {
 			else {
 				if (seconds >= Utils.timeUnits.d.s) {
 					const days = Math.floor(seconds / Utils.timeUnits.d.s);
-					stuff.push(days + " days");
+					stuff.push(`${days} days`);
 					seconds -= (days * Utils.timeUnits.d.s);
 				}
 				if (seconds >= Utils.timeUnits.h.s) {
 					const hr = Math.floor(seconds / Utils.timeUnits.h.s);
-					stuff.push(hr + " hr");
+					stuff.push(`${hr} hr`);
 					seconds -= (hr * Utils.timeUnits.h.s);
 				}
 				if (seconds >= Utils.timeUnits.m.s) {
 					const min = Math.floor(seconds / Utils.timeUnits.m.s);
-					stuff.push(min + " min");
+					stuff.push(`${min} min`);
 					seconds -= (min * Utils.timeUnits.m.s);
 				}
 				if (seconds >= 0 || stuff.length === 0) {
-					stuff.push(this.round(seconds, 3) + " sec");
+					stuff.push(`${this.round(seconds, 3)} sec`);
 				}
 				return stuff.join(", ");
 			}
@@ -915,7 +915,7 @@ module.exports = (function () {
 			number = Math.abs(Math.trunc(Number(number)));
 
 			if (number < multiplier) {
-				return number + " B";
+				return `${number} B`;
 			}
 
 			let index = 0;
@@ -924,7 +924,7 @@ module.exports = (function () {
 				index++;
 			}
 
-			return number.toFixed(digits) + " " + units[index - 1];
+			return `${number.toFixed(digits)} ${units[index - 1]}`;
 		}
 
 		/**
@@ -1231,7 +1231,7 @@ module.exports = (function () {
 			}
 
 			const words = [];
-			const regex = new RegExp(".{1," + limit + "}", "g");
+			const regex = new RegExp(`.{1,${limit}}`, "g");
 			for (const rawWord of message.split(" ")) {
 				if (rawWord.length > limit) {
 					words.push(...rawWord.match(regex));

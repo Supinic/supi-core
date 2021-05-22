@@ -167,8 +167,8 @@ module.exports = class Row {
 		}
 
 		const data = await this.#query.raw([
-			"SELECT * FROM " + this.#definition.escapedPath,
-			"WHERE " + conditions.join(" AND ")
+			`SELECT * FROM ${this.#definition.escapedPath}`,
+			`WHERE ${conditions.join(" AND ")}`
 		].join(" "));
 
 		if (!data[0]) {
@@ -233,9 +233,9 @@ module.exports = class Row {
 
 			const conditions = this._getPrimaryKeyConditions();
 			outputData = await this.#query.raw([
-				"UPDATE " + this.#definition.escapedPath,
-				"SET " + setColumns.join(", "),
-				"WHERE " + conditions.join(" AND ")
+				`UPDATE ${this.#definition.escapedPath}`,
+				`SET ${setColumns.join(", ")}`,
+				`WHERE ${conditions.join(" AND ")}`
 			].join(" "));
 		}
 		else { // INSERT
@@ -254,9 +254,9 @@ module.exports = class Row {
 
 			// @todo use INSERT RETURNING, see below
 			outputData = await this.#query.send([
-				"INSERT " + ignore + "INTO " + this.#definition.escapedPath,
-				"(" + columns.join(",") + ")",
-				"VALUES (" + values.join(",") + ")"
+				`INSERT ${ignore}INTO ${this.#definition.escapedPath}`,
+				`(${columns.join(",")})`,
+				`VALUES (${values.join(",")})`
 			].join(" "));
 
 			if (outputData.insertId !== 0) {
@@ -289,8 +289,8 @@ module.exports = class Row {
 			const conditions = this._getPrimaryKeyConditions();
 
 			await this.#query.send([
-				"DELETE FROM " + this.#definition.escapedPath,
-				"WHERE " + conditions.join(" AND ")
+				`DELETE FROM ${this.#definition.escapedPath}`,
+				`WHERE ${conditions.join(" AND ")}`
 			].join(" "));
 
 			this.#loaded = false;

@@ -16,7 +16,7 @@ module.exports = class Error extends global.Error {
 		this.date = new sb.Date();
 
 		if (args) {
-			this.message += "; args = " + JSON.stringify(args, null, 2);
+			this.message += `; args = ${JSON.stringify(args, null, 2)}`;
 		}
 
 		const stackDescriptor = Object.getOwnPropertyDescriptor(this, "stack");

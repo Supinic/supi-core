@@ -103,7 +103,7 @@ module.exports = (function () {
 			];
 
 			if (typeof data.specificKey === "string") {
-				args[0] += "-" + data.specificKey;
+				args[0] += `-${data.specificKey}`;
 			}
 
 			if (data.expiry && data.expiresAt) {

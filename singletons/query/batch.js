@@ -111,9 +111,9 @@ module.exports = class Batch {
 			try {
 				await this.query.raw([
 					`INSERT ${ignore ? "IGNORE" : ""} INTO`,
-					"`" + this.database + "`.`" + this.table + "`",
-					"(" + stringColumns.join(", ") + ")",
-					"VALUES (" + data.map(row => row.join(", ")).join("), (") + ")",
+					`\`${this.database}\`.\`${this.table}\``,
+					`(${stringColumns.join(", ")})`,
+					`VALUES (${data.map(row => row.join(", ")).join("), (")})`,
 					(duplicate ? duplicate(data, stringColumns) : "")
 				].join(" "));
 			}

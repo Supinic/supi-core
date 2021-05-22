@@ -64,8 +64,8 @@
 				const expectedLongString = `in ${i / 1000}s`;
 				const expectedShortString = `${i / 1000}s`;
 
-				assert.strictEqual(timeDelta(futureDate), expectedLongString, "Input: " + i);
-				assert.strictEqual(timeDelta(futureDate, true), expectedShortString, "Input: " + i);
+				assert.strictEqual(timeDelta(futureDate), expectedLongString, `Input: ${i}`);
+				assert.strictEqual(timeDelta(futureDate, true), expectedShortString, `Input: ${i}`);
 			}
 
 			for (let i = -1_000; i > -60_000; i -= 50) {
@@ -73,8 +73,8 @@
 				const expectedLongString = `${Math.abs(i) / 1000}s ago`;
 				const expectedShortString = `${Math.abs(i) / 1000}s`;
 
-				assert.strictEqual(timeDelta(pastDate), expectedLongString, "Input: " + i);
-				assert.strictEqual(timeDelta(pastDate, true), expectedShortString, "Input: " + i);
+				assert.strictEqual(timeDelta(pastDate), expectedLongString, `Input: ${i}`);
+				assert.strictEqual(timeDelta(pastDate, true), expectedShortString, `Input: ${i}`);
 			}
 		});
 
@@ -85,8 +85,8 @@
 			const rounded = [29995, 29996, 29997, 29998, 29999, 30000, 30001, 30002, 30003, 30004];
 			for (const time of rounded) {
 				const date = new sb.Date(time);
-				assert.strictEqual(timeDelta(date), expectedLongString, "Input: " + time);
-				assert.strictEqual(timeDelta(date, true), expectedShortString, "Input: " + time);
+				assert.strictEqual(timeDelta(date), expectedLongString, `Input: ${time}`);
+				assert.strictEqual(timeDelta(date, true), expectedShortString, `Input: ${time}`);
 			}
 		});
 
@@ -101,7 +101,7 @@
 					assert.strictEqual(
 						timeDelta(new sb.Date(time), true),
 						string,
-						"Input: " + time
+						`Input: ${time}`
 					);
 				}
 			}
@@ -118,7 +118,7 @@
 					assert.strictEqual(
 						timeDelta(new sb.Date(time), true),
 						string,
-						"Input: " + time
+						`Input: ${time}`
 					);
 				}
 			}
@@ -135,7 +135,7 @@
 					assert.strictEqual(
 						timeDelta(new sb.Date(time), true),
 						string,
-						"Input: " + time
+						`Input: ${time}`
 					);
 				}
 			}
@@ -152,7 +152,7 @@
 					assert.strictEqual(
 						timeDelta(new sb.Date(time), true),
 						string,
-						"Input: " + time
+						`Input: ${time}`
 					);
 				}
 			}

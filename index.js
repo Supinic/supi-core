@@ -59,7 +59,7 @@ module.exports = (async function (namespace, options = {}) {
 
 		const start = process.hrtime.bigint();
 		const [type] = file.split("/");
-		const component = require("./" + file);
+		const component = require(`./${file}`);
 
 		if (type === "objects") {
 			sb[component.name] = component;
@@ -77,7 +77,7 @@ module.exports = (async function (namespace, options = {}) {
 		}
 
 		const end = process.hrtime.bigint();
-		console.log(component.name + " loaded in " + Number(end - start) / 1e6 + " ms");
+		console.log(`${component.name} loaded in ${Number(end - start) / 1e6} ms`);
 	}
 
 	console.groupEnd();
