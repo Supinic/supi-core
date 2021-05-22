@@ -1,4 +1,3 @@
-/* global sb */
 module.exports = (function () {
 	"use strict";
 	const Maria = require("mariadb");
@@ -68,7 +67,7 @@ module.exports = (function () {
 			else {
 				throw new sb.Error({
 					message: "Not enough info provided in process.env for Query to initialize"
-				})
+				});
 			}
 		}
 
@@ -216,20 +215,20 @@ module.exports = (function () {
 				const path = this.escapeIdentifier(database) + "." + this.escapeIdentifier(table);
 				const escapedPath = "`" + this.escapeIdentifier(database) + "`.`" + this.escapeIdentifier(table) + "`";
 				this.tableDefinitions[database] = this.tableDefinitions[database] || {};
-				let obj = {
-					name: table, database: database, path: path, escapedPath: escapedPath, columns: []
+				const obj = {
+					name: table, database, path, escapedPath, columns: []
 				};
 
 				const data = await this.raw("SELECT * FROM " + escapedPath + " WHERE 1 = 0");
 				for (const column of data.meta) {
 					obj.columns.push({
 						name: column.name(),
-						type: (Boolean(column.flags & Query.flagMask["SET"])) ? "SET" : column.type,
-						notNull: Boolean(column.flags & Query.flagMask["NOT_NULL"]),
-						primaryKey: Boolean(column.flags & Query.flagMask["PRIMARY_KEY"]),
-						unsigned: Boolean(column.flags & Query.flagMask["UNSIGNED"]),
-						autoIncrement: Boolean(column.flags & Query.flagMask["AUTO_INCREMENT"]),
-						zeroFill: Boolean(column.flags & Query.flagMask["ZERO_FILL"])
+						type: (Boolean(column.flags & Query.flagMask.SET)) ? "SET" : column.type,
+						notNull: Boolean(column.flags & Query.flagMask.NOT_NULL),
+						primaryKey: Boolean(column.flags & Query.flagMask.PRIMARY_KEY),
+						unsigned: Boolean(column.flags & Query.flagMask.UNSIGNED),
+						autoIncrement: Boolean(column.flags & Query.flagMask.AUTO_INCREMENT),
+						zeroFill: Boolean(column.flags & Query.flagMask.ZERO_FILL)
 					});
 				}
 
@@ -402,7 +401,7 @@ module.exports = (function () {
 		 * @throws {sb.Error} If a type mismatch is encountered
 		 */
 		convertToSQL (value, targetType) {
-			let sourceType = typeof value;
+			const sourceType = typeof value;
 
 			if (value === null) {
 				return "NULL";
@@ -421,7 +420,7 @@ module.exports = (function () {
 				const string = this.escapeString(value.join(","));
 				return `'${string}'`;
 			}
-			else if (targetType === "TIME" || targetType === "DATE" || targetType === "DATETIME" || targetType === "TIMESTAMP")  {
+			else if (targetType === "TIME" || targetType === "DATE" || targetType === "DATETIME" || targetType === "TIMESTAMP") {
 				if (value instanceof Date) {
 					value = new sb.Date(value);
 				}
@@ -435,9 +434,9 @@ module.exports = (function () {
 
 				switch (targetType) {
 					case "TIME": return "'" + value.sqlTime() + "'";
-					case "DATE": return "'" +  value.sqlDate() + "'";
-					case "DATETIME": return "'" +  value.sqlDateTime() + "'";
-					case "TIMESTAMP": return "'" +  value.sqlDateTime() + "'";
+					case "DATE": return "'" + value.sqlDate() + "'";
+					case "DATETIME": return "'" + value.sqlDateTime() + "'";
+					case "TIMESTAMP": return "'" + value.sqlDateTime() + "'";
 				}
 			}
 			else if (sourceType === "string") {
@@ -458,7 +457,7 @@ module.exports = (function () {
 			//
 
 			if (typeof string === "string" && string.includes("chatrooms")) {
-				string = "`" + string + "`"
+				string = "`" + string + "`";
 			}
 
 			// console.warn(string);
@@ -501,25 +500,25 @@ module.exports = (function () {
 			switch (type) {
 				case "b":
 					if (typeof param !== "boolean") {
-						throw new sb.Error({ message: "Expected boolean, got " + param });	
-					} 
-					
+						throw new sb.Error({ message: "Expected boolean, got " + param });
+					}
+
 					return (param ? "1" : "0");
 
 				case "d":
 					if (param instanceof Date && !(param instanceof sb.Date)) {
 						param = new sb.Date(param);
-					}					
+					}
 					if (!(param instanceof sb.Date)) {
 						throw new sb.Error({ message: "Expected sb.Date, got " + param });
 					}
-					
+
 					return "'" + param.sqlDate() + "'";
 
 				case "dt":
 					if (param instanceof Date && !(param instanceof sb.Date)) {
 						param = new sb.Date(param);
-					}					
+					}
 					if (!(param instanceof sb.Date)) {
 						throw new sb.Error({ message: "Expected sb.Date, got " + param });
 					}
@@ -533,14 +532,14 @@ module.exports = (function () {
 					else if (Number.isNaN(param)) {
 						throw new sb.Error({ message: `Cannot use ${param} as a number in SQL` });
 					}
-					
+
 					return String(param);
 
 				case "s":
 					if (typeof param !== "string") {
 						throw new sb.Error({ message: "Expected string, got " + param });
 					}
-					
+
 					return "'" + this.escapeString(param) + "'";
 
 				case "t":
@@ -550,7 +549,7 @@ module.exports = (function () {
 					if (!(param instanceof sb.Date)) {
 						throw new sb.Error({ message: "Expected sb.Date, got " + param });
 					}
-					
+
 					return param.sqlTime();
 
 				case "s+":
@@ -560,7 +559,7 @@ module.exports = (function () {
 					else if (param.some(i => typeof i !== "string")) {
 						throw new sb.Error({ message: "Array must contain strings only" });
 					}
-					
+
 					return "(" + param.map(i => this.escapeString(i)).map(i => `'${i}'`).join(",") + ")";
 
 				case "n+":
@@ -570,7 +569,7 @@ module.exports = (function () {
 					else if (param.some(i => typeof i !== "number" || Number.isNaN(i))) {
 						throw new sb.Error({ message: "Array must contain proper numbers only" });
 					}
-					
+
 					return "(" + param.join(",") + ")";
 
 				case "like":
@@ -611,26 +610,26 @@ module.exports = (function () {
 		}
 
 		static get sqlKeywords () {
-			return [ "SUM", "COUNT", "AVG" ];
+			return ["SUM", "COUNT", "AVG"];
 		}
 
 		static get flagMask () {
 			return {
-				"NOT_NULL": 1,
-				"PRIMARY_KEY": 2,
-				"UNIQUE_KEY": 4,
-				"MULTIPLE_KEY": 8,
-				"BLOB": 16,
-				"UNSIGNED": 32,
-				"ZEROFILL_FLAG": 64,
-				"BINARY_COLLATION": 128,
-				"ENUM": 256,
-				"AUTO_INCREMENT": 512,
-				"TIMESTAMP": 1024,
-				"SET": 2048,
-				"NO_DEFAULT_VALUE_FLAG": 4096,
-				"ON_UPDATE_NOW_FLAG": 8192,
-				"NUM_FLAG": 32768
+				NOT_NULL: 1,
+				PRIMARY_KEY: 2,
+				UNIQUE_KEY: 4,
+				MULTIPLE_KEY: 8,
+				BLOB: 16,
+				UNSIGNED: 32,
+				ZEROFILL_FLAG: 64,
+				BINARY_COLLATION: 128,
+				ENUM: 256,
+				AUTO_INCREMENT: 512,
+				TIMESTAMP: 1024,
+				SET: 2048,
+				NO_DEFAULT_VALUE_FLAG: 4096,
+				ON_UPDATE_NOW_FLAG: 8192,
+				NUM_FLAG: 32768
 			};
 		}
 

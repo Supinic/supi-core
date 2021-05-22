@@ -1,4 +1,3 @@
-/* global sb */
 /**
  * Represents the UPDATE sql statement.
  */
@@ -100,15 +99,13 @@ module.exports = class RecordDeleter {
 		if (this.#where.length !== 0) {
 			sql.push("WHERE (" + this.#where.join(") AND (") + ")");
 		}
-		else {
-			if (!this.#confirmedFullDelete) {
-				throw new sb.Error({
-					message: "Unconfirmed full table deletion",
-					args: {
-						from: this.#deleteFrom
-					}
-				})
-			}
+		else if (!this.#confirmedFullDelete) {
+			throw new sb.Error({
+				message: "Unconfirmed full table deletion",
+				args: {
+					from: this.#deleteFrom
+				}
+			});
 		}
 
 		return sql;

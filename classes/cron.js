@@ -4,7 +4,7 @@
  */
 const { CronJob } = require("cron");
 module.exports = class Cron extends require("./template.js") {
-	//<editor-fold defaultstate="collapsed" desc="=== INSTANCE PROPERTIES ===">
+	// <editor-fold defaultstate="collapsed" desc="=== INSTANCE PROPERTIES ===">
 
 	/**
 	 * Unique numeric cron identifier

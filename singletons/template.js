@@ -14,7 +14,7 @@ module.exports = class TemplateSingletonModule {
 	 * @returns {Promise<void>}
 	 */
 	static async singleton () {
-		throw new Error("Module.singleton is not implemented")
+		throw new Error("Module.singleton is not implemented");
 	}
 
 	/**

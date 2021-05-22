@@ -8,7 +8,7 @@ module.exports = class Error extends global.Error {
 			throw new global.Error("sb.Error must receive an object as params");
 		}
 
-		const {message, args} = obj;
+		const { message, args } = obj;
 		super(message);
 
 		this.parentError = error ?? null;

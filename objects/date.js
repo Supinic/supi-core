@@ -10,7 +10,7 @@ module.exports = class Date extends global.Date {
 	 * @param {number} padding
 	 * @returns {string}
 	 */
-	static zf(number, padding) {
+	static zf (number, padding) {
 		return ("0".repeat(padding) + number).slice(-padding);
 	}
 
@@ -20,7 +20,7 @@ module.exports = class Date extends global.Date {
 	 * @param {sb.Date} to
 	 * @returns {boolean}
 	 */
-	static equals(from, to) {
+	static equals (from, to) {
 		const fromValue = from?.valueOf();
 		const toValue = to?.valueOf();
 		if (typeof fromValue !== "number") {
@@ -37,7 +37,7 @@ module.exports = class Date extends global.Date {
 	 * Creates the instance. Uses the same constructor as native Date does.
 	 * @param {*} args
 	 */
-	constructor(...args) {
+	constructor (...args) {
 		if (args.length > 1 && args.every(i => typeof i === "number")) {
 			// Subtract one from the month parameter, because of how stupid the JS Date constructor does it.
 			args[1] = args[1] - 1;
@@ -51,9 +51,14 @@ module.exports = class Date extends global.Date {
 	 * @param {string} formatString
 	 * @returns {string}
 	 */
-	format(formatString) {
-		const year = this.year, month = this.month, day = this.day, hours = this.hours, minutes = this.minutes,
-			seconds = this.seconds, milli = this.milliseconds;
+	format (formatString) {
+		const year = this.year;
+		const month = this.month;
+		const day = this.day;
+		const hours = this.hours;
+		const minutes = this.minutes;
+		const seconds = this.seconds;
+		const milli = this.milliseconds;
 
 		let value = "";
 		for (const char of formatString) {
@@ -104,27 +109,27 @@ module.exports = class Date extends global.Date {
 		return value;
 	}
 
-	simpleDate() {
+	simpleDate () {
 		return this.format("j.n.Y");
 	}
 
-	simpleDateTime() {
+	simpleDateTime () {
 		return this.format("j.n.Y H:i:s");
 	}
 
-	fullDateTime() {
+	fullDateTime () {
 		return this.format("j.n.Y H:i:s.v");
 	}
 
-	sqlDate() {
+	sqlDate () {
 		return this.format("Y-m-d");
 	}
 
-	sqlTime() {
+	sqlTime () {
 		return this.format("H:i:s.v");
 	}
 
-	sqlDateTime() {
+	sqlDateTime () {
 		return this.format("Y-m-d H:i:s.v");
 	}
 
@@ -132,7 +137,7 @@ module.exports = class Date extends global.Date {
 	 * @param {number} offset in minutes
 	 * @returns {sb.Date}
 	 */
-	setTimezoneOffset(offset) {
+	setTimezoneOffset (offset) {
 		offset = Number(offset);
 
 		if (Number.isNaN(offset)) {
@@ -151,7 +156,7 @@ module.exports = class Date extends global.Date {
 	 * @param {...<"h"|"m"|"s"|"ms">} units
 	 * @returns {sb.Date}
 	 */
-	discardTimeUnits(...units) {
+	discardTimeUnits (...units) {
 		for (const unit of units) {
 			switch (unit) {
 				case "h":
@@ -177,37 +182,37 @@ module.exports = class Date extends global.Date {
 		return new this.constructor(this);
 	}
 
-	addYears(y) {
+	addYears (y) {
 		this.year += y;
 		return this;
 	}
 
-	addMonths(m) {
+	addMonths (m) {
 		this.month += m;
 		return this;
 	}
 
-	addDays(d) {
+	addDays (d) {
 		this.day += d;
 		return this;
 	}
 
-	addHours(h) {
+	addHours (h) {
 		this.hours += h;
 		return this;
 	}
 
-	addMinutes(m) {
+	addMinutes (m) {
 		this.minutes += m;
 		return this;
 	}
 
-	addSeconds(s) {
+	addSeconds (s) {
 		this.seconds += s;
 		return this;
 	}
 
-	addMilliseconds(ms) {
+	addMilliseconds (ms) {
 		this.milliseconds += ms;
 		return this;
 	}
@@ -225,59 +230,59 @@ module.exports = class Date extends global.Date {
 		}
 	}
 
-	get milliseconds() {
+	get milliseconds () {
 		return super.getMilliseconds();
 	}
 
-	set milliseconds(ms) {
+	set milliseconds (ms) {
 		super.setMilliseconds(ms);
 	}
 
-	get seconds() {
+	get seconds () {
 		return super.getSeconds();
 	}
 
-	set seconds(s) {
+	set seconds (s) {
 		super.setSeconds(s);
 	}
 
-	get minutes() {
+	get minutes () {
 		return this.getMinutes();
 	}
 
-	set minutes(m) {
+	set minutes (m) {
 		super.setMinutes(m);
 	}
 
-	get hours() {
+	get hours () {
 		return super.getHours();
 	}
 
-	set hours(h) {
+	set hours (h) {
 		super.setHours(h);
 	}
 
-	get day() {
+	get day () {
 		return super.getDate();
 	}
 
-	set day(d) {
+	set day (d) {
 		super.setDate(d);
 	}
 
-	get month() {
+	get month () {
 		return super.getMonth() + 1;
 	}
 
-	set month(m) {
+	set month (m) {
 		super.setMonth(m - 1);
 	}
 
-	get year() {
+	get year () {
 		return super.getFullYear();
 	}
 
-	set year(y) {
+	set year (y) {
 		super.setFullYear(y);
 	}
 };

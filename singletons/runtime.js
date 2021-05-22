@@ -10,6 +10,7 @@ module.exports = class Runtime extends require("./template.js") {
 		rejectedCommands: true,
 		banphraseTimeouts: true
 	};
+
 	#started = new sb.Date();
 
 	static singleton () {

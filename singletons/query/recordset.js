@@ -1,9 +1,8 @@
-/* global sb */
+const ROW_COLLAPSED = Symbol("row-collapsed");
+
 /**
  * Represents the result of a SELECT statement with (usually) more than one result row.
  */
-
-const ROW_COLLAPSED = Symbol("row-collapsed");
 module.exports = class Recordset {
 	#query = null;
 	#fetchSingle = false;
@@ -121,7 +120,7 @@ module.exports = class Recordset {
 				message: "Recordset: database and table must be provided",
 				args: {
 					db: database,
-					table: table
+					table
 				}
 			});
 		}
@@ -215,8 +214,8 @@ module.exports = class Recordset {
 		else {
 			throw new sb.Error({
 				message: "Recordset: Unrecognized condition wrapper option",
-				args: arguments
-			})
+				args: { type, args }
+			});
 		}
 
 		return this;
@@ -386,7 +385,7 @@ module.exports = class Recordset {
 	 * @returns {string}
 	 */
 	toCondition () {
-		if (this.#where.length !== 0)  {
+		if (this.#where.length !== 0) {
 			return "(" + this.#where.join(") AND (") + ")";
 		}
 		else {
@@ -410,7 +409,7 @@ module.exports = class Recordset {
 			});
 		}
 
-		let sql = [];
+		const sql = [];
 		sql.push("SELECT " + this.#select.map(select => this.#query.escapeIdentifier(select)).join(", "));
 		(this.#from) && sql.push("FROM `" + this.#from.database + "`.`" + this.#from.table + "`");
 		(this.#join.length !== 0) && sql.push(this.#join.join(" "));

@@ -82,7 +82,7 @@ module.exports = (function () {
 			}
 
 			this.#server.disconnect();
-			this.#active = false
+			this.#active = false;
 		}
 
 		async set (data = {}) {

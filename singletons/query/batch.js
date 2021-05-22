@@ -1,4 +1,3 @@
-/* global sb */
 /**
  * Represents the SQL INSERT statement for multiple rows.
  * One instance is always locked to one table and some of its columns based on constructor.
@@ -88,7 +87,7 @@ module.exports = class Batch {
 			return;
 		}
 
-		let stringColumns = [];
+		const stringColumns = [];
 		let data = this.records.map(() => []);
 		for (const column of this.columns) {
 			const name = column.name;
@@ -114,7 +113,7 @@ module.exports = class Batch {
 					`INSERT ${ignore ? "IGNORE" : ""} INTO`,
 					"`" + this.database + "`.`" + this.table + "`",
 					"(" + stringColumns.join(", ") + ")",
-					"VALUES ("  + data.map(row => row.join(", ")).join("), (") + ")",
+					"VALUES (" + data.map(row => row.join(", ")).join("), (") + ")",
 					(duplicate ? duplicate(data, stringColumns) : "")
 				].join(" "));
 			}

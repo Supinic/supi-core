@@ -168,7 +168,7 @@ module.exports = class Config extends require("./template.js") {
 			: (target !== undefined);
 	}
 
-	 /**
+	/**
 	 * Fetches the given configuration variable
 	 * @param {string} variable Variable name
 	 * @param {boolean} strict=true If true, the config variable must exist, otherwise an error is thrown. If false,

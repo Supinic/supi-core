@@ -1,4 +1,4 @@
-module.exports = (async function (namespace = "sb", options = {}) {
+module.exports = (async function (namespace, options = {}) {
 	/**
 	 * Global namespace wrapper.
 	 * @namespace
@@ -41,7 +41,11 @@ module.exports = (async function (namespace = "sb", options = {}) {
 		"classes/reminder"
 	];
 
-	const { blacklist, whitelist, skipData = [] } = options;
+	const {
+		blacklist,
+		whitelist,
+		skipData = []
+	} = options;
 
 	console.groupCollapsed("module load performance");
 
@@ -55,7 +59,7 @@ module.exports = (async function (namespace = "sb", options = {}) {
 
 		const start = process.hrtime.bigint();
 		const [type] = file.split("/");
-		let component = require("./" + file);
+		const component = require("./" + file);
 
 		if (type === "objects") {
 			sb[component.name] = component;

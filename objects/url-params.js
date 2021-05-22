@@ -31,7 +31,8 @@ module.exports = class URLParams {
 
 	toString () {
 		return this.#values.map(([key, value]) => (
-			key + "=" + String(value).split(" ").map(i => encodeURIComponent(i)).join(this.#char)
+			key + "=" + String(value).split(" ").map(i => encodeURIComponent(i))
+				.join(this.#char)
 		)).join("&");
 	}
 

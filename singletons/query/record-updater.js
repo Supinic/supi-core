@@ -1,4 +1,3 @@
-/* global sb */
 /**
  * Represents the UPDATE sql statement.
  */

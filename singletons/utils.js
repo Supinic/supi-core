@@ -31,7 +31,7 @@ module.exports = (function () {
 				soundcloud: {
 					key: sb.Config.get("SOUNDCLOUD_CLIENT_ID")
 				}
-			 });
+			});
 		},
 		languageISO: () => require("language-iso-codes"),
 		rss: () => new (require("rss-parser"))(),
@@ -55,7 +55,7 @@ module.exports = (function () {
 
 			return modules[property];
 		}
-	})
+	});
 
 	/**
 	 * Conscise collection of "helper" and "utility" methods.
@@ -64,27 +64,27 @@ module.exports = (function () {
 	return class Utils extends require("./template.js") {
 		/** Numeric constants to convert between any two time units. */
 		static timeUnits = {
-			y: {d: 365, h: 8760, m: 525600, s: 31536000, ms: 31536000.0e3 },
-			d: {h: 24, m: 1440, s: 86400, ms: 86400.0e3},
-			h: {m: 60, s: 3600, ms: 3600.0e3},
-			m: {s: 60, ms: 60.0e3},
-			s: {ms: 1.0e3}
+			y: { d: 365, h: 8760, m: 525600, s: 31536000, ms: 31536000.0e3 },
+			d: { h: 24, m: 1440, s: 86400, ms: 86400.0e3 },
+			h: { m: 60, s: 3600, ms: 3600.0e3 },
+			m: { s: 60, ms: 60.0e3 },
+			s: { ms: 1.0e3 }
 		};
 
 		/** List of named HTML entities and their identifiers */
 		static htmlEntities = {
-			"nbsp": " ",
-			"lt": "<",
-			"gt": ">",
-			"amp": "&",
-			"quot": "\"",
-			"apos": "'",
-			"cent": "¢",
-			"pound": "£",
-			"yen": "¥",
-			"euro": "€",
-			"copy": "©",
-			"reg": "®",
+			nbsp: " ",
+			lt: "<",
+			gt: ">",
+			amp: "&",
+			quot: "\"",
+			apos: "'",
+			cent: "¢",
+			pound: "£",
+			yen: "¥",
+			euro: "€",
+			copy: "©",
+			reg: "®"
 		};
 
 		/** Collection of string template "tag" functions */
@@ -165,7 +165,7 @@ module.exports = (function () {
 				target = new sb.Date(target.valueOf());
 			}
 			else {
-				throw new TypeError("Invalid parameter type")
+				throw new TypeError("Invalid parameter type");
 			}
 
 			if (sb.Date.equals(deltaTo, target)) {
@@ -189,7 +189,7 @@ module.exports = (function () {
 				const trimmed = this.round(delta, -3);
 
 				const minutes = Math.trunc(trimmed / Utils.timeUnits.m.ms);
-				const seconds = Math.trunc((trimmed / Utils.timeUnits.s.ms ) % Utils.timeUnits.m.s);
+				const seconds = Math.trunc((trimmed / Utils.timeUnits.s.ms) % Utils.timeUnits.m.s);
 				string = minutes + "m, " + seconds + "s";
 			}
 			else if (delta < Utils.timeUnits.d.ms) {
@@ -209,7 +209,7 @@ module.exports = (function () {
 				string = days + "d, " + hours + "h";
 			}
 			else if (respectLeapYears) { // 365 days or more
-				let [earlier, later] = (deltaTo < target) ? [deltaTo, target] : [target, deltaTo];
+				const [earlier, later] = (deltaTo < target) ? [deltaTo, target] : [target, deltaTo];
 
 				// Removing any amount of milliseconds from a time delta in (days, minutes) should not affect the result.
 				const trimmed = this.round(delta, -3);
@@ -239,7 +239,7 @@ module.exports = (function () {
 				const remainingDelta = this.round(laterRounded.valueOf() - earlierPlusYears.valueOf(), -4);
 				const days = Math.trunc(remainingDelta / Utils.timeUnits.d.ms);
 
-				string = `${years}y, ${days}d`
+				string = `${years}y, ${days}d`;
 			}
 			else { // 365 days or more
 				// Removing any amount of seconds from a time delta in (years, days) should not affect the result.
@@ -289,7 +289,7 @@ module.exports = (function () {
 			if (!["ceil", "floor", "round", "trunc"].includes(direction)) {
 				throw new sb.Error({
 					message: "Invalid round direction provided",
-					args: arguments
+					args: { number, places, options }
 				});
 			}
 
@@ -317,7 +317,7 @@ module.exports = (function () {
 		 */
 		fixHTML (string) {
 			return string.replace(/&#?(?<identifier>[a-z0-9]+);/g, (...params) => {
-				const {identifier} = params.pop();
+				const { identifier } = params.pop();
 				return Utils.htmlEntities[identifier] || String.fromCharCode(Number(identifier));
 			});
 		}
@@ -418,7 +418,7 @@ module.exports = (function () {
 		 * @param {string} [character]
 		 * @returns {string}
 		 */
-		argsToFixedURL(array, character = "+") {
+		argsToFixedURL (array, character = "+") {
 			return array.map(i => encodeURIComponent(i)).join(character);
 		}
 
@@ -566,7 +566,6 @@ module.exports = (function () {
 						};
 					}
 				}
-
 			} while (pageToken);
 
 			return {
@@ -634,7 +633,7 @@ module.exports = (function () {
 			} = results[0];
 
 			const object = {};
-			for (const row of components)  {
+			for (const row of components) {
 				let { types, long_name: long } = row;
 				if (types.includes("political")) {
 					types = types.filter(i => i !== "political");
@@ -737,7 +736,7 @@ module.exports = (function () {
 			if (typeof text !== "string") {
 				throw new sb.Error({
 					message: "Text must be typeof string",
-					args: arguments
+					args: { text, caseFrom, caseTo }
 				});
 			}
 
@@ -770,7 +769,7 @@ module.exports = (function () {
 		}
 
 		convertCaseObject (object, caseFrom, caseTo) {
-			let result = {};
+			const result = {};
 			for (const [key, value] of Object.entries(object)) {
 				if (value && value.constructor === Object) {
 					result[this.convertCase(key, caseFrom, caseTo)] = this.convertCaseObject(value, caseFrom, caseTo);
@@ -854,7 +853,7 @@ module.exports = (function () {
 				}).json();
 
 				if (!channelInfo.error && channelInfo.data.length !== 0) {
-					const {id, display_name: name} = channelInfo.data[0];
+					const { id, display_name: name } = channelInfo.data[0];
 					if (!userData) {
 						userData = await sb.User.get(name, false);
 					}
@@ -939,7 +938,7 @@ module.exports = (function () {
 				characters = "abcdefghiklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ".split("");
 			}
 			else if (typeof characters === "string") {
-				characters = characters.split("")
+				characters = characters.split("");
 			}
 			else if (!Array.isArray(characters) || characters.some(i => typeof i !== "string")) {
 				throw new sb.Error({
@@ -1042,7 +1041,8 @@ module.exports = (function () {
 				for (let j = low; j <= high; j++) {
 					if (fromMatches[i] !== true && targetMatches[j] !== true && from[i] === target[j]) {
 						matches++;
-						fromMatches[i] = targetMatches[j] = true;
+						fromMatches[i] = true;
+						targetMatches[j] = true;
 						break;
 					}
 				}
