@@ -8,7 +8,7 @@ module.exports = (function () {
 
 	/**
 	 * This module connects the different major supi-core requiring processes together via HTTP.
-	 * @type LocalRequest
+	 * @memberof sb
 	 */
 	return class LocalRequest extends require("./template.js") {
 		/**

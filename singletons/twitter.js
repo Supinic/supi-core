@@ -5,6 +5,10 @@ const mandatoryConfigs = [
 	"TWITTER_ACCESS_TOKEN_SECRET"
 ];
 
+/**
+ * Twitter module - mostly handles recent tweets of a given user.
+ * @memberof sb
+ */
 module.exports = class Twitter extends require("./template.js") {
 	#client = null;
 	#module = null;

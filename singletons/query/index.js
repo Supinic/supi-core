@@ -14,13 +14,13 @@ module.exports = (function () {
 
 	/**
 	 * Query represents every possible access to the database.
-	 * Exposes multiple ways to access:
-	 * {@link Row}: Single table row, select/insert/update/delete
-	 * {@link Recordset}: Result of a compound SELECT statement
-	 * {@link Batch}: A tool to INSERT multiple rows in one statement, for specified columns
-	 * {@link RecordUpdater}: UPDATEs specified columns with values, with specified condition(s)
-	 * @name sb.Query
-	 * @type Query()
+	 *
+	 * Exposes multiple ways to access the database definition:
+	 * - {@link Batch}: A tool to INSERT multiple rows in one statement, for specified columns
+	 * - {@link Recordset}: Result of a compound SELECT statement
+	 * - {@link RecordUpdater}: UPDATEs specified columns with values, with specified condition(s)
+	 * - {@link Row}: Single table row, select/insert/update/delete
+	 * @memberof sb
 	 */
 	return class Query extends Template {
 		#loggingThreshold = null;
@@ -651,7 +651,6 @@ module.exports = (function () {
 			this.invalidateAllDefinitions();
 			this.pool = null;
 		}
-
 	};
 })();
 

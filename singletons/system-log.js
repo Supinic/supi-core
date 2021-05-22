@@ -1,6 +1,6 @@
 /**
  * Module for logging various events to database.
- * @type SystemLogger
+ * @memberof sb
  */
 module.exports = class SystemLogger extends require("./template.js") {
 	/**
