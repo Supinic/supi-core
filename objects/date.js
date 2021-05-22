@@ -1,7 +1,6 @@
 /**
  * Extended and simpler-to-use version of native Date
  * @memberof sb
- * @namespace Date
  */
 module.exports = class Date extends global.Date {
 	/**
