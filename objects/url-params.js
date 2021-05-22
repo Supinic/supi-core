@@ -30,10 +30,16 @@ module.exports = class URLParams {
 	}
 
 	toString () {
-		return this.#values.map(([key, value]) => (
-			key + "=" + String(value).split(" ").map(i => encodeURIComponent(i))
-				.join(this.#char)
-		)).join("&");
+		const values = this.#values.map(([key, value]) => {
+			const encoded = String.value(value)
+				.split(" ")
+				.map(i => encodeURIComponent(i))
+				.join(this.#char);
+
+			return `${key}=${encoded}`;
+		});
+
+		return values.join("&");
 	}
 
 	clone () {
