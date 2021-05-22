@@ -163,8 +163,9 @@ module.exports = (function () {
 
 			if (target.valueOf && typeof target.valueOf() === "number") {
 				target = new sb.Date(target.valueOf());
-			} else {
-				throw new ValueError("Invalid parameter type")
+			}
+			else {
+				throw new TypeError("Invalid parameter type")
 			}
 
 			if (sb.Date.equals(deltaTo, target)) {
