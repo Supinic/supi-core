@@ -7,24 +7,29 @@ const mandatoryConfigs = [
 
 /**
  * Twitter module - mostly handles recent tweets of a given user.
- * @memberof sb
+ * @deprecated
  */
-module.exports = class Twitter extends require("./template.js") {
+module.exports = class TwitterSingleton extends require("./template.js") {
 	#client = null;
 	#module = null;
 
+	/**
+	 * @inheritDoc
+	 * @returns {TwitterSingleton}
+	 */
 	static singleton () {
-		if (!Twitter.module) {
+		if (!TwitterSingleton.module) {
 			const missingConfigs = mandatoryConfigs.filter(key => !sb.Config.has(key));
 			if (missingConfigs.length !== 0) {
 				console.debug("Missing Twitter config(s), module creation skipped", { missingConfigs });
-				Twitter.module = {};
+				TwitterSingleton.module = {};
 			}
 			else {
-				Twitter.module = new Twitter();
+				TwitterSingleton.module = new TwitterSingleton();
 			}
 		}
-		return Twitter.module;
+
+		return TwitterSingleton.module;
 	}
 
 	/**

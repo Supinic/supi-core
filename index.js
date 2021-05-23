@@ -58,16 +58,84 @@ module.exports = (async function (namespace, options = {}) {
 		}
 
 		const start = process.hrtime.bigint();
-		const [type] = file.split("/");
-		const component = require(`./${file}`);
+		const [type, moduleName] = file.split("/");
 
 		if (type === "objects") {
+			const component = require(`./${file}`);
 			sb[component.name] = component;
 		}
 		else if (type === "singletons") {
-			sb[component.name] = await component.singleton();
+			// This switch structure iscreated solely to make JSDoc for singletons work in the global `sb` scope
+			switch (moduleName) {
+				case "cache": {
+					const Component = require("./singletons/cache.js");
+					sb.Cache = Component.singleton();
+					break;
+				}
+
+				case "cooldown-manager": {
+					const Component = require("./singletons/cooldown-manager.js");
+					sb.CooldownManager = Component.singleton();
+					break;
+				}
+
+				case "local-request": {
+					const Component = require("./singletons/local-request.js");
+					sb.LocalRequest = Component.singleton();
+					break;
+				}
+
+				case "logger": {
+					const Component = require("./singletons/logger.js");
+					sb.Logger = Component.singleton();
+					break;
+				}
+
+				case "pastebin": {
+					const Component = require("./singletons/pastebin.js");
+					sb.Pastebin = Component.singleton();
+					break;
+				}
+
+				case "runtime": {
+					const Component = require("./singletons/runtime.js");
+					sb.Runtime = Component.singleton();
+					break;
+				}
+
+				case "sandbox": {
+					const Component = require("./singletons/sandbox.js");
+					sb.Sandbox = Component.singleton();
+					break;
+				}
+
+				case "system-log": {
+					const Component = require("./singletons/system-log.js");
+					sb.SystemLogger = Component.singleton();
+					break;
+				}
+
+				case "twitter": {
+					const Component = require("./singletons/twitter.js");
+					sb.Twitter = Component.singleton();
+					break;
+				}
+
+				case "utils": {
+					const Component = require("./singletons/utils.js");
+					sb.Utils = Component.singleton();
+					break;
+				}
+
+				case "vlc-connector": {
+					const Component = require("./singletons/vlc-connector.js");
+					sb.VideoLANConnector = Component.singleton();
+					break;
+				}
+			}
 		}
 		else if (type === "classes") {
+			const component = require(`./${file}`);
 			if (skipData.includes(file)) {
 				sb[component.specificName ?? component.name] = component;
 			}
@@ -77,7 +145,7 @@ module.exports = (async function (namespace, options = {}) {
 		}
 
 		const end = process.hrtime.bigint();
-		console.log(`${component.name} loaded in ${Number(end - start) / 1e6} ms`);
+		console.log(`${moduleName} loaded in ${Number(end - start) / 1e6} ms`);
 	}
 
 	console.groupEnd();

@@ -1,9 +1,8 @@
 /**
  * Wrapper for all sorts of runtime statistics of a process.
  * @deprecated Pending removal - should be replaced with `sb.Cache` calls instead.
- * @memberof sb
  */
-module.exports = class Runtime extends require("./template.js") {
+module.exports = class RuntimeSingleton extends require("./template.js") {
 	#cachePrefix = "runtime";
 	#resetPending = {
 		commands: true,
@@ -13,11 +12,15 @@ module.exports = class Runtime extends require("./template.js") {
 
 	#started = new sb.Date();
 
+	/**
+	 * @inheritDoc
+	 * @returns {RuntimeSingleton}
+	 */
 	static singleton () {
-		if (!Runtime.module) {
-			Runtime.module = new Runtime();
+		if (!RuntimeSingleton.module) {
+			RuntimeSingleton.module = new RuntimeSingleton();
 		}
-		return Runtime.module;
+		return RuntimeSingleton.module;
 	}
 
 	/**

@@ -1,4 +1,3 @@
-/** @interface */
 module.exports = class SingletonTemplate {
 	/**
 	 * Cleans up the module.

@@ -1,89 +1,82 @@
-module.exports = (function () {
-	"use strict";
+"use strict";
 
-	const mandatoryConfigs = [
-		"LOCAL_IP",
-		"LOCAL_PLAY_SOUNDS_PORT"
-	];
+const mandatoryConfigs = [
+	"LOCAL_IP",
+	"LOCAL_PLAY_SOUNDS_PORT"
+];
+
+/**
+ * This module connects the different major supi-core requiring processes together via HTTP.
+ */
+module.exports = class LocalRequestSingleton extends require("./template.js") {
+	static singleton () {
+		if (!LocalRequestSingleton.module) {
+			const missingConfigs = mandatoryConfigs.filter(key => !sb.Config.has(key));
+			if (missingConfigs.length !== 0) {
+				console.debug("Missing LocalRequest config(s), module creation skipped", { missingConfigs });
+				LocalRequestSingleton.module = {};
+			}
+			else {
+				LocalRequestSingleton.module = new LocalRequestSingleton();
+			}
+		}
+
+		return LocalRequestSingleton.module;
+	}
+
+	constructor () {
+		super();
+		this.url = `${sb.Config.get("LOCAL_IP")}:${sb.Config.get("LOCAL_PLAY_SOUNDS_PORT")}`;
+	}
 
 	/**
-	 * This module connects the different major supi-core requiring processes together via HTTP.
-	 * @memberof sb
+	 * Sends a request to play a playsound locally.
+	 * @param name
+	 * @returns {Promise<boolean>}
+	 * Returns boolean, if a request was sent - true, if the sound was played; false, if there was an error.
 	 */
-	return class LocalRequest extends require("./template.js") {
-		/**
-		 * @inheritDoc
-		 * @returns {LocalRequest}
-		 */
-		static async singleton () {
-			if (!LocalRequest.module) {
-				const missingConfigs = mandatoryConfigs.filter(key => !sb.Config.has(key));
-				if (missingConfigs.length !== 0) {
-					console.debug("Missing LocalRequest config(s), module creation skipped", { missingConfigs });
-					LocalRequest.module = {};
-				}
-				else {
-					LocalRequest.module = new LocalRequest();
-				}
-			}
+	async playAudio (name) {
+		const result = await sb.Got(`${this.url}/?audio=${name}`).text();
+		return (result === "OK");
+	}
 
-			return LocalRequest.module;
+	async playSpecialAudio (options = {}) {
+		const params = new sb.URLParams()
+			.set("specialAudio", "1")
+			.set("url", options.url);
+
+		if (options.volume) {
+			params.set("volume", options.volume);
+		}
+		if (options.limit) {
+			params.set("limit", options.limit);
 		}
 
-		constructor () {
-			super();
-			this.url = `${sb.Config.get("LOCAL_IP")}:${sb.Config.get("LOCAL_PLAY_SOUNDS_PORT")}`;
+		const result = await sb.Got(`${this.url}/?${params.toString()}`).text();
+		return (result === "true");
+	}
+
+	async checkTextToSpeech () {
+		const result = await sb.Got(`${this.url}/?ttsCheck=true`);
+
+		return (result === "true");
+	}
+
+	async playTextToSpeech (options) {
+		const params = new sb.URLParams().set("tts", JSON.stringify(options.tts));
+
+		if (options.volume) {
+			params.set("volume", options.volume);
+		}
+		if (options.limit) {
+			params.set("limit", options.limit);
 		}
 
-		/**
-		 * Sends a request to play a playsound locally.
-		 * @param name
-		 * @returns {Promise<boolean>}
-		 * Returns boolean, if a request was sent - true, if the sound was played; false, if there was an error.
-		 */
-		async playAudio (name) {
-			const result = await sb.Got(`${this.url}/?audio=${name}`).text();
-			return (result === "OK");
-		}
+		const result = await sb.Got(`${this.url}/?${params.toString()}`).text();
+		return (result === "true");
+	}
 
-		async playSpecialAudio (options = {}) {
-			const params = new sb.URLParams()
-				.set("specialAudio", "1")
-				.set("url", options.url);
+	get modulePath () { return "local-request"; }
 
-			if (options.volume) {
-				params.set("volume", options.volume);
-			}
-			if (options.limit) {
-				params.set("limit", options.limit);
-			}
-
-			const result = await sb.Got(`${this.url}/?${params.toString()}`).text();
-			return (result === "true");
-		}
-
-		async checkTextToSpeech () {
-			const result = await sb.Got(`${this.url}/?ttsCheck=true`);
-
-			return (result === "true");
-		}
-
-		async playTextToSpeech (options) {
-			const params = new sb.URLParams().set("tts", JSON.stringify(options.tts));
-
-			if (options.volume) {
-				params.set("volume", options.volume);
-			}
-			if (options.limit) {
-				params.set("limit", options.limit);
-			}
-
-			const result = await sb.Got(`${this.url}/?${params.toString()}`).text();
-			return (result === "true");
-		}
-
-		get modulePath () { return "local-request"; }
-
-		destroy () {}
-	};
-})();
+	destroy () {}
+};

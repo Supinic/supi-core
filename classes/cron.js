@@ -1,8 +1,9 @@
+const { CronJob } = require("cron");
+
 /**
  * Represents a function that's executed every some time
  * @memberof sb
  */
-const { CronJob } = require("cron");
 module.exports = class Cron extends require("./template.js") {
 	// <editor-fold defaultstate="collapsed" desc="=== INSTANCE PROPERTIES ===">
 

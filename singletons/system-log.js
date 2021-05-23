@@ -1,17 +1,18 @@
 /**
  * Module for logging various events to database.
- * @memberof sb
+ * @deprecated
  */
-module.exports = class SystemLogger extends require("./template.js") {
+module.exports = class SystemLoggerSingleton extends require("./template.js") {
 	/**
 	 * @inheritDoc
-	 * @returns {SystemLogger}
+	 * @returns {SystemLoggerSingleton}
 	 */
 	static singleton () {
-		if (!SystemLogger.module) {
-			SystemLogger.module = new SystemLogger();
+		if (!SystemLoggerSingleton.module) {
+			SystemLoggerSingleton.module = new SystemLoggerSingleton();
 		}
-		return SystemLogger.module;
+
+		return SystemLoggerSingleton.module;
 	}
 
 	/**
