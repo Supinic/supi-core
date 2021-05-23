@@ -1,5 +1,5 @@
 /** @interface */
-module.exports = class TemplateSingletonModule {
+module.exports = class SingletonTemplate {
 	/**
 	 * Cleans up the module.
 	 * All sub-classes must implement this method.
@@ -13,7 +13,7 @@ module.exports = class TemplateSingletonModule {
 	 * Constructs the singleton instance.
 	 * @returns {Promise<void>}
 	 */
-	static async singleton () {
+	static singleton () {
 		throw new Error("Module.singleton is not implemented");
 	}
 
