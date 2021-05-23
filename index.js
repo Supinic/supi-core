@@ -121,12 +121,6 @@ module.exports = (async function (namespace, options = {}) {
 					break;
 				}
 
-				case "twitter": {
-					const Component = require("./singletons/twitter.js");
-					sb.Twitter = Component.singleton();
-					break;
-				}
-
 				case "utils": {
 					const Component = require("./singletons/utils.js");
 					sb.Utils = Component.singleton();

@@ -1,6 +1,6 @@
 {
   "name": "supi-core",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Supinic's projects' core modules, created in a global namespace",
   "main": "index.js",
   "dependencies": {
@@ -22,7 +22,6 @@
     "rss-parser": "^3.10.0",
     "track-link-parser": "github:supinic/track-link-parser",
     "transliteration": "^2.2.0",
-    "twitter-lite": "^0.11.0",
     "vm2": "^3.9.2"
   },
   "author": "Supinic",
