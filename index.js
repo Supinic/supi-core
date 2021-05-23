@@ -97,6 +97,12 @@ module.exports = (async function (namespace, options = {}) {
 					break;
 				}
 
+				case "query": {
+					const Component = require("./singletons/query");
+					sb.Query = Component.singleton();
+					break;
+				}
+
 				case "runtime": {
 					const Component = require("./singletons/runtime.js");
 					sb.Runtime = Component.singleton();
