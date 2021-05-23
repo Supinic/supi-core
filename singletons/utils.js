@@ -92,8 +92,7 @@ module.exports = (function () {
 			trim: (strings, ...values) => {
 				const result = [];
 				for (let i = 0; i < strings.length; i++) {
-					result.push(strings[i].replace(/\s+/g, " "));
-					result.push(values[i]);
+					result.push(strings[i].replace(/\s+/g, " "), values[i]);
 				}
 
 				return result.join("").trim();
@@ -264,7 +263,9 @@ module.exports = (function () {
 		toDictionary (message, orderBy = "asc") {
 			const arr = message.replace(/\s+/g, " ").trim().split(" ");
 			let dictionary = new Map(arr.map(i => [i, 0]));
-			arr.forEach(i => dictionary.set(i, dictionary.get(i) + 1));
+			for (const i of arr) {
+				dictionary.set(i, dictionary.get(i) + 1);
+			}
 
 			if (orderBy.toLowerCase() === "desc") {
 				dictionary = new Map([...dictionary.entries()].sort((a, b) => b[1] - a[1]));
@@ -1029,8 +1030,8 @@ module.exports = (function () {
 
 			let matches = 0;
 			const range = (Math.floor(Math.max(from.length, target.length) / 2)) - 1;
-			const fromMatches = Array(from.length);
-			const targetMatches = Array(target.length);
+			const fromMatches = new Array(from.length);
+			const targetMatches = new Array(target.length);
 
 			for (let i = 0; i < from.length; i++) {
 				const low = (i >= range) ? i - range : 0;

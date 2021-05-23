@@ -20,7 +20,7 @@ module.exports = (function () {
 			while (data.length > 0) {
 				const index = count % data.length;
 				const row = data[index % data.length];
-				if (row.Parent && !Got.data.find(i => i[SymbolName] === row.Parent)) {
+				if (row.Parent && !Got.data.some(i => i[SymbolName] === row.Parent)) {
 					count++;
 					continue;
 				}

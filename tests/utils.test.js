@@ -2,7 +2,7 @@
 (async () => {
 	const assert = require("assert");
 	const Date = require("../objects/date.js");
-	const range = (from, to) => [...Array(to - from + 1)].map((i, ind) => ind + from);
+	const range = (from, to) => [...new Array(to - from + 1)].map((i, ind) => ind + from);
 
 	globalThis.sb = {
 		Config: {
@@ -59,7 +59,7 @@
 		});
 
 		it("parses seconds properly", () => {
-			for (let i = 1_000; i < 60_000; i += 10) {
+			for (let i = 1000; i < 60_000; i += 10) {
 				const futureDate = new sb.Date(i);
 				const expectedLongString = `in ${i / 1000}s`;
 				const expectedShortString = `${i / 1000}s`;
@@ -68,7 +68,7 @@
 				assert.strictEqual(timeDelta(futureDate, true), expectedShortString, `Input: ${i}`);
 			}
 
-			for (let i = -1_000; i > -60_000; i -= 50) {
+			for (let i = -1000; i > -60_000; i -= 50) {
 				const pastDate = new sb.Date(i);
 				const expectedLongString = `${Math.abs(i) / 1000}s ago`;
 				const expectedShortString = `${Math.abs(i) / 1000}s`;

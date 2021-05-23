@@ -432,9 +432,9 @@ module.exports = class Recordset {
 		try {
 			rows = await this.#query.raw(...sql);
 		}
-		catch (err) {
-			console.error(err);
-			throw err;
+		catch (e) {
+			console.error(e);
+			throw e;
 		}
 
 		const definition = {};
