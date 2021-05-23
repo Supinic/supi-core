@@ -31,7 +31,7 @@ module.exports = class URLParams {
 
 	toString () {
 		const values = this.#values.map(([key, value]) => {
-			const encoded = String.value(value)
+			const encoded = String(value)
 				.split(" ")
 				.map(i => encodeURIComponent(i))
 				.join(this.#char);
