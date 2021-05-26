@@ -42,6 +42,8 @@ const moduleMap = {
 
 // this object has the same keys as `moduleMap`, but all values are `null`.
 const modules = Object.seal(Object.fromEntries(Object.keys(moduleMap).map(i => [i, null])));
+
+/** @type {Proxy} */
 const moduleProxy = new Proxy(modules, {
 	get: function (target, property) {
 		if (!modules[property]) {
@@ -108,6 +110,9 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 		}
 	};
 
+	/**
+	 * @returns {UtilsModuleProxyWrapper}
+	 */
 	get modules () {
 		return moduleProxy;
 	}
@@ -1433,4 +1438,18 @@ module.exports = class UtilsSingleton extends require("./template.js") {
  * @property {string} link
  * @property {string} pubDate
  * @property {string} title
+ */
+
+/**
+ * @typedef {Proxy} UtilsModuleProxyWrapper
+ * @property {TrackLinkParser} linkParser
+ * @property {function} cheerio Fast, flexible & lean implementation of core jQuery designed specifically for the server.
+ * @property {function} chrono A natural language date parser in Javascript. It is designed to handle most date/time format and extract information from any given text.
+ * @property {ISOLanguageParser} languageISO
+ * @property {Object} random
+ * @property {Object} rss
+ * @property {DurationParserModuleFunction} parseDuration
+ * @property {function} ffprobe
+ * @property {function} diceRollEval
+ * @property {function} transliterate
  */
