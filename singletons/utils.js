@@ -1384,6 +1384,21 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 		};
 	}
 
+	/**
+	 * Creates a regex by escaping all special regex characters.
+	 * @param {string} string
+	 * @param {string} flags
+	 * @returns {RegExp}
+	 */
+	createRegExp (string, flags) {
+		if (typeof string !== "string" || typeof flags !== "string") {
+			throw new TypeError("Both string and flags must be provided and be a string");
+		}
+
+		const escaped = string.replace(/([.+*?^$()[\]{}|\\])/g, "\\$1");
+		return new RegExp(escaped, flags);
+	}
+
 	get modulePath () { return "utils"; }
 
 	/** @inheritDoc */
