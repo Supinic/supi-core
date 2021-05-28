@@ -3,28 +3,39 @@
  * One instance is always locked to one table and some of its columns based on constructor.
  */
 module.exports = class Batch {
+	/** @type {QuerySingleton} */
+	query;
+	/** @type {string} */
+	database;
+	/** @type {string} */
+	table;
+	/** @type {Object[]} */
+	records = [];
+	/** @type {ColumnDefinition[]} */
+	columns = [];
+
+	threshold = 1;
+	ready = false;
+
 	/**
 	 * Creates a new Batch instance. Constructor must be await-ed.
-	 * @param {Query} query
-	 * @param {string} db
-	 * @param {string} table
-	 * @param {string[]} columns
+	 * @param {QuerySingleton} query
+	 * @param {Object} options = {}
+	 * @param {string} options.database
+	 * @param {string} options.table
+	 * @param {string[]} options.columns
+	 * @param {number} [options.threshold]
 	 * @returns {Promise<Batch>}
 	 * @throws sb.Error If a nonexistent column has been provided
 	 */
-	constructor (query, db, table, columns) {
-		/** @type {Query} */
+	constructor (query, options) {
 		this.query = query;
-		/** @type {string} */
-		this.database = db;
-		/** @type {string} */
-		this.table = table;
-		/** @type {Object[]} */
-		this.records = [];
-		/** @type {ColumnDefinition[]} */
-		this.columns = [];
-		/** @type {boolean} */
-		this.ready = false;
+		this.database = options.database;
+		this.table = options.table;
+
+		if (typeof options.threshold === "number") {
+			this.threshold = options.threshold;
+		}
 
 		return (async () => {
 			const definition = await this.query.getDefinition(db, table);
@@ -83,7 +94,7 @@ module.exports = class Batch {
 	 * @returns {Promise<void>}
 	 */
 	async insert (options = {}) {
-		if (this.records.length === 0) {
+		if (this.records.length < this.threshold) {
 			return;
 		}
 

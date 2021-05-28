@@ -182,10 +182,16 @@ module.exports = class QuerySingleton extends Template {
 	 * @param {string} database Database of the table
 	 * @param {string} table Name of the table
 	 * @param {string[]} columns Column names to insert into given table
+	 * @param {Object} options
 	 * @returns {Promise<Batch>}
 	 */
-	async getBatch (database, table, columns) {
-		return await new Batch(this, database, table, columns);
+	async getBatch (database, table, columns, options = {}) {
+		return await new Batch(this, {
+			...options,
+			database,
+			table,
+			columns
+		});
 	}
 
 	isRecordset (input) { return (input instanceof Recordset); }
