@@ -25,8 +25,7 @@ module.exports = class Batch {
 	 * @param {string} options.table
 	 * @param {string[]} options.columns
 	 * @param {number} [options.threshold]
-	 * @returns {Promise<Batch>}
-	 * @throws sb.Error If a nonexistent column has been provided
+	 * @throws {sb.Error} If a nonexistent column has been provided
 	 */
 	constructor (query, options) {
 		this.query = query;
@@ -36,27 +35,28 @@ module.exports = class Batch {
 		if (typeof options.threshold === "number") {
 			this.threshold = options.threshold;
 		}
+	}
 
-		return (async () => {
-			const definition = await this.query.getDefinition(db, table);
-			for (const column of columns) {
-				if (definition.columns.every(col => column !== col.name)) {
-					throw new sb.Error({
-						message: "Unrecognized Batch column",
-						args: {
-							database: db,
-							table,
-							unrecognizedColumn: column,
-							tableColumns: definition.columns.join(", ")
-						}
-					});
-				}
+	async initialize () {
+		const definition = await this.query.getDefinition(this.database, this.table);
+		for (const column of columns) {
+			if (definition.columns.every(col => column !== col.name)) {
+				throw new sb.Error({
+					message: "Unrecognized Batch column",
+					args: {
+						database: this.database,
+						table: this.table,
+						unrecognizedColumn: column,
+						tableColumns: definition.columns.join(", ")
+					}
+				});
 			}
+		}
 
-			this.columns = definition.columns.filter(column => columns.includes(column.name));
-			this.ready = true;
-			return this;
-		})();
+		this.columns = definition.columns.filter(column => columns.includes(column.name));
+		this.ready = true;
+
+		return this;
 	}
 
 	/**

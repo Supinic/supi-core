@@ -186,12 +186,15 @@ module.exports = class QuerySingleton extends Template {
 	 * @returns {Promise<Batch>}
 	 */
 	async getBatch (database, table, columns, options = {}) {
-		return await new Batch(this, {
+		const batch = new Batch(this, {
 			...options,
 			database,
 			table,
 			columns
 		});
+
+		await batch.initialize();
+		return batch;
 	}
 
 	isRecordset (input) { return (input instanceof Recordset); }
