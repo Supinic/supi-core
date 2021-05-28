@@ -23,7 +23,6 @@ module.exports = class Batch {
 	 * @param {Object} options = {}
 	 * @param {string} options.database
 	 * @param {string} options.table
-	 * @param {string[]} options.columns
 	 * @param {number} [options.threshold]
 	 * @throws {sb.Error} If a nonexistent column has been provided
 	 */
@@ -37,7 +36,11 @@ module.exports = class Batch {
 		}
 	}
 
-	async initialize () {
+	/**
+	 * @param {string[]} columns
+	 * @returns {Promise<Batch>}
+	 */
+	async initialize (columns) {
 		const definition = await this.query.getDefinition(this.database, this.table);
 		for (const column of columns) {
 			if (definition.columns.every(col => column !== col.name)) {

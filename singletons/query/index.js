@@ -189,11 +189,10 @@ module.exports = class QuerySingleton extends Template {
 		const batch = new Batch(this, {
 			...options,
 			database,
-			table,
-			columns
+			table
 		});
 
-		await batch.initialize();
+		await batch.initialize(columns);
 		return batch;
 	}
 
