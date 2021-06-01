@@ -21,7 +21,15 @@ const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
 module.exports = class QuerySingleton extends Template {
 	#loggingThreshold = null;
 	#definitionPromises = new Map();
-	activeConnections = new Set();
+	lifetimes = {
+		batches: new WeakSet(),
+		connectors: new WeakSet(),
+		recordDeleters: new WeakSet(),
+		recordsets: new WeakSet(),
+		recordUpdaters: new WeakSet(),
+		rows: new WeakSet(),
+		transactions: new WeakSet()
+	};
 
 	/**
 	 * @inheritDoc
@@ -76,39 +84,16 @@ module.exports = class QuerySingleton extends Template {
 	 */
 	async raw (...args) {
 		const query = args.join("\n");
-		const timing = {
-			start: process.hrtime.bigint()
-		};
-
 		const connector = await this.pool.getConnection();
-		timing.connection = process.hrtime.bigint();
-		this.activeConnections.add(connector.threadId);
+
+		this.lifetimes.connectors.add(connector);
 
 		const result = connector.query({
 			sql: query,
 			multipleStatements: true
 		});
-		timing.result = process.hrtime.bigint();
 
 		await connector.end();
-		this.activeConnections.delete(connector.threadId);
-		timing.end = process.hrtime.bigint();
-
-		if (this.#loggingThreshold !== null && (timing.end - timing.start) > (this.#loggingThreshold * 1e6)) {
-			console.warn("Query time threshold exceeded", {
-				timing: {
-					full: Number(timing.end - timing.start) / 1e6,
-					getConnection: Number(timing.connection - timing.start) / 1e6,
-					query: Number(timing.result - timing.connection) / 1e6,
-					cleanup: Number(timing.end - timing.result) / 1e6
-				},
-				hrtime: timing,
-				query,
-				timestamp: new sb.Date().sqlDateTime(),
-				stack: new Error().stack
-			});
-		}
-
 		return result;
 	}
 
@@ -126,7 +111,9 @@ module.exports = class QuerySingleton extends Template {
 	 */
 	async getTransaction () {
 		const connector = await this.pool.getConnection();
-		connector.beginTransaction();
+		this.lifetimes.transactions.add(connector);
+
+		await connector.beginTransaction();
 		return connector;
 	}
 
@@ -137,6 +124,8 @@ module.exports = class QuerySingleton extends Template {
 	 */
 	async getRecordset (callback) {
 		const rs = new Recordset(this);
+		this.lifetimes.recordsets.add(connector);
+
 		callback(rs);
 		return await rs.fetch();
 	}
@@ -148,6 +137,8 @@ module.exports = class QuerySingleton extends Template {
 	 */
 	async getRecordDeleter (callback) {
 		const rd = new RecordDeleter(this);
+		this.lifetimes.recordDeleters.add(connector);
+
 		callback(rd);
 		return await rd.fetch();
 	}
@@ -159,6 +150,8 @@ module.exports = class QuerySingleton extends Template {
 	 */
 	async getRecordUpdater (callback) {
 		const ru = new RecordUpdater(this);
+		this.lifetimes.recordUpdaters.add(connector);
+
 		callback(ru);
 		return await ru.fetch();
 	}
@@ -172,8 +165,9 @@ module.exports = class QuerySingleton extends Template {
 	async getRow (database, table) {
 		/** @type {Row} */
 		const row = new Row(this);
-		await row.initialize(database, table);
+		this.lifetimes.rows.add(connector);
 
+		await row.initialize(database, table);
 		return row;
 	}
 
@@ -191,6 +185,7 @@ module.exports = class QuerySingleton extends Template {
 			database,
 			table
 		});
+		this.lifetimes.batches.add(connector);
 
 		await batch.initialize(columns);
 		return batch;
