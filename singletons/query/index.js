@@ -124,7 +124,7 @@ module.exports = class QuerySingleton extends Template {
 	 */
 	async getRecordset (callback) {
 		const rs = new Recordset(this);
-		this.lifetimes.recordsets.add(connector);
+		this.lifetimes.recordsets.add(rs);
 
 		callback(rs);
 		return await rs.fetch();
@@ -137,7 +137,7 @@ module.exports = class QuerySingleton extends Template {
 	 */
 	async getRecordDeleter (callback) {
 		const rd = new RecordDeleter(this);
-		this.lifetimes.recordDeleters.add(connector);
+		this.lifetimes.recordDeleters.add(rd);
 
 		callback(rd);
 		return await rd.fetch();
@@ -150,7 +150,7 @@ module.exports = class QuerySingleton extends Template {
 	 */
 	async getRecordUpdater (callback) {
 		const ru = new RecordUpdater(this);
-		this.lifetimes.recordUpdaters.add(connector);
+		this.lifetimes.recordUpdaters.add(ru);
 
 		callback(ru);
 		return await ru.fetch();
@@ -165,7 +165,7 @@ module.exports = class QuerySingleton extends Template {
 	async getRow (database, table) {
 		/** @type {Row} */
 		const row = new Row(this);
-		this.lifetimes.rows.add(connector);
+		this.lifetimes.rows.add(row);
 
 		await row.initialize(database, table);
 		return row;
@@ -185,7 +185,7 @@ module.exports = class QuerySingleton extends Template {
 			database,
 			table
 		});
-		this.lifetimes.batches.add(connector);
+		this.lifetimes.batches.add(batch);
 
 		await batch.initialize(columns);
 		return batch;
