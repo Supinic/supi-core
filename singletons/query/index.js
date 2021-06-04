@@ -245,6 +245,21 @@ module.exports = class QuerySingleton extends Template {
 	}
 
 	/**
+	 * Returns a boolean determining if a given database exists.
+	 * @param {string} database
+	 * @returns {Promise<boolean>}
+	 */
+	async isDatabasePresent (database) {
+		const exists = await this.getRecordset(rs => rs
+			.select("1")
+			.from("INFORMATION_SCHEMA", "SCHEMATA")
+			.where("SCHEMA_NAME = %s", database)
+		);
+
+		return (exists.length !== 0);
+	}
+
+	/**
 	 * Returns a boolean determining if a given database (schema) - table combination exists.
 	 * @param {string} database
 	 * @param {string} table
