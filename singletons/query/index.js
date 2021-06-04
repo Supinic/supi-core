@@ -224,6 +224,7 @@ module.exports = class QuerySingleton extends Template {
 			for (const column of data.meta) {
 				obj.columns.push({
 					name: column.name(),
+					length: column.columnLength ?? null,
 					type: ((column.flags & QuerySingleton.flagMask.SET) === 0) ? column.type : "SET",
 					notNull: Boolean(column.flags & QuerySingleton.flagMask.NOT_NULL),
 					primaryKey: Boolean(column.flags & QuerySingleton.flagMask.PRIMARY_KEY),
