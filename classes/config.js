@@ -1,3 +1,5 @@
+const VALID_BOOLEAN_LIKE_VALUES = ["0", "1", "true", "false"];
+
 /**
  * Represents configuration variables saved in the database.
  * @memberof sb
@@ -10,6 +12,8 @@ module.exports = class Config extends require("./template.js") {
 	#Secret;
 	#Editable;
 
+	#initialized = false;
+
 	static data = new Map();
 	static nonStrictNotifications = new Map();
 
@@ -20,10 +24,10 @@ module.exports = class Config extends require("./template.js") {
 		this.#Type = data.Type;
 		this.#Unit = data.Unit;
 		this.#Secret = Boolean(data.Secret);
-
-		this.#Editable = true;
-		this.value = data.Value;
 		this.#Editable = Boolean(data.Editable);
+
+		this.value = data.Value;
+		this.#initialized = true;
 	}
 
 	async serialize () {
@@ -43,7 +47,7 @@ module.exports = class Config extends require("./template.js") {
 
 	get value () { return this.#Value; }
 	set value (value) {
-		if (!this.#Editable) {
+		if (!this.#Editable && this.#initialized) {
 			throw new sb.Error({
 				message: "Config variable is not editable"
 			});
@@ -51,80 +55,91 @@ module.exports = class Config extends require("./template.js") {
 
 		if (value === null) {
 			this.#Value = null;
+			return;
 		}
-		else {
-			switch (this.#Type) {
-				case "boolean":
-					if (typeof value === "boolean") {
-						this.#Value = value;
-					}
-					else if (value === "0" || value === "1") {
-						this.#Value = (value === "1");
-						console.warn("Deprecated: Boolean config!");
-					}
-					else {
+
+		switch (this.#Type) {
+			case "boolean":
+				if (typeof value === "boolean") {
+					this.#Value = value;
+				}
+				else if (VALID_BOOLEAN_LIKE_VALUES.includes(value)) {
+					if (this.#initialized) {
 						throw new sb.Error({
-							message: "Unsupported Config boolean value", args: value
+							message: "Cannot use pseudo-boolean values during runtime",
+							args: { value, type: typeof value }
 						});
 					}
 
-					break;
+					this.#Value = (value === "1" || value === "true");
+				}
+				else {
+					throw new sb.Error({
+						message: "Unsupported Config boolean value", args: value
+					});
+				}
 
-				case "string":
-					this.#Value = String(value);
-					break;
+				break;
 
-				case "number":
-					this.#Value = Number(value);
-					break;
+			case "string":
+				this.#Value = String(value);
+				break;
 
-				case "date":
-					this.#Value = new sb.Date(value);
-					break;
+			case "number":
+				this.#Value = Number(value);
+				break;
 
-				case "regex":
-					// Split to obtain flags - if none are present, none will be used
-					try {
-						this.#Value = new RegExp(...value.replace(/^\/|\/$/g, "")
-							.split(/\/(?=[gmi])/)
-							.filter(Boolean));
-					}
-					catch (e) {
-						console.warn("Incorrect value for config regex", e);
-						this.#Value = /.*/;
-					}
-					break;
+			case "date":
+				this.#Value = new sb.Date(value);
 
-				case "array":
-				case "object":
-					try {
-						this.#Value = JSON.parse(value);
-					}
-					catch (e) {
-						console.warn(`Object config variable has invalid definition`, { value, e });
-						this.#Value = (this.#Type === "array") ? [] : {};
-					}
-					break;
+				if (Number.isNaN(this.#Value.valueOf())) {
+					console.warn(`Config variable ${this.#Name}: Invalid date value`);
+				}
 
-				case "function":
-					try {
-						this.#Value = eval(value);
-						if (typeof this.#Value !== "function") {
-							console.warn(`Function config variable is not typeof function`, { value });
-							this.#Value = () => undefined;
-						}
-					}
-					catch (e) {
-						console.warn(`Object config variable has invalid definition`, { value, e });
+				break;
+
+			case "regex":
+				// Split to obtain flags - if none are present, none will be used
+				try {
+					this.#Value = new RegExp(...value.replace(/^\/|\/$/g, "")
+						.split(/\/(?=[gmi])/)
+						.filter(Boolean));
+				}
+				catch (e) {
+					console.warn("Incorrect value for config regex", e);
+					this.#Value = /.*/;
+				}
+				break;
+
+			case "array":
+			case "object":
+				try {
+					this.#Value = JSON.parse(value);
+				}
+				catch (e) {
+					console.warn(`Object config variable has invalid definition`, { value, e });
+					this.#Value = (this.#Type === "array") ? [] : {};
+				}
+				break;
+
+			case "function":
+				try {
+					this.#Value = eval(value);
+					if (typeof this.#Value !== "function") {
+						console.warn(`Function config variable is not typeof function`, { value });
 						this.#Value = () => undefined;
 					}
-					break;
+				}
+				catch (e) {
+					console.warn(`Object config variable has invalid definition`, { value, e });
+					this.#Value = () => undefined;
+				}
+				break;
 
-				default:
-					throw new sb.Error({
-						message: "Unrecognized config variable type", args: this.#Type
-					});
-			}
+			default:
+				throw new sb.Error({
+					message: "Unrecognized config variable type", args: this.#Type
+				});
 		}
 	}
 
