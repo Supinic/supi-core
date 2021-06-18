@@ -1288,7 +1288,7 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 		return this.modules.diceRollEval(input, {
 			limit,
 			strict: false,
-			rng: (min, max) => sb.UtilsSingleton.random(min, max)
+			rng: (min, max) => sb.Utils.random(min, max)
 		});
 	}
 
