@@ -100,7 +100,7 @@ module.exports = class Recordset {
 
 	/**
 	 * Sets SELECT fields.
-	 * @param {string[]} args
+	 * @param {...string} args
 	 * @returns {Recordset}
 	 */
 	select (...args) {
@@ -132,7 +132,7 @@ module.exports = class Recordset {
 
 	/**
 	 * Sets a GROUP BY statement.
-	 * @param {string[]} args
+	 * @param {...string} args
 	 * @returns {Recordset}
 	 */
 	groupBy (...args) {
@@ -142,7 +142,7 @@ module.exports = class Recordset {
 
 	/**
 	 * Sets an ORDER BY statement.
-	 * @param {string[]} args
+	 * @param {...string} args
 	 * @returns {Recordset}
 	 */
 	orderBy (...args) {
@@ -165,7 +165,7 @@ module.exports = class Recordset {
 	 * Sets a HAVING condition.
 	 * First parameter can be an option argument {@link WhereHavingParams}
 	 * Multiple formatting symbols {@link FormatSymbol} can be used
-	 * @param {Array} args
+	 * @param {...*} args
 	 * @returns {Recordset}
 	 */
 	having (...args) {
@@ -176,7 +176,7 @@ module.exports = class Recordset {
 	 * Sets a HAVING/WHERE condition, avoids duplicate code
 	 * @private
 	 * @param {"where"|"having"} type
-	 * @param {Array} args
+	 * @param {...*} args
 	 * @returns {Recordset}
 	 */
 	conditionWrapper (type, ...args) {
@@ -294,7 +294,8 @@ module.exports = class Recordset {
 	}
 
 	/**
-	 * For more info and detailed usage, check `./reference.md`
+	 *
+	 * @see {@link ./reference.md}
 	 */
 	reference (options = {}) {
 		const {
@@ -423,7 +424,10 @@ module.exports = class Recordset {
 
 	/**
 	 * Executes the SQL query and converts received values to their JS representation.
-	 * @returns {Promise<Array>}
+	 * @returns {Promise<*|Object|Array>} Returns:
+	 * - specific primitive value `{sb.Date|boolean|number|string|null|undefined}` if `single()` and `flat()` is used
+	 * - single `{Object}` if just `single()` is used
+	 * - otherwise `Object[]`
 	 */
 	async fetch () {
 		const sql = this.toSQL();
@@ -487,6 +491,11 @@ module.exports = class Recordset {
 			: result;
 	}
 
+	/**
+	 * @private
+	 * @param {Object} data
+	 * @param {Object} options
+	 */
 	static collapseReferencedData (data, options) {
 		const keyMap = new Map();
 		const { collapseOn: collapser, target, columns } = options;
