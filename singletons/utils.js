@@ -342,6 +342,16 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	 * @returns {string}
 	 */
 	wrapString (string, length) {
+		if (typeof string !== "string") {
+			throw new sb.Error({
+				message: "Provided input must be a string",
+				args: {
+					type: typeof string,
+					name: string?.constructor?.name ?? "(none)"
+				}
+			});
+		}
+
 		string = string.replace(/\r?\n/g, " ").replace(/\s+/g, " ");
 		return (string.length >= length)
 			? (`${string.slice(0, length - 1)}…`)
