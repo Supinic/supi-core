@@ -91,6 +91,12 @@ module.exports = (function () {
 				delete gqlOptions.token;
 			}
 
+			if (gqlOptions.variables) {
+				options.json.variables = gqlOptions.variables;
+
+				delete gqlOptions.variables;
+			}
+
 			return gotModule({ ...gqlOptions, ...options });
 		}
 
