@@ -1335,11 +1335,12 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	/**
 	 * Uploads a file to {@link https://i.nuuls.com}
 	 * @param {Buffer} fileData
+	 * @param {string} [fileName] custom filename, used for managing extensions
 	 * @returns {Promise<FileUploadResult>}
 	 */
-	async uploadToNuuls (fileData) {
+	async uploadToNuuls (fileData, fileName = "file.jpg") {
 		const form = new sb.Got.FormData();
-		form.append("attachment", fileData, "file.jpg");
+		form.append("attachment", fileData, fileName);
 
 		const response = await sb.Got({
 			method: "POST",
