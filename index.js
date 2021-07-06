@@ -115,12 +115,6 @@ module.exports = (async function (namespace, options = {}) {
 					break;
 				}
 
-				case "system-log": {
-					const Component = require("./singletons/system-log.js");
-					sb.SystemLogger = Component.singleton();
-					break;
-				}
-
 				case "utils": {
 					const Component = require("./singletons/utils.js");
 					sb.Utils = Component.singleton();
