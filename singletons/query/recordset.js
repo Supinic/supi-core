@@ -283,9 +283,9 @@ module.exports = class Recordset {
 	/**
 	 * Sets a table to LEFT JOIN.
 	 * @todo - this needs a better implementation
-	 * @param {string|Object} target If string, represents the name of the table to join.
-	 * @param {string} [target.raw] If target is Object, and raw is specified, parsing is skipped and the string is used directly.
 	 * @param {string} database Database of joined table
+	 * @param {string|Object} [target] If string, represents the name of the table to join.
+	 * @param {string} [target.raw] If target is Object, and raw is specified, parsing is skipped and the string is used directly.
 	 * @param {string} [customField] If set, attempts to join the table via specific field
 	 * @returns {Recordset}
 	 */
