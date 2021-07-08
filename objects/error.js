@@ -1,5 +1,5 @@
 /**
- * Custom error object. Keeps arguments to provide more error context.
+ * Custom error object. Receives an arguments object to provide more detailed error context.
  * @memberof sb
  */
 module.exports = class Error extends global.Error {
@@ -33,14 +33,5 @@ module.exports = class Error extends global.Error {
 				return currentStack + extraStack;
 			}
 		});
-	}
-
-	toString () {
-		let description = super.description;
-		if (this.error) {
-			description += `\n${this.err.description}`;
-		}
-
-		return description;
 	}
 };
