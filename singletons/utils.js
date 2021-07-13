@@ -341,9 +341,11 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	 * Wraps the input string into the given amount of characters, discarding the rest.
 	 * @param {string} string
 	 * @param {number} length
+	 * @param {Object} options={}
+	 * @param {Object} [options.keepWhitespace] If true, no whitespace
 	 * @returns {string}
 	 */
-	wrapString (string, length) {
+	wrapString (string, length, options = {}) {
 		if (typeof string !== "string") {
 			throw new sb.Error({
 				message: "Provided input must be a string",
@@ -354,9 +356,12 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			});
 		}
 
-		string = string.replace(/\r?\n/g, " ").replace(/\s+/g, " ");
+		if (!options.keepWhitespace) {
+			string = string.replace(/\r?\n/g, " ").replace(/\s+/g, " ");
+		}
+
 		return (string.length >= length)
-			? (`${string.slice(0, length - 1)}…`)
+			? `${string.slice(0, length - 1)}…`
 			: string;
 	}
 
