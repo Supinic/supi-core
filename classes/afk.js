@@ -62,7 +62,7 @@ module.exports = class AwayFromKeyboard extends require("./template.js") {
 			.where("Active = %b", true)
 		);
 
-		for (const item of data) {
+		for (const record of data) {
 			const afk = new AwayFromKeyboard(record);
 			AwayFromKeyboard.data.set(afk.User_Alias, afk);
 		}
@@ -116,7 +116,7 @@ module.exports = class AwayFromKeyboard extends require("./template.js") {
 
 		// Extract the AFK data *FIRST*, before anything else is awaited!
 		// This makes sure that no more (possibly incorrect) messages are sent before the response is put together.
-		const data = AwayFromKeyboard.get(userData.ID);
+		const data = AwayFromKeyboard.data.get(userData.ID);
 		AwayFromKeyboard.data.delete(userData.ID);
 
 		// This should only ever update one row, if everything is working properly.
