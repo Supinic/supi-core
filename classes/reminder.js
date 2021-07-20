@@ -219,7 +219,7 @@ module.exports = class Reminder extends require("./template.js") {
 
 	static async reloadData () {
 		this.destroy();
-		return await super.reloadData();
+		return await this.loadData();
 	}
 
 	static async reloadSpecific (...list) {
