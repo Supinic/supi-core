@@ -543,6 +543,8 @@ module.exports = class Reminder extends require("./template.js") {
 				channelData.mirror(publicMessage, targetUserData, false)
 			]);
 		}
+
+		Reminder.data.delete(targetUserData.ID);
 	}
 
 	/**
