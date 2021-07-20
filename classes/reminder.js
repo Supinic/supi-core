@@ -218,7 +218,7 @@ module.exports = class Reminder extends require("./template.js") {
 	}
 
 	static async reloadData () {
-		this.destroy();
+		this.clear();
 		return await this.loadData();
 	}
 
@@ -270,7 +270,7 @@ module.exports = class Reminder extends require("./template.js") {
 		}
 	}
 
-	static destroy () {
+	static clear () {
 		for (const reminderList of Reminder.data.values()) {
 			for (const reminder of reminderList) {
 				reminder.destroy();
@@ -279,7 +279,10 @@ module.exports = class Reminder extends require("./template.js") {
 
 		Reminder.available.clear();
 		Reminder.data.clear();
+	}
 
+	static destroy () {
+		this.clear();
 		super.destroy();
 	}
 
