@@ -55,6 +55,11 @@ module.exports = class AwayFromKeyboard extends require("./template.js") {
 		});
 	}
 
+	static async reloadData () {
+		AwayFromKeyboard.data.clear();
+		return await this.loadData();
+	}
+
 	static async loadData () {
 		const data = await sb.Query.getRecordset(rs => rs
 			.select("*")
