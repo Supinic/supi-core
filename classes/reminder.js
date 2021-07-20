@@ -284,55 +284,6 @@ module.exports = class Reminder extends require("./template.js") {
 	}
 
 	/**
-	 * @private
-	 * @param {sb.Reminder} reminder
-	 */
-	static #add (reminder) {
-		if (!Reminder.data.has(reminder.User_To)) {
-			Reminder.data.set(reminder.User_To, []);
-		}
-
-		Reminder.available.set(reminder.ID, reminder.User_To);
-		Reminder.data.get(reminder.User_To).push(reminder);
-
-		reminder.activeTimeout();
-	}
-
-	/**
-	 * @private
-	 * @param {number} ID
-	 * @param {boolean} permanent If `true`, the reminder will also be removed/deactivated in the database as well
-	 */
-	static async #remove (ID, permanent = false) {
-		if (permanent) {
-			const row = await sb.Query.getRow("chat_data", "Reminder");
-			await row.load(ID, true);
-
-			if (row.loaded) {
-				row.values.Active = false;
-				await row.save();
-			}
-		}
-
-		if (!Reminder.available.has(ID)) {
-			return false;
-		}
-
-		const targetUserID = Reminder.available.get(ID);
-		const list = Reminder.data.get(targetUserID);
-		const index = list.findIndex(i => i.ID === ID);
-		if (index === -1) {
-			return false;
-		}
-
-		const reminder = list[index];
-		reminder.destroy();
-		list.splice(index, 1);
-
-		Reminder.available.delete(ID);
-	}
-
-	/**
 	 * Creates a new Reminder, and saves it to database.
 	 * Used mostly in commands to set up reminders.
 	 * @param {Object} data {@link Reminder}-compliant data
@@ -651,6 +602,56 @@ module.exports = class Reminder extends require("./template.js") {
 
 		return link;
 	}
+
+	/**
+	 * @private
+	 * @param {sb.Reminder} reminder
+	 */
+	static #add (reminder) {
+		if (!Reminder.data.has(reminder.User_To)) {
+			Reminder.data.set(reminder.User_To, []);
+		}
+
+		Reminder.available.set(reminder.ID, reminder.User_To);
+		Reminder.data.get(reminder.User_To).push(reminder);
+
+		reminder.activateTimeout();
+	}
+
+	/**
+	 * @private
+	 * @param {number} ID
+	 * @param {boolean} permanent If `true`, the reminder will also be removed/deactivated in the database as well
+	 */
+	static async #remove (ID, permanent = false) {
+		if (permanent) {
+			const row = await sb.Query.getRow("chat_data", "Reminder");
+			await row.load(ID, true);
+
+			if (row.loaded) {
+				row.values.Active = false;
+				await row.save();
+			}
+		}
+
+		if (!Reminder.available.has(ID)) {
+			return false;
+		}
+
+		const targetUserID = Reminder.available.get(ID);
+		const list = Reminder.data.get(targetUserID);
+		const index = list.findIndex(i => i.ID === ID);
+		if (index === -1) {
+			return false;
+		}
+
+		const reminder = list[index];
+		reminder.destroy();
+		list.splice(index, 1);
+
+		Reminder.available.delete(ID);
+	}
+
 };
 
 /**
