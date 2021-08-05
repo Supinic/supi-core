@@ -153,7 +153,7 @@ module.exports = class Date extends global.Date {
 
 	/**
 	 * Sets the provided time units to zero.
-	 * @param {...<"h"|"m"|"s"|"ms">} units
+	 * @param {..."h"|"m"|"s"|"ms"} units
 	 * @returns {sb.Date}
 	 */
 	discardTimeUnits (...units) {
