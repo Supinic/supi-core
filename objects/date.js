@@ -3,6 +3,21 @@
  * @memberof sb
  */
 module.exports = class Date extends global.Date {
+	static months = [
+		"January",
+		"February",
+		"March",
+		"April",
+		"May",
+		"June",
+		"July",
+		"August",
+		"September",
+		"October",
+		"November",
+		"December"
+	];
+
 	/**
 	 * Pads a number with specified number of zeroes.
 	 * @private
@@ -68,6 +83,12 @@ module.exports = class Date extends global.Date {
 					break;
 				case "D":
 					value += this.dayOfTheWeek.slice(0, 3);
+					break;
+				case "F":
+					value += Date.months[month];
+					break;
+				case "M":
+					value += Date.months[month].slice(0, 3);
 					break;
 
 				case "d":
