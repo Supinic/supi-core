@@ -85,10 +85,10 @@ module.exports = class Date extends global.Date {
 					value += this.dayOfTheWeek.slice(0, 3);
 					break;
 				case "F":
-					value += Date.months[month];
+					value += Date.months[month - 1];
 					break;
 				case "M":
-					value += Date.months[month].slice(0, 3);
+					value += Date.months[month - 1].slice(0, 3);
 					break;
 
 				case "d":
