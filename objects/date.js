@@ -18,6 +18,25 @@ module.exports = class Date extends global.Date {
 		"December"
 	];
 
+	static getDaySuffix (number) {
+		if (typeof number !== "number" || Math.trunc(number) !== number) {
+			throw new Error("Input must be an integer");
+		}
+
+		if (number === 1) {
+			return "st";
+		}
+		else if (number === 2) {
+			return "nd";
+		}
+		else if (number === 3) {
+			return "rd";
+		}
+		else {
+			return "th";
+		}
+	}
+
 	/**
 	 * Pads a number with specified number of zeroes.
 	 * @private
@@ -89,6 +108,9 @@ module.exports = class Date extends global.Date {
 					break;
 				case "M":
 					value += Date.months[month - 1].slice(0, 3);
+					break;
+				case "S":
+					value += Date.getDaySuffix(day);
 					break;
 
 				case "d":
