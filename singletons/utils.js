@@ -40,7 +40,7 @@ const moduleMap = {
 	transliterate: () => require("transliteration").transliterate
 };
 
-const linkRegex = /((http|https):\/\/)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)/gi;
+const linkRegex = /(((http|https):\/\/)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*))/gi;
 
 // this object has the same keys as `moduleMap`, but all values are `null`.
 const modules = Object.seal(Object.fromEntries(Object.keys(moduleMap).map(i => [i, null])));
