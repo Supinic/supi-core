@@ -3,7 +3,6 @@ module.exports = (function () {
 	result.name = "errors";
 
 	const subtypes = [
-		"api.js",
 		"generic-request",
 		"not-implemented"
 	];
