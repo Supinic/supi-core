@@ -1,3 +1,4 @@
+/** @deprecated */
 module.exports = class APIError extends sb.Error {
 	constructor (object) {
 		super(object);
