@@ -143,6 +143,29 @@ module.exports = class Config extends require("./template.js") {
 		}
 	}
 
+	get stringValue () {
+		switch (this.#Type) {
+			case "boolean":
+			case "function":
+			case "number":
+			case "regex":
+			case "string":
+				return String(this.#Value);
+
+			case "date":
+				return String(this.#Value.valueOf());
+
+			case "array":
+			case "object":
+				return JSON.stringify(this.#Value);
+		}
+
+		throw new sb.Error({
+			message: "Unrecognized config variable type",
+			args: this.#Type
+		});
+	}
+
 	static async initialize () {
 		Config.data = new Map();
 		await Config.loadData();
@@ -248,7 +271,7 @@ module.exports = class Config extends require("./template.js") {
 
 		await sb.Query.getRecordUpdater(rs => rs
 			.update("data", "Config")
-			.set("Value", target.value)
+			.set("Value", target.stringValue)
 			.where("Name = %s", variable)
 		);
 	}
