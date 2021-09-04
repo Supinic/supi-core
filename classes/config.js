@@ -221,7 +221,7 @@ module.exports = class Config extends require("./template.js") {
 			}
 
 			case "object": {
-				validType = (value?.constructor === Object);
+				validType = (value?.constructor?.name === "Object");
 				break;
 			}
 
