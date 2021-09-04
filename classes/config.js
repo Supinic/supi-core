@@ -236,7 +236,7 @@ module.exports = class Config extends require("./template.js") {
 			throw new sb.Error({
 				message: "Variable type mismatch",
 				args: {
-					property,
+					name,
 					type: {
 						expected: type,
 						typeof: typeof value,
