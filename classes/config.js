@@ -192,6 +192,71 @@ module.exports = class Config extends require("./template.js") {
 		await Config.loadData();
 	}
 
+	static from (data = {}) {
+		const { name, type, value } = data;
+
+		let validType = false;
+		switch (type) {
+			case "boolean":
+			case "function":
+			case "number":
+			case "string": {
+				validType = (typeof value === type);
+				break;
+			}
+
+			case "date": {
+				validType = (value instanceof Date || value instanceof sb.Date);
+				break;
+			}
+
+			case "regex": {
+				validType = (value instanceof RegExp);
+				break;
+			}
+
+			case "array": {
+				validType = (Array.isArray(value));
+				break;
+			}
+
+			case "object": {
+				validType = (value?.constructor === Object);
+				break;
+			}
+
+			default:
+				throw new sb.Error({
+					message: "Unrecognized variable type",
+					args: { type }
+				});
+		}
+
+		if (!validType) {
+			throw new sb.Error({
+				message: "Variable type mismatch",
+				args: {
+					property,
+					type: {
+						expected: type,
+						typeof: typeof value,
+						constructor: value?.constructor.name ?? "(N/A)"
+					}
+				}
+			});
+		}
+
+		const variable = new Config({
+			Name: name,
+			Type: type,
+			Value: null
+		});
+
+		variable.#Value = value;
+
+		return variable;
+	}
+
 	/**
 	 * Checks if given configuration variable exists.
 	 * @param {string} variable Variable name
