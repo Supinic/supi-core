@@ -196,40 +196,45 @@ module.exports = class Config extends require("./template.js") {
 		const { name, type, value } = data;
 
 		let validType = false;
-		switch (type) {
-			case "boolean":
-			case "function":
-			case "number":
-			case "string": {
-				validType = (typeof value === type);
-				break;
-			}
+		if (value === null) {
+			validType = true;
+		}
+		else {
+			switch (type) {
+				case "boolean":
+				case "function":
+				case "number":
+				case "string": {
+					validType = (typeof value === type);
+					break;
+				}
 
-			case "date": {
-				validType = (value instanceof Date || value instanceof sb.Date);
-				break;
-			}
+				case "date": {
+					validType = (value instanceof Date || value instanceof sb.Date);
+					break;
+				}
 
-			case "regex": {
-				validType = (value instanceof RegExp);
-				break;
-			}
+				case "regex": {
+					validType = (value instanceof RegExp);
+					break;
+				}
 
-			case "array": {
-				validType = (Array.isArray(value));
-				break;
-			}
+				case "array": {
+					validType = (Array.isArray(value));
+					break;
+				}
 
-			case "object": {
-				validType = (value?.constructor?.name === "Object");
-				break;
-			}
+				case "object": {
+					validType = (value?.constructor?.name === "Object");
+					break;
+				}
 
-			default:
-				throw new sb.Error({
-					message: "Unrecognized variable type",
-					args: { type }
-				});
+				default:
+					throw new sb.Error({
+						message: "Unrecognized variable type",
+						args: { type }
+					});
+			}
 		}
 
 		if (!validType) {
