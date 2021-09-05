@@ -1403,6 +1403,38 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	}
 
 	/**
+	 * Fetches time data for given GPS coordinates and timestamp
+	 * @param {Object} data
+	 * @param {string} data.key
+	 * @param {Object} data.coordinates
+	 * @param {string} data.coordinates.lng
+	 * @param {string} data.coordinates.lat
+	 * @param {Date|sb.Date|number} data.date = new sb.Date()
+	 * @returns {Promise<{body: Object, statusCode: number}>}
+	 */
+	async fetchTimeData (data = {}) {
+		const {
+			coordinates,
+			date = new sb.Date(),
+			key
+		} = data;
+
+		const response = await sb.Got("Google", {
+			url: "timezone/json",
+			searchParams: {
+				timestamp: Math.trunc(date.valueOf() / 1000),
+				location: `${coordinates.lat},${coordinates.lng}`,
+				key
+			}
+		});
+
+		return {
+			statusCode: response.statusCode,
+			body: response.body
+		};
+	}
+
+	/**
 	 * Prepares a regex string by escaping all special regex characters.
 	 * @param {string} string
 	 * @returns {string}
