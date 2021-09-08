@@ -3,7 +3,7 @@
  * @memberof sb
  */
 module.exports = class Error extends global.Error {
-	constructor (obj) {
+	constructor (obj, error) {
 		if (!obj || obj.constructor !== Object) {
 			throw new global.Error("sb.Error must receive an object as params");
 		}
@@ -11,12 +11,15 @@ module.exports = class Error extends global.Error {
 		const { cause, message, args } = obj;
 
 		if (cause instanceof Error) {
-			super(message, { cause }); // Forward compatibility for V8 9.4 - error causes
+			super(message, {
+				cause: cause ?? error // Forward compatibility for V8 9.4 - error causes
+			});
 		}
 		else {
 			super(message);
 		}
 
+		// at V8 9.4 (node 16.9) refactor this.parentError to Error.prototype.cause
 		this.parentError = error ?? null;
 		this.name = obj.name || "sb.Error";
 		this.date = new sb.Date();
