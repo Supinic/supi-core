@@ -1434,7 +1434,14 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 		};
 	}
 
+	/**
+	 * Processes a list of resulting images from Artflow.ai and incorporates them into the database
+	 * @param {Array} items
+	 * @returns {Promise<*[]>}
+	 */
 	async processArtflowData (items) {
+		const result = [];
+
 		for (const item of items) {
 			const row = await sb.Query.getRow("data", "Artflow_Image");
 			await row.load(item.filename, true);
@@ -1493,6 +1500,13 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 				continue;
 			}
 
+			result.push({
+				saved: true,
+				link: uploadResponse.body,
+				id: item.index,
+				filename: item.filename
+			});
+
 			row.setValues({
 				Filename: item.filename,
 				ID: item.index,
@@ -1506,6 +1520,8 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 				skipLoad: true
 			});
 		}
+
+		return result;
 	}
 
 	/**
