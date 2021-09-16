@@ -1448,7 +1448,8 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			if (row.loaded) { // Image already exists in the database
 				result.push({
 					saved: false,
-					reason: "already-exists"
+					reason: "already-exists",
+					link: row.values.Upload_Link
 				});
 
 				continue;
