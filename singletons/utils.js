@@ -1446,10 +1446,20 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			const row = await sb.Query.getRow("data", "Artflow_Image");
 			await row.load(item.filename, true);
 			if (row.loaded) { // Image already exists in the database
+				result.push({
+					saved: false,
+					reason: "already-exists"
+				});
+
 				continue;
 			}
 
 			if (item.status === "Queuing") { // Image currently being processed, skip
+				result.push({
+					saved: false,
+					reason: "in-queue"
+				});
+
 				continue;
 			}
 
@@ -1477,6 +1487,11 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			}
 
 			if (!imageURL) { // File does not exist anymore
+				result.push({
+					saved: false,
+					reason: "image-not-found"
+				});
+
 				continue;
 			}
 
@@ -1497,6 +1512,11 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			});
 
 			if (uploadResponse.statusCode !== 200) { // Upload failed
+				result.push({
+					saved: false,
+					reason: "upload-failed"
+				});
+
 				continue;
 			}
 
