@@ -1455,6 +1455,11 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			const row = await sb.Query.getRow("data", "Artflow_Image");
 			await row.load(item.filename, true);
 			if (row.loaded) { // Image already exists in the database
+				if (item.userDataID) {
+					row.values.User_Alias = item.userDataID;
+					await row.save({ skipLoad: true });
+				}
+
 				result.push({
 					saved: false,
 					reason: "already-exists",
@@ -1541,6 +1546,7 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 				Filename: item.filename,
 				ID: item.index,
 				User_ID: item.userID ?? null,
+				User_Alias: item.userDataID ?? null,
 				Prompt: item.text_prompt ?? null,
 				Upload_Link: uploadResponse.body
 			});
