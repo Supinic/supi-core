@@ -1443,6 +1443,15 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 		const result = [];
 
 		for (const item of items) {
+			if (!item.filename) {
+				result.push({
+					saved: false,
+					reason: "missing-filename",
+				});
+
+				continue;
+			}
+
 			const row = await sb.Query.getRow("data", "Artflow_Image");
 			await row.load(item.filename, true);
 			if (row.loaded) { // Image already exists in the database
