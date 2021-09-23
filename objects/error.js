@@ -2,45 +2,52 @@
  * Custom error object. Receives an arguments object to provide more detailed error context.
  * @memberof sb
  */
-module.exports = class Error extends global.Error {
-	constructor (obj, error) {
-		if (!obj || obj.constructor !== Object) {
-			throw new global.Error("sb.Error must receive an object as params");
+module.exports = class Error extends globalThis.Error {
+	#args;
+	#timestamp;
+
+	constructor (obj) {
+		obj ??= {};
+		if (obj.constructor !== Object) {
+			throw new globalThis.Error("sb.Error must receive an object as params");
+		}
+		if (typeof obj.message !== "string") {
+			throw new globalThis.Error("sb.Error must receive a string message");
 		}
 
-		const { cause, message, args } = obj;
+		const { cause, message } = obj;
+		super(message, { cause });
 
-		if (cause instanceof Error) {
-			super(message, {
-				cause: cause ?? error // Forward compatibility for V8 9.4 - error causes
-			});
-		}
-		else {
-			super(message);
+		if (obj.args) {
+			this.#args = obj.args;
 		}
 
-		// at V8 9.4 (node 16.9) refactor this.parentError to Error.prototype.cause
-		this.parentError = error ?? null;
-		this.name = obj.name || "sb.Error";
-		this.date = new sb.Date();
+		this.name = obj.name ?? "sb.Error";
+		this.#timestamp = Date.now();
 
-		if (args) {
-			this.message += `; args = ${JSON.stringify(args, null, 2)}`;
-		}
-
-		const stackDescriptor = Object.getOwnPropertyDescriptor(this, "stack");
-		Object.defineProperty(this, "stack", {
+		const messageDescriptor = Object.getOwnPropertyDescriptor(this, "message");
+		Object.defineProperty(this, "message", {
 			get: () => {
-				const currentStack = (typeof stackDescriptor.get === "function")
-					? stackDescriptor.get()
-					: stackDescriptor.value;
+				const superMessage = (typeof messageDescriptor.get === "function")
+					? messageDescriptor.get()
+					: messageDescriptor.value;
 
-				const extraStack = (this?.parentError?.stack)
-					? `\n=====\nCaused by:\n${this.parentError.stack}`
-					: "";
+				const parts = [superMessage];
+				if (this.#args) {
+					parts.push(`- arguments: ${JSON.stringify(this.#args)}`);
+				}
+				if (this.cause) {
+					const causeMessage = `cause: ${this.cause.message ?? "(empty message)"}`;
+					const tabbedMessage = causeMessage.trim().split("\n").map(i => `\t${i}`).join("\n");
 
-				return currentStack + extraStack;
+					parts.push(tabbedMessage);
+				}
+
+				return parts.join("\n") + "\n";
 			}
 		});
 	}
+
+	get timestamp () { return this.#timestamp; }
+	get date () { return new Date(this.#timestamp); }
 };
