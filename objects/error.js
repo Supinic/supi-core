@@ -6,8 +6,7 @@ module.exports = class Error extends globalThis.Error {
 	#args;
 	#timestamp;
 
-	constructor (obj) {
-		obj ??= {};
+	constructor (obj = {}) {
 		if (obj.constructor !== Object) {
 			throw new globalThis.Error("sb.Error must receive an object as params");
 		}

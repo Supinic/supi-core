@@ -1,11 +1,15 @@
 module.exports = class GenericRequestError extends sb.Error {
-	constructor (object) {
-		super(object);
-
-		this.statusCode = object.statusCode ?? null;
-		this.statusMessage = object.statusMessage ?? null;
-		this.message = object.message ?? null;
-		this.hostname = object.hostname ?? null;
+	constructor (object = {}) {
+		super({
+			message: object.message,
+			name: "GenericRequestError",
+			args: {
+				...(object.args ?? {}),
+				statusCode: object.statusCode ?? null,
+				statusMessage: object.statusMessage ?? null,
+				hostname: object.hostname ?? null,
+			}
+		});
 	}
 
 	static get name () { return "GenericRequestError"; }
