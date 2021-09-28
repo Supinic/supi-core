@@ -18,7 +18,7 @@ module.exports = class Error extends globalThis.Error {
 		super(message, { cause });
 
 		if (obj.args) {
-			this.#args = obj.args;
+			this.#args = Object.freeze(obj.args);
 		}
 
 		this.name = obj.name ?? "sb.Error";
