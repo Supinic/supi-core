@@ -23,17 +23,19 @@ module.exports = class Date extends global.Date {
 			throw new Error("Input must be an integer");
 		}
 
-		if (number === 1) {
-			return "st";
-		}
-		else if (number === 2) {
-			return "nd";
-		}
-		else if (number === 3) {
-			return "rd";
-		}
-		else {
-			return "th";
+		switch (number) {
+			case 1:
+			case 21:
+			case 31:
+				return "st";
+			case 2:
+			case 22:
+				return "nd";
+			case 3:
+			case 23:
+				return "rd";
+			default:
+				return "th";
 		}
 	}
 
