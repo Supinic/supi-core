@@ -160,7 +160,11 @@ describe("sb.Date", () => {
 
 	describe("setTimezoneOffset", () => {
 		it("should apply the offset", () => {
-			assert(sb.Date.equals(new sb.Date(2021, 10, 1, 12, 2).setTimezoneOffset(60), new sb.Date(2021, 10, 1, 11, 2)));
+			const date = new sb.Date();
+			const other = date.clone();
+			date.setTimezoneOffset(60);
+			other.addMinutes(-60);
+			assert(sb.Date.equals(date, other));
 		});
 		it("should reject invalid offsets", () => {
 			assert.throws(() => new sb.Date(2021, 10, 1).setTimezoneOffset(42));
