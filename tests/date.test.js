@@ -163,7 +163,7 @@ describe("sb.Date", () => {
 			const date = new sb.Date();
 			const other = date.clone();
 			date.setTimezoneOffset(60);
-			other.addMinutes(-60);
+			other.addMinutes(other.getTimezoneOffset() + 60);
 			assert(sb.Date.equals(date, other));
 		});
 		it("should reject invalid offsets", () => {
