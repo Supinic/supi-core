@@ -175,7 +175,7 @@ describe("sb.Date", () => {
 			other.addMinutes(other.getTimezoneOffset() + 60);
 			assert(sb.Date.equals(date, other));
 		});
-		it("should only accept minutes", () => {
+		it("should only accept quarter hours", () => {
 			assert.throws(() => new sb.Date(2021, 10, 1).setTimezoneOffset(42));
 			assert.throws(() => new sb.Date(2021, 10, 1).setTimezoneOffset(NaN));
 		});
