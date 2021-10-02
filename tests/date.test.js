@@ -17,7 +17,7 @@ describe("sb.Date", () => {
 	describe("getDaySuffix", () => {
 		it("should return the correct suffix", () => {
 			assert.deepEqual(
-				[1,2,3,4,11,12,13,21,22,23].map(sb.Date.getDaySuffix),
+				[1, 2, 3, 4, 11, 12, 13, 21, 22, 23].map(i => sb.Date.getDaySuffix(i)),
 				["st", "nd", "rd", "th", "th", "th", "th", "st", "nd", "rd"]);
 		});
 		it("should throw if the number isn't an integer", () => {
@@ -45,6 +45,15 @@ describe("sb.Date", () => {
 		it("should work with native dates", () => {
 			assert(sb.Date.equals(new sb.Date(2020, 1, 1), new Date(2020, 0, 1)));
 			assert(!sb.Date.equals(new sb.Date(2020, 1, 1), new Date(2021, 0, 1)));
+		});
+		it("should work with the same object", () => {
+			const date = new sb.Date(2020, 1, 1);
+			assert(sb.Date.equals(date, date));
+		});
+		it("should work with clones", () => {
+			const date = new sb.Date(2020, 1, 1);
+			const cloned = date.clone();
+			assert(sb.Date.equals(date, cloned));
 		});
 		it("should throw on invalid dates", () => {
 			assert.throws(() => sb.Date.equals(new sb.Date(2021, 10, 1), null));
@@ -166,7 +175,7 @@ describe("sb.Date", () => {
 			other.addMinutes(other.getTimezoneOffset() + 60);
 			assert(sb.Date.equals(date, other));
 		});
-		it("should reject invalid offsets", () => {
+		it("should only accept minutes", () => {
 			assert.throws(() => new sb.Date(2021, 10, 1).setTimezoneOffset(42));
 			assert.throws(() => new sb.Date(2021, 10, 1).setTimezoneOffset(NaN));
 		});
@@ -200,6 +209,7 @@ describe("sb.Date", () => {
 			const d2 = d1.clone();
 			d2.setHours(4);
 			assert.deepEqual([d1.hours, d2.hours], [0, 4]);
+			assert(d1 !== d2);
 		});
 	});
 
