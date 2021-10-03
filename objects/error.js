@@ -5,6 +5,7 @@
 module.exports = class Error extends globalThis.Error {
 	#args;
 	#timestamp;
+	#messageDescriptor;
 
 	constructor (obj = {}) {
 		if (obj.constructor !== Object) {
@@ -23,11 +24,11 @@ module.exports = class Error extends globalThis.Error {
 
 		this.name = obj.name ?? "sb.Error";
 		this.#timestamp = Date.now();
+		this.#messageDescriptor = Object.getOwnPropertyDescriptor(this, "message");
 
-		const messageDescriptor = Object.getOwnPropertyDescriptor(this, "message");
 		Object.defineProperty(this, "message", {
 			get: () => {
-				const superMessage = (typeof messageDescriptor.get === "function")
+				const superMessage = (this.#messageDescriptor.get === "function")
 					? messageDescriptor.get()
 					: messageDescriptor.value;
 
@@ -45,6 +46,12 @@ module.exports = class Error extends globalThis.Error {
 				return parts.join("\n") + "\n";
 			}
 		});
+	}
+
+	get simpleMessage () {
+		return (this.#messageDescriptor.get === "function")
+			? messageDescriptor.get()
+			: messageDescriptor.value;
 	}
 
 	get args () { return this.#args; }
