@@ -1514,22 +1514,39 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			formData.append("reqtype", "urlupload");
 			formData.append("url", imageURL);
 
-			const uploadResponse = await sb.Got({
-				url: "https://catbox.moe/user/api.php",
-				method: "POST",
-				throwHttpErrors: false,
-				headers: {
-					...formData.getHeaders()
-				},
-				body: formData.getBuffer(),
-				retry: 0,
-				timeout: 10000
-			});
+			let uploadResponse;
+			try {
+				uploadResponse = await sb.Got({
+					url: "https://catbox.moe/user/api.php",
+					method: "POST",
+					throwHttpErrors: false,
+					headers: {
+						...formData.getHeaders()
+					},
+					body: formData.getBuffer(),
+					retry: 0,
+					timeout: 10000
+				});
+			}
+			catch (e) {
+				if (e instanceof sb.Got.TimeoutError) {
+					result.push({
+						saved: false,
+						reason: "upload-timed-out"
+					});
+				}
+				else {
+					throw e;
+				}
+			}
 
 			if (uploadResponse.statusCode !== 200) { // Upload failed
 				result.push({
 					saved: false,
-					reason: "upload-failed"
+					reason: "upload-failed",
+					data: {
+						statusCode: uploadResponse.statusCode
+					}
 				});
 
 				continue;
