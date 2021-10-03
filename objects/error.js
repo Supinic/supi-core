@@ -50,8 +50,8 @@ module.exports = class Error extends globalThis.Error {
 
 	get simpleMessage () {
 		return (this.#messageDescriptor.get === "function")
-			? messageDescriptor.get()
-			: messageDescriptor.value;
+			? this.#messageDescriptor.get()
+			: this.#messageDescriptor.value;
 	}
 
 	get args () { return this.#args; }
