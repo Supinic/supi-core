@@ -29,8 +29,8 @@ module.exports = class Error extends globalThis.Error {
 		Object.defineProperty(this, "message", {
 			get: () => {
 				const superMessage = (this.#messageDescriptor.get === "function")
-					? messageDescriptor.get()
-					: messageDescriptor.value;
+					? this.#messageDescriptor.get()
+					: this.#messageDescriptor.value;
 
 				const parts = [superMessage];
 				if (this.#args) {
