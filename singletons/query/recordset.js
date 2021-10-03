@@ -158,7 +158,7 @@ module.exports = class Recordset {
 	 * @returns {Recordset}
 	 */
 	where (...args) {
-		return this.conditionWrapper("where", ...args);
+		return this.#conditionWrapper("where", ...args);
 	}
 
 	/**
@@ -169,7 +169,7 @@ module.exports = class Recordset {
 	 * @returns {Recordset}
 	 */
 	having (...args) {
-		return this.conditionWrapper("having", ...args);
+		return this.#conditionWrapper("having", ...args);
 	}
 
 	/**
@@ -179,7 +179,7 @@ module.exports = class Recordset {
 	 * @param {...*} args
 	 * @returns {Recordset}
 	 */
-	conditionWrapper (type, ...args) {
+	#conditionWrapper (type, ...args) {
 		let options = {};
 		if (args[0] && args[0].constructor === Object) {
 			options = args[0];
