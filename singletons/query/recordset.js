@@ -154,7 +154,7 @@ module.exports = class Recordset {
 	 * Sets a WHERE condition.
 	 * First parameter can be an option argument {@link WhereHavingParams}
 	 * Multiple formatting symbols {@link FormatSymbol} can be used
-	 * @param {Array.<string|FormatSymbol|WhereHavingParams>} args
+	 * @param {...*} args
 	 * @returns {Recordset}
 	 */
 	where (...args) {
