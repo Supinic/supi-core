@@ -1534,6 +1534,8 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 						saved: false,
 						reason: "upload-timed-out"
 					});
+
+					continue;
 				}
 				else {
 					throw e;
