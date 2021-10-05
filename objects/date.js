@@ -19,9 +19,9 @@ module.exports = class Date extends global.Date {
 	];
 
 	/**
-	 * Returns the suffix ("st", "nd", "rd", and "th") for a given day.
+	 * Returns the suffix used in English for a given day.
 	 * @param {number} number Day of the month (1..31)
-	 * @returns {string}
+	 * @returns {"st"|"nd"|"rd"|"th"}
 	 */
 	static getDaySuffix (number) {
 		if (typeof number !== "number" || Math.trunc(number) !== number) {
@@ -318,7 +318,7 @@ module.exports = class Date extends global.Date {
 	}
 
 	/**
-	 * @returns {string} The day of the week as text. For example "Monday"
+	 * @returns {"Sunday"|"Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"} The day of the week in English.
 	 */
 	get dayOfTheWeek () {
 		switch (super.getDay()) {
