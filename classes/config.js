@@ -75,7 +75,12 @@ module.exports = class Config extends require("./template.js") {
 				}
 				else {
 					throw new sb.Error({
-						message: "Unsupported Config boolean value", args: value
+						message: "Unsupported Config boolean value",
+						args: {
+							value,
+							type: typeof value,
+							variable: this.Name
+						}
 					});
 				}
 
