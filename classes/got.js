@@ -146,6 +146,11 @@ module.exports = (function () {
 
 	return new Proxy(Got, {
 		apply: function (target, thisArg, args) {
+			const options = args.find(i => typeof i === "object" && i?.constructor?.name === "Object");
+			if (options && typeof options.url === "string" && !options.skipURLSanitization) {
+				options.url = options.url.replaceAll("../", "");
+			}
+
 			if (typeof args[0] === "string") {
 				const instance = sb.Got.get(args[0]);
 				if (instance) {
