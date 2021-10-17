@@ -117,9 +117,9 @@ module.exports = (function () {
 
 		static extend (extendOptions) {
 			const extension = gotModule.extend(extendOptions);
-			return (inputURL, options) => {
-				const url = sanitize(options?.url ?? inputURL);
-				return extension(url, options);
+			return (urlOrOptions, restOptions) => {
+				const url = sanitize(restOptions?.url ?? urlOrOptions?.url ?? urlOrOptions);
+				return extension(url, restOptions);
 			};
 		}
 
