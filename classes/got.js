@@ -100,6 +100,19 @@ module.exports = (function () {
 			return gotModule({ ...gqlOptions, ...options });
 		}
 
+		static sanitize (strings, ...values) {
+			const result = [];
+			for (let i = 0; i < strings.length; i++) {
+				result.push(strings[i]);
+
+				if (typeof values[i] === "string") {
+					result.push(values[i].replace(/\.\.\//g, ""));
+				}
+			}
+
+			return result.join("").trim();
+		}
+
 		static get instances () {
 			console.warn("deprecated Got.instances access");
 
