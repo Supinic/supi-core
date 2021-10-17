@@ -123,32 +123,6 @@ module.exports = (function () {
 			};
 		}
 
-		static get instances () {
-			console.warn("deprecated Got.instances access");
-
-			const path = [];
-			const fn = (...args) => {
-				const instance = sb.Got.get(path[path.length - 1]);
-				if (!instance) {
-					throw new sb.Error({
-						message: "Got instance does not exist",
-						args: { path }
-					});
-				}
-
-				return instance(...args);
-			};
-
-			const accessProxy = new Proxy(fn, {
-				get: function (target, property) {
-					path.push(property);
-					return accessProxy;
-				}
-			});
-
-			return accessProxy;
-		}
-
 		static get specificName () { return "Got"; }
 
 		static get FormData () { return FormData; }
