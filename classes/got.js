@@ -7,6 +7,8 @@ module.exports = (function () {
 	const gotModule = require("got");
 	const SymbolName = Symbol("Name");
 
+	const sanitize = (string) => string.replaceAll("../", "");
+
 	class Got extends require("./template.js") {
 		static async loadData () {
 			Got.data = [];
@@ -106,11 +108,19 @@ module.exports = (function () {
 				result.push(strings[i]);
 
 				if (typeof values[i] === "string") {
-					result.push(values[i].replace(/\.\.\//g, ""));
+					result.push(sanitize(values[i]));
 				}
 			}
 
 			return result.join("").trim();
+		}
+
+		static extend (extendOptions) {
+			const extension = gotModule.extend(extendOptions);
+			return (inputURL, options) => {
+				const url = sanitize(options?.url ?? inputURL);
+				return extension(url, options);
+			};
 		}
 
 		static get instances () {
@@ -148,7 +158,7 @@ module.exports = (function () {
 		apply: function (target, thisArg, args) {
 			const options = args.find(i => typeof i === "object" && i?.constructor?.name === "Object");
 			if (options && typeof options.url === "string" && !options.skipURLSanitization) {
-				options.url = options.url.replaceAll("../", "");
+				options.url = sanitize(options.url);
 			}
 
 			if (typeof args[0] === "string") {
