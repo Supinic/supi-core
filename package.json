@@ -22,7 +22,7 @@
     "rss-parser": "^3.10.0",
     "track-link-parser": "github:supinic/track-link-parser",
     "transliteration": "^2.2.0",
-    "vm2": "^3.9.2"
+    "vm2": "^3.9.4"
   },
   "author": "Supinic",
   "license": "AGPL-3.0",
