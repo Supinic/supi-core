@@ -20,6 +20,7 @@
     "node-vlc-http": "github:supinic/node-vlc-http",
     "random-js": "^2.1.0",
     "rss-parser": "^3.10.0",
+    "supibot-package-manager": "github:supinic/supibot-package-manager",
     "track-link-parser": "github:supinic/track-link-parser",
     "transliteration": "^2.2.0",
     "vm2": "^3.9.2"

@@ -10,6 +10,43 @@ module.exports = (function () {
 	const sanitize = (string) => string.replaceAll("../", "");
 
 	class Got extends require("./template.js") {
+		static async _loadData () {
+			Got.data = [];
+
+			const data = await import("supibot-package-manager/got/index.js");
+			while (data.length > 0) {
+				const index = count % data.length;
+				const item = data[index % data.length];
+				if (item.parent && !Got.data.some(i => i[SymbolName] === item.parent)) {
+					count++;
+					continue;
+				}
+
+				let options = {};
+				if (item.optionsType === "object") {
+					options = item.options;
+				}
+				else if (item.optionsType === "function") {
+					options = item.options();
+				}
+
+				let instance;
+				if (item.parent) {
+					const parent = Got.data.find(i => i[SymbolName] === item.parent);
+					instance = parent.extend(options);
+				}
+				else {
+					instance = gotModule.extend(options);
+				}
+
+				instance[SymbolName] = item.name;
+
+				Got.data.push(instance);
+				data.splice(index, 1);
+				count++;
+			}
+		}
+
 		static async loadData () {
 			Got.data = [];
 			const data = await sb.Query.getRecordset(rs => rs

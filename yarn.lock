@@ -2224,6 +2224,10 @@ strnum@^1.0.4:
   resolved "https://registry.yarnpkg.com/strnum/-/strnum-1.0.4.tgz#e97e36a7d6ba9f93d0d6b496b2ed0678d422832b"
   integrity sha512-lMzNMfDpaQOLt4B2mEbfzYS0+T7dvCXeojnlGf6f1AygvWDMcWyXYaLbyICfjVu29sErR8fnRagQfBW/N/hGgw==
 
+"supibot-package-manager@github:supinic/supibot-package-manager":
+  version "1.0.0"
+  resolved "https://codeload.github.com/supinic/supibot-package-manager/tar.gz/05008961b120d1512ba90f77820f0bc5f1e20de5"
+
 supports-color@8.1.1:
   version "8.1.1"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-8.1.1.tgz#cd6fc17e28500cff56c1b86c0a7fd4a54a73005c"
