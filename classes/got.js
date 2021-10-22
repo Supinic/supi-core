@@ -14,7 +14,7 @@ module.exports = (function () {
 			Got.data = [];
 
 			let count = 0;
-			const { definitions: data } = await import("supibot-package-manager/got/index.js");
+			const { definitions: data } = await import("supibot-package-manager/got/index.mjs");
 
 			while (data.length > 0) {
 				const index = count % data.length;
