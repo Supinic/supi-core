@@ -158,8 +158,17 @@ module.exports = (function () {
 		static extend (extendOptions) {
 			const extension = gotModule.extend(extendOptions);
 			return (urlOrOptions, restOptions) => {
-				const url = sanitize(restOptions?.url ?? urlOrOptions?.url ?? urlOrOptions);
-				return extension(url, restOptions);
+				if (typeof restOptions?.url === "string") {
+					restOptions.url = sanitize(restOptions.url);
+				}
+				else if (typeof urlOrOptions?.url === "string") {
+					urlOrOptions.url = sanitize(urlOrOptions.url);
+				}
+				else if (typeof urlOrOptions === "string") {
+					urlOrOptions = sanitize(urlOrOptions);
+				}
+
+				return extension(urlOrOptions, restOptions);
 			};
 		}
 
