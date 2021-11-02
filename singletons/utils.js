@@ -894,17 +894,27 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	}
 
 	/**
-	 * Returns the URL's path. Returns null if it is empty.
+	 * Returns the URL's pathname + search params, if defined.
+	 * Returns null if it is in any way invalid.
 	 * @param {string} stringURL
 	 * @returns {null|string}
 	 */
 	getPathFromURL (stringURL) {
-		const url = require("url").parse(stringURL);
-		const path = (url.path ?? "").replace(/^\//, "");
+		if (!stringURL) {
+			return null;
+		}
 
-		return (path.length === 0)
-			? null
-			: path;
+		const { URL } = require("url");
+		let url;
+		try {
+			url = new URL(stringURL);
+		}
+		catch {
+			return null;
+		}
+
+		const path = (url.pathname ?? "").replace(/^\//, "");
+		return `${path}${url.search}`;
 	}
 
 	/**
