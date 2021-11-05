@@ -2221,7 +2221,7 @@ strnum@^1.0.4:
 
 "supibot-package-manager@github:supinic/supibot-package-manager":
   version "1.0.0"
-  resolved "https://codeload.github.com/supinic/supibot-package-manager/tar.gz/6d1bd363b76dc5683267b10bbb7d508823005e18"
+  resolved "https://codeload.github.com/supinic/supibot-package-manager/tar.gz/322f6d49e196603bff989b85bfbc17659224de8d"
 
 supports-color@8.1.1:
   version "8.1.1"
