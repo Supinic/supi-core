@@ -17,7 +17,6 @@
     "language-iso-codes": "github:supinic/language-iso-codes",
     "long-timeout": "github:supinic/long-timeout",
     "mariadb": "^2.5.2",
-    "node-vlc-http": "github:supinic/node-vlc-http",
     "random-js": "^2.1.0",
     "rss-parser": "^3.10.0",
     "supibot-package-manager": "github:supinic/supibot-package-manager",
