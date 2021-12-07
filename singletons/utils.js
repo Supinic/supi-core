@@ -726,7 +726,7 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	 * Otherwise returns null.
 	 * @param {string} stringUser The user name to check
 	 * @param {Object} options Discord options object
-	 * @returns {Promise<null|User>}
+	 * @returns {Promise<null|sb.User>}
 	 */
 	async getDiscordUserDataFromMentions (stringUser, options) {
 		console.warn("Deprecated getDiscordUserDataFromMentions");

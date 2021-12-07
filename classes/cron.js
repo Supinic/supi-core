@@ -171,7 +171,7 @@ module.exports = class Cron extends require("./template.js") {
 
 	/**
 	 * Starts the cron job.
-	 * @returns {Cron}
+	 * @returns {sb.Cron}
 	 */
 	start () {
 		if (this.#disabled) {
@@ -212,7 +212,7 @@ module.exports = class Cron extends require("./template.js") {
 
 	/**
 	 * Stops the cron job.
-	 * @returns {Cron}
+	 * @returns {sb.Cron}
 	 */
 	stop () {
 		if (!this.started) {
