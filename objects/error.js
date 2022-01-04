@@ -38,12 +38,16 @@ module.exports = class Error extends globalThis.Error {
 				}
 				if (this.cause) {
 					const causeMessage = `cause: ${this.cause.message ?? "(empty message)"}`;
-					const tabbedMessage = causeMessage.trim().split("\n").map(i => `\t${i}`).join("\n");
+					const tabbedMessage = causeMessage
+						.trim()
+						.split("\n")
+						.map(i => `\t${i}`)
+						.join("\n");
 
 					parts.push(tabbedMessage);
 				}
 
-				return parts.join("\n") + "\n";
+				return `${parts.join("\n")}\n`;
 			}
 		});
 	}

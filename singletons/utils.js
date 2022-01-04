@@ -1456,7 +1456,7 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			if (!item.filename) {
 				result.push({
 					saved: false,
-					reason: "missing-filename",
+					reason: "missing-filename"
 				});
 
 				continue;

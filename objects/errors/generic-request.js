@@ -7,7 +7,7 @@ module.exports = class GenericRequestError extends sb.Error {
 				...(object.args ?? {}),
 				statusCode: object.statusCode ?? null,
 				statusMessage: object.statusMessage ?? null,
-				hostname: object.hostname ?? null,
+				hostname: object.hostname ?? null
 			}
 		});
 	}
