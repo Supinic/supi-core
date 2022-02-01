@@ -1,11 +1,8 @@
 import { SingletonTemplate as Template } from "./template";
 import { Redis, RedisOptions } from "ioredis";
-import { JSONifiable, Stringifiable } from "../globals";
+import { JSONifiable, Port, Stringifiable, URL } from "../globals";
 
-declare type Port = number;
-declare type URL = string;
 declare type Ok = "OK";
-
 export declare type Configuration = Port | URL | RedisOptions;
 export declare type Value = JSONifiable;
 export declare type Version = [number, number, number];
