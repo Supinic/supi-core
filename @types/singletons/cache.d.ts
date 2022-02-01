@@ -1,12 +1,13 @@
 import { SingletonTemplate as Template } from "./template";
-import Redis from "ioredis";
+import { Redis } from "ioredis";
 
 declare type Stringifiable = boolean | number | string;
 declare type JSONifiable = null | boolean | number | string | { [P: string]: JSONifiable } | Array<JSONifiable>;
 declare type Port = number;
 declare type URL = string;
+declare type Ok = "OK";
 
-export declare type Redis = unknown; // @todo From ioredis
+// export declare type Redis = unknown; // @todo From ioredis
 export declare type ConfigurationObject = unknown; // @todo from ioredis
 export declare type Configuration = Port | URL | ConfigurationObject;
 export declare type Value = JSONifiable;
@@ -48,9 +49,9 @@ export declare class CacheSingleton implements Template {
 
     connect (configuration: Configuration): void;
     disconnect (): void;
-    set (data: SetOptions): Promise<unknown>; // @todo ReturnType<Redis["set"]>
+    set (data: SetOptions): Promise<Ok | null>; // inferred from Redis["set"] for the non-callback overload
     get (keyIdentifier: Key): Promise<Value>;
-    delete (keyIdentifier: Key): Promise<unknown>; // @todo ReturnType<Redis["del"]>
+    delete (keyIdentifier: Key): Promise<number>; // inferred from Redis["del"] for the non-callback overload;
     setByPrefix (prefix: Prefix, value: Value, options: PrefixOptions): ReturnType<CacheSingleton["set"]>;
     getByPrefix (prefix: Prefix, options: PrefixOptions): ReturnType<CacheSingleton["get"]>;
     getKeysByPrefix (prefix: Prefix, options: KeysPrefixOptions): Promise<Array<string>>;
