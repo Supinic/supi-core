@@ -1,8 +1,7 @@
 import { SingletonTemplate as Template } from "./template";
 import { Redis, RedisOptions } from "ioredis";
+import { JSONifiable, Stringifiable } from "../globals";
 
-declare type Stringifiable = boolean | number | string;
-declare type JSONifiable = null | boolean | number | string | { [P: string]: JSONifiable } | Array<JSONifiable>;
 declare type Port = number;
 declare type URL = string;
 declare type Ok = "OK";
