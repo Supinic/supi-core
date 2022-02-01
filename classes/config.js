@@ -2,7 +2,6 @@ const VALID_BOOLEAN_LIKE_VALUES = ["0", "1", "true", "false"];
 
 /**
  * Represents configuration variables saved in the database.
- * @memberof sb
  */
 module.exports = class Config extends require("./template.js") {
 	#Name;

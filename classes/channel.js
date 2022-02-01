@@ -1,7 +1,5 @@
 /**
  * Represents a chat channel.
- * @memberof sb
- * @type Channel
  */
 module.exports = class Channel extends require("./template.js") {
 	static redisPrefix = "sb-channel";

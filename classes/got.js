@@ -1,6 +1,5 @@
 /**
  * Represents a single `Got` instance with its own default options
- * @memberof sb
  */
 module.exports = (function () {
 	const FormData = require("form-data");
@@ -9,9 +8,9 @@ module.exports = (function () {
 
 	const sanitize = (string) => string.replaceAll("../", "");
 
-	class Got extends require("./template.js") {
+	class StaticGot extends require("./template.js") {
 		static async loadData () {
-			Got.data = [];
+			StaticGot.data = [];
 
 			let count = 0;
 			const { definitions: data } = await import("supibot-package-manager/got/index.mjs");
@@ -20,7 +19,7 @@ module.exports = (function () {
 				const index = count % data.length;
 				const item = data[index % data.length].default;
 
-				if (item.parent && !Got.data.some(i => i[SymbolName] === item.parent)) {
+				if (item.parent && !StaticGot.data.some(i => i[SymbolName] === item.parent)) {
 					count++;
 					continue;
 				}
@@ -35,7 +34,7 @@ module.exports = (function () {
 
 				let instance;
 				if (item.parent) {
-					const parent = Got.data.find(i => i[SymbolName] === item.parent);
+					const parent = StaticGot.data.find(i => i[SymbolName] === item.parent);
 					instance = parent.extend(options);
 				}
 				else {
@@ -44,14 +43,14 @@ module.exports = (function () {
 
 				instance[SymbolName] = item.name;
 
-				Got.data.push(instance);
+				StaticGot.data.push(instance);
 				data.splice(index, 1);
 				count++;
 			}
 		}
 
 		static async _loadData () {
-			Got.data = [];
+			StaticGot.data = [];
 			const data = await sb.Query.getRecordset(rs => rs
 				.select("*")
 				.from("data", "Got_Instance")
@@ -62,7 +61,7 @@ module.exports = (function () {
 			while (data.length > 0) {
 				const index = count % data.length;
 				const row = data[index % data.length];
-				if (row.Parent && !Got.data.some(i => i[SymbolName] === row.Parent)) {
+				if (row.Parent && !StaticGot.data.some(i => i[SymbolName] === row.Parent)) {
 					count++;
 					continue;
 				}
@@ -77,7 +76,7 @@ module.exports = (function () {
 
 				let instance;
 				if (row.Parent) {
-					const parent = Got.data.find(i => i[SymbolName] === row.Parent);
+					const parent = StaticGot.data.find(i => i[SymbolName] === row.Parent);
 					instance = parent.extend(options);
 				}
 				else {
@@ -86,18 +85,18 @@ module.exports = (function () {
 
 				instance[SymbolName] = row.Name;
 
-				Got.data.push(instance);
+				StaticGot.data.push(instance);
 				data.splice(index, 1);
 				count++;
 			}
 		}
 
 		static get (identifier) {
-			if (identifier instanceof Got) {
+			if (identifier instanceof StaticGot) {
 				return identifier;
 			}
 			else if (typeof identifier === "string") {
-				return Got.data.find(i => i[SymbolName] === identifier) ?? null;
+				return StaticGot.data.find(i => i[SymbolName] === identifier) ?? null;
 			}
 			else {
 				throw new sb.Error({
@@ -177,7 +176,7 @@ module.exports = (function () {
 		static get FormData () { return FormData; }
 	}
 
-	return new Proxy(Got, {
+	return new Proxy(StaticGot, {
 		apply: function (target, thisArg, args) {
 			const options = args.find(i => typeof i === "object" && i?.constructor?.name === "Object");
 			if (options && typeof options.url === "string" && !options.skipURLSanitization) {

@@ -1,7 +1,6 @@
 /**
  * Represents a platform - a location where the bot can be active and respond to messages.
  * It is an API to manage communication between channels and the platform controller.
- * @memberof sb
  */
 module.exports = class Platform extends require("./template.js") {
 	/**
@@ -381,7 +380,6 @@ module.exports = class Platform extends require("./template.js") {
 		super.destroy();
 	}
 };
-
 
 /**
  * @typedef {string|number|sb.Platform} PlatformLike

@@ -1,8 +1,7 @@
 /**
  * Extended and simpler-to-use version of native Date
- * @memberof sb
  */
-module.exports = class Date extends global.Date {
+module.exports = class CustomDate extends Date {
 	static months = [
 		"January",
 		"February",

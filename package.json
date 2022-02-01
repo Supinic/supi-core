@@ -36,5 +36,6 @@
     "eslint": "^7.1.0",
     "eslint-plugin-unicorn": "^32.0.1",
     "mocha": "^8.1.0"
-  }
+  },
+  "types": "./@types/index.d.ts"
 }
