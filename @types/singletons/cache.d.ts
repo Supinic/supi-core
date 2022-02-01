@@ -1,5 +1,5 @@
 import { SingletonTemplate as Template } from "./template";
-import { Redis } from "ioredis";
+import { Redis, RedisOptions } from "ioredis";
 
 declare type Stringifiable = boolean | number | string;
 declare type JSONifiable = null | boolean | number | string | { [P: string]: JSONifiable } | Array<JSONifiable>;
@@ -7,9 +7,7 @@ declare type Port = number;
 declare type URL = string;
 declare type Ok = "OK";
 
-// export declare type Redis = unknown; // @todo From ioredis
-export declare type ConfigurationObject = unknown; // @todo from ioredis
-export declare type Configuration = Port | URL | ConfigurationObject;
+export declare type Configuration = Port | URL | RedisOptions;
 export declare type Value = JSONifiable;
 export declare type Version = [number, number, number];
 
