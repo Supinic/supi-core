@@ -675,11 +675,11 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	/**
 	 * Parses strings containing time units into a time number.
 	 * @param {string} string A string containing potential data about a duration.
-	 * @param {string} unit
+	 * @param {object} options
 	 * @returns {number|{time: number, ranges: Object[]}}
 	 */
-	parseDuration (string, unit) {
-		return this.modules.parseDuration(string, unit);
+	parseDuration (string, options) {
+		return this.modules.parseDuration(string, options);
 	}
 
 	/**
