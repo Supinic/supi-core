@@ -931,11 +931,11 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	 * Formats a number representing byte count into the closest matching SI/IEM prefix.
 	 * @param {number} number
 	 * @param {number} digits
-	 * @param {"iem"|"si"} type
+	 * @param {"iec"|"si"} type
 	 * @returns {string}
 	 */
 	formatByteSize (number, digits = 3, type = "si") {
-		if (type !== "si" && type !== "iem") {
+		if (type !== "si" && type !== "iec") {
 			throw new sb.Error({
 				message: "Unsupported byte size format",
 				args: { number, type }
