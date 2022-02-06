@@ -252,9 +252,9 @@
   integrity sha512-/aPsuoj/1Dw/kzhkgz+ES6TxG0zfTMGLwuK2ZG00k/iJzYHTLCE8mVU8EPqEOp/lmxPoq1C1C9RYToRKb2KEfg==
 
 "@sindresorhus/is@^4.0.0":
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-4.2.0.tgz#667bfc6186ae7c9e0b45a08960c551437176e1ca"
-  integrity sha512-VkE3KLBmJwcCaVARtQpfuKcKv8gcBmUubrfHGF84dXuuW6jgsRYxPtzcIhPyK9WAPpRt2/xY6zkD9MnRaJzSyw==
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-4.4.0.tgz#e277e5bdbdf7cb1e20d320f02f5e2ed113cd3185"
+  integrity sha512-QppPM/8l3Mawvh4rn9CNEYIU9bxpXUCRMaX9yUpvBk1nMKusLKpfXGDEKExKaPhLzcn3lzil7pR6rnJ11HgeRQ==
 
 "@szmarczak/http-timer@^4.0.0", "@szmarczak/http-timer@^4.0.5":
   version "4.0.6"
@@ -298,9 +298,9 @@
     "@types/node" "*"
 
 "@types/node@*":
-  version "16.11.9"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.9.tgz#879be3ad7af29f4c1a5c433421bf99fab7047185"
-  integrity sha512-MKmdASMf3LtPzwLyRrFjtFFZ48cMf8jmX5VRYrDQiJa8Ybu5VAmkqBWqKU8fdCwD8ysw4mQ9nrEHvzg6gunR7A==
+  version "17.0.15"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.15.tgz#97779282c09c09577120a2162e71d8380003590a"
+  integrity sha512-zWt4SDDv1S9WRBNxLFxFRHxdD9tvH8f5/kg5/IaLFdnSNXsDY4eL3Q3XXN+VxUnWIhyVFDwcsmAprvwXoM/ClA==
 
 "@types/node@^14.14.28":
   version "14.17.34"
@@ -840,7 +840,7 @@ duplexer3@^0.1.4:
 
 "duration-parser@github:supinic/duration-parser":
   version "1.0.0"
-  resolved "https://codeload.github.com/supinic/duration-parser/tar.gz/c8c7e97db35f5e3fcec4876dc258afc5936f74d5"
+  resolved "https://codeload.github.com/supinic/duration-parser/tar.gz/44ce267da37fad8a5e1accebc3e87e450b49e74c"
 
 electron-to-chromium@^1.3.896:
   version "1.3.906"
@@ -1489,15 +1489,15 @@ jsonparse@^1.2.0:
   integrity sha1-P02uSpH6wxX3EGL4UhzCOfE2YoA=
 
 keyv@^4.0.0:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/keyv/-/keyv-4.0.4.tgz#f040b236ea2b06ed15ed86fbef8407e1a1c8e376"
-  integrity sha512-vqNHbAc8BBsxk+7QBYLW0Y219rWcClspR6WSeoHYKG5mnsSoOH+BL1pWq02DDCVdvvuUny5rkBlzMRzoqc+GIg==
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/keyv/-/keyv-4.1.0.tgz#8ab5ca4ae6a34e05c629531d9a7f871575af0d5b"
+  integrity sha512-YsY3wr6HabE11/sscee+3nZ03XjvkrPWGouAmJFBdZoK92wiOlJCzI5/sDEIKdJhdhHO144ei45U9gXfbu14Uw==
   dependencies:
     json-buffer "3.0.1"
 
 "language-iso-codes@github:supinic/language-iso-codes":
   version "1.0.0"
-  resolved "https://codeload.github.com/supinic/language-iso-codes/tar.gz/efcdaf200bc7f4dc94abdee4ac713d1e8b9ed4e9"
+  resolved "https://codeload.github.com/supinic/language-iso-codes/tar.gz/df942e43066e67a7d53aa3796d20a23bb8d4af06"
 
 levn@^0.4.1:
   version "0.4.1"
@@ -2212,9 +2212,9 @@ strip-json-comments@3.1.1, strip-json-comments@^3.1.0, strip-json-comments@^3.1.
   integrity sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==
 
 strnum@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/strnum/-/strnum-1.0.4.tgz#e97e36a7d6ba9f93d0d6b496b2ed0678d422832b"
-  integrity sha512-lMzNMfDpaQOLt4B2mEbfzYS0+T7dvCXeojnlGf6f1AygvWDMcWyXYaLbyICfjVu29sErR8fnRagQfBW/N/hGgw==
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/strnum/-/strnum-1.0.5.tgz#5c4e829fe15ad4ff0d20c3db5ac97b73c9b072db"
+  integrity sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==
 
 "supibot-package-manager@github:supinic/supibot-package-manager":
   version "1.0.0"
@@ -2281,7 +2281,7 @@ to-regex-range@^5.0.1:
 
 "track-link-parser@github:supinic/track-link-parser":
   version "1.2.0"
-  resolved "https://codeload.github.com/supinic/track-link-parser/tar.gz/ca73fc16a3f035206707e550ad97cfc968bff289"
+  resolved "https://codeload.github.com/supinic/track-link-parser/tar.gz/e564afaf232acf79edcf52fd521d59259346f24b"
   dependencies:
     fast-xml-parser "^3.19.0"
     got "^11.8.0"
