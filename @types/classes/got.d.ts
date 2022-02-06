@@ -9,6 +9,8 @@ import {
 	URLOrOptions
 } from "got";
 
+export { Got } from "got";
+
 export declare type Like = string | StaticGot;
 
 declare const SymbolName: unique symbol;
