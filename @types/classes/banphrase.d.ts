@@ -3,8 +3,14 @@ import { ClassTemplate } from "./template";
 import { Channel } from "./channel";
 import { Platform } from "./platform";
 
-// @todo
-type ConstructorData = object;
+declare type ConstructorData = {
+    ID?: number;
+    Code: string;
+    Type: Type;
+    Platform: Platform["ID"] | null;
+    Channel: Channel["ID"] | null;
+    Active?: boolean;
+};
 
 export declare type DowntimeBehaviour = "Ignore" | "Notify" | "Nothing" | "Refuse" | "Whisper";
 export declare type APIType = "Pajbot";
@@ -57,8 +63,8 @@ export declare class Banphrase extends ClassTemplate {
 
     readonly ID: number;
     readonly Type: Type;
-    readonly Platform: Platform | null;
-    readonly Channel: Channel | null;
+    readonly Platform: Platform["ID"] | null;
+    readonly Channel: Channel["ID"] | null;
     readonly Active: boolean;
     readonly Code: (message: Message) => string | undefined | Promise<string | undefined>; // @todo check if this is correct for actual types
     readonly data: object;
