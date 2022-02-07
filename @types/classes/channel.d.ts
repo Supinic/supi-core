@@ -1,14 +1,14 @@
-import { Emote, Message } from "../globals";
+import { Emote, JSONifiable, Message } from "../globals";
 import { ClassTemplate } from "./template";
 import { APIType as BanphraseAPIType, DowntimeBehaviour as BanphraseDowntimeBehaviour } from "./banphrase";
 import { Platform, Like as PlatformLike, AvailableEmoteOptions, PrepareMessageOptions } from "./platform";
 import { User } from "./user";
+import { CustomDate } from "../objects/date";
+
 import * as EventEmitter from "events";
 
 // @todo
-type ConstructorData = object;
-type StreamData = unknown;
-type Controller = any;
+type Controller = any; // should be imported from github:supinic/supibot
 
 export declare interface MessageAwaiter {
     Wrapper: {
@@ -22,10 +22,44 @@ export declare interface MessageAwaiter {
 }
 export declare type Mode = "Inactive" | "Last seen" | "Read" | "Write" | "VIP" | "Moderator";
 export declare type Like = string | number | Channel;
+export declare type CustomData = Record<string, JSONifiable>;
 
+declare type ConstructorData = {
+    ID: number;
+    Name: string;
+    Platform: Platform["ID"];
+    Specific_ID: string | null;
+    Mode: Mode;
+    Mention: boolean;
+    Links_Allowed: boolean;
+    Banphrase_API_Type: BanphraseAPIType | null;
+    Banphrase_API_Downtime: BanphraseDowntimeBehaviour | null;
+    Message_Limit: number | null;
+    NSFW: boolean;
+    Mirror: Channel["ID"] | null;
+    Description: string | null;
+    Data: CustomData;
+};
 declare type MirrorOptions = {
     commandUsed: boolean;
 };
+declare type OfflineStreamData = {
+    live: false;
+    stream: {};
+}
+declare type OnlineStreamData = {
+    live: true;
+    stream: {
+        game: string;
+        since: CustomDate;
+        status: string;
+        viewers: number;
+        quality: `${number}p`;
+        fps: number;
+        delay: number;
+    }
+}
+declare type StreamData = OfflineStreamData | OnlineStreamData;
 
 export declare class Channel extends ClassTemplate {
     static readonly redisPrefix: string;
@@ -47,7 +81,7 @@ export declare class Channel extends ClassTemplate {
     readonly NSFW: boolean;
     readonly Mirror: Channel["ID"] | null;
     readonly Description: string | null;
-    readonly Data: object;
+    readonly Data: CustomData;
     readonly sessionData: object;
     readonly events: EventEmitter;
 

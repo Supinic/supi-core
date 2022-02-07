@@ -1,16 +1,15 @@
 import { GenericFlagsObject } from "../globals";
-
 import { ClassTemplate } from "./template";
 import { Channel } from "./channel";
 import { Platform } from "./platform";
 import { User, Permissions as UserPermissions } from "./user";
 import { CustomDate as Date } from "../objects/date";
+import { DeepFrozen } from "../singletons/utils";
+
+import { PoolConnection } from "mariadb";
 
 // @todo
-declare type ConstructorOptions = unknown;
-declare type QueryTransaction = unknown;
 declare type AppendData = unknown;
-declare type ContextConstructorData = object;
 
 export declare namespace Parameter {
     type Type = "string" | "number" | "boolean" | "date" | "object" | "regex";
@@ -90,7 +89,25 @@ export declare interface FlagsObject extends GenericFlagsObject {
 }
 export declare type Like = string | Command;
 
-declare type ParamsData = object;
+declare type ContextConstructorData = {
+    invocation: string;
+    user: User;
+    channel: Channel | null;
+    platform: Platform;
+    transaction: PoolConnection
+};
+declare type ConstructorData = {
+    Name: string;
+    Aliases: string | string[] | null;
+    Description: string | null;
+    Cooldown: number | null;
+    Flags: string | string[] | Partial<FlagsObject> | null;
+    Params: string | Parameter.Descriptor[];
+    Whitelist_Response: string | null;
+    Author?: string | null;
+    Code: string | ((context: Context, ...args: string[]) => Result);
+    Static_Data: string | (() => Record<string, any>) | null;
+};
 declare type PermissionsDescriptor = {
     flag: UserPermissions.Value;
     is: (type: UserPermissions.Level) => boolean;
@@ -120,10 +137,10 @@ export declare class Context {
     #user: User;
     #channel: Channel;
     #platform: Platform;
-    #transaction: QueryTransaction | null;
+    #transaction: PoolConnection | null;
     #privateMessage: boolean;
     #append: AppendData;
-    #params: ParamsData;
+    #params: Record<string, Parameter.ParsedType>;
     #userFlags: FlagsObject;
     #meta: Map<string, any>;
 
@@ -140,10 +157,10 @@ export declare class Context {
     get user (): User;
     get channel (): Channel;
     get platform (): Platform;
-    get transaction (): QueryTransaction | null;
+    get transaction (): PoolConnection | null;
     get privateMessage (): boolean;
     get append (): AppendData;
-    get params (): ParamsData;
+    get params (): Record<string, Parameter.ParsedType>;
     get userFlags (): FlagsObject;
 }
 
@@ -186,9 +203,9 @@ export declare class Command extends ClassTemplate {
     private readonly Author: string | null;
     private Code: (context: Context, ...args: string[]) => Result;
     private data: object;
-    private staticData: object;
+    private staticData: DeepFrozen<Record<string, any>>;
 
-    constructor (data: ConstructorOptions);
+    constructor (data: ConstructorData);
 
     execute (...args: string[]): ReturnType<Command["Code"]>;
     serialize (options: object): Promise<never>;
