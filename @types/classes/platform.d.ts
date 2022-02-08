@@ -1,4 +1,4 @@
-import { Emote, Message } from "../globals";
+import { Emote, JSONifiable, Message } from "../globals";
 import { ClassTemplate } from "./template";
 import { Channel, MessageAwaiter } from "./channel";
 import { User } from "./user";
@@ -8,7 +8,8 @@ type Controller = any;
 type Client = any;
 type ConstructorOptions = any;
 type UserMessageOptions = unknown;
-export declare type PrepareMessageOptions = unknown;
+type LoggingOptions = unknown;
+type PrepareMessageOptions = unknown;
 
 declare type UserMessageAwaiterMap = Map<User, MessageAwaiter["Resolution"]>;
 
@@ -19,7 +20,7 @@ export declare type AvailableEmoteOptions = {
 };
 
 export declare class Platform extends ClassTemplate {
-	static assignControllers (controllers: { [p: string]: Controller }): void;
+	static assignControllers (controllers: Record<string, Controller>): void;
 	static get (identifier: Like, host?: string): Platform | null;
 
 	private readonly controller: Controller;
@@ -31,8 +32,8 @@ export declare class Platform extends ClassTemplate {
 	readonly Self_Name: string | null;
 	readonly Self_ID: string | null;
 	readonly Mirror_Identifier: string | null;
-	readonly Logging: object;
-	readonly Defaults: object;
+	readonly Logging: LoggingOptions;
+	readonly Defaults: Record<string, JSONifiable>;
 	readonly Data: Partial<Platform["Defaults"]>;
 
 	constructor (data: ConstructorOptions);

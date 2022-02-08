@@ -9,7 +9,7 @@ module.exports = class Platform extends require("./template.js") {
 	 */
 	#controller = null;
 
-	/** @type {Map<sb.Channel, Map<sb.User, UserMessageResolutionWrapper>>} */
+	/** @type {Map<sb.Channel, Map<User, UserMessageResolutionWrapper>>} */
 	#userMessagePromises = new Map();
 
 	constructor (data) {
@@ -118,7 +118,7 @@ module.exports = class Platform extends require("./template.js") {
 	/**
 	 * Determines if a user is an "owner" of a given channel in the platform.
 	 * @param {sb.Channel} channelData
-	 * @param {sb.User} userData
+	 * @param {User} userData
 	 * @returns {null|boolean}
 	 */
 	isUserChannelOwner (channelData, userData) {
@@ -158,8 +158,8 @@ module.exports = class Platform extends require("./template.js") {
 	 * For a given combination of channel and user, creates and returns a promise that will be resolved when the
 	 * provided user sends a message in the provided channel. The promise will be rejected if the user does not post
 	 * a message within a timeout specified in options.
-	 * @param {sb.Channel} channelData
-	 * @param {sb.User} userData
+	 * @param {Channel} channelData
+	 * @param {User} userData
 	 * @param {Object} options
 	 * @param {number} [options.timeout] Default: 10 seconds
 	 * @returns {sb.Promise<UserMessageResolution>}

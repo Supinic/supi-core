@@ -15,7 +15,6 @@ type Result = {
 	ID?: Reminder["ID"];
 };
 type RemoveOptions = {
-	// @todo is it somehow possible to link this type to parameters of Reminder["deactivate"]?
 	permanent: boolean;
 	cancelled: boolean;
 };

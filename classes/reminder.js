@@ -33,14 +33,14 @@ module.exports = class Reminder extends require("./template.js") {
 		/**
 		 * The user who set the reminder up.
 		 * Since anonymous reminders are not supported, this cannot be null.
-		 * @type {sb.User.ID}
+		 * @type {User.ID}
 		 */
 		this.User_From = data.User_From;
 
 		/**
 		 * The user who the reminder is set up for.
 		 * If none is specified, it is a reminder for the origin user themselves.
-		 * @type {sb.User.ID}
+		 * @type {User.ID}
 		 */
 		this.User_To = data.User_To || data.User_From;
 
@@ -322,7 +322,7 @@ module.exports = class Reminder extends require("./template.js") {
 	}
 
 	/**
-	 * @param {sb.User} targetUserData The user ID to check for
+	 * @param {User} targetUserData The user ID to check for
 	 * @param {sb.Channel} channelData The channel where the reminder was fired
 	 */
 	static async checkActive (targetUserData, channelData) {
