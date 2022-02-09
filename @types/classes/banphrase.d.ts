@@ -66,7 +66,7 @@ export declare class Banphrase extends ClassTemplate {
     readonly Platform: Platform["ID"] | null;
     readonly Channel: Channel["ID"] | null;
     readonly Active: boolean;
-    readonly Code: (message: Message) => string | undefined | Promise<string | undefined>; // @todo check if this is correct for actual types
+    readonly Code: (message: Message) => string | undefined | Promise<string | undefined>;
     readonly data: SimpleGenericData;
 
     constructor (data: ConstructorData);
