@@ -24,11 +24,12 @@ declare type ErrorInfo = {
     loaded: boolean;
 };
 
+// @todo possibly declare a row of a specific (object) type imported from elsewhere - via type params?
 export declare class Row {
     #definition: TableDefinition;
     #query: Query;
-    #values: object; // @todo proper values
-    #originalValues: object; // @todo proper values
+    #values: ValueObject;
+    #originalValues: ValueObject;
     #primaryKeyFields: string[];
     // #valueProxy: Proxy<T>;
     #initialized: boolean;
