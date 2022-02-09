@@ -88,7 +88,7 @@ export declare class Channel extends ClassTemplate {
     getFullName (): string;
     isUserChannelOwner (userData: User): Promise<boolean | null>;
     isUserAmbassador (userData: User): Promise<boolean | null>;
-    send (message: Message): Promise<unknown>; // @todo
+    send (message: Message): Promise<void>;
     getStreamData (): Promise<StreamData | {}>;
     setStreamData (data: any): ReturnType<ClassTemplate["setCacheData"]>;
     saveProperty (property: string, value: any): ReturnType<ClassTemplate["saveRowProperty"]>;
