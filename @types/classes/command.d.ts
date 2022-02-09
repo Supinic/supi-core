@@ -24,14 +24,14 @@ export declare type Result = {
     success?: boolean;
     cooldown?: CooldownDescriptor;
     reason?: string;
-    meta?: any;
-    partialExecute: boolean;
-    hasExternalInput: boolean;
-    skipExternalPrefix: boolean;
-    forceExternalPrefix: boolean;
-    replyWithPrivateMessage: boolean;
-    removeEmbeds: boolean;
-    keepWhitespace: boolean
+    meta?: never;
+    partialExecute?: boolean;
+    hasExternalInput?: boolean;
+    skipExternalPrefix?: boolean;
+    forceExternalPrefix?: boolean;
+    replyWithPrivateMessage?: boolean;
+    removeEmbeds?: boolean;
+    keepWhitespace?: boolean
 
     /**
      * @typedef {Object} CommandResult
