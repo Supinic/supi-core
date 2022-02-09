@@ -5,9 +5,7 @@ import { Channel } from "../classes/channel";
 import { Command } from "../classes/command";
 import { Platform } from "../classes/platform";
 import { User, Like as UserLike } from "../classes/user";
-
-// @todo
-declare type CustomError = unknown;
+import { CustomError } from "../objects/error";
 
 declare type HasID = { ID: number };
 declare type Tag = string; // @todo
