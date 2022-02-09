@@ -10,8 +10,19 @@ import { TwitchPlatform } from "./platforms/twitch-platform";
 
 declare type Controller = any; // @todo from github:supinic/supibot
 declare type Client = any; // @todo from github:supinic/supibot
-type ConstructorOptions = any; // @todo from constructor
 
+declare type ConstructorOptions = {
+	ID: number;
+	Name: string;
+	Host: string | null;
+	Message_Limit: number;
+	Self_Name: string | null;
+	Self_ID: string | null;
+	Mirror_Identifier: string | null;
+	Logging: Log | null;
+	Defaults: Record<string, any>;
+	Data: Record<string, any>;
+};
 declare type UserMessageAwaiterMap = Map<User, MessageAwaiter["Resolution"]>;
 declare type PrepareMessageOptions = {
 	extraLength?: number;
