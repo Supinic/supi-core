@@ -37,7 +37,7 @@ export declare interface MessageAwaiter {
 export declare type Like = number | string | Platform;
 export declare type AvailableEmoteOptions = {
 	returnEmoteObject?: boolean;
-	filter?: typeof Array.prototype.filter; // @todo: specify filter to Emote somehow?
+	filter?: (value: Emote) => boolean;
 };
 
 export declare class Platform extends ClassTemplate {
