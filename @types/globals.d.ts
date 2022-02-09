@@ -1,8 +1,10 @@
 export declare type Message = string;
 export declare type Emote = {
-    code: string;
-    type: string; // @todo finish emote types (bttv, ...)
-    // @todo finish other properties
+    ID: string;
+    name: string;
+    type: "twitch-subscriber" | "twitch-global" | "ffz" | "bttv" | "7tv";
+    global: boolean;
+    animated: boolean | null;
 };
 export declare type Port = number;
 export declare type URL = string;
