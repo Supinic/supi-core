@@ -7,9 +7,14 @@ import { Platform } from "../classes/platform";
 import { User, Like as UserLike } from "../classes/user";
 import { CustomError } from "../objects/error";
 
+
+declare type PrimaryLogTag = "Command"| "Message"| "Twitch"| "Discord"| "Cytube"| "Module"| "System";
+declare type SecondaryLogTag = "Request"| "Fail"| "Warning"| "Success"| "Shadowban"| "Ban"| "Clearchat"| "Sub"| "Giftsub"| "Host"| "Error"| "Timeout"| "Restart"| "Other"| "Ritual"| "Join";
+declare type LogTag = `${PrimaryLogTag}.${SecondaryLogTag}`;
+
+declare type ErrorType = "Backend" | "Command" | "Database" | "Website" | "Website - API" | "Other" | "Request";
+
 declare type HasID = { ID: number };
-declare type Tag = string; // @todo
-declare type Type = string; // @todo
 declare type VideoType = string;
 declare type LastSeenOptions = {
     channelData: Channel,
@@ -29,11 +34,11 @@ declare type CommandExecutionOptions = {
     Execution_Time: number;
 };
 declare type ErrorLogData = {
-    origin?: string;
-    message?: string;
-    stack?: string;
+    origin?: "Internal" | "External" | null;
+    message?: string | null;
+    stack?: string | null;
     context?: JSONifiable;
-    arguments?: string[] | null;
+    arguments?: JSONifiable;
 };
 
 export declare class LoggerSingleton implements Template {
@@ -42,8 +47,8 @@ export declare class LoggerSingleton implements Template {
 
     constructor ();
 
-    log (tag: Tag, description?: string | null, channel?: HasID | null, user?: HasID | null ): Promise<void>;
-    logError (type: Type, error: Error | CustomError, data: ErrorLogData): Promise<number>;
+    log (tag: LogTag, description?: string | null, channel?: HasID | null, user?: HasID | null ): Promise<void>;
+    logError (type: ErrorType, error: Error | CustomError, data: ErrorLogData): Promise<number>;
     push (message: Message, userData: User, channelData: Channel, platformData?: Platform): Promise<void>;
     logVideoRequest (link: string, typeIdentifier: VideoType, length: number, userData: User, channelData: Channel): Promise<void>;
     logBan (identifier: UserLike, channelData: Channel, length: number, date: Date, notes?: string | null): void;
