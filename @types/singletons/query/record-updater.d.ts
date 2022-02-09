@@ -12,8 +12,8 @@ export declare type Priority = "normal" | "low";
 export declare class RecordUpdater {
     readonly #query: Query;
     #update: { database: Database, table: Table };
-    #set: Array<string>;
-    #where: Array<string>;
+    #set: string[];
+    #where: string[];
     #priority: Priority;
     #ignoreDuplicates: boolean;
 
@@ -23,8 +23,8 @@ export declare class RecordUpdater {
     ignoreDuplicates (): RecordUpdater;
     update (database: Database, table: Table): RecordUpdater;
     set (column: Field, value: FormatValue): RecordUpdater;
-    where (...args: Array<string>): RecordUpdater;
-    where (options: WhereHavingObject, ...args: Array<string>): RecordUpdater;
-    toSQL (): Promise<Array<string>>;
+    where (...args: string[]): RecordUpdater;
+    where (options: WhereHavingObject, ...args: string[]): RecordUpdater;
+    toSQL (): Promise<string[]>;
     fetch (): ReturnType<Query["raw"]>;
 }

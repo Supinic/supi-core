@@ -13,7 +13,7 @@ declare type ConstructorOptions = {
     threshold?: number;
 };
 declare type DuplicateOption = {
-    duplicate: (data: Array<Array<string>>, stringColumns: Array<Field>) => string;
+    duplicate: (data: string[][], stringColumns: Field[]) => string;
 };
 declare type IgnoreOption = {
     ignore: boolean;
@@ -26,14 +26,14 @@ export declare class Batch {
     private readonly query: Query;
     readonly database: Database;
     readonly table: Table;
-    readonly records: Array<BatchRecord>;
-    readonly columns: Array<ColumnDefinition>;
+    readonly records: BatchRecord[];
+    readonly columns: ColumnDefinition[];
     threshold: number;
     ready: boolean;
 
     constructor (query: Query, options: ConstructorOptions);
 
-    initialize (columns: Array<Field>): Promise<Batch>;
+    initialize (columns: Field[]): Promise<Batch>;
     add (data: BatchRecord): number;
     delete (index: number): void;
     find (callback: typeof Array.prototype.find): BatchRecord | undefined;

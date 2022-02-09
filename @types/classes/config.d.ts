@@ -10,7 +10,7 @@ export declare type ConstructorData = {
     Value: string | Value;
 };
 export declare type Type = "number" | "string" | "array" | "object" | "date" | "regex" | "boolean" | "function";
-export declare type Value = boolean | number | string | Array<any> | object | Date | RegExp | ((...args: any[]) => any);
+export declare type Value = boolean | number | string | any[] | object | Date | RegExp | ((...args: any[]) => any);
 export declare type Unit = "s" | "ms";
 export declare type Representation = {
     name: string;

@@ -7,7 +7,8 @@ export declare type Emote = {
 export declare type Port = number;
 export declare type URL = string;
 export declare type Stringifiable = boolean | number | string;
-export declare type JSONifiable = null | boolean | number | string | { [P: string]: JSONifiable } | Array<JSONifiable>;
+export declare type JSONifiable = null | boolean | number | string | { [P: string]: JSONifiable } | JSONifiable[];
+export declare type SimpleGenericData = Record<string, JSONifiable>;
 export declare interface GenericFlagsObject {
     [key: string]: boolean
 }

@@ -55,7 +55,7 @@ export declare type TableDefinition = {
     name: string;
     path: string;
     escapedPath: string;
-    columns: Array<ColumnDefinition>;
+    columns: ColumnDefinition[];
 
     /**
      * @property {string} database Database of table
@@ -69,7 +69,7 @@ export declare type Database = TableDefinition["database"];
 export declare type Field = ColumnDefinition["name"];
 export declare type Table = TableDefinition["name"];
 export declare type FormatSymbol = "b" | "d" | "dt" | "n" | "s" | "t" | "s+" | "n+" | "like" | "like*" | "*like" | "*like*";
-export declare type FormatValue = number | string | boolean | Date | object | bigint | Array<string> | null;
+export declare type FormatValue = number | string | boolean | Date | object | bigint | string[] | null;
 export declare type WhereHavingObject = {
     condition?: boolean;
     raw?: string;
@@ -79,18 +79,18 @@ export declare class QuerySingleton implements Template {
     static module: QuerySingleton;
     static singleton (): QuerySingleton;
     static get flagMask (): Flags;
-    static get sqlKeywords (): Array<string>;
+    static get sqlKeywords (): string[];
 
     #definitionPromises: Map<TableDefinition["path"], Promise<TableDefinition>>;
     #loggingThreshold: number | null;
     private lifetimes: Lifetimes;
-    private tableDefinitions: Array<TableDefinition>;
+    private tableDefinitions: TableDefinition[];
     private pool: Pool | null;
 
     constructor ();
 
-    raw (...args: Array<string>): ReturnType<PoolConnection["query"]>;
-    send (...args: Array<string>): ReturnType<QuerySingleton["raw"]>;
+    raw (...args: string[]): ReturnType<PoolConnection["query"]>;
+    send (...args: string[]): ReturnType<QuerySingleton["raw"]>;
     getTransaction (): Promise<PoolConnection>;
     getRecordset (callback: RecordsetCallback): ReturnType<Recordset["fetch"]>;
 
@@ -103,7 +103,7 @@ export declare class QuerySingleton implements Template {
     getDefinition (database: Database, table: Table): Promise<TableDefinition>;
     isDatabasePresent (database: Database): Promise<boolean>;
     isTablePresent (database: Database, table: Table): Promise<boolean>;
-    batchUpdate (data: Array<object>, options: BatchUpdateOptions): Promise<void>;
+    batchUpdate (data: object[], options: BatchUpdateOptions): Promise<void>;
     getCondition (callback: RecordsetCallback): ReturnType<Recordset["toCondition"]>;
     invalidateDefinition (database: Database, table: Table): void;
     invalidateAllDefinitions (): void;

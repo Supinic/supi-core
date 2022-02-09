@@ -144,7 +144,7 @@ export declare namespace YT {
     };
     type PlaylistResult = {
         sucess: boolean;
-        result?: Array<PlaylistVideo>;
+        result?: PlaylistVideo[];
         reason?: "not-found" | "limit-exceeded";
         amount?: number;
     };
@@ -207,8 +207,8 @@ export declare class UtilsSingleton implements Template {
     };
 
     readonly tag: {
-        trim (strings: Array<string>, ...values: Array<Stringifiable>): string;
-        groupDigits (groupDigits: Array<string>, ...values: Array<number>): string;
+        trim (strings: string[], ...values: Stringifiable[]): string;
+        groupDigits (groupDigits: string[], ...values: number[]): string;
     };
 
     constructor ();
@@ -222,12 +222,12 @@ export declare class UtilsSingleton implements Template {
     removeHTML (string: string): string;
     wrapString (string: string, length: number, options?: WrapStringProperties): string;
     random (min: number, max: number): ReturnType<Random["integer"]>;
-    randArray <T> (arr: Array<T>): T | undefined;
+    randArray <T> (arr: T[]): T | undefined;
     formatTime (seconds: number, videoStyle?: boolean): string;
-    argsToFixedURL (array: Array<string>, character?: string): string;
+    argsToFixedURL (array: string[], character?: string): string;
     removeAccents (string: string): string;
     searchYoutube (query: string, key: string, options: YT.SingleSearchOptions): Promise<YT.Video>;
-    searchYoutube (query: string, key: string, options?: YT.SearchOptions): Promise<Array<YT.Video>>;
+    searchYoutube (query: string, key: string, options?: YT.SearchOptions): Promise<YT.Video[]>;
     fetchYoutubePlaylist (options: YT.PlaylistOptions): Promise<YT.PlaylistResult>;
     zf (number: number, padding: number): string;
     formatEnglishOrdinal (number: number): string;

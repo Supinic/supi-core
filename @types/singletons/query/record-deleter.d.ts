@@ -8,17 +8,17 @@ import {
 export declare class RecordDeleter {
     readonly #query: Query;
     readonly #deleteFrom: { database: Database, table: Table };
-    readonly #where: Array<unknown>;
+    readonly #where: unknown[];
     #confirmedFullDelete: boolean;
 
     constructor (query: Query);
 
     delete (): RecordDeleter;
     from (database: Database, table: Table): RecordDeleter;
-    where (...args: Array<string>): RecordDeleter;
-    where (options: WhereHavingObject, ...args: Array<string>): RecordDeleter;
+    where (...args: string[]): RecordDeleter;
+    where (options: WhereHavingObject, ...args: string[]): RecordDeleter;
     confirm (): RecordDeleter;
 
-    toSQL (): Array<string>;
+    toSQL (): string[];
     fetch (): ReturnType<Query["raw"]>;
 }

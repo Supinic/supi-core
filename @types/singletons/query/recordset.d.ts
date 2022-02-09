@@ -7,12 +7,12 @@ import {
 } from "./index";
 
 declare type Field = ColumnDefinition["name"];
-declare type ReferenceData = Array<object>;
+declare type ReferenceData = object[];
 
 export declare type Result = FormatValue | {
     [P: Field]: FormatValue
 };
-export declare type FetchResult = Result | Array<Result>;
+export declare type FetchResult = Result | Result[];
 export declare type JoinDescriptor = {
     toDatabase?: Database;
     toTable: Table;
@@ -42,7 +42,7 @@ export declare type ReferenceOptions = {
     referenceCondition: string;
     targetCondition: string;
 
-    fields: Array<Field>;
+    fields: Field[];
     collapseOn: Field;
     left: boolean;
 };
@@ -61,7 +61,7 @@ export declare class Recordset {
     #raw: boolean;
     #flat: Field | null;
     #options: UseOptions;
-    #conditionWrapper: (type: "where" | "having", ...args: Array<string>) => Recordset;
+    #conditionWrapper: (type: "where" | "having", ...args: string[]) => Recordset;
 
     constructor (query: Query);
 
@@ -69,12 +69,12 @@ export declare class Recordset {
     flat (field: Field): Recordset;
     use (option: UseProperty, value: UseValue): Recordset;
     limit (number: number): Recordset;
-    select (...args: Array<Field>): Recordset;
+    select (...args: Field[]): Recordset;
     from (database: Database, table: Table): Recordset;
-    groupBy (...args: Array<Field>): Recordset;
-    orderBy (...args: Array<string>): Recordset;
-    where (...args: Array<string>): Recordset;
-    having (...args: Array<string>): Recordset;
+    groupBy (...args: Field[]): Recordset;
+    orderBy (...args: string[]): Recordset;
+    where (...args: string[]): Recordset;
+    having (...args: string[]): Recordset;
     join (database: JoinDescriptor): Recordset;
     join (database: Database, target: Table, customField?: Field, left?: string): Recordset;
     leftJoin (database: JoinDescriptor): Recordset;
@@ -82,6 +82,6 @@ export declare class Recordset {
     reference (options: ReferenceOptions): Recordset;
 
     toCondition (): string;
-    toSQL (): Array<string>;
+    toSQL (): string[];
     fetch (): Promise<FetchResult>;
 }

@@ -9,7 +9,7 @@ export declare type EnglishDaySuffix = "st" | "nd" | "rd" | "th";
 export declare type TimeUnit = "h" | "m" | "s" | "ms";
 
 export declare class CustomDate extends Date {
-	static months: Array<Month>;
+	static months: Month[];
 	static getDaySuffix (number: number): EnglishDaySuffix;
 	static equals (from: CustomDate, to: CustomDate): boolean;
 

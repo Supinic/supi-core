@@ -17,7 +17,7 @@ declare type ValueObject = Record<ColumnDefinition["name"], ColumnValue>;
 declare type ErrorInfo = {
     database: TableDefinition["database"];
     table: TableDefinition["name"];
-    primaryKeys: Array<ColumnDefinition["name"]>;
+    primaryKeys: ColumnDefinition["name"][];
     deleted: boolean;
     initialized: boolean;
     loaded: boolean;
@@ -28,7 +28,7 @@ export declare class Row {
     #query: Query;
     #values: object; // @todo proper values
     #originalValues: object; // @todo proper values
-    #primaryKeyFields: Array<string>;
+    #primaryKeyFields: string[];
     // #valueProxy: Proxy<T>;
     #initialized: boolean;
     #loaded: boolean;
@@ -44,7 +44,7 @@ export declare class Row {
     hasProperty (property: string): boolean;
     private reset (): void;
     private _getErrorInfo (): ErrorInfo;
-    private _getPrimaryKeyConditions (): Array<string>;
+    private _getPrimaryKeyConditions (): string[];
 
     get valuesObject (): ValueObject;
     get originalValues (): ValueObject;

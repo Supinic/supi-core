@@ -40,7 +40,7 @@ export declare class Filter extends ClassTemplate {
 	static applyUnping (options: UnpingFilterOptions): string;
 	static getCooldownModifiers (options: FilterOptions): Filter | null;
 	static getFlags (options: FilterOptions): FlagObject;
-	static getReminderPreventions (options: FilterOptions): Array<Filter["User_Alias"]>;
+	static getReminderPreventions (options: FilterOptions): Filter["User_Alias"][];
 	static getReason (options: FilterOptions): string | null;
 
 	private filterData: Data;

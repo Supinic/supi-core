@@ -48,8 +48,8 @@ export declare class CacheSingleton implements Template {
     delete (keyIdentifier: Key): Promise<number>; // inferred from Redis["del"] for the non-callback overload;
     setByPrefix (prefix: Prefix, value: Value, options: PrefixOptions): ReturnType<CacheSingleton["set"]>;
     getByPrefix (prefix: Prefix, options: PrefixOptions): ReturnType<CacheSingleton["get"]>;
-    getKeysByPrefix (prefix: Prefix, options: KeysPrefixOptions): Promise<Array<string>>;
-    getKeyValuesByPrefix (prefix: Prefix, options: KeysPrefixOptions): Promise<Array<Value>>;
+    getKeysByPrefix (prefix: Prefix, options: KeysPrefixOptions): Promise<string[]>;
+    getKeyValuesByPrefix (prefix: Prefix, options: KeysPrefixOptions): Promise<Value[]>;
     destroy (): void;
 
     get active (): boolean;

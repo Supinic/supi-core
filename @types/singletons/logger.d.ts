@@ -26,7 +26,7 @@ declare type CommandExecutionOptions = {
     Channel: Channel["ID"];
     Success: boolean;
     Invocation: string;
-    Arguments: Array<string> | null;
+    Arguments: string[] | null;
     Result: string | null;
     Execution_Time: number;
 };
@@ -35,7 +35,7 @@ declare type ErrorLogData = {
     message?: string;
     stack?: string;
     context?: JSONifiable;
-    arguments?: Array<string> | null;
+    arguments?: string[] | null;
 };
 
 export declare class LoggerSingleton implements Template {

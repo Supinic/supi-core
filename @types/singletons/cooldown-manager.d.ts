@@ -46,7 +46,7 @@ export declare class CooldownManagerSingleton implements Template {
     static module: CooldownManagerSingleton;
     static singleton (): CooldownManagerSingleton;
 
-    data: Array<Cooldown | Pending>;
+    data: Cooldown | Pending[];
     readonly pendingCooldownExpiration: number;
 
     constructor ();

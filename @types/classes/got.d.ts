@@ -20,7 +20,7 @@ declare type Extension = (urlOrOptions: URLOrOptions, restOptions: GotOptions) =
 declare type GQLOptions = {
 	query: string;
 	token?: string;
-	variables?: Record<string, Array<string>>;
+	variables?: Record<string, string[]>;
 };
 declare type URLOrGotProxyOptions = URLOrOptions & {
 	skipURLSanitization?: boolean;
@@ -30,10 +30,10 @@ declare type GotInstance = Got & {
 };
 
 declare class StaticGot extends ClassTemplate {
-	static readonly data: Array<StaticGot>;
+	static readonly data: StaticGot[];
 	static get (identifier: Like): GotInstance | null;
 	static gql (gqlOptions: GQLOptions): unknown;
-	static sanitize (strings: Array<string>, ...values: Array<string>): string;
+	static sanitize (strings: string[], ...values: string[]): string;
 	static extend (extendOptions: ExtendOptions): Extension;
 
 	static get specificName (): "Got";
