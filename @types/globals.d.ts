@@ -18,3 +18,9 @@ export declare type Without<T, U> = {
 export declare type XOR <T, U> = (T | U) extends object
     ? (Without<T, U> & U) | (Without<U, T> & T)
     : T | U;
+export declare type OnlyKeysOfType<T, U> = {
+    [P in keyof T]: T[P] extends U ? P : never
+}[keyof T];
+export declare type TypeExtract<T, U> = {
+    [P in OnlyKeysOfType<T, U>]: U;
+};
