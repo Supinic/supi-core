@@ -5,7 +5,7 @@ import { SimpleGenericData } from "../../globals";
 
 declare const unsetSymbol: symbol;
 
-declare type PrimaryKey = string | number | Date; // @todo double check these
+declare type PrimaryKey = string | number | bigint | Date | Buffer;
 declare type CompoundPrimaryKey = {
     [P: string]: PrimaryKey;
 };
