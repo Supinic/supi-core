@@ -1,4 +1,4 @@
-import { GenericFlagsObject, SimpleGenericData } from "../globals";
+import { GenericFlagsObject, SimpleGenericData, TypeExtract } from "../globals";
 import { ClassTemplate } from "./template";
 import { Channel } from "./channel";
 import { AvailableEmoteOptions, Platform } from "./platform";
@@ -170,7 +170,7 @@ export declare class Command extends ClassTemplate {
     static get (identifier: Like): Command | null;
     static validate (): void;
     static install (option: unknown): Promise<never>;
-    static extractMetaResultProperties (execution: Result): Partial<Result>; // @todo extract only boolean properties from Result
+    static extractMetaResultProperties (execution: Result): TypeExtract<Result, boolean>;
     static createFakeContext (commandData: Command, contextData: ContextConstructorData, extraData: SimpleGenericData): Context;
     static parseParameter (value: string, type: Parameter.Type, explicit?: boolean): Parameter.ParsedType;
     static checkAndExecute (
