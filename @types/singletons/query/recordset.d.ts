@@ -7,7 +7,7 @@ import {
 } from "./index";
 
 declare type Field = ColumnDefinition["name"];
-declare type ReferenceData = object[];
+declare type ReferenceData = unknown[]; // @todo
 
 export declare type Result = FormatValue | {
     [P: Field]: FormatValue

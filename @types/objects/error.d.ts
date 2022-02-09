@@ -1,4 +1,4 @@
-import { JSONifiable } from "../globals";
+import { JSONifiable, SimpleGenericData } from "../globals";
 
 export namespace errors {
 	class GenericRequestError extends CustomError {
@@ -20,7 +20,7 @@ export namespace errors {
 }
 
 export declare class CustomError extends Error {
-	readonly #args: object;
+	readonly #args: SimpleGenericData;
 	readonly #timestamp: number;
 	readonly #messageDescriptor: PropertyDescriptor;
 	readonly name: string;
@@ -34,7 +34,7 @@ export declare class CustomError extends Error {
 
 	get message (): string;
 	get simpleMessage (): string;
-	get args (): object;
+	get args (): SimpleGenericData;
 	get timestamp (): number;
 	get date (): Date;
 }

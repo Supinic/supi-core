@@ -1,4 +1,4 @@
-import { Port, URL } from "../globals";
+import { Port, SimpleGenericData, URL } from "../globals";
 
 export declare interface Information {
     chapter: number;
@@ -140,7 +140,7 @@ export declare class VLCClient {
     })
 
     #doTick (): Promise<void>;
-    #sendCommand (scope: string, command: string, options: object): Promise<void>;
+    #sendCommand (scope: string, command: string, options: SimpleGenericData): Promise<void>;
 
     browse (path: string): Promise<Status>;
     updateStatus (): Promise<Status>;

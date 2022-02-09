@@ -3,6 +3,7 @@ import { CustomDate as Date } from "../objects/date";
 import { User } from "./user";
 
 import { CronJob } from "cron";
+import { SimpleGenericData } from "../globals";
 
 declare type ConstructorData = {
 	ID?: number;
@@ -33,7 +34,7 @@ export declare class Cron extends ClassTemplate {
 	readonly Expression: Date;
 	readonly Defer: Defer;
 	readonly Code: () => void;
-	readonly data: object;
+	readonly data: SimpleGenericData;
 	readonly #disabled: boolean;
 	job: unknown | null;
 

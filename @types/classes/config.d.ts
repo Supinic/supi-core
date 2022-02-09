@@ -1,5 +1,6 @@
 import { ClassTemplate } from "./template";
 import { CustomDate as Date } from "../objects/date";
+import { SimpleGenericData } from "../globals";
 
 export declare type ConstructorData = {
     Name: string;
@@ -10,7 +11,7 @@ export declare type ConstructorData = {
     Value: string | Value;
 };
 export declare type Type = "number" | "string" | "array" | "object" | "date" | "regex" | "boolean" | "function";
-export declare type Value = boolean | number | string | any[] | object | Date | RegExp | ((...args: any[]) => any);
+export declare type Value = boolean | number | string | any[] | SimpleGenericData | Date | RegExp | ((...args: any[]) => any);
 export declare type Unit = "s" | "ms";
 export declare type Representation = {
     name: string;

@@ -1,11 +1,12 @@
 import { SingletonTemplate as Template } from "../template";
-import { Batch, BatchRecord } from "./batch";
+import { Batch } from "./batch";
 import { Row } from "./row";
 import { RecordDeleter } from "./record-deleter";
 import { Recordset } from "./recordset";
 import { RecordUpdater } from "./record-updater";
 import { CustomDate as Date } from "../../objects/date";
 import { Flags, Pool, PoolConnection, Types as ColumnType } from "mariadb";
+import { SimpleGenericData } from "../../globals";
 
 export {
     Batch,
@@ -15,9 +16,9 @@ export {
     Row
 };
 
-declare type BatchUpdateOptions = {
+declare type BatchUpdateOptions <T> = {
     batchSize: number;
-    callback: (ru: RecordUpdater, row: BatchRecord) => void;
+    callback: (ru: RecordUpdater, row: T) => void;
     staggerDelay: number;
 };
 declare type RecordsetCallback = (rs: Recordset) => Recordset;
@@ -69,7 +70,7 @@ export declare type Database = TableDefinition["database"];
 export declare type Field = ColumnDefinition["name"];
 export declare type Table = TableDefinition["name"];
 export declare type FormatSymbol = "b" | "d" | "dt" | "n" | "s" | "t" | "s+" | "n+" | "like" | "like*" | "*like" | "*like*";
-export declare type FormatValue = number | string | boolean | Date | object | bigint | string[] | null;
+export declare type FormatValue = number | string | boolean | Date | SimpleGenericData | bigint | string[] | null;
 export declare type WhereHavingObject = {
     condition?: boolean;
     raw?: string;
@@ -103,7 +104,7 @@ export declare class QuerySingleton implements Template {
     getDefinition (database: Database, table: Table): Promise<TableDefinition>;
     isDatabasePresent (database: Database): Promise<boolean>;
     isTablePresent (database: Database, table: Table): Promise<boolean>;
-    batchUpdate (data: object[], options: BatchUpdateOptions): Promise<void>;
+    batchUpdate <T extends SimpleGenericData> (data: T[], options: BatchUpdateOptions<T>): Promise<void>;
     getCondition (callback: RecordsetCallback): ReturnType<Recordset["toCondition"]>;
     invalidateDefinition (database: Database, table: Table): void;
     invalidateAllDefinitions (): void;

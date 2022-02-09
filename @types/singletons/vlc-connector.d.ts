@@ -1,6 +1,6 @@
 import { SingletonTemplate as Template } from "./template";
 import { VLCClient as Client, Information, Node, Root, Status } from "./vlc-client";
-import { Port, URL } from "../globals";
+import { Port, SimpleGenericData, URL } from "../globals";
 
 export declare type VLCOptions = {
     host: URL;
@@ -49,6 +49,7 @@ declare type AddOptions = {
     startTime?: number | null;
     endTime?: number | null;
 };
+declare type Generic = SimpleGenericData;
 
 export declare class VLCSingleton implements Template {
     static module: VLCSingleton;
@@ -65,9 +66,9 @@ export declare class VLCSingleton implements Template {
 
     private initListeners (): void;
 
-    private send (command: string, options?: object, parent?: string): Promise<object>;
-    private getStatus (command: string, options?: object): Promise<object>;
-    private getPlaylist (command: string, options?: object): Promise<Root>;
+    private send (command: string, options?: Generic, parent?: string): Promise<Generic>;
+    private getStatus (command: string, options?: Generic): Promise<Generic>;
+    private getPlaylist (command: string, options?: Generic): Promise<Root>;
     private getDataByName (name: string, link: string): Promise<Node | undefined>;
     private matchParent (list: Root, targetID: number): Node | null;
 
@@ -83,9 +84,9 @@ export declare class VLCSingleton implements Template {
     add (link: string, options?: AddOptions): Promise<number>;
     currentlyPlaying (): Promise<Information>;
     /** @deprecated */
-    wrongSong (user: number): Promise<object>;
+    wrongSong (user: number): Promise<unknown>;
     /** @deprecated */
-    currentlyPlayingData (): Promise<object>;
+    currentlyPlayingData (): Promise<unknown>;
     getNormalizedPlaylist (): Promise<Video[]>;
 
     destroy (): void;

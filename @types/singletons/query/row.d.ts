@@ -1,6 +1,7 @@
 import { QuerySingleton as Query, ColumnDefinition, TableDefinition } from "./index";
 import { CustomDate as Date } from "../../objects/date";
 import { UpsertResult, TypeCastResult } from "mariadb";
+import { SimpleGenericData } from "../../globals";
 
 declare const unsetSymbol: symbol;
 
@@ -40,7 +41,7 @@ export declare class Row {
     load (primaryKey: PrimaryKey | CompoundPrimaryKey, ignoreError?: boolean): Promise<Row>;
     save (options: SaveOptions): Promise<UpsertResult>;
     delete (): Promise<void>;
-    setValues (data: object): Row;
+    setValues (data: SimpleGenericData): Row;
     hasProperty (property: string): boolean;
     private reset (): void;
     private _getErrorInfo (): ErrorInfo;

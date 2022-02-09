@@ -1,5 +1,6 @@
 import { SingletonTemplate as Template } from "./template";
 import { NodeVM, VM, VMOptions } from "vm2";
+import { SimpleGenericData } from "../globals";
 
 declare type ConstructorData = {
     VM: VM;
@@ -12,7 +13,7 @@ export declare class SandboxSingleton implements Template {
 
     readonly #VM: VM;
     readonly #NodeVM: NodeVM;
-    readonly #defaultVMOptions: object;
+    readonly #defaultVMOptions: SimpleGenericData;
 
     constructor (sandboxModule: ConstructorData);
 

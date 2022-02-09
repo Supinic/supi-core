@@ -1,4 +1,5 @@
 import { ClassTemplate } from "./template";
+import { SimpleGenericData } from "../globals";
 
 export declare namespace Permissions {
     export type Descriptor = {
@@ -17,7 +18,7 @@ declare type UserGetOptions = {
     Discord_ID?: string;
     Twitch_ID?: string;
 };
-declare type WeakUserData = object;
+declare type WeakUserData = SimpleGenericData;
 
 export declare class User extends ClassTemplate {
     static bots: Map<string, User>;

@@ -1,7 +1,7 @@
-import { GenericFlagsObject } from "../globals";
+import { GenericFlagsObject, SimpleGenericData } from "../globals";
 import { ClassTemplate } from "./template";
 import { Channel } from "./channel";
-import { Platform } from "./platform";
+import { AvailableEmoteOptions, Platform } from "./platform";
 import { User, Permissions as UserPermissions } from "./user";
 import { CustomDate as Date } from "../objects/date";
 import { DeepFrozen } from "../singletons/utils";
@@ -13,7 +13,7 @@ declare type AppendData = unknown;
 
 export declare namespace Parameter {
     type Type = "string" | "number" | "boolean" | "date" | "object" | "regex";
-    type ParsedType = string | number | boolean | Date | object | RegExp;
+    type ParsedType = string | number | boolean | Date | SimpleGenericData | RegExp;
     type Descriptor = {
         type: Type;
         name: string
@@ -149,7 +149,7 @@ export declare class Context {
     getMeta (name: string): void;
     setMeta (name: string, value: any): void;
     getUserPermissions (options: ContextSpecificator): Promise<PermissionsDescriptor>;
-    getBestAvailableEmote (emote: string[], fallback: string, options: object): Promise<string>;
+    getBestAvailableEmote (emote: string[], fallback: string, options: AvailableEmoteOptions): Promise<string>;
 
     get tee (): string[]
     // @todo is it possible to somehow reference Context["#invocation"]?
@@ -172,7 +172,7 @@ export declare class Command extends ClassTemplate {
     static validate (): void;
     static install (option: unknown): Promise<never>;
     static extractMetaResultProperties (execution: Result): Partial<Result>; // @todo extract only boolean properties from Result
-    static createFakeContext (commandData: Command, contextData: ContextConstructorData, extraData: object): Context;
+    static createFakeContext (commandData: Command, contextData: ContextConstructorData, extraData: SimpleGenericData): Context;
     static parseParameter (value: string, type: Parameter.Type, explicit?: boolean): Parameter.ParsedType;
     static checkAndExecute (
         identifier: string,
@@ -202,13 +202,13 @@ export declare class Command extends ClassTemplate {
     readonly Whitelist_Response: string | null;
     private readonly Author: string | null;
     private Code: (context: Context, ...args: string[]) => Result;
-    private data: object;
+    private data: SimpleGenericData;
     private staticData: DeepFrozen<Record<string, any>>;
 
     constructor (data: ConstructorData);
 
     execute (...args: string[]): ReturnType<Command["Code"]>;
-    serialize (options: object): Promise<never>;
+    serialize (options: unknown): Promise<never>;
     getDetailURL (options?: { useCodePath?: boolean }): string;
     validate (): void;
 }

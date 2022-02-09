@@ -1,25 +1,20 @@
-import { Emote, JSONifiable, Message } from "../globals";
+import { Emote, JSONifiable, Message, SimpleGenericData } from "../globals";
 import { ClassTemplate } from "./template";
 import { APIType as BanphraseAPIType, DowntimeBehaviour as BanphraseDowntimeBehaviour } from "./banphrase";
-import { Platform, Like as PlatformLike, AvailableEmoteOptions, PrepareMessageOptions } from "./platform";
+import {
+    Platform,
+    Like as PlatformLike,
+    AvailableEmoteOptions,
+    PrepareMessageOptions,
+    MessageAwaiter
+} from "./platform";
 import { User } from "./user";
 import { CustomDate } from "../objects/date";
 
 import * as EventEmitter from "events";
 
-// @todo
-type Controller = any; // should be imported from github:supinic/supibot
+declare type Controller = any; // @todo should be imported from github:supinic/supibot
 
-export declare interface MessageAwaiter {
-    Wrapper: {
-        timeout: number,
-        promise: MessageAwaiter["Resolution"]
-    };
-    Resolution: {
-        message: Message;
-    };
-    Options: object; // @todo
-}
 export declare type Mode = "Inactive" | "Last seen" | "Read" | "Write" | "VIP" | "Moderator";
 export declare type Like = string | number | Channel;
 export declare type CustomData = Record<string, JSONifiable>;
@@ -82,7 +77,7 @@ export declare class Channel extends ClassTemplate {
     readonly Mirror: Channel["ID"] | null;
     readonly Description: string | null;
     readonly Data: CustomData;
-    readonly sessionData: object;
+    readonly sessionData: SimpleGenericData;
     readonly events: EventEmitter;
 
     constructor (data: ConstructorData);

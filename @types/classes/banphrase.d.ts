@@ -1,4 +1,4 @@
-import { Message } from "../globals";
+import { Message, SimpleGenericData } from "../globals";
 import { ClassTemplate } from "./template";
 import { Channel } from "./channel";
 import { Platform } from "./platform";
@@ -67,7 +67,7 @@ export declare class Banphrase extends ClassTemplate {
     readonly Channel: Channel["ID"] | null;
     readonly Active: boolean;
     readonly Code: (message: Message) => string | undefined | Promise<string | undefined>; // @todo check if this is correct for actual types
-    readonly data: object;
+    readonly data: SimpleGenericData;
 
     constructor (data: ConstructorData);
 
