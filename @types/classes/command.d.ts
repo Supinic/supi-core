@@ -152,7 +152,6 @@ export declare class Context {
     getBestAvailableEmote (emote: string[], fallback: string, options: AvailableEmoteOptions): Promise<string>;
 
     get tee (): string[]
-    // @todo is it possible to somehow reference Context["#invocation"]?
     get invocation (): string;
     get user (): User;
     get channel (): Channel;
