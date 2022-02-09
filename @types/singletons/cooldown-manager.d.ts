@@ -1,12 +1,15 @@
 import { SingletonTemplate as Template } from "./template";
+import { SimpleGenericData } from "../globals";
 
 export declare type Identifier = number | string | null;
 export declare type CooldownOptions = unknown;
 export declare type UnsetOptions = unknown;
 
-declare interface Inhibitor {
+declare abstract class Inhibitor {
     readonly user: Identifier;
-    // constructor (data: object): Inhibitor; // @todo can this be achieved somehow?
+
+    protected constructor (data: SimpleGenericData);
+
     check (...args: Identifier[]): boolean;
     revoke (): void;
 }
