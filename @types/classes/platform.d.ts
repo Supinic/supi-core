@@ -1,18 +1,39 @@
-import { Emote, JSONifiable, Message } from "../globals";
+import { Emote, Message } from "../globals";
 import { ClassTemplate } from "./template";
-import { Channel, MessageAwaiter } from "./channel";
+import { Channel } from "./channel";
 import { User } from "./user";
 
-// @todo
-type Controller = any;
-type Client = any;
-type ConstructorOptions = any;
-type UserMessageOptions = unknown;
-type LoggingOptions = unknown;
-type PrepareMessageOptions = unknown;
+import { CytubePlatform } from "./platforms/cytube-platform";
+import { DiscordPlatform } from "./platforms/discord-platform";
+import { IrcPlatform } from "./platforms/irc-platform";
+import { TwitchPlatform } from "./platforms/twitch-platform";
+
+declare type Controller = any; // @todo from github:supinic/supibot
+declare type Client = any; // @todo from github:supinic/supibot
+type ConstructorOptions = any; // @todo from constructor
 
 declare type UserMessageAwaiterMap = Map<User, MessageAwaiter["Resolution"]>;
+declare type PrepareMessageOptions = {
+	extraLength?: number;
+	removeEmbeds?: boolean;
+};
 
+export declare interface Log {
+	messages: boolean;
+	whispers: boolean;
+}
+export declare interface MessageAwaiter {
+	Wrapper: {
+		timeout: number,
+		promise: MessageAwaiter["Resolution"]
+	};
+	Resolution: {
+		message: Message;
+	};
+	Options: {
+		timeout?: number;
+	};
+}
 export declare type Like = number | string | Platform;
 export declare type AvailableEmoteOptions = {
 	returnEmoteObject?: boolean;
@@ -21,6 +42,11 @@ export declare type AvailableEmoteOptions = {
 
 export declare class Platform extends ClassTemplate {
 	static assignControllers (controllers: Record<string, Controller>): void;
+
+	static get (identifier: "Cytube" | "cytube"): CytubePlatform;
+	static get (identifier: "Discord" | "discord"): DiscordPlatform;
+	static get (identifier: "IRC" | "irc"): IrcPlatform;
+	static get (identifier: "Twitch" | "twitch"): TwitchPlatform;
 	static get (identifier: Like, host?: string): Platform | null;
 
 	private readonly controller: Controller;
@@ -32,16 +58,16 @@ export declare class Platform extends ClassTemplate {
 	readonly Self_Name: string | null;
 	readonly Self_ID: string | null;
 	readonly Mirror_Identifier: string | null;
-	readonly Logging: LoggingOptions;
-	readonly Defaults: Record<string, JSONifiable>;
-	readonly Data: Partial<Platform["Defaults"]>;
+	readonly Logging: Log | null;
+	readonly Defaults: Partial<Platform["Data"]>;
+	readonly Data: Record<string, any>; // is overriden in subclasses
 
 	constructor (data: ConstructorOptions);
 
 	isUserChannelOwner (channelData: Channel, userData: User): Promise<boolean | null>;
 	send (message: string, channel: string): Promise<void>;
 	pm (message: string, user: string, channelData?: Channel): Promise<void>;
-	waitForUserMessage (channelData: Channel, userData: User, options: UserMessageOptions): Promise<MessageAwaiter["Resolution"]>;
+	waitForUserMessage (channelData: Channel, userData: User, options: MessageAwaiter["Options"]): Promise<MessageAwaiter["Resolution"]>;
 	fetchChannelUserList (channelData: Channel): Promise<string[]>;
 	fetchGlobalEmotes (): Promise<Emote[]>;
 	invalidateGlobalEmotesCache (): Promise<void>;
