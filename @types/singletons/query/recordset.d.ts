@@ -7,8 +7,6 @@ import {
 } from "./index";
 
 declare type Field = ColumnDefinition["name"];
-declare type ReferenceData = unknown[]; // @todo
-
 export declare type Result = FormatValue | {
     [P: Field]: FormatValue
 };
@@ -54,7 +52,7 @@ export declare type UseProperty = keyof UseOptions;
 export declare type UseValue = UseOptions[UseProperty];
 
 export declare class Recordset {
-    private static collapseReferencedData (data: ReferenceData, options: ReferenceOptions): void;
+    private static collapseReferencedData (data: Result[], options: ReferenceOptions): void;
 
     readonly #query: Query;
     #fetchSingle: boolean;
