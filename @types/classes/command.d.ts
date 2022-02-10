@@ -202,7 +202,8 @@ export declare class Command extends ClassTemplate {
     static get prefix (): string;
     static set prefix (value: string);
     static get prefixRegex (): RegExp;
-    static #privateMessageChannelID: symbol;
+    static validate (): void;
+    static readonly #privateMessageChannelID: unique symbol;
     private static privilegedCommandCharacters: string[];
 
     readonly Name: string;
@@ -222,5 +223,4 @@ export declare class Command extends ClassTemplate {
     execute (...args: string[]): ReturnType<Command["Code"]>;
     serialize (options: unknown): Promise<never>;
     getDetailURL (options?: { useCodePath?: boolean }): string;
-    validate (): void;
 }
