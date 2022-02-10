@@ -1,11 +1,4 @@
-import {
-    QuerySingleton as Query,
-    ColumnDefinition,
-    Database,
-    Field,
-    FormatValue,
-    Table
-} from "./index";
+import { ColumnDefinition, Database, Field, FormatValue, QuerySingleton as Query, Table } from "./index";
 
 declare type ConstructorOptions = {
     database: Database;

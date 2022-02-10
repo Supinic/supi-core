@@ -1,9 +1,4 @@
-import {
-    QuerySingleton as Query,
-    Database,
-    Table,
-    WhereHavingObject
-} from "./index";
+import { Database, QuerySingleton as Query, Table, WhereHavingObject } from "./index";
 
 export declare class RecordDeleter {
     readonly #query: Query;

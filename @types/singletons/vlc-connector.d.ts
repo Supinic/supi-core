@@ -1,5 +1,5 @@
 import { SingletonTemplate as Template } from "./template";
-import { VLCClient as Client, Information, Node, Root, Status } from "./vlc-client";
+import { Information, Node, Root, Status, VLCClient as Client } from "./vlc-client";
 import { Port, SimpleGenericData, URL } from "../globals";
 
 export declare type VLCOptions = {

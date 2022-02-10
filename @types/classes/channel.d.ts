@@ -2,11 +2,11 @@ import { Emote, JSONifiable, Message, SimpleGenericData } from "../globals";
 import { ClassTemplate } from "./template";
 import { APIType as BanphraseAPIType, DowntimeBehaviour as BanphraseDowntimeBehaviour } from "./banphrase";
 import {
-    Platform,
-    Like as PlatformLike,
     AvailableEmoteOptions,
-    PrepareMessageOptions,
-    MessageAwaiter
+    Like as PlatformLike,
+    MessageAwaiter,
+    Platform,
+    PrepareMessageOptions
 } from "./platform";
 import { User } from "./user";
 import { CustomDate } from "../objects/date";

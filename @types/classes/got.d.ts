@@ -1,13 +1,6 @@
 import { ClassTemplate } from "./template";
-
+import { ExtendOptions, Got, GotOptions, GotReturn, URLOrOptions } from "got";
 import FormData = require("form-data");
-import {
-	Got,
-	ExtendOptions,
-	GotOptions,
-	GotReturn,
-	URLOrOptions
-} from "got";
 
 export { Got } from "got";
 

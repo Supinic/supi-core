@@ -1,7 +1,7 @@
 import { SingletonTemplate as Template } from "./template";
 import { Message, Stringifiable, URL } from "../globals";
 import { CustomDate } from "../objects/date";
-import { User, Like as UserLike } from "../classes/user";
+import { Like as UserLike, User } from "../classes/user";
 
 import { Url as NativeURLObject } from "url";
 
@@ -25,7 +25,7 @@ declare interface MathProperties {
     [P: string]: keyof Math
 }
 declare interface RoundOptions extends MathProperties {
-    direction?: "ceil" | "floor" | "round" | "trunc"
+    direction: "ceil" | "floor" | "round" | "trunc"
 }
 
 declare type WrapStringProperties = {
@@ -163,8 +163,8 @@ export declare namespace CS {
     }
     interface Options {
         ignoreCase?: boolean;
-        fullResult?: boolean;
-        descriptor?: boolean;
+        fullResult?: boolean | null;
+        descriptor?: boolean | null;
     }
     interface ArrayOptions extends Options {
         fullResult: true;

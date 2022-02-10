@@ -3,7 +3,11 @@
     "module": "commonjs",
     "target": "ES2021",
     "sourceMap": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "allowJs": true,
+    "alwaysStrict": true,
+    "checkJs": true,
+    "emitDeclarationOnly": true
   },
   "exclude": [
     "node_modules"

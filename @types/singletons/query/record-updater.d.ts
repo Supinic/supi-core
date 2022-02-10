@@ -1,11 +1,4 @@
-import {
-    QuerySingleton as Query,
-    Database,
-    Field,
-    FormatValue,
-    Table,
-    WhereHavingObject
-} from "./index";
+import { Database, Field, FormatValue, QuerySingleton as Query, Table, WhereHavingObject } from "./index";
 
 export declare type Priority = "normal" | "low";
 

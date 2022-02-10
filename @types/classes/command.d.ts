@@ -2,7 +2,7 @@ import { GenericFlagsObject, SimpleGenericData, TypeExtract } from "../globals";
 import { ClassTemplate } from "./template";
 import { Channel } from "./channel";
 import { AvailableEmoteOptions, Platform } from "./platform";
-import { User, Permissions as UserPermissions } from "./user";
+import { Permissions as UserPermissions, User } from "./user";
 import { CustomDate as Date } from "../objects/date";
 import { DeepFrozen } from "../singletons/utils";
 

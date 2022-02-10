@@ -1,10 +1,4 @@
-import {
-    QuerySingleton as Query,
-    ColumnDefinition,
-    Database,
-    FormatValue,
-    Table
-} from "./index";
+import { ColumnDefinition, Database, FormatValue, QuerySingleton as Query, Table } from "./index";
 
 declare type Field = ColumnDefinition["name"];
 export declare type Result = FormatValue | {

@@ -1,6 +1,6 @@
-import { QuerySingleton as Query, ColumnDefinition, TableDefinition } from "./index";
+import { ColumnDefinition, QuerySingleton as Query, TableDefinition } from "./index";
 import { CustomDate as Date } from "../../objects/date";
-import { UpsertResult, TypeCastResult } from "mariadb";
+import { TypeCastResult, UpsertResult } from "mariadb";
 import { SimpleGenericData } from "../../globals";
 
 declare const unsetSymbol: symbol;
