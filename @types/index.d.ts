@@ -15,7 +15,7 @@ import { Filter } from "./classes/filter";
 import { GotProxy as Got } from "./classes/got";
 import { Platform } from "./classes/platform";
 import { Reminder } from "./classes/reminder";
-import { User } from "./classes/user"
+import { User } from "./classes/user";
 
 // singletons
 import { CacheSingleton as Cache } from "./singletons/cache";
@@ -23,10 +23,10 @@ import { CooldownManagerSingleton as CooldownManager } from "./singletons/cooldo
 import { LocalRequestSingleton as LocalRequest } from "./singletons/local-request";
 import { LoggerSingleton as Logger } from "./singletons/logger";
 import { PastebinSingleton as Pastebin } from "./singletons/pastebin";
+import { QuerySingleton as Query } from "./singletons/query";
 import { SandboxSingleton as Sandbox } from "./singletons/sandbox";
 import { UtilsSingleton as Utils } from "./singletons/utils";
 import { VLCSingleton as VideoLanConnector } from "./singletons/vlc-connector";
-import { QuerySingleton as Query } from "./singletons/query";
 
 export declare namespace sb {
     export {
@@ -53,9 +53,9 @@ export declare namespace sb {
         LocalRequest,
         Logger,
         Pastebin,
+        Query,
         Sandbox,
         Utils,
-        VideoLanConnector,
-        Query
+        VideoLanConnector
     };
 }
