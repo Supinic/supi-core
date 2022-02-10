@@ -1,4 +1,4 @@
-import { Message, SimpleGenericData } from "../globals";
+import { Message, OnlyKeysOfType, SimpleGenericData } from "../globals";
 import { ClassTemplate } from "./template";
 import { Channel } from "./channel";
 import { Platform } from "./platform";
@@ -13,7 +13,6 @@ declare type ConstructorData = {
 };
 
 export declare type DowntimeBehaviour = "Ignore" | "Notify" | "Nothing" | "Refuse" | "Whisper";
-export declare type APIType = "Pajbot";
 export declare type Type = "API response" | "Custom response" | "Denial" | "Inactive" | "Replacement";
 export declare type Like = number | Banphrase;
 export declare type Result = {
@@ -51,12 +50,15 @@ declare class ExternalBanphraseAPI {
     static pajbot (message: Message, URL: string): Promise<PajbotBanphraseAPIResponse>;
 }
 
+declare type ExternalBanphraseType = OnlyKeysOfType<typeof ExternalBanphraseAPI, (message: Message, URL: string) => any>;
+export declare type APIType = Uppercase<ExternalBanphraseType>;
+
 export declare class Banphrase extends ClassTemplate {
     static get (identifier: Like): Banphrase | null;
     static execute (message: Message, channelData: Channel, options: unknown): Promise<Result>;
     static executeExternalAPI (
         message: Message,
-        type: "pajbot", // @todo somehow turn ExternalBanphraseAPI static methods to a union here
+        type: ExternalBanphraseType,
         URL: string,
         options: ExternalOptions
     ): Promise<ExternalAPIResponse | string | boolean>;
