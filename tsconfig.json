@@ -6,7 +6,7 @@
     "strictNullChecks": true,
     "allowJs": true,
     "alwaysStrict": true,
-    "checkJs": true,
+    "checkJs": false,
     "emitDeclarationOnly": true
   },
   "exclude": [
