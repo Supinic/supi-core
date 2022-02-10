@@ -8,9 +8,6 @@ import { DeepFrozen } from "../singletons/utils";
 
 import { PoolConnection } from "mariadb";
 
-// @todo
-declare type AppendData = unknown;
-
 export declare namespace Parameter {
     type Type = "string" | "number" | "boolean" | "date" | "object" | "regex";
     type ParsedType = string | number | boolean | Date | SimpleGenericData | RegExp;
@@ -107,6 +104,22 @@ declare type ConstructorData = {
     Author?: string | null;
     Code: string | ((context: Context, ...args: string[]) => Result);
     Static_Data: string | (() => Record<string, any>) | null;
+};
+declare type AppendData = {
+    platform: Platform;
+    tee?: Readonly<string[]>;
+    pipe?: boolean;
+    skipBanphrases?: boolean;
+    skipPending?: boolean;
+    skipMention?: boolean;
+    partialExecute?: boolean;
+    alias?: boolean;
+    aliasArgs?: string[];
+    aliasCount?: number;
+    aliasStack?: string[];
+    aliasTry?: {
+        user: User["Name"];
+    };
 };
 declare type PermissionsDescriptor = {
     flag: UserPermissions.Value;
