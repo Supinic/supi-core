@@ -33,7 +33,7 @@ declare class StaticGot extends ClassTemplate {
 	static get FormData (): FormData;
 }
 
-export declare interface GotProxy {
+export const GotProxy: {
 	(input: URLOrGotProxyOptions): GotReturn;
 	(name: string, input: URLOrGotProxyOptions): GotReturn;
 

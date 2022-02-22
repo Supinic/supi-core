@@ -94,6 +94,7 @@ export declare class QuerySingleton implements Template {
     send (...args: string[]): ReturnType<QuerySingleton["raw"]>;
     getTransaction (): Promise<PoolConnection>;
     getRecordset (callback: RecordsetCallback): ReturnType<Recordset["fetch"]>;
+    getRow (database: Database, table: Table): Promise<Row>;
 
     isRecordset (input: any): input is Recordset;
     isRecordDeleter (input: any): input is RecordDeleter;

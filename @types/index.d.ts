@@ -18,17 +18,27 @@ import { Reminder } from "./classes/reminder";
 import { User } from "./classes/user";
 
 // singletons
-import { CacheSingleton as Cache } from "./singletons/cache";
-import { CooldownManagerSingleton as CooldownManager } from "./singletons/cooldown-manager";
-import { LocalRequestSingleton as LocalRequest } from "./singletons/local-request";
-import { LoggerSingleton as Logger } from "./singletons/logger";
-import { PastebinSingleton as Pastebin } from "./singletons/pastebin";
-import { QuerySingleton as Query } from "./singletons/query";
-import { SandboxSingleton as Sandbox } from "./singletons/sandbox";
-import { UtilsSingleton as Utils } from "./singletons/utils";
-import { VLCSingleton as VideoLanConnector } from "./singletons/vlc-connector";
+import { CacheSingleton } from "./singletons/cache";
+import { CooldownManagerSingleton } from "./singletons/cooldown-manager";
+import { LocalRequestSingleton } from "./singletons/local-request";
+import { LoggerSingleton } from "./singletons/logger";
+import { PastebinSingleton } from "./singletons/pastebin";
+import { QuerySingleton } from "./singletons/query";
+import { SandboxSingleton } from "./singletons/sandbox";
+import { UtilsSingleton } from "./singletons/utils";
+import { VLCSingleton } from "./singletons/vlc-connector";
 
 export declare namespace sb {
+    const Cache: InstanceType<typeof CacheSingleton>;
+    const CooldownManager: InstanceType<typeof CooldownManagerSingleton>;
+    const LocalRequest: InstanceType<typeof LocalRequestSingleton>;
+    const Logger: InstanceType<typeof LoggerSingleton>;
+    const Pastebin: InstanceType<typeof PastebinSingleton>;
+    const Query: InstanceType<typeof QuerySingleton>;
+    const Sandbox: InstanceType<typeof SandboxSingleton>;
+    const Utils: InstanceType<typeof UtilsSingleton>;
+    const VideoLANConnector: InstanceType<typeof VLCSingleton>;
+
     export {
         Date,
         Error,
@@ -56,6 +66,6 @@ export declare namespace sb {
         Query,
         Sandbox,
         Utils,
-        VideoLanConnector
+        VideoLANConnector
     };
 }
