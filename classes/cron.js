@@ -8,12 +8,6 @@ module.exports = class Cron extends require("./template.js") {
 	// <editor-fold defaultstate="collapsed" desc="=== INSTANCE PROPERTIES ===">
 
 	/**
-	 * Unique numeric cron identifier
-	 * @type {number|Symbol}
-	 */
-	ID;
-
-	/**
 	 * Unique cron name
 	 * @type {sb.Date}
 	 */
@@ -76,7 +70,14 @@ module.exports = class Cron extends require("./template.js") {
 	constructor (data) {
 		super();
 
-		this.ID = data.ID ?? Symbol();
+		if (Cron.data.some(i => i.Name === data.name)) {
+			throw new sb.Error({
+				message: "Conflicting Cron name",
+				args: {
+					name: data.Name
+				}
+			});
+		}
 
 		this.Name = data.Name;
 		if (typeof this.Name !== "string") {
@@ -100,56 +101,18 @@ module.exports = class Cron extends require("./template.js") {
 		else if (typeof data.Defer === "object") {
 			this.Defer = data.Defer;
 		}
-		else if (typeof data.Defer === "string") {
-			try {
-				this.Defer = eval(data.Defer)();
-			}
-			catch (e) {
-				console.warn(`Cron has invalid Defer definition`, {
-					cron: this,
-					defer: data.Defer,
-					type: typeof data.Defer,
-					error: e,
-					data
-				});
-
-				this.Defer = null;
-			}
-		}
 		else if (typeof data.Defer === "function") {
-			try {
-				this.Defer = data.Defer();
-			}
-			catch (e) {
-				console.warn(`Cron has invalid Defer definition`, {
-					cron: this,
-					defer: data.Defer,
-					type: typeof data.Defer,
-					error: e,
-					data
+			this.Defer = data.Defer();
+
+			if (this.Defer !== null && typeof this.Defer !== "object") {
+				throw new sb.Error({
+					message: "Cron Defer function results in invalid type",
+					args: {
+						cron: data.Name,
+						defer: data.Defer.toString(),
+						result: typeof this.Defer
+					}
 				});
-
-				this.Defer = null;
-			}
-		}
-
-		if (this.Defer !== null && typeof this.Defer !== "object") {
-			console.warn(`Cron Defer resulted in invalid type`, {
-				cron: this,
-				defer: data.Defer,
-				data
-			});
-
-			this.Defer = null;
-		}
-
-		if (typeof data.Code === "string") {
-			try {
-				data.Code = eval(data.Code);
-			}
-			catch (e) {
-				console.warn(`Cron ${data.Name} has invalid definition`, e);
-				data.Code = () => {};
 			}
 		}
 
