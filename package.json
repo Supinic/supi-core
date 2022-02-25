@@ -32,9 +32,11 @@
     "test": "mocha ./tests --recursive --exit"
   },
   "devDependencies": {
+    "@types/ioredis": "^4.28.7",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.1.0",
     "eslint-plugin-unicorn": "^32.0.1",
     "mocha": "^8.1.0"
-  }
+  },
+  "types": "./@types/index.d.ts"
 }

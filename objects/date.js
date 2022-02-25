@@ -1,8 +1,7 @@
 /**
  * Extended and simpler-to-use version of native Date
- * @memberof sb
  */
-module.exports = class Date extends global.Date {
+module.exports = class CustomDate extends Date {
 	static months = [
 		"January",
 		"February",
@@ -111,23 +110,23 @@ module.exports = class Date extends global.Date {
 					value += this.dayOfTheWeek.slice(0, 3);
 					break;
 				case "F":
-					value += Date.months[month - 1];
+					value += CustomDate.months[month - 1];
 					break;
 				case "M":
-					value += Date.months[month - 1].slice(0, 3);
+					value += CustomDate.months[month - 1].slice(0, 3);
 					break;
 				case "S":
-					value += Date.getDaySuffix(day);
+					value += CustomDate.getDaySuffix(day);
 					break;
 
 				case "d":
-					value += Date.zf(day, 2);
+					value += CustomDate.zf(day, 2);
 					break;
 				case "j":
 					value += day;
 					break;
 				case "m":
-					value += Date.zf(month, 2);
+					value += CustomDate.zf(month, 2);
 					break;
 				case "n":
 					value += month;
@@ -140,16 +139,16 @@ module.exports = class Date extends global.Date {
 					value += hours;
 					break;
 				case "H":
-					value += Date.zf(hours, 2);
+					value += CustomDate.zf(hours, 2);
 					break;
 				case "i":
-					value += Date.zf(minutes, 2);
+					value += CustomDate.zf(minutes, 2);
 					break;
 				case "s":
-					value += Date.zf(seconds, 2);
+					value += CustomDate.zf(seconds, 2);
 					break;
 				case "v":
-					value += Date.zf(milli, 3);
+					value += CustomDate.zf(milli, 3);
 					break;
 
 				default:
@@ -247,7 +246,7 @@ module.exports = class Date extends global.Date {
 	}
 
 	/**
-	 * Clones the current date. The new object is independent of the old one.
+	 * Clones the current CustomDate. The new object is independent of the old one.
 	 * @returns {sb.Date}
 	 */
 	clone () {

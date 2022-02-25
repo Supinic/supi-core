@@ -1,9 +1,8 @@
 /**
  * Custom Promise wrapper.
- * Allows resolution/rejection from outside of the Promise's context.
- * @memberof sb
+ * Allows resolution/rejection from outside the Promise's context.
  */
-module.exports = class Promise extends global.Promise {
+module.exports = class CustomPromise extends global.Promise {
 	#resolve = null;
 	#reject = null;
 

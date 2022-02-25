@@ -1,8 +1,7 @@
 /**
  * Custom error object. Receives an arguments object to provide more detailed error context.
- * @memberof sb
  */
-module.exports = class Error extends globalThis.Error {
+module.exports = class CustomError extends globalThis.Error {
 	#args;
 	#timestamp;
 	#messageDescriptor;

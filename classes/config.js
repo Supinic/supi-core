@@ -2,7 +2,6 @@ const VALID_BOOLEAN_LIKE_VALUES = ["0", "1", "true", "false"];
 
 /**
  * Represents configuration variables saved in the database.
- * @memberof sb
  */
 module.exports = class Config extends require("./template.js") {
 	#Name;
@@ -325,7 +324,7 @@ module.exports = class Config extends require("./template.js") {
 	 * Sets the configuration variable
 	 * @param {string} variable Variable name
 	 * @param {*} value New variable value
-	 * @throws {sb.Error} If variable does not exists
+	 * @throws {sb.Error} If variable does not exist
 	 * @throws {sb.Error} If variable is not editable
 	 * @throws {sb.Error} If value type is incompatible with the variable type
 	 */

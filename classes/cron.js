@@ -2,7 +2,6 @@ const { CronJob } = require("cron");
 
 /**
  * Represents a function that's executed every some time
- * @memberof sb
  */
 module.exports = class Cron extends require("./template.js") {
 	// <editor-fold defaultstate="collapsed" desc="=== INSTANCE PROPERTIES ===">
@@ -41,7 +40,7 @@ module.exports = class Cron extends require("./template.js") {
 	 * Any sort of custom data usable by the cron.
 	 * @type {Object}
 	 */
-	data = {};
+	data;
 
 	/**
 	 * Represents the cron's current status.
@@ -53,13 +52,13 @@ module.exports = class Cron extends require("./template.js") {
 	 * The cron job from module "cron" itself.
 	 * @type {CronJob}
 	 */
-	job = null;
+	job;
 
 	/**
 	 * If disabled, the cron is paused in its current state and cannot be started.
 	 * @type {boolean}
 	 */
-	#disabled = false;
+	#disabled;
 
 	// </editor-fold>
 
@@ -164,14 +163,15 @@ module.exports = class Cron extends require("./template.js") {
 		}
 
 		// For "foreign" contexts, make sure to disable the Cron so it is unavailable.
-		if (data.Type && !Cron.types.includes(data.Type)) {
-			this.#disabled = true;
-		}
+		this.#disabled = Boolean(data.Type && !Cron.types.includes(data.Type));
+
+		this.job = null;
+		this.data = {};
 	}
 
 	/**
 	 * Starts the cron job.
-	 * @returns {sb.Cron}
+	 * @returns {Cron}
 	 */
 	start () {
 		if (this.#disabled) {
@@ -212,7 +212,7 @@ module.exports = class Cron extends require("./template.js") {
 
 	/**
 	 * Stops the cron job.
-	 * @returns {sb.Cron}
+	 * @returns {Cron}
 	 */
 	stop () {
 		if (!this.started) {
