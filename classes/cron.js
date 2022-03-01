@@ -57,16 +57,6 @@ module.exports = class Cron extends require("./template.js") {
 
 	// </editor-fold>
 
-	static Job = CronJob;
-	static #serializableProperties = {
-		Name: { type: "string" },
-		Expression: { type: "string" },
-		Description: { type: "string" },
-		Defer: { type: "json" },
-		Type: { type: "string" },
-		Code: { type: "descriptor" }
-	};
-
 	constructor (data) {
 		super();
 
@@ -126,7 +116,7 @@ module.exports = class Cron extends require("./template.js") {
 			});
 		}
 
-		// For "foreign" contexts, make sure to disable the Cron so it is unavailable.
+		// For "foreign" contexts, make sure to disable the Cron, so it is unavailable.
 		if (data.Type && !Cron.types.includes(data.Type)) {
 			this.#disabled = true;
 		}
@@ -154,7 +144,7 @@ module.exports = class Cron extends require("./template.js") {
 		}
 
 		if (this.Defer) {
-			this.job = new Cron.Job(this.Expression, () => {
+			this.job = new CronJob(this.Expression, () => {
 				const timeout = sb.Utils.random(
 					this.Defer.start ?? 0,
 					this.Defer.end
@@ -164,7 +154,7 @@ module.exports = class Cron extends require("./template.js") {
 			});
 		}
 		else {
-			this.job = new Cron.Job(this.Expression, () => this.Code());
+			this.job = new CronJob(this.Expression, () => this.Code());
 		}
 
 		this.job.start();
@@ -201,40 +191,14 @@ module.exports = class Cron extends require("./template.js") {
 		this.job = null;
 	}
 
-	async serialize (options = {}) {
-		if (typeof this.ID !== "number") {
-			throw new sb.Error({
-				message: "Cannot serialize an anonymous Cron",
-				args: {
-					ID: this.ID,
-					Name: this.Name
-				}
-			});
-		}
-
-		const row = await sb.Query.getRow("chat_data", "Cron");
-		await row.load(this.ID);
-
-		return await super.serialize(row, Cron.#serializableProperties, options);
-	}
-
 	get disabled () { return this.#disabled; }
 
 	static async loadData () {
-		const data = await sb.Query.getRecordset(rs => rs
-			.select("*")
-			.from("chat_data", "Cron")
-			.where("Active = %b", true)
-		);
-
 		Cron.data = [];
-		for (const row of data) {
-			const cron = new Cron(row);
-			if (!cron.disabled) {
-				cron.start();
-			}
+		const { definitions } = await require("supibot-package-manager/crons");
 
-			Cron.data.push(cron);
+		for (const definition of definitions) {
+			Cron.#create(definition);
 		}
 	}
 
@@ -243,7 +207,7 @@ module.exports = class Cron extends require("./template.js") {
 			cron.destroy();
 		}
 
-		super.reloadData();
+		await super.reloadData();
 	}
 
 	static async reloadSpecific (...list) {
@@ -251,32 +215,45 @@ module.exports = class Cron extends require("./template.js") {
 			return false;
 		}
 
-		const reloadingCrons = list.map(i => Cron.get(i)).filter(Boolean);
-		if (reloadingCrons.length === 0) {
-			throw new sb.Error({
-				message: "No valid crons provided"
-			});
+		const failed = [];
+		const existingCrons = list.map(i => Cron.get(i)).filter(Boolean);
+
+		const cronModulePath = require.resolve("supibot-package-manager/crons");
+		delete require.cache[cronModulePath];
+
+		for (const originalCron of existingCrons) {
+			const index = Cron.data.indexOf(originalCron);
+			const identifier = originalCron.Name;
+
+			originalCron.destroy();
+
+			if (index !== -1) {
+				Cron.data.splice(index, 1);
+			}
+
+			let path;
+			try {
+				path = require.resolve(`supibot-package-manager/crons/${identifier}`);
+				delete require.cache[path];
+			}
+			catch {
+				failed.push({
+					identifier,
+					reason: "no-path"
+				});
+			}
 		}
 
-		const data = await sb.Query.getRecordset(rs => rs
-			.select("*")
-			.from("chat_data", "Cron")
-			.where("ID IN %n+", reloadingCrons.map(i => i.ID))
-			.where("Type IN %s+", Cron.types)
-			.where("Active = %b", true)
-		);
+		const { definitions } = await require("supibot-package-manager/crons");
 
-		for (const record of data) {
-			const existingIndex = Cron.data.findIndex(i => i.ID === record.ID);
-			Cron.data[existingIndex].destroy();
-			Cron.data[existingIndex] = null;
-
-			const newCron = new Cron(record);
-			Cron.data[existingIndex] = newCron;
-			newCron.start();
+		for (const definition of definitions) {
+			Cron.#create(definition);
 		}
 
-		return true;
+		return {
+			success: true,
+			failed
+		};
 	}
 
 	static get (identifier) {
@@ -298,6 +275,17 @@ module.exports = class Cron extends require("./template.js") {
 				}
 			});
 		}
+	}
+
+	static #create (definition) {
+		const cron = new Cron(definition);
+		if (!cron.disabled) {
+			cron.start();
+		}
+
+		Cron.data.push(cron);
+
+		return cron;
 	}
 
 	static get types () {
