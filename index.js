@@ -62,7 +62,9 @@ module.exports = (async function (namespace, options = {}) {
 
 		if (type === "objects") {
 			const component = require(`./${file}`);
-			sb[component.name] = component;
+			const name = component.name.replace(/^Custom/, "");
+
+			sb[name] = component;
 		}
 		else if (type === "singletons") {
 			// This switch structure iscreated solely to make JSDoc for singletons work in the global `sb` scope

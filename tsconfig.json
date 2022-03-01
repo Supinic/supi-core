@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2021",
+    "sourceMap": true,
+    "strictNullChecks": true,
+    "allowJs": true,
+    "alwaysStrict": true,
+    "checkJs": false,
+    "emitDeclarationOnly": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
