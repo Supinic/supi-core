@@ -24,7 +24,6 @@ export declare type Status = string;
 export declare type Type = "Bot" | "Website" | "All";
 
 export declare class Cron extends ClassTemplate {
-	static Job: CronJob;
 	static get (identifier: Like): Cron | null;
 	static destroy (): void;
 	static get types (): Type[];
