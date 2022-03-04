@@ -251,7 +251,7 @@ module.exports = class Cron extends require("./template.js") {
 			}
 			catch {
 				failed.push({
-					identifier,
+					name,
 					reason: "no-new-path"
 				});
 			}
