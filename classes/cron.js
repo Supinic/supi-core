@@ -244,9 +244,18 @@ module.exports = class Cron extends require("./template.js") {
 			}
 		}
 
-		const { definitions } = await require("supibot-package-manager/crons");
+		for (const name of list) {
+			let definition;
+			try {
+				definition = require(`supibot-package-manager/crons/${name}`);
+			}
+			catch {
+				failed.push({
+					identifier,
+					reason: "no-new-path"
+				});
+			}
 
-		for (const definition of definitions) {
 			Cron.#create(definition);
 		}
 
