@@ -256,7 +256,9 @@ module.exports = class Cron extends require("./template.js") {
 				});
 			}
 
-			Cron.#create(definition);
+			if (definition) {
+				Cron.#create(definition);
+			}
 		}
 
 		return {
