@@ -2,7 +2,7 @@ module.exports = (async function (namespace, options = {}) {
 	/**
 	 * Global namespace wrapper.
 	 * @namespace
-	 * @type {Object}
+	 * @type {GlobalSbObject}
 	 */
 	globalThis.sb = {};
 

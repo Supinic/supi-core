@@ -1,7 +1,7 @@
 // objects
-import { CustomDate as Date } from "./objects/date";
-import { CustomError as Error, errors } from "./objects/error";
-import { CustomPromise as Promise } from "./objects/promise";
+import { CustomDate } from "./objects/date";
+import { CustomError, errors } from "./objects/error";
+import { CustomPromise } from "./objects/promise";
 import { URLParams } from "./objects/url-params";
 
 // classes
@@ -28,6 +28,36 @@ import { SandboxSingleton } from "./singletons/sandbox";
 import { UtilsSingleton } from "./singletons/utils";
 import { VLCSingleton } from "./singletons/vlc-connector";
 
+export declare type GlobalSbObject = {
+    Date: typeof CustomDate,
+    Error: typeof CustomError,
+    errors,
+    Promise: typeof CustomPromise,
+    URLParams: URLParams,
+
+    AwayFromKeyboard: AwayFromKeyboard,
+    Banphrase: Banphrase,
+    Channel: Channel,
+    ChatModule: ChatModule,
+    Command: Command,
+    Config: Config,
+    Filter: Filter,
+    Got: typeof Got,
+    Reminder: Reminder,
+    Platform: Platform,
+    User: User,
+
+    Cache: InstanceType<typeof CacheSingleton>,
+    CooldownManager: InstanceType<typeof CooldownManagerSingleton>,
+    LocalRequest: InstanceType<typeof LocalRequestSingleton>,
+    Logger: InstanceType<typeof LoggerSingleton>,
+    Pastebin: InstanceType<typeof QuerySingleton>,
+    Query: InstanceType<typeof QuerySingleton>,
+    Sandbox: InstanceType<typeof SandboxSingleton>,
+    Utils: InstanceType<typeof UtilsSingleton>,
+    VideoLANConnector: InstanceType<typeof VLCSingleton>
+};
+
 export declare namespace sb {
     const Cache: InstanceType<typeof CacheSingleton>;
     const CooldownManager: InstanceType<typeof CooldownManagerSingleton>;
@@ -40,10 +70,10 @@ export declare namespace sb {
     const VideoLANConnector: InstanceType<typeof VLCSingleton>;
 
     export {
-        Date,
-        Error,
+        CustomDate,
+        CustomError,
         errors,
-        Promise,
+        CustomPromise,
         URLParams,
 
         AwayFromKeyboard,
