@@ -51,7 +51,7 @@ export declare type GlobalSbObject = {
     CooldownManager: InstanceType<typeof CooldownManagerSingleton>,
     LocalRequest: InstanceType<typeof LocalRequestSingleton>,
     Logger: InstanceType<typeof LoggerSingleton>,
-    Pastebin: InstanceType<typeof QuerySingleton>,
+    Pastebin: InstanceType<typeof PastebinSingleton>,
     Query: InstanceType<typeof QuerySingleton>,
     Sandbox: InstanceType<typeof SandboxSingleton>,
     Utils: InstanceType<typeof UtilsSingleton>,
