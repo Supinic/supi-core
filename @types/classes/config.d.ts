@@ -25,7 +25,7 @@ export declare class Config extends ClassTemplate {
 
     static from (data: Representation): Config;
     static has (variable: string, strict?: boolean): boolean;
-    static get (variable: string, strict?: boolean): Config;
+    static get (variable: string, strict?: boolean): Value;
     static set (variable: string, value: Value): Promise<void>;
 
     #Name: string;
