@@ -286,7 +286,7 @@ module.exports = class Config extends require("./template.js") {
 	 * @param {boolean} strict=true If true, the config variable must exist, otherwise an error is thrown. If false,
 	 * then undefined is return should the variable not exist.
 	 * @returns {*}
-	 * @throws {sb.Error} If variable does not exists
+	 * @throws {sb.Error} If variable does not exist
 	 */
 	static get (variable, strict = true) {
 		const target = Config.data.get(variable);
