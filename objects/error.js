@@ -35,8 +35,9 @@ module.exports = class CustomError extends globalThis.Error {
 				if (this.#args) {
 					parts.push(`- arguments: ${JSON.stringify(this.#args)}`);
 				}
+
 				if (this.cause) {
-					const causeMessage = `cause: ${this.cause.message ?? "(empty message)"}`;
+					const causeMessage = `cause: ${this.cause.message ?? "(empty message)"} ${this.cause.stack ?? "(no stack)"}`;
 					const tabbedMessage = causeMessage
 						.trim()
 						.split("\n")
