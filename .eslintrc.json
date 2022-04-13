@@ -8,7 +8,7 @@
     "plugins": [
         "unicorn"
     ],
-    "ignorePatterns": ["*.d.ts"],
+    "ignorePatterns": ["*.d.ts", "*.test.js"],
     "rules": {
         "array-bracket-newline": ["warn", "consistent"],
         "array-bracket-spacing": ["warn", "never"],
