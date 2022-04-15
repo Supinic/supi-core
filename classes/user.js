@@ -31,19 +31,6 @@ module.exports = class User extends require("./template.js") {
 		this.ID = data.ID;
 
 		/**
-		 * Unique Discord identifier.
-		 * Only verified users (non-null Discord ID value) can use the bot on Discord.
-		 * @type {number}
-		 */
-		this.Discord_ID = data.Discord_ID;
-
-		/**
-		 * Unique Twitch identifier.
-		 * @type {number}
-		 */
-		this.Twitch_ID = data.Twitch_ID;
-
-		/**
 		 * Unique name.
 		 * @type {string}
 		 */
@@ -57,28 +44,9 @@ module.exports = class User extends require("./template.js") {
 			? data.Started_Using
 			: new sb.Date(data.Started_Using);
 
-		/**
-		 * Extra data given to each user.
-		 * @type {Object}
-		 */
-		if (!data.Data) {
-			this.Data = {};
-		}
-		else if (typeof data.Data === "string") {
-			try {
-				this.Data = JSON.parse(data.Data);
-			}
-			catch (e) {
-				console.warn("User.Data parse error", { error: e, user: this, data });
-				this.Data = {};
-			}
-		}
-		else if (typeof data.Data === "object") {
-			this.Data = { ...data.Data };
-		}
-		else {
-			console.warn("User.Data invalid type", { user: this, data });
-			this.Data = {};
+		this.platformSpecificData = {};
+		if (data.platformSpecificData) {
+			this.platformSpecificData = data.platformSpecificData;
 		}
 	}
 
@@ -226,27 +194,30 @@ module.exports = class User extends require("./template.js") {
 		});
 	}
 
+	async getPlatformSpecificID (platformLike) {
+		const platformData = sb.Platform.get(platformLike);
+		if (!platformData) {
+			throw new sb.Error({
+				message: "Invalid platform identifier provided",
+				args: {
+					platform: JSON.stringify(platformLike)
+				}
+			});
+		}
+
+		const data = this.platformSpecificData[platformData.Name];
+		if (!data) {
+			return null;
+		}
+
+		return data.PID;
+	}
+
 	/** @override */
 	static async initialize () {
 		User.bots = new Map();
 		User.data = new Map();
 		User.pendingNewUsers = new Set();
-
-		User.insertBatch = await sb.Query.getBatch(
-			"chat_data",
-			"User_Alias",
-			["Name", "Discord_ID", "Twitch_ID"]
-		);
-
-		User.insertCron = new sb.Cron({
-			Name: "log-user-cron",
-			Expression: sb.Config.get("LOG_USER_CRON"),
-			Code: async () => {
-				await User.insertBatch.insert({ ignore: true });
-				User.pendingNewUsers.clear();
-			}
-		});
-		User.insertCron.start();
 
 		await User.loadData();
 		return User;
@@ -295,6 +266,10 @@ module.exports = class User extends require("./template.js") {
 			return identifier;
 		}
 		else if (typeof identifier === "number") {
+			// @todo BIG TODO
+			// refactor name-based caching into ID-based caching
+			// then fetch names from platform specific data based on the ID
+
 			const mapCacheUser = User.getByProperty("ID", identifier);
 			if (mapCacheUser) {
 				return mapCacheUser;
@@ -343,6 +318,27 @@ module.exports = class User extends require("./template.js") {
 			);
 
 			if (dbUserData) {
+				const userPlatformSpecificData = await sb.Query.getRecordset(rs => rs
+					.select("User_Alias_Platform.*")
+					.select("Platform.Name AS Platform_Name")
+					.from("chat_data", "User_Alias_Platform")
+					.join({
+						toTable: "Platform",
+						on: "User_Alias_Platform.Platform = Platform.ID"
+					})
+					.where("User_Alias = %n", dbUserData.ID)
+				);
+
+				dbUserData.platformSpecificData = {};
+				for (const userPlatformData of userPlatformSpecificData) {
+					dbUserData.platformSpecificData[userPlatformData.Platform_Name] = {
+						PID: userPlatformData.PID,
+						name: userPlatformData.Name,
+						uniqueName: userPlatformData.Unique_Name,
+						discriminator: userPlatformData.Discriminator
+					};
+				}
+
 				const user = new User(dbUserData);
 				await User.populateCaches(user);
 
@@ -352,16 +348,19 @@ module.exports = class User extends require("./template.js") {
 				// 4. Create the user, if strict mode is off
 				if (!strict && !User.pendingNewUsers.has(username)) {
 					User.pendingNewUsers.add(username);
-					User.insertBatch.add({
-						Name: username,
-						Discord_ID: options.Discord_ID ?? null,
-						Twitch_ID: options.Twitch_ID ?? null
+
+					const row = await sb.Query.getRow("chat_data", "User_Alias");
+					row.setValues({
+						Name: username
 					});
 
-					// Returns null, which should usually abort working with user's message.
-					// We lose a couple of messages from a brand new user, but this is an acceptable measure
-					// in order to reduce the amount of user-insert db connections.
-					return null;
+					await row.save({ skipLoad: true });
+					User.pendingNewUsers.delete(username);
+
+					return new User({
+						ID: row.values.ID,
+						Name: row.values.Name
+					});
 				}
 
 				// No cache hits, user does not exist - return null
@@ -374,6 +373,29 @@ module.exports = class User extends require("./template.js") {
 				args: { id: identifier, type: typeof identifier }
 			});
 		}
+	}
+
+	static async getByPlatformID (platformLike, pid) {
+		const platformData = sb.Platform.get(platformLike);
+		if (!platformData) {
+			throw new sb.Error({
+				message: "Invalid platform identifier provided",
+				args: {
+					platform: JSON.stringify(platformLike)
+				}
+			});
+		}
+
+		const userID = await sb.Query.getRecordset(rs => rs
+			.select("User_Alias")
+			.from("chat_data", "User_Alias_Platform")
+			.where("Platform = %n", platformData.ID)
+			.where("PID = %s", pid)
+			.single()
+			.flat("User_Alias")
+		);
+
+		return await User.get(userID);
 	}
 
 	/**
@@ -501,41 +523,16 @@ module.exports = class User extends require("./template.js") {
 	}
 
 	/**
-	 * Adds a new user to the database.
-	 * @param {string} name
-	 * @returns {Promise<User>}
+	 * @param {User} userData
+	 * @returns {Promise<void>}
 	 */
-	static async add (name) {
-		const preparedName = User.normalizeUsername(name);
-		const exists = await sb.Query.getRecordset(rs => rs
-			.select("Name")
-			.from("chat_data", "User_Alias")
-			.where("Name = %s", preparedName)
-			.limit(1)
-			.single()
-		);
-
-		if (exists) {
-			return await User.get(exists.Name);
-		}
-
-		const row = await sb.Query.getRow("chat_data", "User_Alias");
-		row.values.Name = preparedName;
-		await row.save();
-
-		const user = new User(row.valuesObject);
-		await User.populateCaches(user);
-
-		return user;
-	}
-
-	static async populateCaches (user) {
-		if (!User.data.has(user.Name)) {
-			User.data.set(user.Name, user);
+	static async populateCaches (userData) {
+		if (!User.data.has(userData.Name)) {
+			User.data.set(userData.Name, userData);
 		}
 
 		if (sb.Cache && sb.Cache.active) {
-			await sb.Cache.setByPrefix(user.getCacheKey(), user, {
+			await sb.Cache.setByPrefix(userData.getCacheKey(), userData, {
 				expiry: User.redisCacheExpiration
 			});
 		}
@@ -592,7 +589,6 @@ module.exports = class User extends require("./template.js") {
 	 * Cleans up.
 	 */
 	static destroy () {
-		User.insertCron.destroy();
 		User.data.clear();
 	}
 };
