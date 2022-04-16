@@ -28,7 +28,7 @@ import { SandboxSingleton } from "./singletons/sandbox";
 import { UtilsSingleton } from "./singletons/utils";
 import { VLCSingleton } from "./singletons/vlc-connector";
 
-export declare type GlobalSbObject = {
+declare type GlobalSbObject = {
     Date: typeof CustomDate,
     Error: typeof CustomError,
     errors: typeof errors,
@@ -95,4 +95,4 @@ declare type OptionsObject = {
     skipData?: ModuleFilePath[];
 };
 
-export function initialize (options?: OptionsObject): Promise<GlobalSbObject>;
+export default function initialize (options?: OptionsObject): Promise<GlobalSbObject>;
