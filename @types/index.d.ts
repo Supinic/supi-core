@@ -90,9 +90,9 @@ declare type ModuleFilePath = "classes/afk"
     | "singletons/vlc-connector";
 
 declare type OptionsObject = {
-    blacklist: ModuleFilePath[];
-    whitelist: ModuleFilePath[];
-    skipData: ModuleFilePath[];
+    blacklist?: ModuleFilePath[];
+    whitelist?: ModuleFilePath[];
+    skipData?: ModuleFilePath[];
 };
 
-export function initialize (options: OptionsObject): Promise<GlobalSbObject>;
+export function initialize (options?: OptionsObject): Promise<GlobalSbObject>;
