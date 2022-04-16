@@ -1,4 +1,4 @@
-module.exports = (async function (namespace, options = {}) {
+module.exports = (async function (options = {}) {
 	/**
 	 * Global namespace wrapper.
 	 * @namespace
