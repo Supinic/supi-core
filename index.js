@@ -1,11 +1,10 @@
-module.exports = (async function initialize (options = {}) {
+module.exports = (async function (namespace, options = {}) {
 	/**
 	 * Global namespace wrapper.
 	 * @namespace
 	 * @type {GlobalSbObject}
 	 */
-	const sb = {};
-	globalThis._namespace = sb;
+	globalThis.sb = {};
 
 	const files = [
 		"objects/date",
@@ -147,6 +146,5 @@ module.exports = (async function initialize (options = {}) {
 
 	console.groupEnd();
 
-	delete globalThis._namespace;
-	return sb;
+	return globalThis.sb;
 });

@@ -1,4 +1,3 @@
-const sb = globalThis._namespace;
 const ROW_COLLAPSED = Symbol("row-collapsed");
 
 /**

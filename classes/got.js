@@ -1,5 +1,3 @@
-const sb = globalThis._namespace;
-
 /**
  * Represents a single `Got` instance with its own default options
  */

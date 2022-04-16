@@ -1,5 +1,3 @@
-const sb = globalThis._namespace;
-
 /**
  * Represents the SQL INSERT statement for multiple rows.
  * One instance is always locked to one table and some of its columns based on constructor.

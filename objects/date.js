@@ -56,8 +56,8 @@ module.exports = class CustomDate extends Date {
 
 	/**
 	 * Compares two instances for their equality
-	 * @param {CustomDate} from
-	 * @param {CustomDate} to
+	 * @param {sb.Date} from
+	 * @param {sb.Date} to
 	 * @returns {boolean}
 	 */
 	static equals (from, to) {
@@ -202,7 +202,7 @@ module.exports = class CustomDate extends Date {
 
 	/**
 	 * @param {number} offset in minutes
-	 * @returns {CustomDate}
+	 * @returns {sb.Date}
 	 */
 	setTimezoneOffset (offset) {
 		offset = Number(offset);
@@ -221,7 +221,7 @@ module.exports = class CustomDate extends Date {
 	/**
 	 * Sets the provided time units to zero.
 	 * @param {..."h"|"m"|"s"|"ms"} units
-	 * @returns {CustomDate}
+	 * @returns {sb.Date}
 	 */
 	discardTimeUnits (...units) {
 		for (const unit of units) {
@@ -247,7 +247,7 @@ module.exports = class CustomDate extends Date {
 
 	/**
 	 * Clones the current CustomDate. The new object is independent of the old one.
-	 * @returns {CustomDate}
+	 * @returns {sb.Date}
 	 */
 	clone () {
 		return new this.constructor(this);
@@ -255,7 +255,7 @@ module.exports = class CustomDate extends Date {
 
 	/**
 	 * @param {number} y Number of years to add.
-	 * @returns {CustomDate}
+	 * @returns {sb.Date}
 	 */
 	addYears (y) {
 		this.year += y;
@@ -264,7 +264,7 @@ module.exports = class CustomDate extends Date {
 
 	/**
 	 * @param {number} m Number of months to add.
-	 * @returns {CustomDate}
+	 * @returns {sb.Date}
 	 */
 	addMonths (m) {
 		this.month += m;
@@ -273,7 +273,7 @@ module.exports = class CustomDate extends Date {
 
 	/**
 	 * @param {number} d Number of days to add.
-	 * @returns {CustomDate}
+	 * @returns {sb.Date}
 	 */
 	addDays (d) {
 		this.day += d;
@@ -282,7 +282,7 @@ module.exports = class CustomDate extends Date {
 
 	/**
 	 * @param {number} h Number of hours to add.
-	 * @returns {CustomDate}
+	 * @returns {sb.Date}
 	 */
 	addHours (h) {
 		this.hours += h;
@@ -291,7 +291,7 @@ module.exports = class CustomDate extends Date {
 
 	/**
 	 * @param {number} m Number of minutes to add.
-	 * @returns {CustomDate}
+	 * @returns {sb.Date}
 	 */
 	addMinutes (m) {
 		this.minutes += m;
@@ -300,7 +300,7 @@ module.exports = class CustomDate extends Date {
 
 	/**
 	 * @param {number} s Number of seconds to add.
-	 * @returns {CustomDate}
+	 * @returns {sb.Date}
 	 */
 	addSeconds (s) {
 		this.seconds += s;
@@ -309,7 +309,7 @@ module.exports = class CustomDate extends Date {
 
 	/**
 	 * @param {number} ms Number of milliseconds to add.
-	 * @returns {CustomDate}
+	 * @returns {sb.Date}
 	 */
 	addMilliseconds (ms) {
 		this.milliseconds += ms;
