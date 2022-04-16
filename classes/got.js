@@ -31,7 +31,7 @@ module.exports = (function () {
 					options = item.options;
 				}
 				else if (item.optionsType === "function") {
-					options = item.options();
+					options = item.options(sb);
 				}
 
 				let instance;
