@@ -1,3 +1,5 @@
+const sb = globalThis._namespace;
+
 /**
  * Represents one row of a SQL database table.
  * @type Row

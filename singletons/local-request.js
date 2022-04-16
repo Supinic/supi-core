@@ -1,5 +1,4 @@
-"use strict";
-
+const sb = globalThis._namespace;
 const mandatoryConfigs = [
 	"LOCAL_IP",
 	"LOCAL_PLAY_SOUNDS_PORT"

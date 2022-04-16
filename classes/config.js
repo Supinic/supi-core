@@ -1,3 +1,4 @@
+const sb = globalThis._namespace;
 const VALID_BOOLEAN_LIKE_VALUES = ["0", "1", "true", "false"];
 
 /**

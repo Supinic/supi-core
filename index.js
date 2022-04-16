@@ -1,10 +1,11 @@
-module.exports = (async function (namespace, options = {}) {
+module.exports = (async function initialize (options = {}) {
 	/**
 	 * Global namespace wrapper.
 	 * @namespace
 	 * @type {GlobalSbObject}
 	 */
-	globalThis.sb = {};
+	const sb = {};
+	globalThis._namespace = sb;
 
 	const files = [
 		"objects/date",
@@ -67,7 +68,7 @@ module.exports = (async function (namespace, options = {}) {
 			sb[name] = component;
 		}
 		else if (type === "singletons") {
-			// This switch structure iscreated solely to make JSDoc for singletons work in the global `sb` scope
+			// This switch structure is created solely to make JSDoc for singletons work in the global `sb` scope
 			switch (moduleName) {
 				case "cache": {
 					const Component = require("./singletons/cache.js");
@@ -145,4 +146,7 @@ module.exports = (async function (namespace, options = {}) {
 	}
 
 	console.groupEnd();
+
+	delete globalThis._namespace;
+	return sb;
 });

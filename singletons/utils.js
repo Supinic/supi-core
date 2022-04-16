@@ -1,3 +1,4 @@
+const sb = globalThis._namespace;
 const byteUnits = {
 	si: {
 		multiplier: 1000,

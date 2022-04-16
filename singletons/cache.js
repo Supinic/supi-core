@@ -1,3 +1,5 @@
+const sb = globalThis._namespace;
+
 const Redis = require("ioredis");
 
 const GROUP_DELIMITER = String.fromCharCode(7);

@@ -4,19 +4,16 @@
 	const Date = require("../objects/date.js");
 	const range = (from, to) => [...new Array(to - from + 1)].map((i, ind) => ind + from);
 
-	globalThis.sb = {
-		Config: {
-			get: () => null
-		}
-	};
-
-	await require("../")("sb", {
+	const sb = await require("../")({
 		whitelist: [
 			"singletons/utils"
 		]
 	});
 
 	sb.Date = Date;
+	sb.Config = {
+		get: () => null
+	};
 
 	describe("timeDelta", () => {
 		const MINUTE = 60_000;

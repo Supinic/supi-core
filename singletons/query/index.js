@@ -1,3 +1,5 @@
+const sb = globalThis._namespace;
+
 const Maria = require("mariadb");
 const Batch = require("./batch.js");
 const Recordset = require("./recordset.js");

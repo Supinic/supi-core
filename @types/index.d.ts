@@ -31,7 +31,7 @@ import { VLCSingleton } from "./singletons/vlc-connector";
 export declare type GlobalSbObject = {
     Date: typeof CustomDate,
     Error: typeof CustomError,
-    errors,
+    errors: typeof errors,
     Promise: typeof CustomPromise,
     URLParams: URLParams,
 
@@ -58,44 +58,41 @@ export declare type GlobalSbObject = {
     VideoLANConnector: InstanceType<typeof VLCSingleton>
 };
 
-export declare namespace sb {
-    const Cache: InstanceType<typeof CacheSingleton>;
-    const CooldownManager: InstanceType<typeof CooldownManagerSingleton>;
-    const LocalRequest: InstanceType<typeof LocalRequestSingleton>;
-    const Logger: InstanceType<typeof LoggerSingleton>;
-    const Pastebin: InstanceType<typeof PastebinSingleton>;
-    const Query: InstanceType<typeof QuerySingleton>;
-    const Sandbox: InstanceType<typeof SandboxSingleton>;
-    const Utils: InstanceType<typeof UtilsSingleton>;
-    const VideoLANConnector: InstanceType<typeof VLCSingleton>;
+// declare type ModuleName = keyof GlobalSbObject;
+declare type ModuleFilePath = "classes/afk"
+    | "classes/banphrase"
+    | "classes/channel"
+    | "classes/chat-module"
+    | "classes/command"
+    | "classes/config"
+    | "classes/cron"
+    | "classes/filter"
+    | "classes/got"
+    | "classes/platform"
+    | "classes/reminder"
+    | "classes/user"
+    | "objects/date"
+    | "objects/error"
+    | "objects/errors"
+    | "objects/promise"
+    | "objects/url-params"
+    | "singletons/cache"
+    | "singletons/cooldown-manager"
+    | "singletons/local-request"
+    | "singletons/logger"
+    | "singletons/pastebin"
+    | "singletons/query"
+    | "singletons/runtime"
+    | "singletons/sandbox"
+    | "singletons/system-log"
+    | "singletons/twitter"
+    | "singletons/utils"
+    | "singletons/vlc-connector";
 
-    export {
-        CustomDate,
-        CustomError,
-        errors,
-        CustomPromise,
-        URLParams,
+declare type OptionsObject = {
+    blacklist: ModuleFilePath[];
+    whitelist: ModuleFilePath[];
+    skipData: ModuleFilePath[];
+};
 
-        AwayFromKeyboard,
-        Banphrase,
-        Channel,
-        ChatModule,
-        Command,
-        Config,
-        Filter,
-        Got,
-        Reminder,
-        Platform,
-        User,
-
-        Cache,
-        CooldownManager,
-        LocalRequest,
-        Logger,
-        Pastebin,
-        Query,
-        Sandbox,
-        Utils,
-        VideoLANConnector
-    };
-}
+export function initialize (options: OptionsObject): Promise<GlobalSbObject>;

@@ -1,3 +1,5 @@
+const sb = globalThis._namespace;
+
 /**
  * Represents the UPDATE sql statement.
  */

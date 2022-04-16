@@ -1,3 +1,5 @@
+const sb = globalThis._namespace;
+
 /**
  * Wrapper for all sorts of runtime statistics of a process.
  * @deprecated Pending removal - should be replaced with `sb.Cache` calls instead.
