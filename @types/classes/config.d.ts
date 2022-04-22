@@ -10,11 +10,12 @@ export declare type ConstructorData = {
     Editable: boolean;
     Value: string | Value;
 };
+export declare type Name = string;
 export declare type Type = "number" | "string" | "array" | "object" | "date" | "regex" | "boolean" | "function";
 export declare type Value = boolean | number | string | any[] | SimpleGenericData | Date | RegExp | ((...args: any[]) => any);
 export declare type Unit = "s" | "ms";
 export declare type Representation = {
-    name: string;
+    name: Name;
     type: Type;
     value: Value;
 };
