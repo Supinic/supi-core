@@ -91,7 +91,19 @@ module.exports = class QuerySingleton extends Template {
 	 */
 	async raw (...args) {
 		const query = args.join("\n");
-		const connector = await this.pool.getConnection();
+		let connector;
+		try {
+			connector = await this.pool.getConnection();
+		}
+		catch (e) {
+			throw new sb.Error({
+				message: "Fetching database connection failed",
+				args: {
+					code: e.code
+				},
+				cause: e
+			});
+		}
 
 		this.throughput.connectors.retrieved++;
 		this.lifetimes.connectors.set(connector, {
