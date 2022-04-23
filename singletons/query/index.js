@@ -114,20 +114,16 @@ module.exports = class QuerySingleton extends Template {
 			error: new Error().stack
 		});
 
-		const result = connector.query({
-			sql: query,
-			multipleStatements: true
-		});
-
+		let result;
 		try {
+			result = connector.query({
+				sql: query,
+				multipleStatements: true
+			});
+		}
+		finally {
 			await connector.release();
 			this.throughput.connectors.released++;
-		}
-		catch (e) {
-			console.warn("Database connection release failed", {
-				error: e,
-				code: e.code
-			});
 		}
 
 		return result;
