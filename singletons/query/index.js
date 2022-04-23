@@ -93,7 +93,16 @@ module.exports = class QuerySingleton extends Template {
 			multipleStatements: true
 		});
 
-		await connector.end();
+		try {
+			await connector.release();
+		}
+		catch (e) {
+			console.warn("Database connection release failed", {
+				error: e,
+				code: e.code
+			});
+		}
+
 		return result;
 	}
 
