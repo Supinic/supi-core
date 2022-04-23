@@ -23,13 +23,20 @@ module.exports = class QuerySingleton extends Template {
 	#definitionPromises = new Map();
 	lifetimes = {
 		batches: new WeakSet(),
-		connectors: new WeakSet(),
+		connectors: new WeakMap(),
 		recordDeleters: new WeakSet(),
 		recordsets: new WeakSet(),
 		recordUpdaters: new WeakSet(),
 		rows: new WeakSet(),
 		transactions: new WeakSet()
 	};
+
+	throughput = {
+		connectors: {
+			retrieved: 0,
+			released: 0
+		}
+	}
 
 	/**
 	 * @inheritDoc
@@ -86,7 +93,11 @@ module.exports = class QuerySingleton extends Template {
 		const query = args.join("\n");
 		const connector = await this.pool.getConnection();
 
-		this.lifetimes.connectors.add(connector);
+		this.throughput.connectors.retrieved++;
+		this.lifetimes.connectors.set(connector, {
+			args,
+			error: new Error().stack
+		});
 
 		const result = connector.query({
 			sql: query,
@@ -95,6 +106,7 @@ module.exports = class QuerySingleton extends Template {
 
 		try {
 			await connector.release();
+			this.throughput.connectors.released++;
 		}
 		catch (e) {
 			console.warn("Database connection release failed", {
