@@ -1407,7 +1407,7 @@ module.exports = Command;
  * If done, nobody will be able to use their username as the command parameter.
  * @property {boolean} skipBanphrase If true, command result will not be checked for banphrases.
  * Mostly used for system or simple commands with little or no chance to trigger banphrases.
- * @property {boolean} block If true, any user can "block" another user from targetting them with this command.
+//  * @property {boolean} block If true, any user can "block" another user from targetting them with this command.
  * If done, the specified user will not be able to use their username as the command parameter.
  * Similar to optOut, but not global, and only applies to one user.
  * @property {boolean} ownerOverride If true, the command's cooldown will be vastly reduced when a user invokes it in their own channel.
