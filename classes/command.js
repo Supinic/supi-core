@@ -1254,9 +1254,9 @@ class Command extends require("./template.js") {
 				}
 
 				if (quotedParam && char === "\"") {
-					if (buffer.at(-1) === "\\") {
-						// remove the backslash
-						buffer = buffer.slice(0, -1);
+					if (buffer.at(-2) === "\\") {
+						// remove the backslash, and add quote
+						buffer = buffer.slice(0, -2) + "\"";
 					}
 					else {
 						// end of quoted param

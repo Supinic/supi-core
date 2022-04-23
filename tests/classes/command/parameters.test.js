@@ -232,6 +232,20 @@ describe("Command parameter parsing", () => {
 		assert.deepStrictEqual(result.args, ["buz"], `Argument must be separated from parameter`);
 	})
 
+	it("properly reads escaped quotes inside quoted parameters", () => {
+		const tests = [
+			{ input: `string:"\\"bar\\""`, expected: `"bar"` },
+			{ input: `string:" \\" "`, expected: ` " ` },
+			{ input: `string:"\\""`, expected: `"` },
+		]
+
+		for (const test of tests) {
+			const result = Command.parseParametersFromArguments(paramsDefinition, test.input.split(' '))
+			assert.strictEqual(result.success, true, `Param parsing must not fail: ${JSON.stringify(result)}`);
+			assert.strictEqual(result.parameters["string"], test.expected, `Quotes must be read properly when escaped`);
+		}
+	})
+
 	describe("parameters ignore delimiter", () => {
 		const originalDelimiterDefinition = Command.ignoreParametersDelimiter;
 		const delimiter = "--";
