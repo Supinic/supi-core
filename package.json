@@ -16,7 +16,7 @@
     "ioredis": "^4.17.3",
     "language-iso-codes": "github:supinic/language-iso-codes",
     "long-timeout": "github:supinic/long-timeout",
-    "mariadb": "^3.0.0",
+    "mariadb": "^2.5.2",
     "random-js": "^2.1.0",
     "rss-parser": "^3.10.0",
     "supibot-package-manager": "github:supinic/supibot-package-manager",
