@@ -33,6 +33,7 @@ module.exports = class QuerySingleton extends Template {
 
 	throughput = {
 		connectors: {
+			requested: 0,
 			retrieved: 0,
 			released: 0
 		}
@@ -90,6 +91,8 @@ module.exports = class QuerySingleton extends Template {
 	 * @returns {Promise<*>}
 	 */
 	async raw (...args) {
+		this.throughput.connectors.requested++;
+
 		const query = args.join("\n");
 		let connector;
 		try {
