@@ -1,7 +1,6 @@
 /* eslint-disable max-nested-callbacks */
 /* global describe, it, beforeEach, afterEach */
 const assert = require("assert");
-const { delimiter } = require("path");
 
 const Command =  require("../../../classes/command");
 
