@@ -27,8 +27,10 @@
   "author": "Supinic",
   "license": "AGPL-3.0",
   "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint -c eslint-main.json classes objects singletons index.js",
+    "lint-tests": "eslint -c tests/eslint-tests.json tests",
+    "lint:fix": "eslint -c eslint-main.json classes objects singletons index.js --fix",
+    "lint-tests:fix": "eslint -c tests/eslint-tests.json tests --fix",
     "test": "mocha ./tests --recursive --exit"
   },
   "devDependencies": {

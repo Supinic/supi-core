@@ -1,5 +1,3 @@
-/* eslint-disable max-nested-callbacks */
-/* global describe, it */
 const assert = require("assert");
 
 globalThis.sb = {
