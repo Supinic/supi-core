@@ -1,4 +1,3 @@
-/* global describe, it */
 (async () => {
 	const assert = require("assert");
 	const Date = require("../objects/date.js");
