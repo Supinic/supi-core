@@ -37,7 +37,7 @@ module.exports = class QuerySingleton extends Template {
 			retrieved: 0,
 			released: 0
 		}
-	}
+	};
 
 	/**
 	 * @inheritDoc
