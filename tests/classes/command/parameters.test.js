@@ -221,26 +221,26 @@ describe("Command parameter parsing", () => {
 		const result = Command.parseParametersFromArguments(
 			paramsDefinition,
 			[`string:"foo bar"buz`]
-		)
+		);
 
 		assert.strictEqual(result.success, true, `Param parsing must not fail: ${JSON.stringify(result)}`);
-		assert.strictEqual(result.parameters["string"], "foo bar", `Parameter must be parsed correctly`);
+		assert.strictEqual(result.parameters.string, "foo bar", `Parameter must be parsed correctly`);
 		assert.deepStrictEqual(result.args, ["buz"], `Argument must be separated from parameter`);
-	})
+	});
 
 	it("properly reads escaped quotes inside quoted parameters", () => {
 		const tests = [
 			{ input: `string:"\\"bar\\""`, expected: `"bar"` },
 			{ input: `string:" \\" "`, expected: ` " ` },
-			{ input: `string:"\\""`, expected: `"` },
-		]
+			{ input: `string:"\\""`, expected: `"` }
+		];
 
 		for (const test of tests) {
-			const result = Command.parseParametersFromArguments(paramsDefinition, test.input.split(' '))
+			const result = Command.parseParametersFromArguments(paramsDefinition, test.input.split(" "));
 			assert.strictEqual(result.success, true, `Param parsing must not fail: ${JSON.stringify(result)}`);
-			assert.strictEqual(result.parameters["string"], test.expected, `Quotes must be read properly when escaped`);
+			assert.strictEqual(result.parameters.string, test.expected, `Quotes must be read properly when escaped`);
 		}
-	})
+	});
 
 	describe("parameters ignore delimiter", () => {
 		const originalDelimiterDefinition = Command.ignoreParametersDelimiter;
@@ -296,39 +296,39 @@ describe("Command parameter parsing", () => {
 				result.args,
 				[delimiter, delimiter, delimiter, delimiter],
 				"Exactly one copy of the delimiter must be removed"
-			)
-		})
+			);
+		});
 
 		it("can be present anywhere in the arguments", () => {
-			let tests = [
+			const tests = [
 				[delimiter, "foo", "bar", "fee"],
 				["foo", delimiter, "bar", "fee"],
 				["foo", "bar", delimiter, "fee"],
-				["foo", "bar", "fee", delimiter],
-			]
+				["foo", "bar", "fee", delimiter]
+			];
 
-			let resultArguments = ["foo", "bar", "fee"]
+			const resultArguments = ["foo", "bar", "fee"];
 
-			for(let testCase of tests) {
+			for (const testCase of tests) {
 				const result = Command.parseParametersFromArguments([], testCase);
 
-				assert.strictEqual(result.success, true, `Param parsing must not fail: ${JSON.stringify(result)}`)
-				assert.deepStrictEqual(result.args, resultArguments, "Arguments must be returned properly")
+				assert.strictEqual(result.success, true, `Param parsing must not fail: ${JSON.stringify(result)}`);
+				assert.deepStrictEqual(result.args, resultArguments, "Arguments must be returned properly");
 			}
-		})
+		});
 
 		it("can be used as part of a quoted parameter", () => {
-			let tests = [
-				[`string:"foo`, delimiter, `bar"`],
-			]
+			const tests = [
+				[`string:"foo`, delimiter, `bar"`]
+			];
 
-			for(let testCase of tests) {
+			for (const testCase of tests) {
 				const result = Command.parseParametersFromArguments(paramsDefinition, testCase);
 
-				assert.strictEqual(result.success, true, `Param parsing must not fail: ${JSON.stringify(result)}`)
-				assert.strictEqual(result.args.length, 0, "No arguments must be returned")
-				assert.strictEqual(result.parameters["string"], `foo ${delimiter} bar`)
+				assert.strictEqual(result.success, true, `Param parsing must not fail: ${JSON.stringify(result)}`);
+				assert.strictEqual(result.args.length, 0, "No arguments must be returned");
+				assert.strictEqual(result.parameters.string, `foo ${delimiter} bar`);
 			}
-		})
+		});
 	});
 });
