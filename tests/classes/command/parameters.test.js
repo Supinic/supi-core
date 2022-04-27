@@ -89,20 +89,20 @@ describe("Command parameter parsing", () => {
 				const result = Command.parseParametersFromArguments(
 					paramsDefinition,
 					[`${type}:""`]
-					);
+				);
 
-					assert.strictEqual(result.success, false, `Param parsing must fail for type ${type}: ${JSON.stringify(result)}`);
-				}
+				assert.strictEqual(result.success, false, `Param parsing must fail for type ${type}: ${JSON.stringify(result)}`);
+			}
 		});
 
 		it("fails for an unrecognized type", () => {
 			const result = Command.parseParametersFromArguments(
 				[{ name: "foo", type: "UNSUPPORTED_TYPE" }],
 				[`foo:bar`]
-				);
+			);
 
-				assert.strictEqual(result.success, false, `Param parsing must fail for unrecognized type: ${JSON.stringify(result)}`);
-			});
+			assert.strictEqual(result.success, false, `Param parsing must fail for unrecognized type: ${JSON.stringify(result)}`);
+		});
 
 		it("fails for unclosed quoted values", () => {
 			for (const type of Object.keys(sampleStringValues)) {

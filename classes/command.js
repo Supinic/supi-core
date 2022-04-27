@@ -1256,7 +1256,7 @@ class Command extends require("./template.js") {
 				if (quotedParam && char === "\"") {
 					if (buffer.at(-2) === "\\") {
 						// remove the backslash, and add quote
-						buffer = buffer.slice(0, -2) + "\"";
+						buffer = `${buffer.slice(0, -2)}"`;
 					}
 					else {
 						// end of quoted param
