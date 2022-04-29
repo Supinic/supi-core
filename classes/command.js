@@ -1248,7 +1248,7 @@ class Command extends require("./template.js") {
 			if (insideParam) {
 				if (!quotedParam && char === " ") {
 					// end of unquoted param
-					const value = this.#parseAndAppendParameter(buffer.slice(0, -1), currentParam, quotedParam, parameters);
+					const value = Command.#parseAndAppendParameter(buffer.slice(0, -1), currentParam, quotedParam, parameters);
 					if (!value.success) {
 						return value;
 					}
@@ -1266,7 +1266,7 @@ class Command extends require("./template.js") {
 					}
 					else {
 						// end of quoted param
-						const value = this.#parseAndAppendParameter(buffer.slice(0, -1), currentParam, quotedParam, parameters);
+						const value = Command.#parseAndAppendParameter(buffer.slice(0, -1), currentParam, quotedParam, parameters);
 						if (!value.success) {
 							return value;
 						}
@@ -1289,7 +1289,7 @@ class Command extends require("./template.js") {
 				};
 			}
 			else {
-				const value = this.#parseAndAppendParameter(buffer, currentParam, quotedParam, parameters);
+				const value = Command.#parseAndAppendParameter(buffer, currentParam, quotedParam, parameters);
 				if (!value.success) {
 					return value;
 				}
