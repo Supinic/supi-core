@@ -1674,7 +1674,7 @@ keyv@^4.0.0:
 
 "language-iso-codes@github:supinic/language-iso-codes":
   version "1.0.0"
-  resolved "https://codeload.github.com/supinic/language-iso-codes/tar.gz/df942e43066e67a7d53aa3796d20a23bb8d4af06"
+  resolved "https://codeload.github.com/supinic/language-iso-codes/tar.gz/385d874d567b1d7a3d7f162c19075f71b6415f3f"
 
 levn@^0.4.1:
   version "0.4.1"
