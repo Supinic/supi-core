@@ -16,6 +16,7 @@ export declare class CustomDate extends Date {
 	constructor (...args: Array<number | string | Date>);
 
 	format (formatString: string): Formatted;
+	isValid (): boolean;
 	simpleDate (): Formatted;
 	fullDateTime (): Formatted;
 	sqlDate (): Formatted;
