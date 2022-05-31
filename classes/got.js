@@ -24,16 +24,31 @@ module.exports = (function () {
 					continue;
 				}
 
+				let initError;
 				let options = {};
 				if (item.optionsType === "object") {
 					options = item.options;
 				}
 				else if (item.optionsType === "function") {
-					options = item.options(sb);
+					try {
+						options = item.options(sb);
+					}
+					catch (e) {
+						console.warn(`Got instance ${item.name} could not be initialized, skipping`);
+						initError = e;
+					}
 				}
 
 				let instance;
-				if (item.parent) {
+				if (initError) {
+					instance = () => {
+						throw new sb.Error({
+							message: "Instance is not available due to initialization error",
+							cause: initError
+						});
+					}
+				}
+				else if (item.parent) {
 					const parent = StaticGot.data.find(i => i[SymbolName] === item.parent);
 					instance = parent.extend(options);
 				}
