@@ -46,7 +46,7 @@ module.exports = (function () {
 							message: "Instance is not available due to initialization error",
 							cause: initError
 						});
-					}
+					};
 				}
 				else if (item.parent) {
 					const parent = StaticGot.data.find(i => i[SymbolName] === item.parent);
