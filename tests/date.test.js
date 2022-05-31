@@ -165,6 +165,42 @@ describe("sb.Date", () => {
 		});
 	});
 
+	describe("isValid", () => {
+		const MAX_VALUE = 864e5 * 100_000_000;
+		const MIN_VALUE = -864e5 * 100_000_000;
+
+		it("should return true for valid dates", () => {
+			const values = [
+				null, // Yes apparently `null` is a valid constructor for Date
+				0, -1e12, 1e12, MIN_VALUE, MAX_VALUE,
+				"0", "1", "1970-01-01", "2022-06-01 10:00", "1999-09-19 19:19:19.191"
+			];
+
+			for (const value of values) {
+				let date;
+				assert.doesNotThrow(() => date = new sb.Date(value));
+				assert.strictEqual(date.isValid(), true, `Date should be valid for value "${value}"`);
+			}
+		});
+
+		it("should return false for invalid dates", () => {
+			const values = [
+				MIN_VALUE - 1, MAX_VALUE + 1,
+				-Infinity, Infinity, NaN,
+				"", "this text cannot be parsed",
+				undefined,
+				[],
+				{}
+			];
+
+			for (const value of values) {
+				let date;
+				assert.doesNotThrow(() => date = new sb.Date(value));
+				assert.strictEqual(date.isValid(), false, `Date should be invalid for value "${value}"`);
+			}
+		});
+	});
+
 	describe("setTimezoneOffset", () => {
 		it("should apply the offset", () => {
 			const date = new sb.Date();

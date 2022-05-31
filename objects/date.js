@@ -159,6 +159,14 @@ module.exports = class CustomDate extends Date {
 	}
 
 	/**
+	 * Determines if the date instance is valid, as in its internal value is not `NaN`.
+	 * @returns {boolean}
+	 */
+	isValid () {
+		return (Number.isNaN(this.valueOf()) === false);
+	}
+
+	/**
 	 * @returns {string} For example 1.3.2021
 	 */
 	simpleDate () {
@@ -328,6 +336,7 @@ module.exports = class CustomDate extends Date {
 			case 4: return "Thursday";
 			case 5: return "Friday";
 			case 6: return "Saturday";
+			/* istanbul ignore next */
 			default: throw new RangeError("Day of the week is out of the range 0-6. Has the definition of a week changed since 2019?");
 		}
 	}
