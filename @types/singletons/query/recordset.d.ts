@@ -38,6 +38,10 @@ export declare type ReferenceOptions = {
     collapseOn: Field;
     left: boolean;
 };
+export declare type WhereHavingDescriptor = {
+    condition?: boolean;
+    raw?: string;
+};
 
 export declare type UseOptions = {
     bigint?: boolean;
@@ -65,8 +69,10 @@ export declare class Recordset {
     from (database: Database, table: Table): Recordset;
     groupBy (...args: Field[]): Recordset;
     orderBy (...args: string[]): Recordset;
-    where (...args: string[]): Recordset;
-    having (...args: string[]): Recordset;
+    where (...args: [string, ...any[]]): Recordset;
+    where (...args: [WhereHavingDescriptor, ...any[]]): Recordset;
+    having (...args: [string, ...any[]]): Recordset;
+    having (...args: [WhereHavingDescriptor, ...any[]]): Recordset;
     join (database: JoinDescriptor): Recordset;
     join (database: Database, target: Table, customField?: Field, left?: string): Recordset;
     leftJoin (database: JoinDescriptor): Recordset;
