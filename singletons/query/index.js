@@ -66,7 +66,8 @@ module.exports = class QuerySingleton extends Template {
 				user: process.env.MARIA_USER,
 				password: process.env.MARIA_PASSWORD,
 				socketPath: process.env.MARIA_SOCKET_PATH,
-				connectionLimit: process.env.MARIA_CONNECTION_LIMIT ?? 25
+				connectionLimit: process.env.MARIA_CONNECTION_LIMIT ?? 25,
+				multipleStatements: true
 			});
 		}
 		else if (process.env.MARIA_HOST) {
@@ -75,7 +76,8 @@ module.exports = class QuerySingleton extends Template {
 				password: process.env.MARIA_PASSWORD,
 				host: process.env.MARIA_HOST,
 				port: process.env.MARIA_PORT ?? 3306,
-				connectionLimit: process.env.MARIA_CONNECTION_LIMIT ?? 25
+				connectionLimit: process.env.MARIA_CONNECTION_LIMIT ?? 25,
+				multipleStatements: true
 			});
 		}
 		else {
@@ -347,7 +349,8 @@ module.exports = class QuerySingleton extends Template {
 						await transaction.query(slice);
 						await transaction.commit();
 					}
-					catch {
+					catch (e) {
+						console.warn("Batch update fail", e);
 						await transaction.rollback();
 					}
 					finally {
@@ -368,8 +371,12 @@ module.exports = class QuerySingleton extends Template {
 					await transaction.query(slice.join("\n"));
 					await transaction.commit();
 				}
-				catch {
+				catch (e) {
+					console.warn("Batch update fail", e);
 					await transaction.rollback();
+				}
+				finally {
+					await transaction.end();
 				}
 			}
 		}
