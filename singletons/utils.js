@@ -868,9 +868,9 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			const channelInfo = await sb.Got("Helix", {
 				url: "users",
 				throwHttpErrors: false,
-				searchParams: new sb.URLParams()
-					.set("login", user)
-					.toString()
+				searchParams: {
+					login: user
+				}
 			}).json();
 
 			if (!channelInfo.error && channelInfo.data.length !== 0) {
