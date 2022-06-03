@@ -28,7 +28,7 @@ import { SandboxSingleton } from "./singletons/sandbox";
 import { UtilsSingleton } from "./singletons/utils";
 import { VLCSingleton } from "./singletons/vlc-connector";
 
-declare type GlobalSbObject = {
+export declare type GlobalSbObject = {
     Date: typeof CustomDate,
     Error: typeof CustomError,
     errors: typeof errors,
