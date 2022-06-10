@@ -223,6 +223,7 @@ export declare class UtilsSingleton implements Template {
     wrapString (string: string, length: number, options?: WrapStringProperties): string;
     random (min: number, max: number): ReturnType<Random["integer"]>;
     randArray <T> (arr: T[]): T | undefined;
+    shuffleArray <T> (arr: T[]): T[];
     formatTime (seconds: number, videoStyle?: boolean): string;
     argsToFixedURL (array: string[], character?: string): string;
     removeAccents (string: string): string;

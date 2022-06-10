@@ -387,6 +387,26 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	}
 
 	/**
+	 * Creates a shuffled shallow copy of the provided array.
+	 * @param {Array} arr
+	 * @returns {Array}
+	 */
+	shuffleArray (arr) {
+		const copy = [...arr];
+		const shuffledArray = [];
+
+		while (copy.length > 0) {
+			const index = this.random(0, copy.length - 1);
+			const value = copy[index];
+
+			shuffledArray.push(value);
+			copy.splice(index, 1);
+		}
+
+		return shuffledArray;
+	}
+
+	/**
 	 * Formats a number specifying the amount of seconds to a string.
 	 * @param {number} seconds
 	 * @param {boolean} [videoStyle] If false, format will be HH:MM:SS - if true, format will be HH hr, MM min, SS sec
