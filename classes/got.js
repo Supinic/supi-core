@@ -6,6 +6,14 @@ module.exports = (function () {
 	const gotModule = require("got");
 	const SymbolName = Symbol("Name");
 
+	const gotRequestErrors = [
+		gotModule.CancelError,
+		gotModule.HTTPError,
+		gotModule.RequestError,
+		gotModule.TimeoutError,
+		gotModule.UnsupportedProtocolError
+	];
+
 	const sanitize = (string) => string.replaceAll("../", "");
 
 	class StaticGot extends require("./template.js") {
@@ -184,6 +192,10 @@ module.exports = (function () {
 
 				return extension(urlOrOptions, restOptions);
 			};
+		}
+
+		static isRequestError (error) {
+			return gotRequestErrors.some(GotError => error instanceof GotError);
 		}
 
 		static get specificName () { return "Got"; }
