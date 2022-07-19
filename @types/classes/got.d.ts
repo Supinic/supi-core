@@ -29,6 +29,7 @@ declare class StaticGot extends ClassTemplate {
 	static gql (gqlOptions: GQLOptions): unknown;
 	static sanitize (strings: string[], ...values: string[]): string;
 	static extend (extendOptions: ExtendOptions): Extension;
+	static isRequestError (error: Error): boolean;
 
 	static get specificName (): "Got";
 	static get FormData (): FormData;
