@@ -1,5 +1,6 @@
 import { ClassTemplate } from "./template";
-import { ExtendOptions, Got, GotOptions, GotReturn, URLOrOptions } from "got";
+import { ExtendOptions, Got, Options, GotReturn } from "got";
+import { URL } from "url";
 import FormData = require("form-data");
 
 export { Got } from "got";
@@ -7,9 +8,9 @@ export { Got } from "got";
 export declare type Like = string | StaticGot;
 
 declare const SymbolName: unique symbol;
-declare const sanitize: (string: string) => string;
 
-declare type Extension = (urlOrOptions: URLOrOptions, restOptions: GotOptions) => GotReturn;
+declare type URLOrOptions = Options | URL | string;
+declare type Extension = (urlOrOptions: URLOrOptions, restOptions: Options) => GotReturn;
 declare type GQLOptions = {
 	query: string;
 	token?: string;
