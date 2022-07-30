@@ -259,7 +259,7 @@ module.exports = class Row {
 				`VALUES (${values.join(",")})`
 			].join(" "));
 
-			if (outputData.insertId !== 0) {
+			if (outputData.insertId !== 0n) {
 				const autoIncrementPK = this.#primaryKeyFields.find(i => i.autoIncrement);
 				this.#values[autoIncrementPK.name] = outputData.insertId;
 			}

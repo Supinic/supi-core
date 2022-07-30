@@ -9,6 +9,13 @@ const Template = require("../template.js");
 const updateBatchLimit = 1000;
 const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
 
+const defaultPoolOptions = {
+	multipleStatements: true,
+	insertIdAsNumber: false,
+	decimalAsNumber: true,
+	bigIntAsNumber: false
+};
+
 /**
  * Query represents every possible access to the database.
  *
@@ -67,7 +74,7 @@ module.exports = class QuerySingleton extends Template {
 				password: process.env.MARIA_PASSWORD,
 				socketPath: process.env.MARIA_SOCKET_PATH,
 				connectionLimit: process.env.MARIA_CONNECTION_LIMIT ?? 25,
-				multipleStatements: true
+				...defaultPoolOptions
 			});
 		}
 		else if (process.env.MARIA_HOST) {
@@ -77,7 +84,7 @@ module.exports = class QuerySingleton extends Template {
 				host: process.env.MARIA_HOST,
 				port: process.env.MARIA_PORT ?? 3306,
 				connectionLimit: process.env.MARIA_CONNECTION_LIMIT ?? 25,
-				multipleStatements: true
+				...defaultPoolOptions
 			});
 		}
 		else {
