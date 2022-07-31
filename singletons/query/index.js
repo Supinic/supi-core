@@ -11,7 +11,7 @@ const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
 
 const defaultPoolOptions = {
 	multipleStatements: true,
-	insertIdAsNumber: false,
+	insertIdAsNumber: true,
 	decimalAsNumber: true,
 	bigIntAsNumber: false
 };
