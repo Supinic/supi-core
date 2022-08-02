@@ -263,7 +263,7 @@ export declare class UtilsSingleton implements Template {
     formatSI (number: string, unit?: string, places?: number, addSpace?: boolean): string;
     partitionString (message: Message, limit: number, messageCount: number): string[];
     evalDiceRoll (input: string, limit?: number): number | null;
-    uploadToImgur (fileData: unknown, link?: string): Promise<UploadResult>;
+    uploadToImgur (fileData: unknown, link?: string, options?: { type?: string }): Promise<UploadResult>;
     uploadToNuuls (fileData: unknown, fileName?: string): Promise<UploadResult>;
     checkPictureNSFW (link: string): Promise<NSFW.Response>;
     fetchTimeData (data: TimeOptions): Promise<TimeData>;

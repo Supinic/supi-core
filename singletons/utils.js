@@ -1342,15 +1342,22 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	/**
 	 * Uploads a file to {@link https://imgur.com}
 	 * @param {Buffer} fileData
-	 * @param {string} link
+	 * @param {string} [linkName]
+	 * @param {Object} [options]
+	 * @param {string} [options.type]
 	 * @returns {Promise<FileUploadResult>}
 	 */
-	async uploadToImgur (fileData, link = "random") {
+	async uploadToImgur (fileData, linkName = "random", options = {}) {
 		const formData = new sb.Got.FormData();
-		formData.append("image", fileData, link); // !!! FILE NAME MUST BE SET, OR THE API NEVER RESPONDS !!!
+		formData.append("image", fileData, linkName); // !!! FILE NAME MUST BE SET, OR THE API NEVER RESPONDS !!!
+
+		const { type = "image" } = options;
+		const endpoint = (type === "image")
+			? "image"
+			: "upload";
 
 		const { statusCode, body } = await sb.Got({
-			url: "https://api.imgur.com/3/image",
+			url: `https://api.imgur.com/3/${endpoint}`,
 			responseType: "json",
 			method: "POST",
 			throwHttpErrors: false,
@@ -1363,9 +1370,15 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			timeout: 10000
 		});
 
+		// Weird edge case with Imgur when uploading .webm or .mkv files will leave a "." at the end of the link
+		let link = body.data?.link ?? null;
+		if (typeof link === "string" && link.endsWith(".")) {
+			link = `${link}mp4`;
+		}
+
 		return {
 			statusCode,
-			link: body.data?.link ?? null
+			link
 		};
 	}
 
