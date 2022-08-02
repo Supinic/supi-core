@@ -13,7 +13,7 @@ const defaultPoolOptions = {
 	multipleStatements: true,
 	insertIdAsNumber: true,
 	decimalAsNumber: true,
-	bigIntAsNumber: false
+	bigIntAsNumber: true
 };
 
 /**
