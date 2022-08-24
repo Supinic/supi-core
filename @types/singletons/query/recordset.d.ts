@@ -5,16 +5,29 @@ export declare type Result = FormatValue | {
     [P: Field]: FormatValue
 };
 export declare type FetchResult = Result | Result[];
-export declare type JoinDescriptor = {
+
+declare type CustomConditionJoinDescriptor = {
+    alias?: string | null;
+    toDatabase?: Database;
+    toTable: Table;
+    toField?: never;
+    fromTable?: never;
+    fromField?: never;
+    condition?: never;
+    on: string;
+};
+declare type SimpleJoinDescriptor = {
+    alias?: string | null;
     toDatabase?: Database;
     toTable: Table;
     toField: Field;
     fromTable?: Table;
     fromField: Field;
-    alias?: string | null;
     condition?: string | null;
-    on?: string | null;
+    on?: never;
 };
+export declare type JoinDescriptor = CustomConditionJoinDescriptor | SimpleJoinDescriptor;
+
 export declare type ReferenceOptions = {
     sourceDatabase?: Database;
     sourceTable?: Table;
