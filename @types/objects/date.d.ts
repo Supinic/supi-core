@@ -9,6 +9,10 @@ export declare type Formatted = string;
 export declare type EnglishDaySuffix = "st" | "nd" | "rd" | "th";
 export declare type TimeUnit = "h" | "m" | "s" | "ms";
 
+/**
+ * Extension of the native JavaScript Date class, with several additions to its API.
+ * Note: the addition of `addX` methods, format and setters/getters for time units.
+ */
 export declare class CustomDate extends Date {
 	static months: Month[];
 

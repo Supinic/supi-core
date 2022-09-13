@@ -1,6 +1,3 @@
-/**
- * Extended and simpler-to-use version of native Date
- */
 module.exports = class CustomDate extends Date {
 	static months = [
 		"January",
