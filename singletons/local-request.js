@@ -41,21 +41,21 @@ module.exports = class LocalRequestSingleton extends require("./template.js") {
 	}
 
 	async playSpecialAudio (options = {}) {
-		const searchParams = {
+		const searchParams = new URLSearchParams({
 			specialAudio: "1",
 			url: options.url
-		};
+		});
 
 		if (options.volume) {
-			searchParams.volume = options.volume;
+			searchParams.append("volume", options.volume);
 		}
 		if (options.limit) {
-			searchParams.limit = options.limit;
+			searchParams.append("limit", options.limit);
 		}
 
 		const result = await sb.Got({
 			url: this.url,
-			searchParams
+			searchParams: searchParams.toString()
 		}).text();
 
 		return (result === "true");
@@ -68,20 +68,20 @@ module.exports = class LocalRequestSingleton extends require("./template.js") {
 	}
 
 	async playTextToSpeech (options) {
-		const searchParams = {
+		const searchParams = new URLSearchParams({
 			tts: options.tts
-		};
+		});
 
 		if (options.volume) {
-			searchParams.volume = options.volume;
+			searchParams.append("volume", options.volume);
 		}
 		if (options.limit) {
-			searchParams.limit = options.limit;
+			searchParams.append("limit", options.limit);
 		}
 
 		const result = await sb.Got({
 			url: this.url,
-			searchParams
+			searchParams: searchParams.toString()
 		}).text();
 
 		return (result === "true");
