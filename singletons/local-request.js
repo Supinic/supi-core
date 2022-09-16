@@ -69,7 +69,7 @@ module.exports = class LocalRequestSingleton extends require("./template.js") {
 
 	async playTextToSpeech (options) {
 		const searchParams = new URLSearchParams({
-			tts: options.tts
+			tts: JSON.stringify(options.tts)
 		});
 
 		if (options.volume) {
