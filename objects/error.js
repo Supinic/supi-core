@@ -1,6 +1,3 @@
-/**
- * Custom error object. Receives an arguments object to provide more detailed error context.
- */
 module.exports = class CustomError extends globalThis.Error {
 	#args;
 	#timestamp;

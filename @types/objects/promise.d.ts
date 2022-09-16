@@ -3,6 +3,10 @@ declare type Handler<T> = (
 	reject: (reason?: any) => void
 ) => void;
 
+/**
+ * Custom Promise wrapper.
+ * Allows resolution/rejection from outside the Promise's context.
+ */
 export declare class CustomPromise<T> extends Promise<T> {
 	#resolve;
 	#reject;
