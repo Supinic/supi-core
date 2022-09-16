@@ -41,18 +41,23 @@ module.exports = class LocalRequestSingleton extends require("./template.js") {
 	}
 
 	async playSpecialAudio (options = {}) {
-		const params = new sb.URLParams()
-			.set("specialAudio", "1")
-			.set("url", options.url);
+		const searchParams = {
+			specialAudio: "1",
+			url: options.url
+		};
 
 		if (options.volume) {
-			params.set("volume", options.volume);
+			searchParams.volume = options.volume;
 		}
 		if (options.limit) {
-			params.set("limit", options.limit);
+			searchParams.limit = options.limit;
 		}
 
-		const result = await sb.Got(`${this.url}/?${params.toString()}`).text();
+		const result = await sb.Got({
+			url: this.url,
+			searchParams
+		}).text();
+
 		return (result === "true");
 	}
 
@@ -63,16 +68,22 @@ module.exports = class LocalRequestSingleton extends require("./template.js") {
 	}
 
 	async playTextToSpeech (options) {
-		const params = new sb.URLParams().set("tts", JSON.stringify(options.tts));
+		const searchParams = {
+			tts: options.tts
+		};
 
 		if (options.volume) {
-			params.set("volume", options.volume);
+			searchParams.volume = options.volume;
 		}
 		if (options.limit) {
-			params.set("limit", options.limit);
+			searchParams.limit = options.limit;
 		}
 
-		const result = await sb.Got(`${this.url}/?${params.toString()}`).text();
+		const result = await sb.Got({
+			url: this.url,
+			searchParams
+		}).text();
+
 		return (result === "true");
 	}
 

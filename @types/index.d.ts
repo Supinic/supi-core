@@ -2,7 +2,6 @@
 import { CustomDate } from "./objects/date";
 import { CustomError, errors } from "./objects/error";
 import { CustomPromise } from "./objects/promise";
-import { URLParams } from "./objects/url-params";
 
 // classes
 import { AwayFromKeyboard } from "./classes/afk";
@@ -33,7 +32,6 @@ export declare type GlobalSbObject = {
     Error: typeof CustomError,
     errors: typeof errors,
     Promise: typeof CustomPromise,
-    URLParams: URLParams,
 
     AwayFromKeyboard: typeof AwayFromKeyboard,
     Banphrase: typeof Banphrase,
@@ -75,7 +73,6 @@ declare type ModuleFilePath = "classes/afk"
     | "objects/error"
     | "objects/errors"
     | "objects/promise"
-    | "objects/url-params"
     | "singletons/cache"
     | "singletons/cooldown-manager"
     | "singletons/local-request"

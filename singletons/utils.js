@@ -495,14 +495,14 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 
 		const { items } = await sb.Got({
 			url: `https://www.googleapis.com/youtube/v3/search`,
-			searchParams: new sb.URLParams()
-				.set("q", query)
-				.set("key", key)
-				.set("type", "video")
-				.set("part", "snippet")
-				.set("maxResults", params.maxResults ?? "10")
-				.set("sort", "relevance")
-				.toString()
+			searchParams: {
+				q: query,
+				key: key,
+				type: "video",
+				part: "snippet",
+				maxResults: params.maxResults ?? "10",
+				sort: "relevance"
+			}
 		}).json();
 
 		const videoList = items.map(i => ({
@@ -539,23 +539,24 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 		}
 
 		const limit = options.limit ?? Infinity;
-		const baseParams = new sb.URLParams()
-			.set("part", "snippet")
-			.set("key", options.key)
-			.set("maxResults", options.perPage ?? 50)
-			.set("playlistId", options.playlistID);
+		const baseParams = {
+			part: "snippet",
+			key: options.key,
+			maxResults: options.perPage ?? 50,
+			playlistId: options.playlistID
+		};
 
 		let pageToken = null;
 		const result = [];
 		do {
-			const loopParams = baseParams.clone();
+			const searchParams = { ...baseParams }
 			if (pageToken) {
-				loopParams.set("pageToken", pageToken);
+				searchParams.pageToken = pageToken;
 			}
 
 			const { body: data, statusCode } = await sb.Got({
 				url: "https://www.googleapis.com/youtube/v3/playlistItems",
-				searchParams: loopParams.toString(),
+				searchParams,
 				throwHttpErrors: false,
 				responseType: "json"
 			});
@@ -653,10 +654,10 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	async fetchGeoLocationData (key, query) {
 		const { results, status } = await sb.Got({
 			url: "https://maps.googleapis.com/maps/api/geocode/json",
-			searchParams: new sb.URLParams()
-				.set("key", key)
-				.set("address", query)
-				.toString()
+			searchParams: {
+				key,
+				address: query
+			}
 		}).json();
 
 		if (status !== "OK") {

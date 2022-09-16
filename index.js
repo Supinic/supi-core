@@ -11,7 +11,6 @@ module.exports = (async function (options = {}) {
 		"objects/error",
 		"objects/errors",
 		"objects/promise",
-		"objects/url-params",
 
 		"singletons/query",
 		"classes/config",
