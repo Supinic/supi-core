@@ -874,14 +874,16 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	}
 
 	/**
+	 * @deprecated use `TwitchController.getUserID` instead
 	 * Attempts to fetch a Twitch ID from user cache.
 	 * If it doesn't find one, queries the Twitch API endpoint.
 	 * @param {string} user
 	 * @returns {Promise<null|number>}
 	 */
 	async getTwitchID (user) {
-		let userData = await sb.User.get(user, true);
+		console.warn("Deprecated call: Utils.getTwitchID", new Error().stack);
 
+		let userData = await sb.User.get(user, true);
 		if (userData && userData.Twitch_ID) {
 			return userData.Twitch_ID;
 		}
