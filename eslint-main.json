@@ -68,7 +68,13 @@
         "no-duplicate-imports": "error",
         "no-empty-pattern": "error",
         "no-lonely-if": "warn",
-        "no-mixed-operators": "error",
+        "no-mixed-operators": ["error", {
+            "groups": [
+                ["&&", "||"],
+                ["&", "|", "^", "~", "<<", ">>", ">>>"],
+                ["==", "!=", "===", "!==", ">", ">=", "<", "<="]
+            ]
+        }],
         "no-multi-assign": "error",
         "no-multi-spaces": "warn",
         "no-multi-str": "warn",

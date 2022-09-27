@@ -151,6 +151,7 @@ module.exports = class CustomDate extends Date {
 	sqlTime () {
 		return this.format("H:i:s.v");
 	}
+
 	sqlDateTime () {
 		return this.format("Y-m-d H:i:s.v");
 	}

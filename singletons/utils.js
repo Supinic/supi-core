@@ -496,8 +496,8 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 		const { items } = await sb.Got({
 			url: `https://www.googleapis.com/youtube/v3/search`,
 			searchParams: {
+				key,
 				q: query,
-				key: key,
 				type: "video",
 				part: "snippet",
 				maxResults: params.maxResults ?? "10",
@@ -549,7 +549,7 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 		let pageToken = null;
 		const result = [];
 		do {
-			const searchParams = { ...baseParams }
+			const searchParams = { ...baseParams };
 			if (pageToken) {
 				searchParams.pageToken = pageToken;
 			}
