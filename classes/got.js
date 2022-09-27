@@ -3,21 +3,25 @@
  */
 module.exports = (function () {
 	const FormData = require("form-data");
-	const gotModule = require("got");
 	const SymbolName = Symbol("Name");
 
-	const gotRequestErrors = [
-		gotModule.CancelError,
-		gotModule.HTTPError,
-		gotModule.RequestError,
-		gotModule.TimeoutError,
-		gotModule.UnsupportedProtocolError
-	];
+	// `gotModule` could be a (private) field in StaticGot class
+	let gotModule;
+	let gotRequestErrors;
 
 	const sanitize = (string) => string.replaceAll("../", "");
 
 	class StaticGot extends require("./template.js") {
 		static async loadData () {
+			gotModule = (await import("got")).got;
+			gotRequestErrors = [
+				gotModule.CancelError,
+				gotModule.HTTPError,
+				gotModule.RequestError,
+				gotModule.TimeoutError,
+				gotModule.UnsupportedProtocolError
+			];
+
 			StaticGot.data = [];
 
 			let count = 0;
@@ -195,6 +199,8 @@ module.exports = (function () {
 		}
 
 		static isRequestError (error) {
+			// I am not sure about this. I have not tested errors by now
+			// Is this method even being used anywhere? I didn't see any uses.
 			return gotRequestErrors.some(GotError => error instanceof GotError);
 		}
 
