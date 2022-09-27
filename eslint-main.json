@@ -68,7 +68,7 @@
         "no-duplicate-imports": "error",
         "no-empty-pattern": "error",
         "no-lonely-if": "warn",
-        "no-mixed-operators": "off",
+        "no-mixed-operators": "error",
         "no-multi-assign": "error",
         "no-multi-spaces": "warn",
         "no-multi-str": "warn",
