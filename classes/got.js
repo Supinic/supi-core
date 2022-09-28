@@ -5,7 +5,6 @@ module.exports = (function () {
 	const FormData = require("form-data");
 	const SymbolName = Symbol("Name");
 
-	// `gotModule` could be a (private) field in StaticGot class
 	let gotModule;
 	let gotRequestErrors;
 
@@ -199,8 +198,6 @@ module.exports = (function () {
 		}
 
 		static isRequestError (error) {
-			// I am not sure about this. I have not tested errors by now
-			// Is this method even being used anywhere? I didn't see any uses.
 			return gotRequestErrors.some(GotError => error instanceof GotError);
 		}
 
