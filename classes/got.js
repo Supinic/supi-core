@@ -212,6 +212,10 @@ module.exports = (function () {
 				options.url = sanitize(options.url);
 			}
 
+			if (typeof args[1] === "string") {
+				args[1] = sanitize(args[1]);
+			}
+
 			if (typeof args[0] === "string") {
 				const instance = sb.Got.get(args[0]);
 				if (instance) {
