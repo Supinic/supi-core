@@ -14,7 +14,9 @@ module.exports = (function () {
 		gotModule.UnsupportedProtocolError
 	];
 
-	const sanitize = (string) => string.replaceAll("../", "");
+	// Replace out all occurrences of the "up one level" string - "../"
+	// Also if they are followed with another one, like so: "../.."
+	const sanitize = (string) => string.replaceAll(/\.\.\/(\.\.)?/g, "");
 
 	class StaticGot extends require("./template.js") {
 		static async loadData () {
