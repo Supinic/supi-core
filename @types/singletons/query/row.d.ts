@@ -40,7 +40,7 @@ export declare class Row {
 
     initialize (database: string, table: string): Promise<Row>;
     load (primaryKey: PrimaryKey | CompoundPrimaryKey, ignoreError?: boolean): Promise<Row>;
-    save (options: SaveOptions): Promise<UpsertResult>;
+    save (options?: SaveOptions): Promise<UpsertResult>;
     delete (): Promise<void>;
     setValues (data: SimpleGenericData): Row;
     hasProperty (property: string): boolean;

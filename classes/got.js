@@ -8,7 +8,9 @@ module.exports = (function () {
 	let gotModule;
 	let gotRequestErrors;
 
-	const sanitize = (string) => string.replaceAll("../", "");
+	// Replace out all occurrences of the "up one level" string - "../"
+	// Also if they are followed with another one, like so: "../.."
+	const sanitize = (string) => string.replaceAll(/\.\.\/(\.\.)?/g, "");
 
 	class StaticGot extends require("./template.js") {
 		static async loadData () {
@@ -211,6 +213,10 @@ module.exports = (function () {
 			const options = args.find(i => typeof i === "object" && i?.constructor?.name === "Object");
 			if (options && typeof options.url === "string" && !options.skipURLSanitization) {
 				options.url = sanitize(options.url);
+			}
+
+			if (typeof args[1] === "string") {
+				args[1] = sanitize(args[1]);
 			}
 
 			if (typeof args[0] === "string") {
