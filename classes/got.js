@@ -12,7 +12,7 @@ module.exports = (function () {
 
 	class StaticGot extends require("./template.js") {
 		static async loadData () {
-			gotModule = (await import("got")).got;
+			gotModule = await import("got");
 			gotRequestErrors = [
 				gotModule.CancelError,
 				gotModule.HTTPError,
@@ -63,7 +63,7 @@ module.exports = (function () {
 					instance = parent.extend(options);
 				}
 				else {
-					instance = gotModule.extend(options);
+					instance = gotModule.got.extend(options);
 				}
 
 				instance[SymbolName] = item.name;
@@ -105,7 +105,7 @@ module.exports = (function () {
 					instance = parent.extend(options);
 				}
 				else {
-					instance = gotModule.extend(options);
+					instance = gotModule.got.extend(options);
 				}
 
 				instance[SymbolName] = row.Name;
@@ -180,7 +180,7 @@ module.exports = (function () {
 		}
 
 		static extend (extendOptions) {
-			const extension = gotModule.extend(extendOptions);
+			const extension = gotModule.got.extend(extendOptions);
 			return (urlOrOptions, restOptions) => {
 				if (typeof restOptions?.url === "string") {
 					restOptions.url = sanitize(restOptions.url);
