@@ -225,7 +225,7 @@ module.exports = (function () {
 				}
 			}
 
-			return gotModule(...args);
+			return gotModule.got(...args);
 		},
 
 		get: function (target, property) {
