@@ -17,8 +17,7 @@ module.exports = (function () {
 				gotModule.CancelError,
 				gotModule.HTTPError,
 				gotModule.RequestError,
-				gotModule.TimeoutError,
-				gotModule.UnsupportedProtocolError
+				gotModule.TimeoutError
 			];
 
 			StaticGot.data = [];
