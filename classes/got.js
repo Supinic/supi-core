@@ -165,7 +165,7 @@ module.exports = (function () {
 				delete gqlOptions.variables;
 			}
 
-			return gotModule({ ...gqlOptions, ...options });
+			return gotModule.got({ ...gqlOptions, ...options });
 		}
 
 		static sanitize (strings, ...values) {
