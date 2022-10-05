@@ -3,16 +3,10 @@
  */
 module.exports = (function () {
 	const FormData = require("form-data");
-	const gotModule = require("got");
 	const SymbolName = Symbol("Name");
 
-	const gotRequestErrors = [
-		gotModule.CancelError,
-		gotModule.HTTPError,
-		gotModule.RequestError,
-		gotModule.TimeoutError,
-		gotModule.UnsupportedProtocolError
-	];
+	let gotModule;
+	let gotRequestErrors;
 
 	// Replace out all occurrences of the "up one level" string - "../"
 	// Also if they are followed with another one, like so: "../.."
@@ -20,6 +14,14 @@ module.exports = (function () {
 
 	class StaticGot extends require("./template.js") {
 		static async loadData () {
+			gotModule = await import("got");
+			gotRequestErrors = [
+				gotModule.CancelError,
+				gotModule.HTTPError,
+				gotModule.RequestError,
+				gotModule.TimeoutError
+			];
+
 			StaticGot.data = [];
 
 			let count = 0;
@@ -63,7 +65,7 @@ module.exports = (function () {
 					instance = parent.extend(options);
 				}
 				else {
-					instance = gotModule.extend(options);
+					instance = gotModule.got.extend(options);
 				}
 
 				instance[SymbolName] = item.name;
@@ -105,7 +107,7 @@ module.exports = (function () {
 					instance = parent.extend(options);
 				}
 				else {
-					instance = gotModule.extend(options);
+					instance = gotModule.got.extend(options);
 				}
 
 				instance[SymbolName] = row.Name;
@@ -163,7 +165,7 @@ module.exports = (function () {
 				delete gqlOptions.variables;
 			}
 
-			return gotModule({ ...gqlOptions, ...options });
+			return gotModule.got({ ...gqlOptions, ...options });
 		}
 
 		static sanitize (strings, ...values) {
@@ -180,7 +182,7 @@ module.exports = (function () {
 		}
 
 		static extend (extendOptions) {
-			const extension = gotModule.extend(extendOptions);
+			const extension = gotModule.got.extend(extendOptions);
 			return (urlOrOptions, restOptions) => {
 				if (typeof restOptions?.url === "string") {
 					restOptions.url = sanitize(restOptions.url);
@@ -223,7 +225,7 @@ module.exports = (function () {
 				}
 			}
 
-			return gotModule(...args);
+			return gotModule.got(...args);
 		},
 
 		get: function (target, property) {
