@@ -34,10 +34,10 @@
     "test": "mocha ./tests --recursive --exit"
   },
   "devDependencies": {
-    "@babel/core": "^7.19.1",
+    "@babel/core": "^7.19.3",
     "@babel/eslint-parser": "^7.19.1",
     "eslint": "^8.24.0",
-    "eslint-plugin-unicorn": "^43.0.2",
+    "eslint-plugin-unicorn": "^44.0.1",
     "mocha": "^10.0.0",
     "nyc": "^15.1.0"
   },
