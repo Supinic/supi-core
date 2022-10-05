@@ -10,7 +10,7 @@ module.exports = (function () {
 
 	// Replace out all occurrences of the "up one level" string - "../"
 	// Also if they are followed with another one, like so: "../.."
-	const sanitize = (string) => string.replaceAll(/\.\.\/(\.\.)?/g, "");
+	const sanitize = (string) => string.replaceAll(/\.\.\/?/g, "");
 
 	class StaticGot extends require("./template.js") {
 		static async loadData () {
