@@ -1370,7 +1370,9 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			},
 			body: formData.getBuffer(),
 			retry: 0,
-			timeout: 10000
+			timeout: {
+				request: 10_000
+			}
 		});
 
 		// Weird edge case with Imgur when uploading .webm or .mkv files will leave a "." at the end of the link
@@ -1404,7 +1406,9 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			},
 			body: form.getBuffer(),
 			retry: 0,
-			timeout: 10000
+			timeout: {
+				request: 10_000
+			}
 		});
 
 		return {
@@ -1571,7 +1575,9 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 					},
 					body: formData.getBuffer(),
 					retry: 0,
-					timeout: 10000
+					timeout: {
+						request: 10_000
+					}
 				});
 			}
 			catch (e) {
