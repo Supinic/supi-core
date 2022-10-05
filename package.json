@@ -12,7 +12,7 @@
     "duration-parser": "github:supinic/duration-parser",
     "ffprobe": "^1.1.2",
     "form-data": "^4.0.0",
-    "got": "^10.7.0",
+    "got": "^12.5.1",
     "ioredis": "^5.2.3",
     "language-iso-codes": "github:supinic/language-iso-codes",
     "long-timeout": "github:supinic/long-timeout",
