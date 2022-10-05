@@ -1369,7 +1369,9 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 				Authorization: "Client-ID c898c0bb848ca39"
 			},
 			body: formData.getBuffer(),
-			retry: 0,
+			retry: {
+				limit: 0
+			},
 			timeout: {
 				request: 10_000
 			}
@@ -1405,7 +1407,9 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 				...form.getHeaders()
 			},
 			body: form.getBuffer(),
-			retry: 0,
+			retry: {
+				limit: 0
+			},
 			timeout: {
 				request: 10_000
 			}
@@ -1574,7 +1578,9 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 						...formData.getHeaders()
 					},
 					body: formData.getBuffer(),
-					retry: 0,
+					retry: {
+						limit: 0
+					},
 					timeout: {
 						request: 10_000
 					}
