@@ -229,9 +229,7 @@ module.exports = (function () {
 		},
 
 		get: function (target, property) {
-			return (typeof target[property] !== "undefined")
-				? target[property]
-				: gotModule.got[property];
+			return target[property] ?? gotModule[property] ?? gotModule.got[property];
 		}
 	});
 })();
