@@ -1,8 +1,5 @@
 const ROW_COLLAPSED = Symbol("row-collapsed");
 
-/**
- * Represents the result of a SELECT statement with (usually) more than one result row.
- */
 module.exports = class Recordset {
 	#query = null;
 	#fetchSingle = false;
@@ -21,51 +18,25 @@ module.exports = class Recordset {
 	#offset = null;
 	#reference = [];
 
-	/**
-	 * Creates a new Recordset instance.
-	 * @param {Query} query
-	 * @name {Recordset}
-	 */
 	constructor (query) {
-		/** @type {Query} */
 		this.#query = query;
 	}
 
-	/**
-	 * Sets a flag so the recordset will return the first result directly instead of returning an array.
-	 * @returns {Recordset}
-	 */
 	single () {
 		this.#fetchSingle = true;
 		return this;
 	}
 
-	/**
-	 * Sets for the query result to be an array of primitives, instead of an array of objects.
-	 * The object will be flattened, and only the field values will be preserved.
-	 * @param {string} field
-	 */
 	flat (field) {
 		this.#flat = field;
 		return this;
 	}
 
-	/**
-	 * Sets an option to be used when constructing the SQL query.
-	 * @param {string} option
-	 * @param {*} value
-	 */
 	use (option, value) {
 		this.#options[option] = value;
 		return this;
 	}
 
-	/**
-	 * Sets the LIMIT.
-	 * @param {number} number
-	 * @returns {Recordset}
-	 * @throws {sb.Error} If number is not a finite number
-	 */
 	limit (number) {
 		this.#limit = Number(number);
 
@@ -79,12 +50,6 @@ module.exports = class Recordset {
 		return this;
 	}
 
-	/**
-	 * Sets the OFFSET.
-	 * @param {number} number
-	 * @returns {Recordset}
-	 * @throws {sb.Error} If number is not a finite number
-	 */
 	offset (number) {
 		this.#offset = Number(number);
 
@@ -98,22 +63,11 @@ module.exports = class Recordset {
 		return this;
 	}
 
-	/**
-	 * Sets SELECT fields.
-	 * @param {...string} args
-	 * @returns {Recordset}
-	 */
 	select (...args) {
 		this.#select = this.#select.concat(args);
 		return this;
 	}
 
-	/**
-	 * Sets the FROM table
-	 * @param {string} database
-	 * @param {string} table
-	 * @returns {Recordset}
-	 */
 	from (database, table) {
 		if (!database || !table) {
 			throw new sb.Error({
@@ -130,55 +84,24 @@ module.exports = class Recordset {
 		return this;
 	}
 
-	/**
-	 * Sets a GROUP BY statement.
-	 * @param {...string} args
-	 * @returns {Recordset}
-	 */
 	groupBy (...args) {
 		this.#groupBy = this.#groupBy.concat(args);
 		return this;
 	}
 
-	/**
-	 * Sets an ORDER BY statement.
-	 * @param {...string} args
-	 * @returns {Recordset}
-	 */
 	orderBy (...args) {
 		this.#orderBy = this.#orderBy.concat(args);
 		return this;
 	}
 
-	/**
-	 * Sets a WHERE condition.
-	 * First parameter can be an option argument {@link WhereHavingParams}
-	 * Multiple formatting symbols {@link FormatSymbol} can be used
-	 * @param {...*} args
-	 * @returns {Recordset}
-	 */
 	where (...args) {
 		return this.#conditionWrapper("where", ...args);
 	}
 
-	/**
-	 * Sets a HAVING condition.
-	 * First parameter can be an option argument {@link WhereHavingParams}
-	 * Multiple formatting symbols {@link FormatSymbol} can be used
-	 * @param {...*} args
-	 * @returns {Recordset}
-	 */
 	having (...args) {
 		return this.#conditionWrapper("having", ...args);
 	}
 
-	/**
-	 * Sets a HAVING/WHERE condition, avoids duplicate code
-	 * @private
-	 * @param {"where"|"having"} type
-	 * @param {...*} args
-	 * @returns {Recordset}
-	 */
 	#conditionWrapper (type, ...args) {
 		let options = {};
 		if (args[0] && args[0].constructor === Object) {
@@ -221,15 +144,6 @@ module.exports = class Recordset {
 		return this;
 	}
 
-	/**
-	 * Sets a table to JOIN.
-	 * @param {string|Object} target If string, represents the name of the table to join.
-	 * @param {string} [target.raw] If target is Object, and raw is specified, parsing is skipped and the string is used directly.
-	 * @param {string} database Database of joined table
-	 * @param {string} [customField] If set, attempts to join the table via specific field
-	 * @param {string} left
-	 * @returns {Recordset}
-	 */
 	join (database, target, customField, left = "") {
 		if (typeof target === "string") {
 			const dot = (database) ? (`${database}.\`${target}\``) : (`\`${target}\``);
@@ -280,23 +194,10 @@ module.exports = class Recordset {
 		return this;
 	}
 
-	/**
-	 * Sets a table to LEFT JOIN.
-	 * @todo - this needs a better implementation
-	 * @param {string} database Database of joined table
-	 * @param {string|Object} [target] If string, represents the name of the table to join.
-	 * @param {string} [target.raw] If target is Object, and raw is specified, parsing is skipped and the string is used directly.
-	 * @param {string} [customField] If set, attempts to join the table via specific field
-	 * @returns {Recordset}
-	 */
 	leftJoin (database, target, customField) {
 		return this.join(database, target, customField, "LEFT ");
 	}
 
-	/**
-	 *
-	 * @see {@link ./reference.md}
-	 */
 	reference (options = {}) {
 		const {
 			sourceDatabase = this.#from.database,
@@ -392,11 +293,6 @@ module.exports = class Recordset {
 		}
 	}
 
-	/**
-	 * Translates Recordset to its SQL representation
-	 * @returns {string[]}
-	 * @throws {sb.Error} If no SELECT statement has been provided. The entire Recordset makes no sense should this happen
-	 */
 	toSQL () {
 		if (this.#raw) {
 			return this.#raw;
@@ -422,13 +318,6 @@ module.exports = class Recordset {
 		return sql;
 	}
 
-	/**
-	 * Executes the SQL query and converts received values to their JS representation.
-	 * @returns {Promise<*|Object|Array>} Returns:
-	 * - specific primitive value `{sb.Date|boolean|number|string|null|undefined}` if `single()` and `flat()` is used
-	 * - single `{Object}` if just `single()` is used
-	 * - otherwise `Object[]`
-	 */
 	async fetch () {
 		const sql = this.toSQL();
 		let rows = null;
@@ -491,11 +380,6 @@ module.exports = class Recordset {
 			: result;
 	}
 
-	/**
-	 * @private
-	 * @param {Object} data
-	 * @param {Object} options
-	 */
 	static collapseReferencedData (data, options) {
 		const keyMap = new Map();
 		const { collapseOn: collapser, target, columns } = options;
@@ -542,13 +426,3 @@ module.exports = class Recordset {
 		}
 	}
 };
-
-/**
- * @typedef {Object} WhereHavingParams
- * @property {boolean} [condition] If false, WHERE/HAVING will not be executed
- * @property {string} [raw] If present, WHERE/HAVING will not be parsed, and instead will directly use this string
- */
-
-/**
- * @typedef {"%b"|"%d"|"%dt"|"%p"|"%n"|"%s"|"%t"|"%like"|"%*like"|"%like*"|"%*like*"} FormatSymbol
- */
