@@ -52,6 +52,14 @@ module.exports = class CustomDate extends Date {
 		return (fromValue === toValue);
 	}
 
+	static UTC (year, month, ...args) {
+		if (typeof month === "number") {
+			month -= 1;
+		}
+
+		return super.UTC(year, month, ...args);
+	}
+
 	constructor (...args) {
 		if (args.length > 1 && args.every(i => typeof i === "number")) {
 			// Subtract one from the month parameter, because of how stupid the JS Date constructor does it.
