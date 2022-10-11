@@ -60,6 +60,16 @@ module.exports = class CustomDate extends Date {
 		return super.UTC(year, month, ...args);
 	}
 
+	static getTodayUTC () {
+		const today = new Date();
+
+		return super.UTC(
+			today.getUTCFullYear(),
+			today.getUTCMonth(), // use UTC month because we use super.UTC directly
+			today.getUTCDate()
+		);
+	}
+
 	constructor (...args) {
 		if (args.length > 1 && args.every(i => typeof i === "number")) {
 			// Subtract one from the month parameter, because of how stupid the JS Date constructor does it.

@@ -38,6 +38,11 @@ export declare class CustomDate extends Date {
 	static UTC: DateConstructor["UTC"];
 
 	/**
+	 * Returns the timestamp of today's midnight in UTC.
+	 */
+	static getTodayUTC: number;
+
+	/**
 	 * Creates the instance. Uses the same constructor as native Date does.
 	 */
 	constructor (...args: Array<number | string | Date>);
