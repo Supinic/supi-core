@@ -9,7 +9,7 @@ export declare type Like = string | StaticGot;
 
 declare const SymbolName: unique symbol;
 
-declare type URLOrOptions = InternalsType | URL | string;
+declare type URLOrOptions = Partial<InternalsType> | URL | string;
 declare type Extension = (urlOrOptions: URLOrOptions, restOptions: InternalsType) => GotReturn;
 declare type GQLOptions = {
 	query: string;
