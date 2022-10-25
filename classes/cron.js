@@ -1,4 +1,5 @@
 const { CronJob } = require("cron");
+const random = (min = 0, max = 0) => Math.floor((Math.random() * (max + 1 - min)) + min);
 
 /**
  * Represents a function that's executed every some time
@@ -44,7 +45,6 @@ module.exports = class Cron extends require("./template.js") {
 
 	/**
 	 * The cron job from module "cron" itself.
-	 * @type {CronJob}
 	 */
 	job;
 
@@ -145,11 +145,7 @@ module.exports = class Cron extends require("./template.js") {
 
 		if (this.Defer) {
 			this.job = new CronJob(this.Expression, () => {
-				const timeout = sb.Utils.random(
-					this.Defer.start ?? 0,
-					this.Defer.end
-				);
-
+				const timeout = random(this.Defer.start ?? 0, this.Defer.end);
 				setTimeout(() => this.Code(), timeout);
 			});
 		}
