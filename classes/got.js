@@ -219,7 +219,7 @@ module.exports = (function () {
 			}
 
 			if (typeof args[0] === "string") {
-				const instance = sb.Got.get(args[0]);
+				const instance = StaticGot.get(args[0]);
 				if (instance) {
 					return instance(...args.slice(1));
 				}
