@@ -24,8 +24,8 @@ export declare type Prefix = Key | PrefixObject;
 export declare type KeyOptions = {
     keys: PrefixObject
 };
-export declare type PrefixOptions = KeyOptions & SetOptions;
-export declare type KeysPrefixOptions = KeyOptions & {
+export declare type PrefixOptions = Partial<KeyOptions & SetOptions>;
+export declare type KeysPrefixOptions = Partial<KeyOptions> & {
     count?: number;
 };
 
