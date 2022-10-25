@@ -16,6 +16,8 @@ const defaultPoolOptions = {
 	bigIntAsNumber: true
 };
 
+const isValidPositiveInteger = (input, min = 0) => Number.isInteger(input) && (input >= min);
+
 /**
  * Query represents every possible access to the database.
  *
@@ -333,7 +335,7 @@ module.exports = class QuerySingleton extends Template {
 			});
 		}
 
-		const limit = (sb.Utils.isValidInteger(batchSize))
+		const limit = (isValidPositiveInteger(batchSize, 1))
 			? batchSize
 			: updateBatchLimit;
 
@@ -345,7 +347,7 @@ module.exports = class QuerySingleton extends Template {
 			return `${sql.join(" ")};`;
 		}));
 
-		if (sb.Utils.isValidInteger(staggerDelay)) {
+		if (isValidPositiveInteger(staggerDelay, 0)) {
 			let counter = 0;
 			for (let i = 0; i <= queries.length; i += limit) {
 				let slice = queries.slice(i, i + limit).join("\n");
