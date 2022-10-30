@@ -27,6 +27,11 @@
   resolved "https://registry.yarnpkg.com/@babel/compat-data/-/compat-data-7.19.3.tgz#707b939793f867f5a73b2666e6d9a3396eb03151"
   integrity sha512-prBHMK4JYYK+wDjJF1q99KK4JLL+egWS4nmNqdlMUgCExMZ+iZW0hGhyC3VEbsPjvaN0TBhW//VIFwBrk8sEiw==
 
+"@babel/compat-data@^7.20.0":
+  version "7.20.0"
+  resolved "https://registry.yarnpkg.com/@babel/compat-data/-/compat-data-7.20.0.tgz#9b61938c5f688212c7b9ae363a819df7d29d4093"
+  integrity sha512-Gt9jszFJYq7qzXVK4slhc6NzJXnOVmRECWcVjF/T23rNXD9NtWQ0W3qxdg+p9wWIB+VQw3GYV/U2Ha9bRTfs4w==
+
 "@babel/core@^7.19.3":
   version "7.19.3"
   resolved "https://registry.yarnpkg.com/@babel/core/-/core-7.19.3.tgz#2519f62a51458f43b682d61583c3810e7dcee64c"
@@ -95,6 +100,16 @@
     "@babel/types" "^7.19.3"
     "@jridgewell/gen-mapping" "^0.3.2"
     jsesc "^2.5.1"
+
+"@babel/helper-compilation-targets@^7.19.1":
+  version "7.20.0"
+  resolved "https://registry.yarnpkg.com/@babel/helper-compilation-targets/-/helper-compilation-targets-7.20.0.tgz#6bf5374d424e1b3922822f1d9bdaa43b1a139d0a"
+  integrity sha512-0jp//vDGp9e8hZzBc6N/KwA5ZK3Wsm/pfm4CrY7vzegkVxc65SgSn6wYOnwHe9Js9HRQ1YTCKLGPzDtaS3RoLQ==
+  dependencies:
+    "@babel/compat-data" "^7.20.0"
+    "@babel/helper-validator-option" "^7.18.6"
+    browserslist "^4.21.3"
+    semver "^6.3.0"
 
 "@babel/helper-compilation-targets@^7.19.3":
   version "7.19.3"
@@ -198,6 +213,11 @@
   version "7.19.1"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.19.1.tgz#6f6d6c2e621aad19a92544cc217ed13f1aac5b4c"
   integrity sha512-h7RCSorm1DdTVGJf3P2Mhj3kdnkmF/EiysUkzS2TdgAYqyjFdMQJbVuXOBej2SBJaXan/lIVtT6KkGbyyq753A==
+
+"@babel/parser@^7.19.1":
+  version "7.20.0"
+  resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.20.0.tgz#b26133c888da4d79b0d3edcf42677bcadc783046"
+  integrity sha512-G9VgAhEaICnz8iiJeGJQyVl6J2nTjbW0xeisva0PK6XcKsga7BIaqm4ZF8Rg1Wbaqmy6znspNqhPaPkyukujzg==
 
 "@babel/parser@^7.19.3":
   version "7.19.3"
@@ -1862,7 +1882,7 @@ keyv@^4.0.0, keyv@^4.5.0:
 
 "language-iso-codes@github:supinic/language-iso-codes":
   version "1.0.0"
-  resolved "https://codeload.github.com/supinic/language-iso-codes/tar.gz/db28968170d4241936b42c1b6bc66d57a7c3954e"
+  resolved "https://codeload.github.com/supinic/language-iso-codes/tar.gz/056a47261d4153fd1b16c58971a124eacc55369a"
 
 levn@^0.4.1:
   version "0.4.1"
