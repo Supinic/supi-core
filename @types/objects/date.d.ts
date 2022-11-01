@@ -40,7 +40,7 @@ export declare class CustomDate extends Date {
 	/**
 	 * Returns the timestamp of today's midnight in UTC.
 	 */
-	static getTodayUTC: number;
+	static getTodayUTC (): number;
 
 	/**
 	 * Creates the instance. Uses the same constructor as native Date does.
