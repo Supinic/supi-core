@@ -1,60 +1,15 @@
 const { CronJob } = require("cron");
 const random = (min = 0, max = 0) => Math.floor((Math.random() * (max + 1 - min)) + min);
 
-/**
- * Represents a function that's executed every some time
- */
 module.exports = class Cron extends require("./template.js") {
-	// <editor-fold defaultstate="collapsed" desc="=== INSTANCE PROPERTIES ===">
-
-	/**
-	 * Unique cron name
-	 * @type {string}
-	 */
 	Name;
-
-	/**
-	 * Cron expression that specifies when a job is being executed
-	 * @type {string}
-	 */
 	Expression;
-
-	/**
-	 * Array of two numbers, specifying whether and by how much a cron job should be randomly postponed by.
-	 * @type {Object|null}
-	 */
 	Defer;
-
-	/**
-	 * Execution function of the cron job
-	 * @type {Function}
-	 */
 	Code;
-
-	/**
-	 * Any sort of custom data usable by the cron.
-	 * @type {Object}
-	 */
 	data;
 
-	/**
-	 * Represents the cron's current status.
-	 * @type {boolean}
-	 */
-	started = false;
-
-	/**
-	 * The cron job from module "cron" itself.
-	 */
 	job;
-
-	/**
-	 * If disabled, the cron is paused in its current state and cannot be started.
-	 * @type {boolean}
-	 */
 	#disabled;
-
-	// </editor-fold>
 
 	constructor (data) {
 		super();
@@ -122,10 +77,6 @@ module.exports = class Cron extends require("./template.js") {
 		this.data = {};
 	}
 
-	/**
-	 * Starts the cron job.
-	 * @returns {Cron}
-	 */
 	start () {
 		if (this.#disabled) {
 			throw new sb.Error({
@@ -159,10 +110,6 @@ module.exports = class Cron extends require("./template.js") {
 		return this;
 	}
 
-	/**
-	 * Stops the cron job.
-	 * @returns {Cron}
-	 */
 	stop () {
 		if (!this.started) {
 			return this;
@@ -307,9 +254,6 @@ module.exports = class Cron extends require("./template.js") {
 		return types;
 	}
 
-	/**
-	 * Cleans up.
-	 */
 	static destroy () {
 		if (Cron.data && Cron.data.length > 0) {
 			for (const cron of Cron.data) {
