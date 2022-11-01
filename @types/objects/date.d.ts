@@ -29,7 +29,7 @@ export declare class CustomDate extends Date {
 	/**
 	 * Pads a number with specified number of zeroes.
 	 */
-	static zf (number: number): string;
+	static zf (number: number, padding: number): string;
 
 	/**
 	 * "Normalizes" the Date.UTC static method by subtracting 1 from the provided month humber,
