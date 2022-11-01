@@ -1,8 +1,5 @@
 const VALID_BOOLEAN_LIKE_VALUES = ["0", "1", "true", "false"];
 
-/**
- * Represents configuration variables saved in the database.
- */
 module.exports = class Config extends require("./template.js") {
 	#Name;
 	#Value;
@@ -266,12 +263,6 @@ module.exports = class Config extends require("./template.js") {
 		return variable;
 	}
 
-	/**
-	 * Checks if given configuration variable exists.
-	 * @param {string} variable Variable name
-	 * @param {boolean} strict=true If true, the config variable must also not be null in addition to existing
-	 * @returns {boolean}
-	 */
 	static has (variable, strict = true) {
 		const target = Config.get(variable, false);
 
@@ -280,14 +271,6 @@ module.exports = class Config extends require("./template.js") {
 			: (target !== undefined);
 	}
 
-	/**
-	 * Fetches the given configuration variable
-	 * @param {string} variable Variable name
-	 * @param {boolean} strict=true If true, the config variable must exist, otherwise an error is thrown. If false,
-	 * then undefined is return should the variable not exist.
-	 * @returns {*}
-	 * @throws {sb.Error} If variable does not exist
-	 */
 	static get (variable, strict = true) {
 		const target = Config.data.get(variable);
 
@@ -320,14 +303,6 @@ module.exports = class Config extends require("./template.js") {
 		return target.value;
 	}
 
-	/**
-	 * Sets the configuration variable
-	 * @param {string} variable Variable name
-	 * @param {*} value New variable value
-	 * @throws {sb.Error} If variable does not exist
-	 * @throws {sb.Error} If variable is not editable
-	 * @throws {sb.Error} If value type is incompatible with the variable type
-	 */
 	static async set (variable, value) {
 		const target = Config.data.get(variable);
 		if (!target) {

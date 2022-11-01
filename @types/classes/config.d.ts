@@ -20,13 +20,42 @@ export declare type Representation = {
     value: Value;
 };
 
+/**
+ * Represents configuration variables saved in the database.
+ */
 export declare class Config extends ClassTemplate {
     static data: Map<string, Config>;
     static nonStrictNotifications: Map<string, true>;
 
+    /**
+     * Creates a Config instance based on provided representation.
+     */
     static from (data: Representation): Config;
+
+    /**
+     * Checks if given configuration variable exists.
+     * @param variable Variable name
+     * @param strict If true, the config variable must also not be null in addition to existing
+     */
     static has (variable: string, strict?: boolean): boolean;
+
+    /**
+     * Fetches the given configuration variable
+     * @param variable Variable name
+     * @param strict If true, the config variable must exist, otherwise an error is thrown. If false,
+     * then undefined is return - should the variable not exist.
+     * @throws {sb.Error} If variable does not exist and `strict` is true
+     */
     static get (variable: string, strict?: boolean): Value;
+
+    /**
+     * Sets the configuration variable
+     * @param variable Variable name
+     * @param value New variable value
+     * @throws {sb.Error} If variable does not exist
+     * @throws {sb.Error} If variable is not editable
+     * @throws {sb.Error} If provided value type is incompatible with the variable type
+     */
     static set (variable: string, value: Value): Promise<void>;
 
     #Name: string;
