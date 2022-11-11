@@ -25,8 +25,13 @@ export declare type Type = "Bot" | "Website" | "All";
  * Represents a function that's executed every some time, based on its cron-expression.
  */
 export declare class Cron extends ClassTemplate {
+	/**
+	 * Reloads a specific list of crons, provided as instances.
+	 */
+	static reloadSpecific (...list: Cron[]): Promise<boolean>;
 	static get (identifier: Like): Cron | null;
 	static destroy (): void;
+
 	static get types (): Type[];
 
 	/**
