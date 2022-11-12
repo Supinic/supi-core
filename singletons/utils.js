@@ -796,6 +796,8 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			words = text.split(" ");
 		}
 
+		words = words.filter(Boolean);
+
 		let result = "";
 		if (caseTo === "snake") {
 			result = words.map(i => this.capitalize(i)).join("_");
