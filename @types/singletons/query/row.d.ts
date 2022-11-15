@@ -1,11 +1,11 @@
 import { ColumnDefinition, QuerySingleton as Query, TableDefinition } from "./index";
-import { CustomDate as Date } from "../../objects/date";
+import { CustomDate } from "../../objects/date";
 import { TypeCastResult, UpsertResult } from "mariadb";
 import { SimpleGenericData } from "../../globals";
 
 declare const unsetSymbol: symbol;
 
-declare type PrimaryKey = string | number | bigint | Date | Buffer;
+declare type PrimaryKey = string | number | bigint | CustomDate | Buffer;
 declare type CompoundPrimaryKey = {
     [P: string]: PrimaryKey;
 };
@@ -23,6 +23,9 @@ declare type ErrorInfo = {
     initialized: boolean;
     loaded: boolean;
 };
+
+declare type RowValue = SimpleGenericData | CustomDate;
+declare type RowValueWrapper = Record<string, RowValue>;
 
 // @todo possibly declare a row of a specific (object) type imported from elsewhere - via type params?
 export declare class Row {
@@ -42,7 +45,7 @@ export declare class Row {
     load (primaryKey: PrimaryKey | CompoundPrimaryKey, ignoreError?: boolean): Promise<Row>;
     save (options?: SaveOptions): Promise<UpsertResult>;
     delete (): Promise<void>;
-    setValues (data: SimpleGenericData): Row;
+    setValues (data: RowValueWrapper): Row;
     hasProperty (property: string): boolean;
     private reset (): void;
     private _getErrorInfo (): ErrorInfo;
