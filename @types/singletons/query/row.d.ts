@@ -1,7 +1,6 @@
 import { ColumnDefinition, QuerySingleton as Query, TableDefinition } from "./index";
 import { CustomDate } from "../../objects/date";
 import { TypeCastResult, UpsertResult } from "mariadb";
-import { SimpleGenericData } from "../../globals";
 
 declare const unsetSymbol: symbol;
 
@@ -24,7 +23,7 @@ declare type ErrorInfo = {
     loaded: boolean;
 };
 
-declare type RowValue = SimpleGenericData | CustomDate | Date
+declare type RowValue = string | boolean | number | null | CustomDate | Date | { [p: string]: RowValue } | RowValue[];
 declare type RowValueWrapper = Record<string, RowValue>;
 
 // @todo possibly declare a row of a specific (object) type imported from elsewhere - via type params?
