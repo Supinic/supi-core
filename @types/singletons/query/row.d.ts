@@ -24,7 +24,7 @@ declare type ErrorInfo = {
     loaded: boolean;
 };
 
-declare type RowValue = SimpleGenericData | CustomDate;
+declare type RowValue = SimpleGenericData | CustomDate | Date
 declare type RowValueWrapper = Record<string, RowValue>;
 
 // @todo possibly declare a row of a specific (object) type imported from elsewhere - via type params?
