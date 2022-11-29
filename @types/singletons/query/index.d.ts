@@ -105,6 +105,7 @@ export declare class QuerySingleton implements Template {
     getDefinition (database: Database, table: Table): Promise<TableDefinition>;
     isDatabasePresent (database: Database): Promise<boolean>;
     isTablePresent (database: Database, table: Table): Promise<boolean>;
+    isTablePresent (database: Database, table: Table, column: ColumnDefinition["name"]): Promise<boolean>;
     batchUpdate <T extends SimpleGenericData> (data: T[], options: BatchUpdateOptions<T>): Promise<void>;
     getCondition (callback: RecordsetCallback): ReturnType<Recordset["toCondition"]>;
     invalidateDefinition (database: Database, table: Table): void;

@@ -320,6 +320,25 @@ module.exports = class QuerySingleton extends Template {
 	}
 
 	/**
+	 * Returns a boolean determining if a given table has a provided column
+	 * @param {string} database
+	 * @param {string} table
+	 * @param {string} column
+	 * @returns {Promise<boolean>}
+	 */
+	async isTableColumnPresent (database, table, column) {
+		const exists = await this.getRecordset(rs => rs
+			.select("1")
+			.from("INFORMATION_SCHEMA", "COLUMNS")
+			.where("TABLE_SCHEMA = %s", database)
+			.where("TABLE_NAME = %s", table)
+			.where("COLUMN_NAME = %s", column)
+		);
+
+		return (exists.length !== 0);
+	}
+
+	/**
 	 * Performs a configurable batched update.
 	 * Supports staggering, grouping statements into transactions, and more.
 	 * @param {Object[]} data List of rows to update
