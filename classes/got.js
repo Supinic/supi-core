@@ -76,48 +76,6 @@ module.exports = (function () {
 			}
 		}
 
-		static async _loadData () {
-			StaticGot.data = [];
-			const data = await sb.Query.getRecordset(rs => rs
-				.select("*")
-				.from("data", "Got_Instance")
-				.orderBy("Parent ASC")
-			);
-
-			let count = 0;
-			while (data.length > 0) {
-				const index = count % data.length;
-				const row = data[index % data.length];
-				if (row.Parent && !StaticGot.data.some(i => i[SymbolName] === row.Parent)) {
-					count++;
-					continue;
-				}
-
-				let options = {};
-				if (row.Options_Type === "JSON") {
-					options = JSON.parse(row.Options);
-				}
-				else if (row.Options_Type === "function") {
-					options = eval(row.Options)();
-				}
-
-				let instance;
-				if (row.Parent) {
-					const parent = StaticGot.data.find(i => i[SymbolName] === row.Parent);
-					instance = parent.extend(options);
-				}
-				else {
-					instance = gotModule.got.extend(options);
-				}
-
-				instance[SymbolName] = row.Name;
-
-				StaticGot.data.push(instance);
-				data.splice(index, 1);
-				count++;
-			}
-		}
-
 		static get (identifier) {
 			if (identifier instanceof StaticGot) {
 				return identifier;
