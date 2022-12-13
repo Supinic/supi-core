@@ -13,6 +13,8 @@ module.exports = (function () {
 	const sanitize = (string) => string.replaceAll(/\.\.\/?/g, "");
 
 	class StaticGot extends require("./template.js") {
+		static importable = true;
+
 		static async loadData () {
 			gotModule = await import("got");
 			gotRequestErrors = [

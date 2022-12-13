@@ -11,6 +11,8 @@ module.exports = class Cron extends require("./template.js") {
 	job;
 	#disabled;
 
+	static importable = true;
+
 	constructor (data) {
 		super();
 
