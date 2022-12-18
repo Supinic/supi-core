@@ -68,6 +68,19 @@ module.exports = class Batch {
 	 * @returns {number} The index of added data record
 	 */
 	add (data) {
+		for (const key of Object.keys(data)) {
+			const column = this.columns.find(i => i.name === key);
+			if (!column) {
+				throw new sb.Error({
+					message: "Invalid batch column provided",
+					args: {
+						column: key,
+						allowedColumns: this.columns.map(i => i.name)
+					}
+				});
+			}
+		}
+
 		return (this.records.push(data) - 1);
 	}
 
