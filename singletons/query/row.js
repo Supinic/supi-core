@@ -119,7 +119,7 @@ module.exports = class Row {
 		this.reset();
 
 		const conditions = [];
-		if (primaryKey.constructor === Object) {
+		if (primaryKey?.constructor?.name === "Object") {
 			for (const [key, value] of Object.entries(primaryKey)) {
 				const column = this.#definition.columns.find(i => i.name === key);
 				if (!column) {
