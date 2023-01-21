@@ -36,9 +36,10 @@ const moduleMap = {
 	},
 	parseDuration: () => require("duration-parser"),
 	ffprobe: () => require("ffprobe"),
-	diceRollEval: () => require("dice-roll-eval"),
 	transliterate: () => require("transliteration").transliterate
 };
+
+const RollDice = require("roll-dice");
 
 const linkRegex = /(((http|https):\/\/)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*))/gi;
 
@@ -1333,15 +1334,17 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	 * Evaluates an expression in standard dice notation form
 	 * @param {string} input
 	 * @param {number} limit max number of rolls in a single evaluation
-	 * @returns {number}
-	 * @throws {Error}
+	 * @returns {number|null}
 	 */
 	evalDiceRoll (input, limit) {
-		return this.modules.diceRollEval(input, {
-			limit,
-			strict: false,
-			rng: (min, max) => sb.Utils.random(min, max)
-		});
+		const seed = this.random(0, 1e12);
+		const resultLimit = limit ?? Number.MAX_SAFE_INTEGER;
+		try {
+			return Number(RollDice.roll(input, BigInt(seed), BigInt(resultLimit)));
+		}
+		catch {
+			return null;
+		}
 	}
 
 	/**

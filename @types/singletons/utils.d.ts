@@ -13,7 +13,6 @@ import { Output as RSSOutput } from "rss-parser";
 import { Random } from "random-js";
 import { parse as DurationParseFunction } from "duration-parser";
 // import * as FFProbe from "ffprobe";
-// import * as DiceRollEval from "dice-roll-eval";
 import { transliterate as TransliterateFunction } from "transliteration";
 
 declare type Modules = {
