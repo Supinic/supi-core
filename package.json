@@ -6,23 +6,23 @@
   "dependencies": {
     "async-markov": "github:supinic/async-markov",
     "cheerio": "^1.0.0-rc.12",
-    "chrono-node": "^2.4.1",
-    "cron": "^2.1.0",
-    "roll-dice": "npm:@jprochazk/roll-dice@^0.2.0",
+    "chrono-node": "^2.5.0",
+    "cron": "^2.2.0",
+    "roll-dice": "npm:@jprochazk/roll-dice@^0.2.2",
     "duration-parser": "github:supinic/duration-parser",
     "ffprobe": "^1.1.2",
     "form-data": "^4.0.0",
-    "got": "^12.5.1",
-    "ioredis": "^5.2.3",
+    "got": "^12.5.3",
+    "ioredis": "^5.2.5",
     "language-iso-codes": "github:supinic/language-iso-codes",
     "long-timeout": "github:supinic/long-timeout",
-    "mariadb": "^3.0.1",
+    "mariadb": "^3.0.2",
     "random-js": "^2.1.0",
     "rss-parser": "^3.12.0",
     "supibot-package-manager": "github:supinic/supibot-package-manager",
     "track-link-parser": "github:supinic/track-link-parser",
     "transliteration": "^2.3.5",
-    "vm2": "^3.9.11"
+    "vm2": "^3.9.13"
   },
   "author": "Supinic",
   "license": "AGPL-3.0",
@@ -34,11 +34,11 @@
     "test": "mocha ./tests --recursive --exit"
   },
   "devDependencies": {
-    "@babel/core": "^7.19.3",
+    "@babel/core": "^7.20.12",
     "@babel/eslint-parser": "^7.19.1",
-    "eslint": "^8.24.0",
-    "eslint-plugin-unicorn": "^44.0.1",
-    "mocha": "^10.0.0",
+    "eslint": "^8.32.0",
+    "eslint-plugin-unicorn": "^45.0.2",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0"
   },
   "types": "./@types/index.d.ts"
