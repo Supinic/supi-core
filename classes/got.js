@@ -23,6 +23,8 @@ module.exports = (function () {
 				gotModule.RequestError,
 				gotModule.TimeoutError
 			];
+
+			return this;
 		}
 
 		static get (identifier) {
