@@ -65,7 +65,7 @@ module.exports = (function () {
 
 			let count = 0;
 			const result = [];
-			const loadedParents = new Set(null);
+			const loadedParents = new Set([null]);
 			while (result.length < definitions.length) {
 				const index = count % definitions.length;
 				const definition = definitions[index % definitions.length];
