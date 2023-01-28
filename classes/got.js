@@ -3,7 +3,7 @@
  */
 module.exports = (function () {
 	const FormData = require("form-data");
-	const SymbolName = Symbol("Name");
+	const nameSymbol = Symbol("Name");
 
 	let gotModule;
 	let gotRequestErrors;
@@ -15,67 +15,14 @@ module.exports = (function () {
 	class StaticGot extends require("./template.js") {
 		static importable = true;
 
-		static async loadData () {
-			gotModule = await import("got");
-			gotRequestErrors = [
+		static async initialize () {
+			gotModule ??= await import("got");
+			gotRequestErrors ??= [
 				gotModule.CancelError,
 				gotModule.HTTPError,
 				gotModule.RequestError,
 				gotModule.TimeoutError
 			];
-
-			StaticGot.data = [];
-
-			let count = 0;
-			const { definitions: data } = await import("supibot-package-manager/got/index.mjs");
-
-			while (data.length > 0) {
-				const index = count % data.length;
-				const item = data[index % data.length].default;
-
-				if (item.parent && !StaticGot.data.some(i => i[SymbolName] === item.parent)) {
-					count++;
-					continue;
-				}
-
-				let initError;
-				let options = {};
-				if (item.optionsType === "object") {
-					options = item.options;
-				}
-				else if (item.optionsType === "function") {
-					try {
-						options = item.options(sb);
-					}
-					catch (e) {
-						console.warn(`Got instance ${item.name} could not be initialized, skipping`);
-						initError = e;
-					}
-				}
-
-				let instance;
-				if (initError) {
-					instance = () => {
-						throw new sb.Error({
-							message: "Instance is not available due to initialization error",
-							cause: initError
-						});
-					};
-				}
-				else if (item.parent) {
-					const parent = StaticGot.data.find(i => i[SymbolName] === item.parent);
-					instance = parent.extend(options);
-				}
-				else {
-					instance = gotModule.got.extend(options);
-				}
-
-				instance[SymbolName] = item.name;
-
-				StaticGot.data.push(instance);
-				data.splice(index, 1);
-				count++;
-			}
 		}
 
 		static get (identifier) {
@@ -83,7 +30,7 @@ module.exports = (function () {
 				return identifier;
 			}
 			else if (typeof identifier === "string") {
-				return StaticGot.data.find(i => i[SymbolName] === identifier) ?? null;
+				return StaticGot.data.find(i => i[nameSymbol] === identifier) ?? null;
 			}
 			else {
 				throw new sb.Error({
@@ -91,6 +38,104 @@ module.exports = (function () {
 					args: { id: identifier, type: typeof identifier }
 				});
 			}
+		}
+
+		static importData (definitions) {
+			if (!Array.isArray(definitions)) {
+				throw new sb.Error({
+					message: "Definitions must be provided as an array"
+				});
+			}
+
+			const instanceParents = new Set(definitions.map(i => i.parent));
+			const availableParents = new Set([null, ...definitions.map(i => i.name)]);
+			for (const instanceParent of instanceParents) {
+				if (!availableParents.has(instanceParent)) {
+					throw new sb.Error({
+						message: "Instance parent is not defined",
+						args: {
+							requested: instanceParent,
+							availableParents: [...availableParents]
+						}
+					});
+				}
+			}
+
+			let count = 0;
+			const result = [];
+			while (result.length < definitions.length) {
+				const index = count % definitions.length;
+				const definition = definitions[index % definitions.length];
+				if (availableParents.has(definition.parent)) {
+					const instance = StaticGot.#add(definition, result);
+					result.push(instance);
+				}
+
+				count++;
+			}
+
+			StaticGot.data = result;
+		}
+
+		static importSpecific (...definitions) {
+			for (const definition of definitions) {
+				const oldInstanceIndex = StaticGot.data.findIndex(i => i[nameSymbol] === definition.name);
+				if (oldInstanceIndex !== -1) {
+					StaticGot.data.splice(oldInstanceIndex, 1);
+				}
+
+				const newInstance = StaticGot.#add(definition, StaticGot.data);
+				StaticGot.data.push(newInstance);
+			}
+		}
+
+		static #add (definition, parentDefinitions) {
+			let initError;
+			let options = {};
+			if (definition.optionsType === "object") {
+				options = definition.options;
+			}
+			else if (definition.optionsType === "function") {
+				try {
+					options = definition.options();
+				}
+				catch (e) {
+					console.warn(`Got instance ${definition.name} init error - skipped`, e);
+					initError = e;
+				}
+			}
+
+			let instance;
+			if (initError) {
+				instance = () => {
+					throw new sb.Error({
+						message: "Instance is not available due to initialization error",
+						args: { definition },
+						cause: initError
+					});
+				};
+			}
+			else if (definition.parent) {
+				const parent = parentDefinitions.find(i => i[nameSymbol] === definition.name);
+				if (!parent) {
+					throw new sb.Error({
+						message: "Requested parent instance does not exist",
+						args: {
+							requested: definition.parent,
+							existing: parentDefinitions.map(i => i[nameSymbol])
+						}
+					});
+				}
+
+				instance = parent.extend(options);
+			}
+			else {
+				instance = gotModule.got.extend(options);
+			}
+
+			instance[nameSymbol] = definition.name;
+
+			return instance;
 		}
 
 		static gql (gqlOptions = {}) {
