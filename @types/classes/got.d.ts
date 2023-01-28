@@ -59,6 +59,8 @@ declare class StaticGot extends ClassTemplate {
 export const GotProxy: {
 	(input: URLOrGotProxyOptions): GotReturn;
 	(name: string, input: URLOrGotProxyOptions): GotReturn;
-
-	[P: string]: StaticGot[keyof StaticGot] | Got[keyof Got];
+} & {
+	[P in keyof typeof StaticGot]: typeof StaticGot[P]
+} & {
+	[P in keyof Got]: Got[P]
 }
