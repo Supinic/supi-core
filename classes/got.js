@@ -65,12 +65,14 @@ module.exports = (function () {
 
 			let count = 0;
 			const result = [];
+			const loadedParents = new Set(null);
 			while (result.length < definitions.length) {
 				const index = count % definitions.length;
 				const definition = definitions[index % definitions.length];
-				if (availableParents.has(definition.parent)) {
+				if (loadedParents.has(definition.parent)) {
 					const instance = StaticGot.#add(definition, result);
 					result.push(instance);
+					loadedParents.add(instance[nameSymbol]);
 				}
 
 				count++;
