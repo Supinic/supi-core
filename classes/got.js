@@ -118,7 +118,7 @@ module.exports = (function () {
 				};
 			}
 			else if (definition.parent) {
-				const parent = parentDefinitions.find(i => i[nameSymbol] === definition.name);
+				const parent = parentDefinitions.find(i => i[nameSymbol] === definition.parent);
 				if (!parent) {
 					throw new sb.Error({
 						message: "Requested parent instance does not exist",
