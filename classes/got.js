@@ -3,7 +3,7 @@
  */
 module.exports = (function () {
 	const FormData = require("form-data");
-	const nameSymbol = Symbol("Name");
+	const nameSymbol = Symbol.for("name");
 
 	let gotModule;
 	let gotRequestErrors;
