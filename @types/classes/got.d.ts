@@ -43,8 +43,8 @@ declare class StaticGot extends ClassTemplate {
 
 	static #add (definition: Definition, parentDefinitions: GotInstance[]): GotInstance;
 
-	static importData (definitions: Definition[]): void;
-	static importSpecific (...definitions: Definition[]): void;
+	static importData (definitions: Definition[]): Promise<void>;
+	static importSpecific (...definitions: Definition[]): Promise<void>;
 
 	static get (identifier: Like): GotInstance | null;
 	static gql (gqlOptions: GQLOptions): unknown;

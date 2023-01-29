@@ -42,7 +42,7 @@ module.exports = (function () {
 			}
 		}
 
-		static importData (definitions) {
+		static async importData (definitions) {
 			if (!Array.isArray(definitions)) {
 				throw new sb.Error({
 					message: "Definitions must be provided as an array"
@@ -81,7 +81,7 @@ module.exports = (function () {
 			StaticGot.data = result;
 		}
 
-		static importSpecific (...definitions) {
+		static async importSpecific (...definitions) {
 			for (const definition of definitions) {
 				const oldInstanceIndex = StaticGot.data.findIndex(i => i[nameSymbol] === definition.name);
 				if (oldInstanceIndex !== -1) {
