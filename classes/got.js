@@ -71,11 +71,7 @@ module.exports = (function () {
 			while (result.length < definitions.length) {
 				const index = count % definitions.length;
 				const definition = definitions[index % definitions.length];
-				if (loadedDefinitions.has(definition)) {
-					continue;
-				}
-
-				if (definition.parent === null || loadedParents.has(definition.parent)) {
+				if (!loadedDefinitions.has(definition) && (definition.parent === null || loadedParents.has(definition.parent))) {
 					const instance = StaticGot.#add(definition, result);
 					result.push(instance);
 					loadedParents.add(instance[nameSymbol]);
