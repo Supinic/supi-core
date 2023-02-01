@@ -32,7 +32,7 @@ export declare class CustomDate extends Date {
 	static zf (number: number, padding: number): string;
 
 	/**
-	 * "Normalizes" the Date.UTC static method by subtracting 1 from the provided month humber,
+	 * "Normalizes" the `Date.UTC` native static method by subtracting 1 from the provided month number,
 	 * therefore matching the 1-indexed values used for days.
 	 */
 	static UTC: DateConstructor["UTC"];
