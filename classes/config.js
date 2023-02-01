@@ -12,6 +12,7 @@ module.exports = class Config extends require("./template.js") {
 
 	static data = new Map();
 	static nonStrictNotifications = new Map();
+	static uniqueIdentifier = "Name";
 
 	constructor (data) {
 		super();

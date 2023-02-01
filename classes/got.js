@@ -14,6 +14,7 @@ module.exports = (function () {
 
 	class StaticGot extends require("./template.js") {
 		static importable = true;
+		static uniqueIdentifier = nameSymbol;
 
 		static async initialize () {
 			gotModule ??= await import("got");

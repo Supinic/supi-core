@@ -12,6 +12,7 @@ module.exports = class Cron extends require("./template.js") {
 	#disabled;
 
 	static importable = true;
+	static uniqueIdentifier = "Name";
 
 	constructor (data) {
 		super();
