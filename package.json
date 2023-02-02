@@ -8,7 +8,6 @@
     "cheerio": "^1.0.0-rc.12",
     "chrono-node": "^2.5.0",
     "cron": "^2.2.0",
-    "roll-dice": "npm:@jprochazk/roll-dice@^0.2.2",
     "duration-parser": "github:supinic/duration-parser",
     "ffprobe": "^1.1.2",
     "form-data": "^4.0.0",
@@ -18,8 +17,8 @@
     "long-timeout": "github:supinic/long-timeout",
     "mariadb": "^3.0.2",
     "random-js": "^2.1.0",
+    "roll-dice": "npm:@jprochazk/roll-dice@^0.2.2",
     "rss-parser": "^3.12.0",
-    "supibot-package-manager": "github:supinic/supibot-package-manager",
     "track-link-parser": "github:supinic/track-link-parser",
     "transliteration": "^2.3.5",
     "vm2": "^3.9.13"
