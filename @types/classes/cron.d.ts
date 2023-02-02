@@ -7,7 +7,6 @@ import { SimpleGenericData } from "../globals";
 declare type ConstructorData = {
 	Name: string;
 	Expression: CronExpression;
-	Type: Type,
 	Defer: Defer | (() => Defer) | string | null;
 	Code: (() => void) | string;
 };
@@ -18,8 +17,6 @@ export declare type Defer = {
 	end: number;
 };
 export declare type Like = string | number | symbol | Cron;
-export declare type Status = string;
-export declare type Type = "Bot" | "Website" | "All";
 
 /**
  * Represents a function that's executed every some time, based on its cron-expression.
@@ -31,8 +28,6 @@ export declare class Cron extends ClassTemplate {
 	static reloadSpecific (...list: Cron[]): Promise<boolean>;
 	static get (identifier: Like): Cron | null;
 	static destroy (): void;
-
-	static get types (): Type[];
 
 	/**
 	 * Unique cron name
@@ -67,7 +62,7 @@ export declare class Cron extends ClassTemplate {
 	/**
 	 * The cron job from the module "cron" itself.
 	 */
-	job: unknown | null;
+	job: CronJob | null;
 
 	/**
 	 * Represents the cron instance's status - whether started or not.

@@ -73,9 +73,6 @@ module.exports = class Cron extends require("./template.js") {
 			});
 		}
 
-		// For "foreign" contexts, make sure to disable the Cron, so it is unavailable.
-		this.#disabled = Boolean(data.Type && !Cron.types.includes(data.Type));
-
 		this.job = null;
 		this.data = {};
 	}
@@ -174,18 +171,6 @@ module.exports = class Cron extends require("./template.js") {
 				}
 			});
 		}
-	}
-
-	static get types () {
-		const types = ["All"];
-		if (process.env.PROJECT_TYPE === "bot") {
-			types.push("Bot");
-		}
-		else if (process.env.PROJECT_TYPE === "site") {
-			types.push("Website");
-		}
-
-		return types;
 	}
 
 	static destroy () {
