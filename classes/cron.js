@@ -139,78 +139,20 @@ module.exports = class Cron extends require("./template.js") {
 
 	get disabled () { return this.#disabled; }
 
-	static async loadData () {
-		Cron.data = [];
-		const { definitions } = await require("supibot-package-manager/crons");
-
-		for (const definition of definitions) {
-			Cron.#create(definition);
-		}
+	static async initialize () {
+		// Override default behaviour of automatically loading module's data on initialization
+		this.data = [];
+		return this;
 	}
 
-	static async reloadData () {
+	static async importData (definitions) {
+		super.importData(definitions);
+
 		for (const cron of Cron.data) {
-			cron.destroy();
-		}
-
-		await super.reloadData();
-	}
-
-	static async reloadSpecific (...list) {
-		if (list.length === 0) {
-			return false;
-		}
-
-		const failed = [];
-		const existingCrons = list.map(i => Cron.get(i)).filter(Boolean);
-
-		const cronModulePath = require.resolve("supibot-package-manager/crons");
-		delete require.cache[cronModulePath];
-
-		for (const originalCron of existingCrons) {
-			const index = Cron.data.indexOf(originalCron);
-			const identifier = originalCron.Name;
-
-			originalCron.destroy();
-
-			if (index !== -1) {
-				Cron.data.splice(index, 1);
-			}
-
-			let path;
-			try {
-				path = require.resolve(`supibot-package-manager/crons/${identifier}`);
-				delete require.cache[path];
-			}
-			catch {
-				failed.push({
-					identifier,
-					reason: "no-path"
-				});
+			if (!cron.disabled) {
+				cron.start();
 			}
 		}
-
-		for (const name of list) {
-			let definition;
-			try {
-				definition = require(`supibot-package-manager/crons/${name}`);
-			}
-			catch {
-				failed.push({
-					name,
-					reason: "no-new-path"
-				});
-			}
-
-			if (definition) {
-				Cron.#create(definition);
-			}
-		}
-
-		return {
-			success: true,
-			failed
-		};
 	}
 
 	static get (identifier) {
@@ -232,17 +174,6 @@ module.exports = class Cron extends require("./template.js") {
 				}
 			});
 		}
-	}
-
-	static #create (definition) {
-		const cron = new Cron(definition);
-		if (!cron.disabled) {
-			cron.start();
-		}
-
-		Cron.data.push(cron);
-
-		return cron;
 	}
 
 	static get types () {
