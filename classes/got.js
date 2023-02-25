@@ -13,7 +13,7 @@ module.exports = (function () {
 	// Same thing applies for "%3D" - the escaped version of "."
 	const sanitize = (string) => string
 		.replaceAll(/\.\.\/?/g, "")
-		.replaceAll(/%3D%3D?/g, "");
+		.replaceAll(/%3D%3D\/?/g, "");
 
 	class StaticGot extends require("./template.js") {
 		static importable = true;
