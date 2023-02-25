@@ -10,7 +10,10 @@ module.exports = (function () {
 
 	// Replace out all occurrences of the "up one level" string - "../"
 	// Also if they are followed with another one, like so: "../.."
-	const sanitize = (string) => string.replaceAll(/\.\.\/?/g, "");
+	// Same thing applies for "%3D" - the escaped version of "."
+	const sanitize = (string) => string
+		.replaceAll(/\.\.\/?/g, "")
+		.replaceAll(/%3D%3D?/g, "");
 
 	class StaticGot extends require("./template.js") {
 		static importable = true;
