@@ -3,8 +3,7 @@ module.exports = (function () {
 	result.name = "errors";
 
 	const subtypes = [
-		"generic-request",
-		"not-implemented"
+		"generic-request"
 	];
 
 	for (const file of subtypes) {

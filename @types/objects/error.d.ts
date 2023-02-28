@@ -10,13 +10,6 @@ export namespace errors {
 			args?: JSONifiable;
 		});
 	}
-	class NotImplementedError extends CustomError {
-		constructor (obj?: {
-			args?: JSONifiable;
-		});
-
-		get message (): "Not implemented";
-	}
 }
 
 /**
