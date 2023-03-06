@@ -10,10 +10,10 @@ module.exports = (function () {
 
 	// Replace out all occurrences of the "up one level" string - "../"
 	// Also if they are followed with another one, like so: "../.."
-	// Same thing applies for "%2E" - the escaped version of "."
+	// Same thing applies for "%2E" - the escaped version of "."; and for backslash used instead of forward slash.
 	const sanitize = (string) => string
-		.replaceAll(/\.\.\/?/g, "")
-		.replaceAll(/%2E%2E\/?/g, "");
+		.replaceAll(/\.\.[/\\]?/g, "")
+		.replaceAll(/%2E%2E[/\\]?/g, "");
 
 	class StaticGot extends require("./template.js") {
 		static importable = true;
