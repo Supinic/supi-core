@@ -4,7 +4,7 @@ import { User } from "./user";
 import { CronJob } from "cron";
 import { SimpleGenericData } from "../globals";
 
-declare type ConstructorData = {
+declare type Definition = {
 	Name: string;
 	Expression: CronExpression;
 	Defer: Defer | (() => Defer) | string | null;
@@ -28,6 +28,9 @@ export declare class Cron extends ClassTemplate {
 	static reloadSpecific (...list: Cron[]): Promise<boolean>;
 	static get (identifier: Like): Cron | null;
 	static destroy (): void;
+
+	static importData (definitions: Definition[]): Promise<void>;
+	static importSpecific (...definitions: Definition[]): Promise<void>;
 
 	/**
 	 * Unique cron name
@@ -71,7 +74,7 @@ export declare class Cron extends ClassTemplate {
 
 	get disabled (): boolean;
 
-	constructor (data: ConstructorData);
+	constructor (data: Definition);
 
 	/**
 	 * Starts the cron job.

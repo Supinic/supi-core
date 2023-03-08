@@ -152,6 +152,10 @@ module.exports = class Cron extends require("./template.js") {
 		}
 	}
 
+	static async importSpecific (...definitions) {
+		super.genericImportSpecific(...definitions);
+	}
+
 	static get (identifier) {
 		if (identifier instanceof Cron) {
 			return identifier;
