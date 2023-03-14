@@ -494,7 +494,7 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			params.maxResults = 1;
 		}
 
-		const { items } = await sb.Got({
+		const { items } = await sb.Got("GenericAPI", {
 			url: `https://www.googleapis.com/youtube/v3/search`,
 			searchParams: {
 				key,
@@ -555,7 +555,7 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 				searchParams.pageToken = pageToken;
 			}
 
-			const { body: data, statusCode } = await sb.Got({
+			const { body: data, statusCode } = await sb.Got("GenericAPI", {
 				url: "https://www.googleapis.com/youtube/v3/playlistItems",
 				searchParams,
 				throwHttpErrors: false,
@@ -653,7 +653,7 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	 * @returns {Promise<Object>}
 	 */
 	async fetchGeoLocationData (key, query) {
-		const { results, status } = await sb.Got({
+		const { results, status } = await sb.Got("GenericAPI", {
 			url: "https://maps.googleapis.com/maps/api/geocode/json",
 			searchParams: {
 				key,
@@ -1364,7 +1364,7 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			? "image"
 			: "upload";
 
-		const { statusCode, body } = await sb.Got({
+		const { statusCode, body } = await sb.Got("GenericAPI", {
 			url: `https://api.imgur.com/3/${endpoint}`,
 			responseType: "json",
 			method: "POST",
@@ -1404,7 +1404,7 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 		const form = new sb.Got.FormData();
 		form.append("attachment", fileData, fileName);
 
-		const response = await sb.Got({
+		const response = await sb.Got("GenericAPI", {
 			method: "POST",
 			throwHttpErrors: false,
 			url: "https://i.nuuls.com/upload",
@@ -1432,7 +1432,7 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	 * @returns {Promise<NSFWDetectionResult>}
 	 */
 	async checkPictureNSFW (link) {
-		const { statusCode, body: data } = await sb.Got({
+		const { statusCode, body: data } = await sb.Got("GenericAPI", {
 			method: "POST",
 			responseType: "json",
 			throwHttpErrors: false,
@@ -1575,7 +1575,7 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 
 			let uploadResponse;
 			try {
-				uploadResponse = await sb.Got({
+				uploadResponse = await sb.Got("GenericAPI", {
 					url: "https://catbox.moe/user/api.php",
 					method: "POST",
 					throwHttpErrors: false,

@@ -36,7 +36,11 @@ module.exports = class LocalRequestSingleton extends require("./template.js") {
 	 * Returns boolean, if a request was sent - true, if the sound was played; false, if there was an error.
 	 */
 	async playAudio (name) {
-		const result = await sb.Got(`${this.url}/?audio=${name}`).text();
+		const result = await sb.Got("GenericAPI", {
+			url: `${this.url}/?audio=${name}`,
+			responseType: "text"
+		}).text();
+
 		return (result === "OK");
 	}
 
@@ -53,16 +57,20 @@ module.exports = class LocalRequestSingleton extends require("./template.js") {
 			searchParams.append("limit", options.limit);
 		}
 
-		const result = await sb.Got({
+		const result = await sb.Got("GenericAPI", {
 			url: this.url,
-			searchParams: searchParams.toString()
+			searchParams: searchParams.toString(),
+			responseType: "text"
 		}).text();
 
 		return (result === "true");
 	}
 
 	async checkTextToSpeech () {
-		const result = await sb.Got(`${this.url}/?ttsCheck=true`);
+		const result = await sb.Got("GenericAPI", {
+			url: `${this.url}/?ttsCheck=true`,
+			responseType: "text"
+		}).text();
 
 		return (result === "true");
 	}
@@ -79,9 +87,10 @@ module.exports = class LocalRequestSingleton extends require("./template.js") {
 			searchParams.append("limit", options.limit);
 		}
 
-		const result = await sb.Got({
+		const result = await sb.Got("GenericAPI", {
 			url: this.url,
-			searchParams: searchParams.toString()
+			searchParams: searchParams.toString(),
+			responseType: "text"
 		}).text();
 
 		return (result === "true");
