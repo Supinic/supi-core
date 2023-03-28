@@ -22,6 +22,7 @@ declare type BatchUpdateOptions <T> = {
     staggerDelay: number;
 };
 declare type RecordsetCallback = (rs: Recordset) => Recordset;
+declare type RecordDeleterCallback = (rd: RecordDeleter) => RecordDeleter;
 declare type Lifetimes = {
     batches: WeakSet<Batch>;
     connectors: WeakSet<PoolConnection>;
@@ -122,8 +123,9 @@ export declare class QuerySingleton implements Template {
      * Transaction must be committed/rolled back manually afterwards.
      */
     getTransaction (): Promise<PoolConnection>;
-    getRecordset (callback: RecordsetCallback): ReturnType<Recordset["fetch"]>;
-    getRow (database: Database, table: Table): Promise<Row>;
+    getRecordset (callback: RecordsetCallback, options?: GenericQueryBuilderOptions): ReturnType<Recordset["fetch"]>;
+    getRecordDeleter (callback: RecordDeleterCallback, options?: GenericQueryBuilderOptions): ReturnType<RecordDeleter["fetch"]>;
+    getRow (database: Database, table: Table, options?: GenericQueryBuilderOptions): Promise<Row>;
 
     /**
      * Returns a new Batch instance.
