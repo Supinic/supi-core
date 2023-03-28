@@ -126,6 +126,18 @@ module.exports = class QuerySingleton extends Template {
 		return this.raw(...args);
 	}
 
+	async transactionQuery (sql, transaction) {
+		if (transaction) {
+			return transaction.query({
+				sql,
+				multipleStatements: true
+			});
+		}
+		else {
+			return this.raw(sql);
+		}
+	}
+
 	async getTransaction () {
 		const connector = await this.pool.getConnection();
 		this.lifetimes.transactions.add(connector);
@@ -134,25 +146,33 @@ module.exports = class QuerySingleton extends Template {
 		return connector;
 	}
 
-	async getRecordset (callback) {
-		const rs = new Recordset(this);
+	async getRecordset (callback, options = {}) {
+		const rs = new Recordset(this, options);
 		this.lifetimes.recordsets.add(rs);
 
 		callback(rs);
 		return await rs.fetch();
 	}
 
-	async getRecordUpdater (callback) {
-		const ru = new RecordUpdater(this);
+	async getRecordDeleter (callback, options = {}) {
+		const rd = new RecordDeleter(this, options);
+		this.lifetimes.recordDeleters.add(rd);
+
+		callback(rd);
+		return await rd.fetch();
+	}
+
+	async getRecordUpdater (callback, options = {}) {
+		const ru = new RecordUpdater(this, options);
 		this.lifetimes.recordUpdaters.add(ru);
 
 		callback(ru);
 		return await ru.fetch();
 	}
 
-	async getRow (database, table) {
+	async getRow (database, table, options = {}) {
 		/** @type {Row} */
-		const row = new Row(this);
+		const row = new Row(this, options);
 		this.lifetimes.rows.add(row);
 
 		await row.initialize(database, table);

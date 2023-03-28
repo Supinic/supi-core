@@ -1,8 +1,8 @@
 const ROW_COLLAPSED = Symbol("row-collapsed");
 
 module.exports = class Recordset {
-	#query = null;
-	#executor;
+	#query;
+	#transaction;
 	#fetchSingle = false;
 	#raw = null;
 	#options = {};
@@ -19,9 +19,9 @@ module.exports = class Recordset {
 	#offset = null;
 	#reference = [];
 
-	constructor (query, transaction) {
+	constructor (query, options = {}) {
 		this.#query = query;
-		this.#executor = transaction ?? query;
+		this.#transaction = options.transaction ?? null;
 	}
 
 	single () {
@@ -282,10 +282,6 @@ module.exports = class Recordset {
 		return this;
 	}
 
-	/**
-	 * Returns Recordset's WHERE condition.
-	 * @returns {string}
-	 */
 	toCondition () {
 		if (this.#where.length !== 0) {
 			return `(${this.#where.join(") AND (")})`;
@@ -322,10 +318,11 @@ module.exports = class Recordset {
 
 	async fetch () {
 		const sql = this.toSQL();
+		const sqlString = sql.join("\n");
 		let rows = null;
 
 		try {
-			rows = await this.#executor.raw(...sql);
+			rows = await this.#query.transactionQuery(sqlString, this.#transaction);
 		}
 		catch (e) {
 			console.error(e);

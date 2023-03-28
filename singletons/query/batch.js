@@ -4,7 +4,9 @@
  */
 module.exports = class Batch {
 	/** @type {QuerySingleton} */
-	query;
+	#query;
+	#transaction;
+
 	/** @type {string} */
 	database;
 	/** @type {string} */
@@ -17,17 +19,9 @@ module.exports = class Batch {
 	threshold = 1;
 	ready = false;
 
-	/**
-	 * Creates a new Batch instance. Constructor must be await-ed.
-	 * @param {QuerySingleton} query
-	 * @param {Object} options = {}
-	 * @param {string} options.database
-	 * @param {string} options.table
-	 * @param {number} [options.threshold]
-	 * @throws {sb.Error} If a nonexistent column has been provided
-	 */
 	constructor (query, options) {
-		this.query = query;
+		this.#query = query;
+		this.#transaction = options.transaction ?? null;
 		this.database = options.database;
 		this.table = options.table;
 
@@ -36,12 +30,8 @@ module.exports = class Batch {
 		}
 	}
 
-	/**
-	 * @param {string[]} columns
-	 * @returns {Promise<Batch>}
-	 */
 	async initialize (columns) {
-		const definition = await this.query.getDefinition(this.database, this.table);
+		const definition = await this.#query.getDefinition(this.database, this.table);
 		for (const column of columns) {
 			if (definition.columns.every(col => column !== col.name)) {
 				throw new sb.Error({
@@ -62,11 +52,6 @@ module.exports = class Batch {
 		return this;
 	}
 
-	/**
-	 * Adds a data record, based on the Batch's columns definition
-	 * @param {Object} data
-	 * @returns {number} The index of added data record
-	 */
 	add (data) {
 		for (const key of Object.keys(data)) {
 			const column = this.columns.find(i => i.name === key);
@@ -84,31 +69,14 @@ module.exports = class Batch {
 		return (this.records.push(data) - 1);
 	}
 
-	/**
-	 * Deletes a record based on its index
-	 * @param index
-	 */
 	delete (index) {
 		this.records.splice(index, 1);
 	}
 
-	/**
-	 * Attempts to find a record based on a callback function
-	 * @param {Function} callback
-	 * @returns {Object|null} record
-	 */
 	find (callback) {
 		return this.records.find(callback);
 	}
 
-	/**
-	 * Executes the INSERT statement for bound database, table and columns.
-	 * Automatically clears itself after the statement is executed.
-	 * @param {Object} options Additional options
-	 * @param {boolean} options.ignore If true, batch will use `INSERT IGNORE INTO`.
-	 * @param {Function} options.duplicate If set, will use the result of this callback to create ON DUPLICATE KEY clausule.
-	 * @returns {Promise<void>}
-	 */
 	async insert (options = {}) {
 		if (this.records.length < this.threshold) {
 			return;
@@ -119,10 +87,10 @@ module.exports = class Batch {
 		for (const column of this.columns) {
 			const name = column.name;
 			const type = column.type;
-			stringColumns.push(this.query.escapeIdentifier(name));
+			stringColumns.push(this.#query.escapeIdentifier(name));
 
 			for (let i = 0; i < this.records.length; i++) {
-				data[i].push(this.query.convertToSQL(this.records[i][name], type));
+				data[i].push(this.#query.convertToSQL(this.records[i][name], type));
 			}
 		}
 
@@ -135,14 +103,16 @@ module.exports = class Batch {
 
 		data = data.filter(i => i.length !== 0);
 		if (data.length !== 0) {
+			const sqlString = [
+				`INSERT ${ignore ? "IGNORE" : ""} INTO`,
+				`\`${this.database}\`.\`${this.table}\``,
+				`(${stringColumns.join(", ")})`,
+				`VALUES (${data.map(row => row.join(", ")).join("), (")})`,
+				(duplicate ? duplicate(data, stringColumns) : "")
+			].join("\n");
+
 			try {
-				await this.query.raw([
-					`INSERT ${ignore ? "IGNORE" : ""} INTO`,
-					`\`${this.database}\`.\`${this.table}\``,
-					`(${stringColumns.join(", ")})`,
-					`VALUES (${data.map(row => row.join(", ")).join("), (")})`,
-					(duplicate ? duplicate(data, stringColumns) : "")
-				].join(" "));
+				await this.#query.transactionQuery(sqlString, this.#transaction);
 			}
 			catch (e) {
 				console.error("Batch SQL failed", e);
@@ -152,21 +122,15 @@ module.exports = class Batch {
 		this.clear();
 	}
 
-	/**
-	 * Clears all records from the instance.
-	 */
 	clear () {
 		this.records = [];
 	}
 
-	/**
-	 * Destroys the instance, freeing up memory and making it unusable.
-	 */
 	destroy () {
 		this.clear();
 		this.columns = null;
 		this.records = null;
-		this.query = null;
+		this.#query = null;
 		this.table = null;
 		this.database = null;
 	}

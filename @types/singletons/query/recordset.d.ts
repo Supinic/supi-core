@@ -1,4 +1,12 @@
-import { ColumnDefinition, Database, FormatValue, QuerySingleton as Query, Table } from "./index";
+import {
+    ColumnDefinition,
+    Database,
+    FormatValue,
+    GenericQueryBuilderOptions,
+    QuerySingleton as Query,
+    Table
+} from "./index";
+import { PoolConnection } from "mariadb";
 
 declare type Field = ColumnDefinition["name"];
 export declare type Result = FormatValue | {
@@ -72,6 +80,7 @@ export declare class Recordset {
     private static collapseReferencedData (data: Result[], options: ReferenceOptions): void;
 
     readonly #query: Query;
+    readonly #transaction: PoolConnection | null;
     #fetchSingle: boolean;
     #raw: boolean;
     #flat: Field | null;
@@ -83,7 +92,7 @@ export declare class Recordset {
      */
     #conditionWrapper: (type: "where" | "having", ...args: string[]) => Recordset;
 
-    constructor (query: Query);
+    constructor (query: Query, options?: GenericQueryBuilderOptions);
 
     /**
      * Sets a flag so the recordset will return the first result directly instead of returning an array.
@@ -147,7 +156,7 @@ export declare class Recordset {
 
     /**
      * Sets a HAVING condition.
-     * First parameter can be an option argument {@link WhereHavingParams}
+     * First parameter can be an option argument.
      * Multiple formatting symbols {@link FormatSymbol} can be used
      */
     having (...args: [string, ...any[]]): Recordset;

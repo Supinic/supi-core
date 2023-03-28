@@ -2,7 +2,8 @@
  * Represents the UPDATE sql statement.
  */
 module.exports = class RecordUpdater {
-	#query = null;
+	#query;
+	#transaction;
 	#update = { database: null, table: null };
 	#set = [];
 	#where = [];
@@ -10,14 +11,10 @@ module.exports = class RecordUpdater {
 	#priority = "normal";
 	#ignoreDuplicates = false;
 
-	/**
-	 * Creates a new Recordset instance.
-	 * @param {Query} query
-	 * @name {Recordset}
-	 */
-	constructor (query) {
+	constructor (query, options = {}) {
 		/** @type {Query} */
 		this.#query = query;
+		this.#transaction = options.transaction ?? null;
 	}
 
 	priority (value) {
@@ -37,36 +34,17 @@ module.exports = class RecordUpdater {
 		return this;
 	}
 
-	/**
-	 * Sets the UPDATE database + table.
-	 * @param {string} database
-	 * @param {string} table
-	 * @returns {RecordUpdater}
-	 */
 	update (database, table) {
 		this.#update.database = database;
 		this.#update.table = table;
 		return this;
 	}
 
-	/**
-	 * Sets the SET statement for a specific column.
-	 * @param {string} column
-	 * @param {*} value
-	 * @returns {RecordUpdater}
-	 */
 	set (column, value) {
 		this.#set = this.#set.concat({ column, value });
 		return this;
 	}
 
-	/**
-	 * Sets a WHERE condition.
-	 * First parameter can be an option argument {@link WhereHavingParams}
-	 * Multiple formatting symbols {@link FormatSymbol} can be used
-	 * @param {Array.<string|FormatSymbol|WhereHavingParams>} args
-	 * @returns {RecordUpdater}
-	 */
 	where (...args) {
 		let options = {};
 		if (args[0] && args[0].constructor === Object) {
@@ -93,12 +71,6 @@ module.exports = class RecordUpdater {
 		return this;
 	}
 
-	/**
-	 * Translates the RecordUpdater to its SQL representation.
-	 * @returns {Promise<string[]>}
-	 * @throws {sb.Error} If no UPDATE database/table have been provided.
-	 * @throws {sb.Error} If no SET columns have been provided.
-	 */
 	async toSQL () {
 		if (!this.#update.database || !this.#update.table) {
 			throw new sb.Error({
@@ -143,12 +115,9 @@ module.exports = class RecordUpdater {
 		return sql;
 	}
 
-	/**
-	 * Runs the UPDATE SQL query and returns the status object.
-	 * @returns {Object}
-	 */
 	async fetch () {
 		const sql = await this.toSQL();
-		return await this.#query.raw(...sql);
+		const sqlString = sql.join("\n");
+		return await this.#query.transactionQuery(sqlString, this.#transaction);
 	}
 };

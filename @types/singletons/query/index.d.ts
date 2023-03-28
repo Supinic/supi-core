@@ -75,6 +75,9 @@ export declare type WhereHavingObject = {
     condition?: boolean;
     raw?: string;
 };
+export declare type GenericQueryBuilderOptions = {
+    transaction?: PoolConnection
+};
 
 /**
  * Query represents every possible access to the database.
@@ -108,6 +111,11 @@ export declare class QuerySingleton implements Template {
      * Alias of {@link Query.raw}
      */
     send (...args: string[]): ReturnType<QuerySingleton["raw"]>;
+
+    /**
+     * Allows a transaction-based query, or a regular one if none is provided.
+     */
+    transactionQuery (sqlString: string, transaction: PoolConnection | null): ReturnType<QuerySingleton["raw"]>;
 
     /**
      * Prepares a transaction for next use.

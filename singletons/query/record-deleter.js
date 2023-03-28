@@ -2,48 +2,28 @@
  * Represents the UPDATE sql statement.
  */
 module.exports = class RecordDeleter {
-	#query = null;
+	#query;
+	#transaction;
 	#deleteFrom = { database: null, table: null };
 	#where = [];
 	#confirmedFullDelete = false;
 
-	/**
-	 * Creates a new Recordset instance.
-	 * @param {Query} query
-	 * @name {Recordset}
-	 */
-	constructor (query) {
+	constructor (query, options = {}) {
 		/** @type {Query} */
 		this.#query = query;
+		this.#transaction = options.transaction ?? null;
 	}
 
-	/**
-	 * Placeholder for the "correct" SQL syntax
-	 * @returns {RecordDeleter}
-	 */
 	delete () {
 		return this;
 	}
 
-	/**
-	 * Creates a FROM statement for DELETE
-	 * @param {string} database
-	 * @param {string} table
-	 * @returns {RecordDeleter}
-	 */
 	from (database, table) {
 		this.#deleteFrom.database = database;
 		this.#deleteFrom.table = table;
 		return this;
 	}
 
-	/**
-	 * Sets a WHERE condition.
-	 * First parameter can be an option argument {@link WhereHavingParams}
-	 * Multiple formatting symbols {@link FormatSymbol} can be used
-	 * @param {Array.<string|FormatSymbol|WhereHavingParams>} args
-	 * @returns {RecordDeleter}
-	 */
 	where (...args) {
 		let options = {};
 		if (args[0] && args[0].constructor === Object) {
@@ -70,12 +50,6 @@ module.exports = class RecordDeleter {
 		return this;
 	}
 
-	/**
-	 * If there is a need to delete without WHERE, this flag must be set.
-	 * Otherwise, a no-condition DELETE will not be performed, and ends with an exception.
-	 * @returns {RecordDeleter}
-	 * @throws {sb.Error} If no FROM database/table have been provided.
-	 */
 	confirm () {
 		this.#confirmedFullDelete = true;
 		return this;
@@ -117,6 +91,7 @@ module.exports = class RecordDeleter {
 	 */
 	async fetch () {
 		const sql = await this.toSQL();
-		return await this.#query.raw(...sql);
+		const sqlString = sql.join("\n");
+		return await this.#query.transactionQuery(sqlString, this.#transaction);
 	}
 };

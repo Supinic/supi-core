@@ -1,12 +1,12 @@
 /**
  * Represents one row of a SQL database table.
- * @type Row
  */
 module.exports = class Row {
 	/** @type {TableDefinition} */
 	#definition;
-	/** @type {Query} */
+	/** @type {QuerySingleton} */
 	#query;
+	#transaction;
 
 	#values = {};
 	#originalValues = {};
@@ -51,22 +51,11 @@ module.exports = class Row {
 	#loaded = false;
 	#deleted = false;
 
-	/**
-	 * Creates a new Row instance.
-	 * Binds the current instance of Query to the row for internal use
-	 * @param {Query} query
-	 * @returns {Row}
-	 */
-	constructor (query) {
+	constructor (query, options = {}) {
 		this.#query = query;
+		this.#transaction = options.transaction ?? null;
 	}
 
-	/**
-	 * Initializes the row with database + table definitions
-	 * @param {string} database
-	 * @param {string} table
-	 * @returns {Promise<Row>} returns self
-	 */
 	async initialize (database, table) {
 		if (!database || !table) {
 			throw new sb.Error({
@@ -89,12 +78,6 @@ module.exports = class Row {
 		return this;
 	}
 
-	/**
-	 * Loads a row based on its primary key.
-	 * @param {*} primaryKey Single primitive value for implied PK, or an Object of primitives for multi-column PKs
-	 * @param {boolean} ignoreError = false If true, the method will not throw on non-existing row; rather returns an unloaded row
-	 * @returns {Promise<Row>}
-	 */
 	async load (primaryKey, ignoreError = false) {
 		if (!this.#initialized) {
 			throw new sb.Error({
@@ -166,10 +149,8 @@ module.exports = class Row {
 			conditions.push(`${identifier} = ${parsedValue}`);
 		}
 
-		const data = await this.#query.raw([
-			`SELECT * FROM ${this.#definition.escapedPath}`,
-			`WHERE ${conditions.join(" AND ")}`
-		].join(" "));
+		const sqlString = `SELECT * FROM ${this.#definition.escapedPath} WHERE ${conditions.join(" AND ")}`;
+		const data = await this.#query.transactionQuery(sqlString, this.#transaction);
 
 		if (!data[0]) {
 			if (ignoreError) {
@@ -196,15 +177,6 @@ module.exports = class Row {
 		return this;
 	}
 
-	/**
-	 * Saves the row.
-	 * If a primary key is present, saves the row as new (INSERT).
-	 * If not, saves an existing row (UPDATE).
-	 * @param {Object} options
-	 * @param {boolean} [options.ignore] If true, INSERT will be executed as INSERT IGNORE (ignores duplicate keys)
-	 * @param {boolean} [options.skipLoad] If true, the row will not re-load itself after saving
-	 * @returns {Promise<Object>}
-	 */
 	async save (options = {}) {
 		if (!this.#initialized) {
 			throw new sb.Error({
@@ -232,11 +204,9 @@ module.exports = class Row {
 			}
 
 			const conditions = this._getPrimaryKeyConditions();
-			outputData = await this.#query.raw([
-				`UPDATE ${this.#definition.escapedPath}`,
-				`SET ${setColumns.join(", ")}`,
-				`WHERE ${conditions.join(" AND ")}`
-			].join(" "));
+			const sqlString = `UPDATE ${this.#definition.escapedPath} SET ${setColumns.join(", ")} WHERE ${conditions.join(" AND ")}`;
+
+			outputData = await this.#query.transactionQuery(sqlString, this.#transaction);
 		}
 		else { // INSERT
 			const columns = [];
@@ -252,12 +222,8 @@ module.exports = class Row {
 
 			const ignore = (options.ignore === true) ? "IGNORE " : "";
 
-			// @todo use INSERT RETURNING, see below
-			outputData = await this.#query.send([
-				`INSERT ${ignore}INTO ${this.#definition.escapedPath}`,
-				`(${columns.join(",")})`,
-				`VALUES (${values.join(",")})`
-			].join(" "));
+			const sqlString = `INSERT ${ignore}INTO ${this.#definition.escapedPath} (${columns.join(",")}) VALUES (${values.join(",")})`;
+			outputData = await this.#query.transactionQuery(sqlString, this.#transaction);
 
 			if (outputData.insertId !== 0) {
 				const autoIncrementPK = this.#primaryKeyFields.find(i => i.autoIncrement);
@@ -273,10 +239,6 @@ module.exports = class Row {
 		return outputData;
 	}
 
-	/**
-	 * Performs a DELETE operation on the currently loaded row.
-	 * @returns {Promise<void>}
-	 */
 	async delete () {
 		if (!this.#initialized) {
 			throw new sb.Error({
@@ -287,11 +249,9 @@ module.exports = class Row {
 
 		if (this.#loaded) {
 			const conditions = this._getPrimaryKeyConditions();
+			const sqlString = `DELETE FROM ${this.#definition.escapedPath} WHERE ${conditions.join(" AND ")}`;
 
-			await this.#query.send([
-				`DELETE FROM ${this.#definition.escapedPath}`,
-				`WHERE ${conditions.join(" AND ")}`
-			].join(" "));
+			await this.#query.transactionQuery(sqlString, this.#transaction);
 
 			this.#loaded = false;
 			this.#deleted = true;
@@ -304,10 +264,6 @@ module.exports = class Row {
 		}
 	}
 
-	/**
-	 * @private
-	 * Resets the data of the currently loaded row.
-	 */
 	reset () {
 		if (!this.#initialized) {
 			throw new sb.Error({
@@ -323,11 +279,6 @@ module.exports = class Row {
 		}
 	}
 
-	/**
-	 * Syntax sugar to set multiple values at once.
-	 * @param {Object} data
-	 * @returns {Row}
-	 */
 	setValues (data) {
 		if (!this.#initialized) {
 			throw new sb.Error({
@@ -343,11 +294,6 @@ module.exports = class Row {
 		return this;
 	}
 
-	/**
-	 * Determines if a property exists on the row instance.
-	 * @param {string} property
-	 * @returns {boolean}
-	 */
 	hasProperty (property) {
 		if (!this.#initialized) {
 			throw new sb.Error({
@@ -359,11 +305,6 @@ module.exports = class Row {
 		return (typeof this.#values[property] !== "undefined");
 	}
 
-	/**
-	 * Creates and returns a simple Object with the Row's identifiers
-	 * @returns {RowErrorIdentifier}
-	 * @private
-	 */
 	_getErrorInfo () {
 		return {
 			database: this.#definition.database,
@@ -375,11 +316,6 @@ module.exports = class Row {
 		};
 	}
 
-	/**
-	 * Returns a list of conditions based on the Row's primary keys and values
-	 * @returns {string[]}
-	 * @private
-	 */
 	_getPrimaryKeyConditions () {
 		const conditions = [];
 		for (const column of this.#primaryKeyFields) {
@@ -392,7 +328,6 @@ module.exports = class Row {
 		return conditions;
 	}
 
-	/** @type {Object} */
 	get valuesObject () { return { ...this.#values }; }
 
 	get values () { return this.#valueProxy; }
@@ -412,13 +347,3 @@ module.exports = class Row {
 	get initialized () { return this.#initialized; }
 	get loaded () { return this.#loaded; }
 };
-
-/**
- * @typedef {Object} RowErrorIdentifier
- * @property {string} database
- * @property {string} table
- * @property {ColumnDefinition[]} primaryKeys
- * @property {boolean} deleted
- * @property {boolean} initialized
- * @property {boolean} loaded
- */
