@@ -1,5 +1,5 @@
 import { SingletonTemplate as Template } from "../template";
-import { Batch } from "./batch";
+import { Batch, ConstructorOptions as BatchOptions } from "./batch";
 import { Row } from "./row";
 import { RecordDeleter } from "./record-deleter";
 import { Recordset } from "./recordset";
@@ -76,6 +76,15 @@ export declare type WhereHavingObject = {
     raw?: string;
 };
 
+/**
+ * Query represents every possible access to the database.
+ *
+ * Exposes multiple ways to access the database definition:
+ * - {@link Batch}: A tool to INSERT multiple rows in one statement, for specified columns
+ * - {@link Recordset}: Result of a compound SELECT statement
+ * - {@link RecordUpdater}: UPDATEs specified columns with values, with specified condition(s)
+ * - {@link Row}: Single table row, select/insert/update/delete
+ */
 export declare class QuerySingleton implements Template {
     static module: QuerySingleton;
     static singleton (): QuerySingleton;
@@ -90,11 +99,32 @@ export declare class QuerySingleton implements Template {
 
     constructor ();
 
+    /**
+     * Executes a raw SQL query.
+     */
     raw (...args: string[]): ReturnType<PoolConnection["query"]>;
+
+    /**
+     * Alias of {@link Query.raw}
+     */
     send (...args: string[]): ReturnType<QuerySingleton["raw"]>;
+
+    /**
+     * Prepares a transaction for next use.
+     * Transaction must be committed/rolled back manually afterwards.
+     */
     getTransaction (): Promise<PoolConnection>;
     getRecordset (callback: RecordsetCallback): ReturnType<Recordset["fetch"]>;
     getRow (database: Database, table: Table): Promise<Row>;
+
+    /**
+     * Returns a new Batch instance.
+     * @param database Database of the table
+     * @param table Name of the table
+     * @param columns Column names to insert into given table
+     * @param options
+     */
+    getBatch (database: Database, table: Table, columns: string[], options: BatchOptions): Promise<Row>;
 
     isRecordset (input: any): input is Recordset;
     isRecordDeleter (input: any): input is RecordDeleter;
@@ -106,16 +136,58 @@ export declare class QuerySingleton implements Template {
     isDatabasePresent (database: Database): Promise<boolean>;
     isTablePresent (database: Database, table: Table): Promise<boolean>;
     isTableColumnPresent (database: Database, table: Table, column: ColumnDefinition["name"]): Promise<boolean>;
+
+    /**
+     * Performs a configurable batched update.
+     * Supports staggering, grouping statements into transactions, and more.
+     * @param data List of rows to update
+     * @param options Configurable options object
+     * @param options.callback Callback that gets passed into the RecordUpdater instances
+     */
     batchUpdate <T extends SimpleGenericData> (data: T[], options: BatchUpdateOptions<T>): Promise<void>;
     getCondition (callback: RecordsetCallback): ReturnType<Recordset["toCondition"]>;
+
+    /**
+     * Invalidates a specific table definition.
+     * The next time it is accessed, it will be refreshed.
+     */
     invalidateDefinition (database: Database, table: Table): void;
+
+    /**
+     * Invalidates all table definitions.
+     * The next time they're accessed, they will be refreshed.
+     */
     invalidateAllDefinitions (): void;
 
+    /**
+     * Converts a SQL value and type to a Javascript value
+     * SQL TINYINT(1) -> JS boolean
+     * SQL DATE/DATETIME/TIMESTAMP -> JS sb.Date
+     * SQL JSON -> JS Object
+     * SQL *INT/*TEXT/*CHAR -> JS number/string
+     */
     convertToJS (value: string, type: ColumnType): FormatValue;
+
+    /**
+     * Converts a Javascript value to its SQL counterpart
+     * JS null -> SQL NULL
+     * JS boolean -> SQL TINYINT(1)
+     * JS Date/sb.Date -> SQL TIME/DATE/DATETIME/TIMESTAMP
+     * JS string -> escaped SQL VARCHAR/*TEXT
+     * JS number -> SQL *INT
+     */
     convertToSQL (value: FormatValue, targetType: ColumnType): string;
     escapeIdentifier (string: string): string;
     escapeString (string: string): string;
+
+    /**
+     * Escapes a LIKE string to be SQL-compliant - makes sure to keep % characters in correct places
+     */
     escapeLikeString (string: string): string;
+
+    /**
+     * Replaces format symbols used in WHERE/HAVING with their provided values and escapes/parses them.
+     */
     parseFormatSymbol (type: FormatSymbol, param: FormatValue): string;
     setLogThreshold (value: number): void;
     disableLogThreshold (): void;

@@ -2,6 +2,7 @@ const ROW_COLLAPSED = Symbol("row-collapsed");
 
 module.exports = class Recordset {
 	#query = null;
+	#executor;
 	#fetchSingle = false;
 	#raw = null;
 	#options = {};
@@ -18,8 +19,9 @@ module.exports = class Recordset {
 	#offset = null;
 	#reference = [];
 
-	constructor (query) {
+	constructor (query, transaction) {
 		this.#query = query;
+		this.#executor = transaction ?? query;
 	}
 
 	single () {
@@ -323,7 +325,7 @@ module.exports = class Recordset {
 		let rows = null;
 
 		try {
-			rows = await this.#query.raw(...sql);
+			rows = await this.#executor.raw(...sql);
 		}
 		catch (e) {
 			console.error(e);
