@@ -1,22 +1,3 @@
-class GenericRequestError extends CustomError {
-	constructor (object = {}) {
-		super({
-			message: object.message,
-			name: "GenericRequestError",
-			args: {
-				...(object.args ?? {}),
-				statusCode: object.statusCode ?? null,
-				statusMessage: object.statusMessage ?? null,
-				hostname: object.hostname ?? null
-			}
-		});
-	}
-
-	static get name () {
-		return "GenericRequestError";
-	}
-}
-
 class CustomError extends globalThis.Error {
 	#args;
 	#timestamp;
@@ -80,6 +61,25 @@ class CustomError extends globalThis.Error {
 
 	static get GenericRequest () {
 		return GenericRequestError;
+	}
+}
+
+class GenericRequestError extends CustomError {
+	constructor (object = {}) {
+		super({
+			message: object.message,
+			name: "GenericRequestError",
+			args: {
+				...(object.args ?? {}),
+				statusCode: object.statusCode ?? null,
+				statusMessage: object.statusMessage ?? null,
+				hostname: object.hostname ?? null
+			}
+		});
+	}
+
+	static get name () {
+		return "GenericRequestError";
 	}
 }
 
