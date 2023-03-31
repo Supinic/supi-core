@@ -1,4 +1,23 @@
-module.exports = class CustomError extends globalThis.Error {
+class GenericRequestError extends CustomError {
+	constructor (object = {}) {
+		super({
+			message: object.message,
+			name: "GenericRequestError",
+			args: {
+				...(object.args ?? {}),
+				statusCode: object.statusCode ?? null,
+				statusMessage: object.statusMessage ?? null,
+				hostname: object.hostname ?? null
+			}
+		});
+	}
+
+	static get name () {
+		return "GenericRequestError";
+	}
+}
+
+class CustomError extends globalThis.Error {
 	#args;
 	#timestamp;
 	#messageDescriptor;
@@ -58,4 +77,10 @@ module.exports = class CustomError extends globalThis.Error {
 	get args () { return this.#args; }
 	get timestamp () { return this.#timestamp; }
 	get date () { return new Date(this.#timestamp); }
-};
+
+	static get GenericRequest () {
+		return GenericRequestError;
+	}
+}
+
+module.exports = CustomError;

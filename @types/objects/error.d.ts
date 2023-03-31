@@ -1,17 +1,5 @@
 import { JSONifiable, SimpleGenericData } from "../globals";
 
-export namespace errors {
-	class GenericRequestError extends CustomError {
-		constructor (obj?: {
-			message: string;
-			statusCode: number | null;
-			statusMessage: string | null;
-			hostname: string | null;
-			args?: JSONifiable;
-		});
-	}
-}
-
 /**
  * Custom error object. Receives an arguments object to provide more detailed error context.
  */
@@ -52,4 +40,19 @@ export declare class CustomError extends Error {
 	 * Datetime of the error creation as a Date object.
 	 */
 	get date (): Date;
+
+	/**
+	 * Provides the interface for "generic API request" errors
+	 */
+	static get GenericRequest (): GenericRequestError;
+}
+
+export declare class GenericRequestError extends CustomError {
+	constructor (obj?: {
+		message: string;
+		statusCode: number | null;
+		statusMessage: string | null;
+		hostname: string | null;
+		args?: JSONifiable;
+	});
 }
