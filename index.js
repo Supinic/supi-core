@@ -9,7 +9,6 @@ module.exports = (async function (options = {}) {
 	const files = [
 		"objects/date",
 		"objects/error",
-		"objects/errors",
 		"objects/promise",
 
 		"singletons/query",
