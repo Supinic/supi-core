@@ -50,8 +50,20 @@ module.exports = class QuerySingleton extends Template {
 	constructor () {
 		super();
 
-		if (!process.env.MARIA_USER || !process.env.MARIA_PASSWORD || (!process.env.MARIA_HOST && !process.env.MARIA_SOCKET_PATH)) {
-			throw new sb.Error({ message: "Database access must be initialized first" });
+		if (!process.env.MARIA_USER) {
+			throw new sb.Error({
+				message: "Database access must be initialized - missing MARIA_USER"
+			});
+		}
+		else if (typeof process.env.MARIA_PASSWORD !== "string") {
+			throw new sb.Error({
+				message: "Database access must be initialized - missing MARIA_PASSWORD (can be empty string)"
+			});
+		}
+		else if ((!process.env.MARIA_HOST && !process.env.MARIA_SOCKET_PATH)) {
+			throw new sb.Error({
+				message: "Database access must be initialized - missing MARIA_HOST or MARIA_SOCKET_PATH"
+			});
 		}
 
 		/** @type {TableDefinition[]} */
