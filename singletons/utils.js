@@ -1408,6 +1408,7 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			method: "POST",
 			throwHttpErrors: false,
 			url: "https://i.nuuls.com/upload",
+			responseType: "text",
 			headers: {
 				...form.getHeaders()
 			},
