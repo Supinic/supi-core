@@ -1,6 +1,6 @@
 // objects
 import { CustomDate } from "./objects/date";
-import { CustomError, errors } from "./objects/error";
+import { CustomError } from "./objects/error";
 import { CustomPromise } from "./objects/promise";
 
 // classes
@@ -22,6 +22,7 @@ import { CacheSingleton } from "./singletons/cache";
 import { CooldownManagerSingleton } from "./singletons/cooldown-manager";
 import { LocalRequestSingleton } from "./singletons/local-request";
 import { LoggerSingleton } from "./singletons/logger";
+import { MetricsSingleton } from "./singletons/metrics";
 import { PastebinSingleton } from "./singletons/pastebin";
 import { QuerySingleton } from "./singletons/query";
 import { SandboxSingleton } from "./singletons/sandbox";
@@ -31,7 +32,6 @@ import { VLCSingleton } from "./singletons/vlc-connector";
 export declare type GlobalSbObject = {
     Date: typeof CustomDate,
     Error: typeof CustomError,
-    errors: typeof errors,
     Promise: typeof CustomPromise,
 
     AwayFromKeyboard: typeof AwayFromKeyboard,
@@ -51,6 +51,7 @@ export declare type GlobalSbObject = {
     CooldownManager: InstanceType<typeof CooldownManagerSingleton>,
     LocalRequest: InstanceType<typeof LocalRequestSingleton>,
     Logger: InstanceType<typeof LoggerSingleton>,
+    Metrics: InstanceType<typeof MetricsSingleton>,
     Pastebin: InstanceType<typeof PastebinSingleton>,
     Query: InstanceType<typeof QuerySingleton>,
     Sandbox: InstanceType<typeof SandboxSingleton>,
@@ -79,6 +80,7 @@ declare type ModuleFilePath = "classes/afk"
     | "singletons/cooldown-manager"
     | "singletons/local-request"
     | "singletons/logger"
+    | "singletons/metrics"
     | "singletons/pastebin"
     | "singletons/query"
     | "singletons/runtime"
