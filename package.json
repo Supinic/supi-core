@@ -16,6 +16,7 @@
     "language-iso-codes": "github:supinic/language-iso-codes",
     "long-timeout": "github:supinic/long-timeout",
     "mariadb": "^3.1.2",
+    "prom-client": "^14.2.0",
     "random-js": "^2.1.0",
     "roll-dice": "npm:@jprochazk/roll-dice@^0.2.2",
     "rss-parser": "^3.13.0",
