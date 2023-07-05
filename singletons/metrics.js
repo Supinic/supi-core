@@ -30,7 +30,7 @@ module.exports = class MetricsSingleton extends require("./template.js") {
 	}
 
 	get (name) {
-		this.#registry.getSingleMetric(name);
+		return this.#registry.getSingleMetric(name);
 	}
 
 	get registry () {
