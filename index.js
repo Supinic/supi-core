@@ -92,6 +92,12 @@ module.exports = (async function (options = {}) {
 					break;
 				}
 
+				case "metrics": {
+					const Component = require("./singletons/metrics.js");
+					sb.Metrics = Component.singleton();
+					break;
+				}
+
 				case "pastebin": {
 					const Component = require("./singletons/pastebin.js");
 					sb.Pastebin = Component.singleton();
