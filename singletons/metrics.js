@@ -27,6 +27,22 @@ module.exports = class MetricsSingleton extends require("./template.js") {
 	registerCounter (options) {
 		const counter = new Prometheus.Counter(options);
 		this.#registry.registerMetric(counter);
+
+		return counter;
+	}
+
+	registerGauge (options) {
+		const gauge = new Prometheus.Gauge(options);
+		this.#registry.registerMetric(gauge);
+
+		return gauge;
+	}
+
+	registerHistogram (options) {
+		const histogram = new Prometheus.Histogram(options);
+		this.#registry.registerMetric(histogram);
+
+		return histogram;
 	}
 
 	get (name) {
