@@ -7,7 +7,11 @@ import {
 	Histogram,
 	HistogramConfiguration,
 	Metric,
-	Registry
+	MetricConfiguration,
+	MetricType,
+	Registry,
+	// Summary,
+	// SummaryConfiguration
 } from "prom-client";
 
 export declare class MetricsSingleton implements Template {
@@ -15,6 +19,8 @@ export declare class MetricsSingleton implements Template {
 	static singleton (): MetricsSingleton;
 
 	constructor ();
+
+	register <T extends string>(type: MetricType, options: MetricConfiguration<T>): Metric<T>;
 
 	registerCounter <T extends string>(options: CounterConfiguration<T>): Counter<T>;
 	registerGauge <T extends string>(options: GaugeConfiguration<T>): Gauge<T>;

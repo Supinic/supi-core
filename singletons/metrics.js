@@ -1,4 +1,5 @@
 const Prometheus = require("prom-client");
+const availableMetricTypes = ["Counter", "Gauge", "Histogram", "Summary"];
 
 /**
  * Very simple module wrapper around the Prometheus client metrics
@@ -22,6 +23,25 @@ module.exports = class MetricsSingleton extends require("./template.js") {
 		Prometheus.collectDefaultMetrics({
 			register: this.#registry
 		});
+	}
+
+	register (type, options) {
+		if (!availableMetricTypes.includes(type)) {
+			throw new sb.Error({
+				message: "Unsupported metric type provided",
+				args: { type, options }
+			});
+		}
+
+		const existing = this.get(options.name);
+		if (existing) {
+			return existing;
+		}
+
+		const metric = new Prometheus[type](options);
+		this.#registry.registerMetric(metric);
+
+		return metric;
 	}
 
 	registerCounter (options) {
