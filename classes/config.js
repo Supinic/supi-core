@@ -11,7 +11,6 @@ module.exports = class Config extends require("./template.js") {
 	#initialized = false;
 
 	static data = new Map();
-	static nonStrictNotifications = new Map();
 	static uniqueIdentifier = "Name";
 
 	constructor (data) {
@@ -190,7 +189,6 @@ module.exports = class Config extends require("./template.js") {
 	}
 
 	static async reloadData () {
-		Config.nonStrictNotifications.clear();
 		await Config.loadData();
 	}
 
@@ -292,11 +290,6 @@ module.exports = class Config extends require("./template.js") {
 				});
 			}
 			else {
-				if (!Config.nonStrictNotifications.has(variable)) {
-					Config.nonStrictNotifications.set(variable, true);
-					console.debug("Non-strict Config.get", variable);
-				}
-
 				return undefined;
 			}
 		}
