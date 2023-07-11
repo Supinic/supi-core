@@ -26,18 +26,6 @@ module.exports = class Config extends require("./template.js") {
 		this.#initialized = true;
 	}
 
-	async serialize () {
-		if (this.#Secret) {
-			throw new sb.Error({
-				message: "Secret configs cannot be serialized"
-			});
-		}
-
-		throw new sb.Error({
-			message: "Not yet implemented"
-		});
-	}
-
 	get name () { return this.#Name; }
 	get editable () { return this.#Editable; }
 
