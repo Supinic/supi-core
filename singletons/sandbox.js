@@ -1,17 +1,11 @@
+const IVM = require("isolated-vm");
+const defaultTimeout = 5000;
+
 /**
  * Sandbox module, created with the aim of running custom user input as safely as possible.
  */
 module.exports = class SandboxSingleton extends require("./template.js") {
-	#VM;
-	#NodeVM;
-	#defaultVMOptions = {
-		sandbox: {},
-		compiler: "javascript",
-		eval: false,
-		wasm: false,
-		fixAsync: true,
-		timeout: 5000
-	};
+	#isolate;
 
 	/**
 	 * @inheritDoc
@@ -19,47 +13,39 @@ module.exports = class SandboxSingleton extends require("./template.js") {
 	 */
 	static singleton () {
 		if (!SandboxSingleton.module) {
-			let sandboxModule;
-			try {
-				sandboxModule = require("vm2");
-				SandboxSingleton.module = new SandboxSingleton(sandboxModule);
-			}
-			catch {
-				console.warn("Could not load the vm2 module for sb.Sandbox - skipping");
-				SandboxSingleton.module = {};
-			}
+			SandboxSingleton.module = new SandboxSingleton();
 		}
 
 		return SandboxSingleton.module;
 	}
 
-	constructor (sandboxModule) {
+	constructor () {
 		super();
-		this.#VM = sandboxModule.VM;
-		this.#NodeVM = sandboxModule.NodeVM;
+		this.#isolate = new IVM.Isolate({ memoryLimit: 16 });
 	}
 
 	/**
 	 * Runs given script inside of a provided secure VM
-	 * @param {string} script
-	 * @param {Object} options
+	 * @param {string} code
+	 * @param {Object} sandbox = {}
+	 * @param {Object} options = {}
 	 * @returns {*}
 	 */
-	run (script, options = {}) {
-		const vm = new this.#VM({
-			...this.#defaultVMOptions,
-			...options
+	async run (code, sandbox = {}, options = {}) {
+		const context = this.#isolate.createContext({ inspector: false });
+		const jail = context.global;
+
+		jail.setSync("global", jail.derefInto());
+
+		for (const [key, value] of Object.entries(sandbox)) {
+			jail.setSync(key, value);
+		}
+
+		const script = await this.#isolate.compileScript(code);
+		return await script.run(context, {
+			timeout: options.timeout ?? defaultTimeout
 		});
-
-		return vm.run(script);
 	}
 
-	get VM () { return this.#VM; }
-	get NodeVM () { return this.#NodeVM; }
 	get modulePath () { return "sandbox"; }
-
-	destroy () {
-		this.VM = null;
-		this.NodeVM = null;
-	}
 };

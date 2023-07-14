@@ -13,6 +13,7 @@
     "form-data": "^4.0.0",
     "got": "^13.0.0",
     "ioredis": "^5.3.2",
+    "isolated-vm": "^4.5.0",
     "language-iso-codes": "github:supinic/language-iso-codes",
     "long-timeout": "github:supinic/long-timeout",
     "mariadb": "^3.2.0",
@@ -21,8 +22,7 @@
     "roll-dice": "npm:@jprochazk/roll-dice@^0.2.2",
     "rss-parser": "^3.13.0",
     "track-link-parser": "github:supinic/track-link-parser",
-    "transliteration": "^2.3.5",
-    "vm2": "^3.9.19"
+    "transliteration": "^2.3.5"
   },
   "author": "Supinic",
   "license": "AGPL-3.0",
