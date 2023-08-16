@@ -13,7 +13,7 @@ const defaultPoolOptions = {
 	multipleStatements: true,
 	insertIdAsNumber: true,
 	decimalAsNumber: true,
-	bigIntAsNumber: true
+	bigIntAsNumber: false
 };
 
 const isValidPositiveInteger = (input, min = 0) => Number.isInteger(input) && (input >= min);
@@ -376,9 +376,14 @@ module.exports = class QuerySingleton extends Template {
 			case "DATETIME":
 			case "TIMESTAMP": return new sb.Date(value);
 
+			case "BIGINT":
 			case "LONGLONG": return BigInt(value);
 
 			case "JSON": return JSON.parse(value);
+
+			case "INT":
+			case "SHORT":
+			case "NEWDECIMAL": return Number(value);
 
 			default: return value;
 		}
