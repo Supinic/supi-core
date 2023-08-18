@@ -79,7 +79,8 @@ module.exports = class ClassTemplate {
 			instance,
 			options,
 			propertyName,
-			object
+			object,
+			specificInstanceID
 		} = inputData;
 
 		const cache = cacheMap.get(instance);
@@ -97,7 +98,7 @@ module.exports = class ClassTemplate {
 					toTable: "Custom_Data_Property",
 					on: `Custom_Data_Property.Name = ${databaseTable}.Property`
 				})
-				.where(`${databaseProperty} = %n`, this.ID)
+				.where(`${databaseProperty} = %n`, specificInstanceID ?? this.ID)
 				.where("Property = %s", propertyName)
 				.where({ condition: Boolean(object) }, "Target %*like*", object)
 				.limit(1)
@@ -142,7 +143,8 @@ module.exports = class ClassTemplate {
 			options,
 			instance,
 			object,
-			value
+			value,
+			specificInstanceID
 		} = inputData;
 
 		const { transaction = null } = options;
@@ -166,13 +168,13 @@ module.exports = class ClassTemplate {
 
 		const row = await sb.Query.getRow("chat_data", databaseTable, { transaction });
 		await row.load({
-			[databaseProperty]: this.ID,
+			[databaseProperty]: specificInstanceID ?? this.ID,
 			Property: propertyName
 		}, true);
 
 		if (!row.loaded) {
 			row.setValues({
-				[databaseProperty]: this.ID,
+				[databaseProperty]: specificInstanceID ?? this.ID,
 				Property: propertyName
 			});
 		}

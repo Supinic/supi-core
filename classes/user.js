@@ -1,3 +1,8 @@
+const platformMap = [
+	[1, "Twitch_ID"],
+	[2, "Discord_ID"]
+];
+
 module.exports = class User extends require("./template.js") {
 	static mapCacheExpiration = 300_000;
 	static redisCacheExpiration = 3_600_000;
@@ -100,6 +105,8 @@ module.exports = class User extends require("./template.js") {
 			console.warn("User.Data invalid type", { user: this, data });
 			this.Data = {};
 		}
+
+		this.PID = data.PID ?? null;
 	}
 
 	getCacheKey () {
@@ -123,6 +130,7 @@ module.exports = class User extends require("./template.js") {
 			databaseTable: "User_Alias_Data",
 			instance: this,
 			propertyContext: "User",
+			specificInstanceID: this.PID,
 			options,
 			propertyName
 		});
@@ -135,6 +143,7 @@ module.exports = class User extends require("./template.js") {
 			databaseTable: "User_Alias_Data",
 			instance: this,
 			propertyContext: "User",
+			specificInstanceID: this.PID,
 			propertyName,
 			options,
 			value
@@ -232,6 +241,30 @@ module.exports = class User extends require("./template.js") {
 
 			let userData;
 			if (dbUserData) {
+				const pids = new Set();
+				for (const [platformID, platformColumn] of platformMap) {
+					if (!dbUserData[platformColumn]) {
+						continue;
+					}
+
+					const pid = await sb.Query.getRecordset(rs => rs
+						.select("PID")
+						.from("chat_data", "User_Platform")
+						.where(`Platform = %n`, platformID)
+						.where(`PID = %s`, dbUserData[platformColumn])
+						.flat("PID")
+						.single()
+					);
+
+					if (pid) {
+						pids.add(pid);
+					}
+				}
+
+				if (pids.size === 1) {
+					dbUserData.PID = [...pids.values()][0];
+				}
+
 				userData = new User(dbUserData);
 			}
 			// 4. If strict mode is off, create the user and return the instance immediately
