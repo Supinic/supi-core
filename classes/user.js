@@ -106,7 +106,7 @@ module.exports = class User extends require("./template.js") {
 			this.Data = {};
 		}
 
-		this.PID = data.PID ?? null;
+		this.UID = data.UID ?? null;
 	}
 
 	getCacheKey () {
@@ -130,7 +130,7 @@ module.exports = class User extends require("./template.js") {
 			databaseTable: "User_Alias_Data",
 			instance: this,
 			propertyContext: "User",
-			specificInstanceID: this.PID,
+			specificInstanceID: this.UID,
 			options,
 			propertyName
 		});
@@ -143,7 +143,7 @@ module.exports = class User extends require("./template.js") {
 			databaseTable: "User_Alias_Data",
 			instance: this,
 			propertyContext: "User",
-			specificInstanceID: this.PID,
+			specificInstanceID: this.UID,
 			propertyName,
 			options,
 			value
@@ -241,28 +241,38 @@ module.exports = class User extends require("./template.js") {
 
 			let userData;
 			if (dbUserData) {
-				const pids = new Set();
+				let resultUid = null;
 				for (const [platformID, platformColumn] of platformMap) {
 					if (!dbUserData[platformColumn]) {
 						continue;
 					}
 
-					const pid = await sb.Query.getRecordset(rs => rs
+					const uid = await sb.Query.getRecordset(rs => rs
 						.select("PID")
 						.from("chat_data", "User_Platform")
 						.where(`Platform = %n`, platformID)
-						.where(`PID = %s`, dbUserData[platformColumn])
-						.flat("PID")
+						.where(`UID = %s`, dbUserData[platformColumn])
+						.flat("UID")
 						.single()
 					);
 
-					if (pid) {
-						pids.add(pid);
+					if (!uid) {
+						continue;
+					}
+
+					// If a previous result doesn't exist, assign current uid to it and continue
+					if (!resultUid) {
+						resultUid = uid;
+					}
+					// If previous result does exist and it is not identical, assign null (mismatch) and abort
+					else if (resultUid !== uid) {
+						resultUid = null;
+						break;
 					}
 				}
 
-				if (pids.size === 1) {
-					dbUserData.PID = [...pids.values()][0];
+				if (resultUid) {
+					dbUserData.UID = resultUid;
 				}
 
 				userData = new User(dbUserData);
