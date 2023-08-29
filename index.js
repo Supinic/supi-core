@@ -23,7 +23,6 @@ module.exports = (async function (options = {}) {
 		"singletons/vlc-connector",
 		"singletons/twitter",
 		"singletons/local-request",
-		"singletons/runtime",
 		"singletons/sandbox",
 
 		"classes/got",
@@ -107,12 +106,6 @@ module.exports = (async function (options = {}) {
 				case "query": {
 					const Component = require("./singletons/query");
 					sb.Query = Component.singleton();
-					break;
-				}
-
-				case "runtime": {
-					const Component = require("./singletons/runtime.js");
-					sb.Runtime = Component.singleton();
 					break;
 				}
 
