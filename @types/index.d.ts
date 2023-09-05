@@ -9,7 +9,6 @@ import { Banphrase } from "./classes/banphrase";
 import { Channel } from "./classes/channel";
 import { ChatModule } from "./classes/chat-module";
 import { Command } from "./classes/command";
-import { Cron } from "./classes/cron";
 import { Config } from "./classes/config";
 import { Filter } from "./classes/filter";
 import { GotProxy as Got } from "./classes/got";
@@ -40,7 +39,6 @@ export declare type GlobalSbObject = {
     ChatModule: typeof ChatModule,
     Command: typeof Command,
     Config: typeof Config,
-    Cron: typeof Cron,
     Filter: typeof Filter,
     Got: typeof Got,
     Reminder: typeof Reminder,
