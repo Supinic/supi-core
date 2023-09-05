@@ -1,4 +1,4 @@
-import { ClassTemplate } from "./template";
+import { ClassTemplate } from "../classes/template";
 import { Channel, Like as ChannelLike } from "./channel";
 import { Like as PlatformLike, Platform } from "./platform";
 import { User } from "./user";

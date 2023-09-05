@@ -10,7 +10,7 @@ import {
     ClassTemplate,
     GenericCacheMap,
     SpecificCacheOptions
-} from "./template";
+} from "../classes/template";
 
 import {
     APIType as BanphraseAPIType,

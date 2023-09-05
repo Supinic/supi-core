@@ -1,6 +1,6 @@
 const VALID_BOOLEAN_LIKE_VALUES = ["0", "1", "true", "false"];
 
-module.exports = class Config extends require("./template.js") {
+module.exports = class Config extends require("../supibot/template.js") {
 	#Name;
 	#Value;
 	#Type;

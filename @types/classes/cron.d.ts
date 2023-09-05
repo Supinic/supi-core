@@ -1,6 +1,4 @@
 import { ClassTemplate } from "./template";
-import { User } from "./user";
-
 import { CronJob } from "cron";
 import { SimpleGenericData } from "../globals";
 
@@ -35,7 +33,7 @@ export declare class Cron extends ClassTemplate {
 	/**
 	 * Unique cron name
 	 */
-	readonly Name: User["ID"];
+	readonly Name: string;
 
 	/**
 	 * Cron expression that specifies when a job is being executed

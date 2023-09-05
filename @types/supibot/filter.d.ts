@@ -1,4 +1,4 @@
-import { ClassTemplate } from "./template";
+import { ClassTemplate } from "../classes/template";
 import { Channel } from "./channel";
 import { Command } from "./command";
 import { Platform } from "./platform";

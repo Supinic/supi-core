@@ -1,10 +1,10 @@
 import { SingletonTemplate as Template } from "./template";
 import { CustomDate as Date } from "../objects/date";
 import { JSONifiable, Message } from "../globals";
-import { Channel } from "../classes/channel";
-import { Command } from "../classes/command";
-import { Platform } from "../classes/platform";
-import { Like as UserLike, User } from "../classes/user";
+import { Channel } from "../supibot/channel";
+import { Command } from "../supibot/command";
+import { Platform } from "../supibot/platform";
+import { Like as UserLike, User } from "../supibot/user";
 import { CustomError } from "../objects/error";
 
 declare type PrimaryLogTag = "Command"| "Message"| "Twitch"| "Discord"| "Cytube"| "Module"| "System";

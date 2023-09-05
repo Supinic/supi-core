@@ -1,7 +1,7 @@
 import { SingletonTemplate as Template } from "./template";
 import { Message, Stringifiable, URL } from "../globals";
 import { CustomDate } from "../objects/date";
-import { Like as UserLike, User } from "../classes/user";
+import { Like as UserLike, User } from "../supibot/user";
 
 import { Url as NativeURLObject } from "url";
 

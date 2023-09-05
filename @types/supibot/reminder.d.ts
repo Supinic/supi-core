@@ -1,4 +1,4 @@
-import { ClassTemplate } from "./template";
+import { ClassTemplate } from "../classes/template";
 import { CustomDate as Date } from "../objects/date";
 import { Channel } from "./channel";
 import { Platform, Like as PlatformLike } from "./platform";

@@ -1,7 +1,7 @@
 const { CronJob } = require("cron");
 const random = (min = 0, max = 0) => Math.floor((Math.random() * (max + 1 - min)) + min);
 
-module.exports = class Cron extends require("./template.js") {
+module.exports = class Cron extends require("../supibot/template.js") {
 	Name;
 	Expression;
 	Defer;

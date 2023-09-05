@@ -1,5 +1,5 @@
 import { GenericFlagsObject, JSONifiable, SimpleGenericData, TypeExtract } from "../globals";
-import { ClassTemplate } from "./template";
+import { ClassTemplate } from "../classes/template";
 import { Channel } from "./channel";
 import { Platform } from "./platform";
 import { Permissions as UserPermissions, User } from "./user";
