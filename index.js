@@ -21,7 +21,6 @@ module.exports = (async function (options = {}) {
 		"singletons/system-log",
 		"singletons/vlc-connector",
 		"singletons/twitter",
-		"singletons/local-request",
 		"singletons/sandbox",
 
 		"classes/got",
@@ -75,12 +74,6 @@ module.exports = (async function (options = {}) {
 				case "cooldown-manager": {
 					const Component = require("./singletons/cooldown-manager.js");
 					sb.CooldownManager = Component.singleton();
-					break;
-				}
-
-				case "local-request": {
-					const Component = require("./singletons/local-request.js");
-					sb.LocalRequest = Component.singleton();
 					break;
 				}
 
