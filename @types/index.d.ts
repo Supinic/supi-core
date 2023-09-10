@@ -4,18 +4,17 @@ import { CustomError } from "./objects/error";
 import { CustomPromise } from "./objects/promise";
 
 // classes
-import { AwayFromKeyboard } from "./supibot/afk";
-import { Banphrase } from "./supibot/banphrase";
-import { Channel } from "./supibot/channel";
-import { ChatModule } from "./supibot/chat-module";
-import { Command } from "./supibot/command";
-import { Cron } from "./classes/cron";
+import { AwayFromKeyboard } from "./classes/afk";
+import { Banphrase } from "./classes/banphrase";
+import { Channel } from "./classes/channel";
+import { ChatModule } from "./classes/chat-module";
+import { Command } from "./classes/command";
 import { Config } from "./classes/config";
-import { Filter } from "./supibot/filter";
+import { Filter } from "./classes/filter";
 import { GotProxy as Got } from "./classes/got";
-import { Platform } from "./supibot/platform";
-import { Reminder } from "./supibot/reminder";
-import { User } from "./supibot/user";
+import { Platform } from "./classes/platform";
+import { Reminder } from "./classes/reminder";
+import { User } from "./classes/user";
 
 // singletons
 import { CacheSingleton } from "./singletons/cache";
@@ -40,7 +39,6 @@ export declare type GlobalSbObject = {
     ChatModule: typeof ChatModule,
     Command: typeof Command,
     Config: typeof Config,
-    Cron: typeof Cron,
     Filter: typeof Filter,
     Got: typeof Got,
     Reminder: typeof Reminder,

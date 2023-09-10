@@ -15,7 +15,6 @@ module.exports = (async function (options = {}) {
 		"singletons/query",
 		"classes/config",
 		"singletons/utils",
-		"classes/cron",
 		"singletons/cache",
 		"singletons/cooldown-manager",
 		"singletons/logger",
