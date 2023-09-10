@@ -1,3 +1,5 @@
+const VLCClient = require("./vlc-client.js");
+
 const actions = [
 	"addToQueue",
 	"addToQueueAndPlay",
@@ -19,7 +21,6 @@ const actions = [
 	"seek",
 	"seekToChapter"
 ];
-
 const mandatoryConfigs = [
 	"LOCAL_VLC_IP",
 	"LOCAL_VLC_BASE_URL"
@@ -28,12 +29,11 @@ const mandatoryConfigs = [
 /**
  * VideoLANConnector (VLC) handler module - handles a VLC instance's playlist and methods.
  */
-module.exports = class VLCSingleton extends require("../../singletons/template.js") {
+module.exports = class VLCSingleton {
 	/**
-	 * @inheritDoc
-	 * @returns {VLCSingleton}
+	 * @todo fit this call in the supibot repository after the migration is completed
 	 */
-	static singleton () {
+	static initialize () {
 		if (!VLCSingleton.module) {
 			const missingConfigs = mandatoryConfigs.filter(key => !sb.Config.has(key));
 			if (missingConfigs.length !== 0) {
@@ -56,10 +56,6 @@ module.exports = class VLCSingleton extends require("../../singletons/template.j
 	}
 
 	constructor (options = {}) {
-		super();
-
-		const VLCClient = require("./vlc-client.js");
-
 		this.client = new VLCClient({
 			host: options.url,
 			port: options.port,

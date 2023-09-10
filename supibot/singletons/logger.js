@@ -33,25 +33,11 @@ const fillObjectByPlatform = (obj, userData, platformData) => {
  * Logging module that handles all possible chat message and video logging.
  * Accesses the database so that nothing needs to be exposed in chat clients.
  */
-module.exports = class LoggerSingleton extends require("../../singletons/template.js") {
+module.exports = class LoggerSingleton {
 	#crons = [];
 	#presentTables = null;
 
-	/**
-	 * @inheritDoc
-	 * @returns {LoggerSingleton}
-	 */
-	static singleton () {
-		if (!LoggerSingleton.module) {
-			LoggerSingleton.module = new LoggerSingleton();
-		}
-
-		return LoggerSingleton.module;
-	}
-
 	constructor () {
-		super();
-
 		this.videoTypes = null;
 
 		if (sb.Config.get("LOG_MESSAGE_CRON", false)) {
