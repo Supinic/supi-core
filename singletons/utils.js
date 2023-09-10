@@ -1,3 +1,5 @@
+// @todo refactor out all usages of sb.Got - this module must not rely on its "requirees" to properly import specific instances!
+
 const byteUnits = {
 	si: {
 		multiplier: 1000,
