@@ -742,39 +742,6 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 		};
 	}
 
-	/**
-	 * Checks if the string user is contained within the Discord mentions.
-	 * If it is, tries to return a User with the corresponding Discord ID.
-	 * Otherwise returns null.
-	 * @param {string} stringUser The user name to check
-	 * @param {Object} options Discord options object
-	 * @returns {Promise<null|sb.User>}
-	 */
-	async getDiscordUserDataFromMentions (stringUser, options) {
-		console.warn("Deprecated getDiscordUserDataFromMentions");
-
-		let result = null;
-
-		if (options && options.mentions) {
-			stringUser = stringUser.replace(/^@/, "").toLowerCase();
-
-			if (options.mentions.users.size === 0) {
-				return null;
-			}
-
-			// Take the first mention
-			const mention = options.mentions.users.entries().next().value[1];
-
-			// Now, check if the mention at least contains the username we're trying to find.
-			if (mention.username.toLowerCase().includes(stringUser)) {
-				const lookup = mention.username.toLowerCase().replace(/\s+/g, "_");
-				result = await sb.User.get(lookup, true);
-			}
-		}
-
-		return result;
-	}
-
 	convertCase (text, caseFrom, caseTo) {
 		if (typeof text !== "string") {
 			throw new sb.Error({
@@ -874,45 +841,6 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 		}
 
 		return [yes, no];
-	}
-
-	/**
-	 * @deprecated use `TwitchController.getUserID` instead
-	 * Attempts to fetch a Twitch ID from user cache.
-	 * If it doesn't find one, queries the Twitch API endpoint.
-	 * @param {string} user
-	 * @returns {Promise<null|number>}
-	 */
-	async getTwitchID (user) {
-		console.warn("Deprecated call: Utils.getTwitchID", new Error().stack);
-
-		let userData = await sb.User.get(user, true);
-		if (userData && userData.Twitch_ID) {
-			return userData.Twitch_ID;
-		}
-		else {
-			const channelInfo = await sb.Got("Helix", {
-				url: "users",
-				throwHttpErrors: false,
-				searchParams: {
-					login: user
-				}
-			}).json();
-
-			if (!channelInfo.error && channelInfo.data.length !== 0) {
-				const { id, display_name: name } = channelInfo.data[0];
-				if (!userData) {
-					userData = await sb.User.get(name, false);
-				}
-				if (userData) {
-					await userData.saveProperty("Twitch_ID", id);
-				}
-
-				return id;
-			}
-		}
-
-		return null;
 	}
 
 	parseURL (stringURL) {

@@ -1,4 +1,4 @@
-import { Port, SimpleGenericData, URL } from "../globals";
+import { Port, SimpleGenericData, URL } from "../../../@types/globals";
 
 export declare interface Information {
     chapter: number;

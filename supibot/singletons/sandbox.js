@@ -1,7 +1,7 @@
 /**
  * Sandbox module, created with the aim of running custom user input as safely as possible.
  */
-module.exports = class SandboxSingleton extends require("./template.js") {
+module.exports = class SandboxSingleton extends require("../../singletons/template.js") {
 	#VM;
 	#NodeVM;
 	#defaultVMOptions = {

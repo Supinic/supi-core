@@ -1,5 +1,5 @@
-import { Emote, Message } from "../globals";
-import { ClassTemplate } from "../classes/template";
+import { Emote, Message } from "../../../@types/globals";
+import { ClassTemplate } from "../../../@types/classes/template";
 import { Channel } from "./channel";
 import { User } from "./user";
 

@@ -1,6 +1,6 @@
-import { SingletonTemplate as Template } from "./template";
+import { SingletonTemplate as Template } from "../../../@types/singletons/template";
 import { NodeVM, VM, VMOptions } from "vm2";
-import { SimpleGenericData } from "../globals";
+import { SimpleGenericData } from "../../../@types/globals";
 
 declare type ConstructorData = {
     VM: VM;

@@ -1,5 +1,5 @@
-import { ClassTemplate } from "../classes/template";
-import { CustomDate } from "../objects/date";
+import { ClassTemplate } from "../../../@types/classes/template";
+import { CustomDate } from "../../../@types/objects/date";
 import { Channel } from "./channel";
 import { User } from "./user";
 import { Counter, Gauge } from "prom-client";

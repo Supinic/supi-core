@@ -14,27 +14,10 @@ module.exports = (async function (options = {}) {
 		"singletons/metrics",
 		"singletons/query",
 		"classes/config",
+
 		"singletons/utils",
 		"singletons/cache",
-		"singletons/cooldown-manager",
-		"singletons/logger",
-		"singletons/system-log",
-		"singletons/vlc-connector",
-		"singletons/twitter",
-		"singletons/sandbox",
-
-		"classes/got",
-		"singletons/pastebin",
-
-		"classes/platform",
-		"classes/filter",
-		"classes/command",
-		"classes/channel",
-		"classes/chat-module",
-		"classes/user",
-		"classes/afk",
-		"classes/banphrase",
-		"classes/reminder"
+		"classes/got"
 	];
 
 	const {
@@ -71,27 +54,9 @@ module.exports = (async function (options = {}) {
 					break;
 				}
 
-				case "cooldown-manager": {
-					const Component = require("./singletons/cooldown-manager.js");
-					sb.CooldownManager = Component.singleton();
-					break;
-				}
-
-				case "logger": {
-					const Component = require("./singletons/logger.js");
-					sb.Logger = Component.singleton();
-					break;
-				}
-
 				case "metrics": {
 					const Component = require("./singletons/metrics.js");
 					sb.Metrics = Component.singleton();
-					break;
-				}
-
-				case "pastebin": {
-					const Component = require("./singletons/pastebin.js");
-					sb.Pastebin = Component.singleton();
 					break;
 				}
 
@@ -101,21 +66,9 @@ module.exports = (async function (options = {}) {
 					break;
 				}
 
-				case "sandbox": {
-					const Component = require("./singletons/sandbox.js");
-					sb.Sandbox = Component.singleton();
-					break;
-				}
-
 				case "utils": {
 					const Component = require("./singletons/utils.js");
 					sb.Utils = Component.singleton();
-					break;
-				}
-
-				case "vlc-connector": {
-					const Component = require("./singletons/vlc-connector.js");
-					sb.VideoLANConnector = Component.singleton();
 					break;
 				}
 			}

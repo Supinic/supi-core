@@ -1,5 +1,5 @@
-import { Message, OnlyKeysOfType, SimpleGenericData } from "../globals";
-import { ClassTemplate } from "../classes/template";
+import { Message, OnlyKeysOfType, SimpleGenericData } from "../../../@types/globals";
+import { ClassTemplate } from "../../../@types/classes/template";
 import { Channel } from "./channel";
 import { Platform } from "./platform";
 

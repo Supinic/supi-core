@@ -1,5 +1,5 @@
-import { SingletonTemplate as Template } from "./template";
-import { Got } from "../classes/got";
+import { SingletonTemplate as Template } from "../../../@types/singletons/template";
+import { Got } from "../../../@types/classes/got";
 
 export declare type Body = {
     success: boolean;

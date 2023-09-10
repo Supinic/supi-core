@@ -79,7 +79,7 @@ class Pending {
 /**
  * Manages the cooldowns between each message sent to channels.
  */
-class CooldownManagerSingleton extends require("./template.js") {
+class CooldownManagerSingleton extends require("../../singletons/template.js") {
 	static singleton () {
 		if (!CooldownManagerSingleton.module) {
 			CooldownManagerSingleton.module = new CooldownManagerSingleton();

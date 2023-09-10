@@ -1,7 +1,6 @@
 import { SingletonTemplate as Template } from "./template";
 import { Message, Stringifiable, URL } from "../globals";
 import { CustomDate } from "../objects/date";
-import { Like as UserLike, User } from "../supibot/user";
 
 import { Url as NativeURLObject } from "url";
 
@@ -235,14 +234,11 @@ export declare class UtilsSingleton implements Template {
     parseDuration: typeof DurationParseFunction;
     parseVideoDuration (string: string): number | null;
     parseChrono (string: string, referenceDate?: Date, options?: ParsingOption): ChronoResult | null;
-    /** @deprecated */
-    getDiscordUserDataFromMentions (stringUser: string, options: { mentions: { users: Map<any, any>} }): Promise<User | null>;
     convertCase (text: string, caseFrom: TextCase, caseTo: TextCase): string;
     convertCaseObject <T extends object> (object: T, caseFrom: TextCase, caseTo: TextCase): T;
     isValidInteger (input: number, minLimit?: number): boolean;
     transliterate: typeof TransliterateFunction;
     splitByCondition <T> (array: T[], filter: (item: T, index: number, arr: T[]) => boolean): [T[], T[]];
-    getTwitchID (user: UserLike): Promise<string | null>;
     parseURL (stringURL: URL): NativeURLObject;
     getPathFromURL (stringURL: URL): string;
     cheerio (html: string): CheerioAPI;

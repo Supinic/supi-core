@@ -1,10 +1,10 @@
-import { ClassTemplate } from "../classes/template";
+import { ClassTemplate } from "../../../@types/classes/template";
 import { Channel } from "./channel";
 import { Command } from "./command";
 import { Platform } from "./platform";
-import { Row } from "../singletons/query";
+import { Row } from "../../../@types/singletons/query";
 import { User } from "./user";
-import { XOR } from "../globals";
+import { XOR } from "../../../@types/globals";
 
 declare type ConstructorData = {
 	ID: number;

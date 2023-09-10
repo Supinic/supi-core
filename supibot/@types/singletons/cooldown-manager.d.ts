@@ -1,5 +1,5 @@
-import { SingletonTemplate as Template } from "./template";
-import { SimpleGenericData } from "../globals";
+import { SingletonTemplate as Template } from "../../../@types/singletons/template";
+import { SimpleGenericData } from "../../../@types/globals";
 
 export declare type Identifier = number | string | null;
 export declare type CooldownOptions = unknown;

@@ -1,6 +1,6 @@
-import { SingletonTemplate as Template } from "./template";
+import { SingletonTemplate as Template } from "../../../@types/singletons/template";
 import { Information, Node, Root, Status, VLCClient as Client } from "./vlc-client";
-import { Port, SimpleGenericData, URL } from "../globals";
+import { Port, SimpleGenericData, URL } from "../../../@types/globals";
 
 export declare type VLCOptions = {
     host: URL;

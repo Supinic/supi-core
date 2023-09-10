@@ -1,11 +1,11 @@
-import { GenericFlagsObject, JSONifiable, SimpleGenericData, TypeExtract } from "../globals";
-import { ClassTemplate } from "../classes/template";
+import { GenericFlagsObject, JSONifiable, SimpleGenericData, TypeExtract } from "../../../@types/globals";
+import { ClassTemplate } from "../../../@types/classes/template";
 import { Channel } from "./channel";
 import { Platform } from "./platform";
 import { Permissions as UserPermissions, User } from "./user";
 import { Language } from "language-iso-codes";
-import { CustomDate as Date } from "../objects/date";
-import { DeepFrozen } from "../singletons/utils";
+import { CustomDate as Date } from "../../../@types/objects/date";
+import { DeepFrozen } from "../../../@types/singletons/utils";
 
 import { PoolConnection } from "mariadb";
 import { Metric, MetricConfiguration, MetricType } from "prom-client";
