@@ -1,4 +1,3 @@
-import { SingletonTemplate as Template } from "../../../@types/singletons/template";
 import { NodeVM, VM, VMOptions } from "vm2";
 import { SimpleGenericData } from "../../../@types/globals";
 
@@ -7,10 +6,7 @@ declare type ConstructorData = {
     NodeVM: NodeVM;
 };
 
-export declare class SandboxSingleton implements Template {
-    static module: SandboxSingleton;
-    static singleton (): SandboxSingleton;
-
+export declare class SandboxSingleton {
     readonly #VM: VM;
     readonly #NodeVM: NodeVM;
     readonly #defaultVMOptions: SimpleGenericData;
