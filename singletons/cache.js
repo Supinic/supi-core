@@ -6,29 +6,13 @@ const ITEM_DELIMITER = String.fromCharCode(8);
 /**
  * Redis caching module with methods to ease up item lookup.
  */
-module.exports = class CacheSingleton extends require("./template.js") {
+module.exports = class CacheSingleton {
 	/** @type {Redis} */
 	#server = null;
 	#active = false;
 	#version = null;
 
-	/**
-	 * @returns {CacheSingleton}
-	 */
-	static singleton () {
-		if (!CacheSingleton.module) {
-			CacheSingleton.module = new CacheSingleton();
-		}
-
-		return CacheSingleton.module;
-	}
-
-	/**
-	 * @hideconstructor
-	 */
 	constructor () {
-		super();
-
 		if (sb.Config.has("REDIS_CONFIGURATION", false)) {
 			this.connect(sb.Config.get("REDIS_CONFIGURATION"));
 		}

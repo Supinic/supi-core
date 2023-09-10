@@ -1,4 +1,3 @@
-import { SingletonTemplate as Template } from "./template";
 import {
 	Counter,
 	CounterConfiguration,
@@ -14,10 +13,7 @@ import {
 	// SummaryConfiguration
 } from "prom-client";
 
-export declare class MetricsSingleton implements Template {
-	static module: MetricsSingleton;
-	static singleton (): MetricsSingleton;
-
+export declare class MetricsSingleton {
 	constructor ();
 
 	register <T extends string>(type: MetricType, options: MetricConfiguration<T>): Metric<T>;

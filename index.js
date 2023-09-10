@@ -46,32 +46,10 @@ module.exports = (async function (options = {}) {
 			sb[name] = component;
 		}
 		else if (type === "singletons") {
-			// This switch structure is created solely to make JSDoc for singletons work in the global `sb` scope
-			switch (moduleName) {
-				case "cache": {
-					const Component = require("./singletons/cache.js");
-					sb.Cache = Component.singleton();
-					break;
-				}
+			const Component = require(`./${file}`);
+			const name = Component.name.replace(/Singleton$/, "");
 
-				case "metrics": {
-					const Component = require("./singletons/metrics.js");
-					sb.Metrics = Component.singleton();
-					break;
-				}
-
-				case "query": {
-					const Component = require("./singletons/query");
-					sb.Query = Component.singleton();
-					break;
-				}
-
-				case "utils": {
-					const Component = require("./singletons/utils.js");
-					sb.Utils = Component.singleton();
-					break;
-				}
-			}
+			sb[name] = new Component();
 		}
 		else if (type === "classes") {
 			const component = require(`./${file}`);

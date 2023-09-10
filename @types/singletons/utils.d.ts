@@ -1,4 +1,3 @@
-import { SingletonTemplate as Template } from "./template";
 import { Message, Stringifiable, URL } from "../globals";
 import { CustomDate } from "../objects/date";
 
@@ -179,9 +178,7 @@ declare type UploadResult = {
     link: string | null;
 };
 
-export declare class UtilsSingleton implements Template {
-    static module: UtilsSingleton;
-    static singleton (): UtilsSingleton;
+export declare class UtilsSingleton {
     static readonly timeUnits: {
         y: { d: 365, h: 8760, m: 525600, s: 31536000, ms: 31536000.0e3 };
         d: { h: 24, m: 1440, s: 86400, ms: 86400.0e3 };

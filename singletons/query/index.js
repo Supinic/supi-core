@@ -4,7 +4,6 @@ const Recordset = require("./recordset.js");
 const RecordDeleter = require("./record-deleter.js");
 const RecordUpdater = require("./record-updater.js");
 const Row = require("./row.js");
-const Template = require("../template.js");
 
 const updateBatchLimit = 1000;
 const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
@@ -18,7 +17,7 @@ const defaultPoolOptions = {
 
 const isValidPositiveInteger = (input, min = 0) => Number.isInteger(input) && (input >= min);
 
-module.exports = class QuerySingleton extends Template {
+module.exports = class QuerySingleton {
 	#loggingThreshold = null;
 	#definitionPromises = new Map();
 	lifetimes = {
@@ -39,17 +38,7 @@ module.exports = class QuerySingleton extends Template {
 		}
 	};
 
-	static singleton () {
-		if (!QuerySingleton.module) {
-			QuerySingleton.module = new QuerySingleton();
-		}
-
-		return QuerySingleton.module;
-	}
-
 	constructor () {
-		super();
-
 		if (!process.env.MARIA_USER) {
 			throw new sb.Error({
 				message: "Database access must be initialized - missing MARIA_USER"

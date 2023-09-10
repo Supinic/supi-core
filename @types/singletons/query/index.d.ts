@@ -1,4 +1,3 @@
-import { SingletonTemplate as Template } from "../template";
 import { Batch, ConstructorOptions as BatchOptions } from "./batch";
 import { Row } from "./row";
 import { RecordDeleter } from "./record-deleter";
@@ -89,9 +88,7 @@ export declare type GenericQueryBuilderOptions = {
  * - {@link RecordUpdater}: UPDATEs specified columns with values, with specified condition(s)
  * - {@link Row}: Single table row, select/insert/update/delete
  */
-export declare class QuerySingleton implements Template {
-    static module: QuerySingleton;
-    static singleton (): QuerySingleton;
+export declare class QuerySingleton {
     static get flagMask (): Flags;
     static get sqlKeywords (): string[];
 

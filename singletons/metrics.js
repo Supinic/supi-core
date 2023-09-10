@@ -4,20 +4,10 @@ const availableMetricTypes = ["Counter", "Gauge", "Histogram", "Summary"];
 /**
  * Very simple module wrapper around the Prometheus client metrics
  */
-module.exports = class MetricsSingleton extends require("./template.js") {
+module.exports = class MetricsSingleton {
 	#registry;
 
-	static singleton () {
-		if (!MetricsSingleton.module) {
-			MetricsSingleton.module = new MetricsSingleton();
-		}
-
-		return MetricsSingleton.module;
-	}
-
 	constructor () {
-		super();
-
 		this.#registry = new Prometheus.Registry();
 
 		Prometheus.collectDefaultMetrics({

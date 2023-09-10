@@ -62,7 +62,7 @@ const moduleProxy = new Proxy(modules, {
 /**
  * Conscise collection of "helper" and "utility" methods.
  */
-module.exports = class UtilsSingleton extends require("./template.js") {
+module.exports = class UtilsSingleton {
 	/** Numeric constants to convert between any two time units. */
 	static timeUnits = {
 		y: { d: 365, h: 8760, m: 525600, s: 31536000, ms: 31536000.0e3 },
@@ -130,18 +130,6 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 	get linkParser () {
 		console.warn("Deprecated access Utils.linkParser");
 		return this.modules.linkParser;
-	}
-
-	/**
-	 * @inheritDoc
-	 * @returns {UtilsSingleton}
-	 */
-	static singleton () {
-		if (!UtilsSingleton.module) {
-			UtilsSingleton.module = new UtilsSingleton();
-		}
-
-		return UtilsSingleton.module;
 	}
 
 	/**
