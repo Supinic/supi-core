@@ -506,10 +506,14 @@ module.exports = class UtilsSingleton extends require("./template.js") {
 			}
 		}).json();
 
-		const videoList = items.map(i => ({
-			ID: i.id.videoId,
-			title: i.snippet.title
-		}));
+		const videoList = items
+			// This filtering shouldn't be necessary, but in some cases YouTube API returns playlists
+			// despite the `type` parameter being set to strictly return videos only.
+			.filter(i => i.id.kind === "youtube#video" & i.id.videoId)
+			.map(i => ({
+				ID: i.id.videoId,
+				title: i.snippet.title
+			}));
 
 		return (params.single)
 			? videoList[0] ?? null
