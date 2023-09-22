@@ -63,6 +63,7 @@
         "newline-per-chained-call": ["warn", {
             "ignoreChainWithDepth": 3
         }],
+        "no-bitwise": "error",
         "no-console": "off",
         "no-control-regex": "off",
         "no-duplicate-imports": "error",

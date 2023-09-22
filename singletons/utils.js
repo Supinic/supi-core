@@ -499,7 +499,7 @@ module.exports = class UtilsSingleton {
 		const videoList = items
 			// This filtering shouldn't be necessary, but in some cases YouTube API returns playlists
 			// despite the `type` parameter being set to strictly return videos only.
-			.filter(i => i.id.kind === "youtube#video" & i.id.videoId)
+			.filter(i => i.id.kind === "youtube#video" && i.id.videoId)
 			.map(i => ({
 				ID: i.id.videoId,
 				title: i.snippet.title

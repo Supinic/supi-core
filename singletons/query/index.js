@@ -216,6 +216,8 @@ module.exports = class QuerySingleton {
 			};
 
 			const data = await this.raw(`SELECT * FROM ${escapedPath} WHERE 1 = 0`);
+
+			/* eslint-disable no-bitwise */
 			for (const column of data.meta) {
 				obj.columns.push({
 					name: column.name(),
@@ -228,6 +230,7 @@ module.exports = class QuerySingleton {
 					zeroFill: Boolean(column.flags & QuerySingleton.flagMask.ZERO_FILL)
 				});
 			}
+			/* eslint-enable no-bitwise */
 
 			this.tableDefinitions[database][table] = obj;
 			this.#definitionPromises.delete(key);
