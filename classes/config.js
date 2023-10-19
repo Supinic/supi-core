@@ -9,6 +9,7 @@ module.exports = class Config {
 	#Editable;
 
 	#initialized = false;
+	static #loaded = false;
 
 	static data = new Map();
 	static uniqueIdentifier = "Name";
@@ -173,6 +174,8 @@ module.exports = class Config {
 			// Not the cleanest and clearest solution, but it works, and minimizes downtime of each Config.
 			Config.data.set(record.Name, object);
 		}
+
+		Config.#loaded = true;
 	}
 
 	static async reloadData () {
@@ -250,6 +253,10 @@ module.exports = class Config {
 	}
 
 	static has (variable, strict = true) {
+		if (!Config.#loaded) {
+			throw new Error("Config has not been loaded - did you forget to call Config.loadData?");
+		}
+
 		const target = Config.get(variable, false);
 
 		return (strict)
@@ -258,6 +265,10 @@ module.exports = class Config {
 	}
 
 	static get (variable, strict = true) {
+		if (!Config.#loaded) {
+			throw new Error("Config has not been loaded - did you forget to call Config.loadData?");
+		}
+
 		const target = Config.data.get(variable);
 
 		// Attempt to fall back to process.env - this is only going to be predictable, if the only variables set
