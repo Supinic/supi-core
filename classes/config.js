@@ -1,6 +1,6 @@
 const VALID_BOOLEAN_LIKE_VALUES = ["0", "1", "true", "false"];
 
-module.exports = class Config extends require("./template.js") {
+module.exports = class Config {
 	#Name;
 	#Value;
 	#Type;
@@ -14,8 +14,6 @@ module.exports = class Config extends require("./template.js") {
 	static uniqueIdentifier = "Name";
 
 	constructor (data) {
-		super();
-
 		this.#Name = data.Name;
 		this.#Type = data.Type;
 		this.#Unit = data.Unit;
@@ -158,6 +156,7 @@ module.exports = class Config extends require("./template.js") {
 	static async initialize () {
 		Config.data = new Map();
 		await Config.loadData();
+
 		return Config;
 	}
 

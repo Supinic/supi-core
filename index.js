@@ -14,28 +14,10 @@ module.exports = (async function (options = {}) {
 		"singletons/metrics",
 		"singletons/query",
 		"classes/config",
+
 		"singletons/utils",
 		"singletons/cache",
-		"singletons/cooldown-manager",
-		"singletons/logger",
-		"singletons/system-log",
-		"singletons/vlc-connector",
-		"singletons/twitter",
-		"singletons/local-request",
-		"singletons/sandbox",
-
-		"classes/got",
-		"singletons/pastebin",
-
-		"classes/platform",
-		"classes/filter",
-		"classes/command",
-		"classes/channel",
-		"classes/chat-module",
-		"classes/user",
-		"classes/afk",
-		"classes/banphrase",
-		"classes/reminder"
+		"classes/got"
 	];
 
 	const {
@@ -64,68 +46,10 @@ module.exports = (async function (options = {}) {
 			sb[name] = component;
 		}
 		else if (type === "singletons") {
-			// This switch structure is created solely to make JSDoc for singletons work in the global `sb` scope
-			switch (moduleName) {
-				case "cache": {
-					const Component = require("./singletons/cache.js");
-					sb.Cache = Component.singleton();
-					break;
-				}
+			const Component = require(`./${file}`);
+			const name = Component.name.replace(/Singleton$/, "");
 
-				case "cooldown-manager": {
-					const Component = require("./singletons/cooldown-manager.js");
-					sb.CooldownManager = Component.singleton();
-					break;
-				}
-
-				case "local-request": {
-					const Component = require("./singletons/local-request.js");
-					sb.LocalRequest = Component.singleton();
-					break;
-				}
-
-				case "logger": {
-					const Component = require("./singletons/logger.js");
-					sb.Logger = Component.singleton();
-					break;
-				}
-
-				case "metrics": {
-					const Component = require("./singletons/metrics.js");
-					sb.Metrics = Component.singleton();
-					break;
-				}
-
-				case "pastebin": {
-					const Component = require("./singletons/pastebin.js");
-					sb.Pastebin = Component.singleton();
-					break;
-				}
-
-				case "query": {
-					const Component = require("./singletons/query");
-					sb.Query = Component.singleton();
-					break;
-				}
-
-				case "sandbox": {
-					const Component = require("./singletons/sandbox.js");
-					sb.Sandbox = Component.singleton();
-					break;
-				}
-
-				case "utils": {
-					const Component = require("./singletons/utils.js");
-					sb.Utils = Component.singleton();
-					break;
-				}
-
-				case "vlc-connector": {
-					const Component = require("./singletons/vlc-connector.js");
-					sb.VideoLANConnector = Component.singleton();
-					break;
-				}
-			}
+			sb[name] = new Component();
 		}
 		else if (type === "classes") {
 			const component = require(`./${file}`);

@@ -15,7 +15,7 @@ module.exports = (function () {
 		.replaceAll(/\.\.[/\\]?/g, "")
 		.replaceAll(/%2E%2E[/\\]?/g, "");
 
-	class StaticGot extends require("./template.js") {
+	class StaticGot {
 		static importable = true;
 		static uniqueIdentifier = nameSymbol;
 

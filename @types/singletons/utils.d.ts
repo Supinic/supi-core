@@ -1,7 +1,5 @@
-import { SingletonTemplate as Template } from "./template";
 import { Message, Stringifiable, URL } from "../globals";
 import { CustomDate } from "../objects/date";
-import { Like as UserLike, User } from "../classes/user";
 
 import { Url as NativeURLObject } from "url";
 
@@ -180,9 +178,7 @@ declare type UploadResult = {
     link: string | null;
 };
 
-export declare class UtilsSingleton implements Template {
-    static module: UtilsSingleton;
-    static singleton (): UtilsSingleton;
+export declare class UtilsSingleton {
     static readonly timeUnits: {
         y: { d: 365, h: 8760, m: 525600, s: 31536000, ms: 31536000.0e3 };
         d: { h: 24, m: 1440, s: 86400, ms: 86400.0e3 };
@@ -235,14 +231,11 @@ export declare class UtilsSingleton implements Template {
     parseDuration: typeof DurationParseFunction;
     parseVideoDuration (string: string): number | null;
     parseChrono (string: string, referenceDate?: Date, options?: ParsingOption): ChronoResult | null;
-    /** @deprecated */
-    getDiscordUserDataFromMentions (stringUser: string, options: { mentions: { users: Map<any, any>} }): Promise<User | null>;
     convertCase (text: string, caseFrom: TextCase, caseTo: TextCase): string;
     convertCaseObject <T extends object> (object: T, caseFrom: TextCase, caseTo: TextCase): T;
     isValidInteger (input: number, minLimit?: number): boolean;
     transliterate: typeof TransliterateFunction;
     splitByCondition <T> (array: T[], filter: (item: T, index: number, arr: T[]) => boolean): [T[], T[]];
-    getTwitchID (user: UserLike): Promise<string | null>;
     parseURL (stringURL: URL): NativeURLObject;
     getPathFromURL (stringURL: URL): string;
     cheerio (html: string): CheerioAPI;

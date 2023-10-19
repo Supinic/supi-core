@@ -1,4 +1,3 @@
-import { SingletonTemplate as Template } from "./template";
 import { Redis, RedisOptions } from "ioredis";
 import { JSONifiable, Port, Stringifiable, URL } from "../globals";
 
@@ -29,9 +28,7 @@ export declare type KeysPrefixOptions = Partial<KeyOptions> & {
     count?: number;
 };
 
-export declare class CacheSingleton implements Template {
-    static module: CacheSingleton;
-    static singleton (): CacheSingleton;
+export declare class CacheSingleton {
     static resolveKey (value: Key): string;
     static resolvePrefix (mainKey: string, keys: PrefixObject): string;
 
