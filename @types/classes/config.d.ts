@@ -1,4 +1,3 @@
-import { ClassTemplate } from "./template";
 import { CustomDate as Date } from "../objects/date";
 import { SimpleGenericData } from "../globals";
 
@@ -23,7 +22,7 @@ export declare type Representation = {
 /**
  * Represents configuration variables saved in the database.
  */
-export declare class Config extends ClassTemplate {
+export declare class Config {
     static data: Map<string, Config>;
     static nonStrictNotifications: Map<string, true>;
 

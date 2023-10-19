@@ -3,15 +3,27 @@ import { CustomDate } from "./objects/date";
 import { CustomError } from "./objects/error";
 import { CustomPromise } from "./objects/promise";
 
+export * as Date from "./objects/date";
+export * as Error from "./objects/error";
+export * as Promise from "./objects/promise";
+
 // classes
 import { Config } from "./classes/config";
 import { GotProxy as Got } from "./classes/got";
+
+export * as Config from "./classes/config";
+export * as Got from "./classes/got";
 
 // singletons
 import { CacheSingleton } from "./singletons/cache";
 import { MetricsSingleton } from "./singletons/metrics";
 import { QuerySingleton } from "./singletons/query";
 import { UtilsSingleton } from "./singletons/utils";
+
+export * as Cache from "./singletons/cache";
+export * as Metrics from "./singletons/metrics";
+export * as Query from "./singletons/query";
+export * as Utils from "./singletons/utils";
 
 export declare type GlobalSbObject = {
     Date: typeof CustomDate,

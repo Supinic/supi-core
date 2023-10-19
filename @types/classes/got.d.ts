@@ -1,4 +1,3 @@
-import { ClassTemplate } from "./template";
 import { ExtendOptions, Got, InternalsType, GotReturn } from "got";
 import { URL } from "url";
 import FormData = require("form-data");
@@ -38,7 +37,7 @@ declare type ObjectDefinition = BaseDefinition & {
 };
 export declare type Definition = FunctionDefinition | ObjectDefinition;
 
-declare class StaticGot extends ClassTemplate {
+declare class StaticGot {
 	static readonly data: StaticGot[];
 
 	static #add (definition: Definition, parentDefinitions: GotInstance[]): GotInstance;
