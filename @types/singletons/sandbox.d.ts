@@ -1,5 +1,5 @@
 import { NodeVM, VM, VMOptions } from "vm2";
-import { SimpleGenericData } from "../../../@types/globals";
+import { SimpleGenericData } from "../globals";
 
 declare type ConstructorData = {
     VM: VM;

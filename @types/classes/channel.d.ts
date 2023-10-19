@@ -2,7 +2,7 @@ import {
     Emote,
     Message,
     SimpleGenericData
-} from "../../../@types/globals";
+} from "../globals";
 
 import {
     CacheName,
@@ -10,7 +10,7 @@ import {
     ClassTemplate,
     GenericCacheMap,
     SpecificCacheOptions
-} from "../../../@types/classes/template";
+} from "./template";
 
 import {
     APIType as BanphraseAPIType,
@@ -26,7 +26,7 @@ import {
 } from "./platform";
 
 import { User } from "./user";
-import { CustomDate } from "../../../@types/objects/date";
+import { CustomDate } from "../objects/date";
 
 import * as EventEmitter from "events";
 

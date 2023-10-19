@@ -1,5 +1,5 @@
 import { Information, Node, Root, Status, VLCClient as Client } from "./vlc-client";
-import { Port, SimpleGenericData, URL } from "../../../@types/globals";
+import { Port, SimpleGenericData, URL } from "../globals";
 
 export declare type VLCOptions = {
     host: URL;

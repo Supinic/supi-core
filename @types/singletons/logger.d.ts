@@ -1,10 +1,10 @@
-import { CustomDate as Date } from "../../../@types/objects/date";
-import { JSONifiable, Message } from "../../../@types/globals";
+import { CustomDate as Date } from "../objects/date";
+import { JSONifiable, Message } from "../globals";
 import { Channel } from "../classes/channel";
 import { Command } from "../classes/command";
 import { Platform } from "../classes/platform";
 import { Like as UserLike, User } from "../classes/user";
-import { CustomError } from "../../../@types/objects/error";
+import { CustomError } from "../objects/error";
 
 declare type PrimaryLogTag = "Command"| "Message"| "Twitch"| "Discord"| "Cytube"| "Module"| "System";
 declare type SecondaryLogTag = "Request"| "Fail"| "Warning"| "Success"| "Shadowban"| "Ban"| "Clearchat"| "Sub"| "Giftsub"| "Host"| "Error"| "Timeout"| "Restart"| "Other"| "Ritual"| "Join";

@@ -1,4 +1,4 @@
-import { SimpleGenericData } from "../../../@types/globals";
+import { SimpleGenericData } from "../globals";
 
 export declare type Identifier = number | string | null;
 export declare type CooldownOptions = unknown;

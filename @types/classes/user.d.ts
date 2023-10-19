@@ -4,7 +4,7 @@ import {
     ClassTemplate,
     GenericCacheMap,
     SpecificCacheOptions
-} from "../../../@types/classes/template";
+} from "./template";
 
 export declare namespace Permissions {
     export type Descriptor = {

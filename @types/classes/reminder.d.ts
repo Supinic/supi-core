@@ -1,5 +1,5 @@
-import { ClassTemplate } from "../../../@types/classes/template";
-import { CustomDate as Date } from "../../../@types/objects/date";
+import { ClassTemplate } from "./template";
+import { CustomDate as Date } from "../objects/date";
 import { Channel } from "./channel";
 import { Platform, Like as PlatformLike } from "./platform";
 import { User } from "./user";

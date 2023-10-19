@@ -1,8 +1,8 @@
-import { ClassTemplate } from "../../../@types/classes/template";
+import { ClassTemplate } from "./template";
 import { Channel, Like as ChannelLike } from "./channel";
 import { Like as PlatformLike, Platform } from "./platform";
 import { User } from "./user";
-import { JSONifiable, Message, SimpleGenericData, XOR } from "../../../@types/globals";
+import { JSONifiable, Message, SimpleGenericData, XOR } from "../globals";
 
 declare type ConstructorData = {
 	Name: string;
