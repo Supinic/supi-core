@@ -13,6 +13,8 @@ import {
 	// SummaryConfiguration
 } from "prom-client";
 
+export { Counter, Gauge, Histogram, MetricType, Registry } from "prom-client";
+
 export declare class MetricsSingleton {
 	constructor ();
 
