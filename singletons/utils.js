@@ -1,5 +1,8 @@
 // @todo refactor out all usages of sb.Got - this module must not rely on its "requirees" to properly import specific instances!
 
+import SupiDate from "../objects/date.js";
+import SupiError from "../objects/error.js";
+
 import { MersenneTwister19937, Random } from "random-js";
 import getInfoFfprobe from "ffprobe";
 import { roll } from "roll-dice";
@@ -92,27 +95,27 @@ export default class Utils {
 
 	/**
 	 * Returns a formatted string, specifying an amount of time delta from current date to provided date.
-	 * @param {sb.Date|Date|number} target
+	 * @param {SupiDate|Date|number} target
 	 * @param {boolean} [skipAffixes] if true, the affixes "in X hours" or "X hours ago" will be omitted
 	 * @param {boolean} [respectLeapYears] If true, shows a time difference spanning a whole year as `1y` regardless
 	 * of the actual length of the year. If disabled, a year is always counted to be 365 * 24 hours. Defaults to false
-	 * @param {sb.Date} [deltaTo] If set, calculate time delta between target and deltaTo. If undefined, calculate
+	 * @param {SupiDate} [deltaTo] If set, calculate time delta between target and deltaTo. If undefined, calculate
 	 * delta between target and the current time.
 	 * @returns {string}
 	 */
 	timeDelta (target, skipAffixes = false, respectLeapYears = false, deltaTo = undefined) {
 		if (deltaTo === undefined) {
-			deltaTo = new sb.Date();
+			deltaTo = new SupiDate();
 		}
 
 		if (target.valueOf && typeof target.valueOf() === "number") {
-			target = new sb.Date(target.valueOf());
+			target = new SupiDate(target.valueOf());
 		}
 		else {
 			throw new TypeError("Invalid parameter type");
 		}
 
-		if (sb.Date.equals(deltaTo, target)) {
+		if (SupiDate.equals(deltaTo, target)) {
 			return "right now!";
 		}
 
@@ -158,7 +161,7 @@ export default class Utils {
 			// Removing any amount of milliseconds from a time delta in (days, minutes) should not affect the result.
 			const trimmed = this.round(delta, -3);
 
-			const laterRounded = new sb.Date(earlier.valueOf() + trimmed);
+			const laterRounded = new SupiDate(earlier.valueOf() + trimmed);
 
 			// how many whole years lie between the dates?
 			let years = laterRounded.getUTCFullYear() - earlier.getUTCFullYear();
@@ -233,7 +236,7 @@ export default class Utils {
 	round (number, places = 0, options = {}) {
 		const direction = options.direction ?? "round";
 		if (!["ceil", "floor", "round", "trunc"].includes(direction)) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Invalid round direction provided",
 				args: { number, places, options }
 			});
@@ -287,7 +290,7 @@ export default class Utils {
 	 */
 	wrapString (string, length, options = {}) {
 		if (typeof string !== "string") {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Provided input must be a string",
 				args: {
 					type: typeof string,
@@ -425,7 +428,7 @@ export default class Utils {
 		const params = { ...options };
 		if (params.single) {
 			if (typeof params.maxResults !== "undefined") {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Cannot combine params maxResults and single"
 				});
 			}
@@ -472,12 +475,12 @@ export default class Utils {
 	 */
 	async fetchYoutubePlaylist (options = {}) {
 		if (!options.key) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "No API key provided"
 			});
 		}
 		else if (!options.playlistID) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "No playlist ID provided"
 			});
 		}
@@ -517,7 +520,7 @@ export default class Utils {
 				ID: i.snippet.resourceId.videoId,
 				title: i.snippet.title,
 				channelTitle: i.snippet.channelTitle,
-				published: new sb.Date(i.snippet.publishedAt),
+				published: new SupiDate(i.snippet.publishedAt),
 				position: i.snippet.position
 			})));
 
@@ -526,7 +529,7 @@ export default class Utils {
 			}
 			else if (data.pageInfo.totalResults > limit) {
 				if (options.limitAction === "error") {
-					throw new sb.Error({
+					throw new SupiError({
 						message: "Maximum amount of videos exceeded!",
 						args: {
 							limit,
@@ -687,7 +690,7 @@ export default class Utils {
 
 	convertCase (text, caseFrom, caseTo) {
 		if (typeof text !== "string") {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Text must be typeof string",
 				args: { text, caseFrom, caseTo }
 			});
@@ -767,7 +770,7 @@ export default class Utils {
 	 */
 	splitByCondition (array, filter) {
 		if (!Array.isArray(array)) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "array must be an Array"
 			});
 		}
@@ -832,7 +835,7 @@ export default class Utils {
 	 */
 	formatByteSize (number, digits = 3, type = "si") {
 		if (type !== "si" && type !== "iec") {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Unsupported byte size format",
 				args: { number, type }
 			});
@@ -868,7 +871,7 @@ export default class Utils {
 			characters = characters.split("");
 		}
 		else if (!Array.isArray(characters) || characters.some(i => typeof i !== "string")) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Invalid input format",
 				args: { characters, length }
 			});
@@ -1152,7 +1155,7 @@ export default class Utils {
 	 */
 	partitionString (message, limit, messageCount) {
 		if (!this.isValidInteger(limit)) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Limit must be a positive integer"
 			});
 		}
@@ -1339,13 +1342,13 @@ export default class Utils {
 	 * @param {Object} data.coordinates
 	 * @param {string} data.coordinates.lng
 	 * @param {string} data.coordinates.lat
-	 * @param {Date|sb.Date|number} data.date = new sb.Date()
+	 * @param {Date|SupiDate|number} data.date = new SupiDate()
 	 * @returns {Promise<{body: Object, statusCode: number}>}
 	 */
 	async fetchTimeData (data = {}) {
 		const {
 			coordinates,
-			date = new sb.Date(),
+			date = new SupiDate(),
 			key
 		} = data;
 
