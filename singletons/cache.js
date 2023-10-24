@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import SupiError from "../objects/error";
+import SupiError from "../objects/error.js";
 
 const GROUP_DELIMITER = String.fromCharCode(7);
 const ITEM_DELIMITER = String.fromCharCode(8);

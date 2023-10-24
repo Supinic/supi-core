@@ -1,10 +1,10 @@
-import { ColumnDefinition, GenericQueryBuilderOptions, QuerySingleton as Query, TableDefinition } from "./index";
-import { CustomDate } from "../../objects/date";
+import type { ColumnDefinition, GenericQueryBuilderOptions, QuerySingleton as Query, TableDefinition } from "./index.d.ts";
+import type { SupiDate } from "../../objects/date.d.ts";
 import { PoolConnection, TypeCastResult, UpsertResult } from "mariadb";
 
 declare const unsetSymbol: symbol;
 
-declare type PrimaryKey = string | number | bigint | CustomDate | Buffer;
+declare type PrimaryKey = string | number | bigint | SupiDate | Buffer;
 declare type CompoundPrimaryKey = {
     [P: string]: PrimaryKey;
 };
@@ -23,7 +23,7 @@ declare type ErrorInfo = {
     loaded: boolean;
 };
 
-declare type RowValue = string | boolean | number | null | CustomDate | Date | { [p: string]: RowValue } | RowValue[];
+declare type RowValue = string | boolean | number | null | SupiDate | Date | { [p: string]: RowValue } | RowValue[];
 declare type RowValueWrapper = Record<string, RowValue>;
 
 // @todo possibly declare a row of a specific (object) type imported from elsewhere - via type params?

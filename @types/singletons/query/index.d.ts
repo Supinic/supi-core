@@ -1,11 +1,12 @@
-import { Batch, ConstructorOptions as BatchOptions } from "./batch";
-import { Row } from "./row";
-import { RecordDeleter } from "./record-deleter";
-import { Recordset } from "./recordset";
-import { RecordUpdater } from "./record-updater";
-import { CustomDate as Date } from "../../objects/date";
+import type { Batch, ConstructorOptions as BatchOptions } from "./batch.d.ts";
+import type { Row } from "./row.d.ts";
+import type { RecordDeleter } from "./record-deleter.d.ts";
+import type { Recordset } from "./recordset.d.ts";
+import type { RecordUpdater } from "./record-updater.d.ts";
+import type { SupiDate } from "../../objects/date.d.ts";
+import type { SimpleGenericData } from "../../globals.d.ts";
+
 import { Flags, Pool, PoolConnection, Types as ColumnType } from "mariadb";
-import { SimpleGenericData } from "../../globals";
 
 export {
     Batch,
@@ -70,7 +71,7 @@ export declare type Database = TableDefinition["database"];
 export declare type Field = ColumnDefinition["name"];
 export declare type Table = TableDefinition["name"];
 export declare type FormatSymbol = "b" | "d" | "dt" | "n" | "s" | "t" | "s+" | "n+" | "like" | "like*" | "*like" | "*like*";
-export declare type FormatValue = number | string | boolean | Date | SimpleGenericData | bigint | string[] | null;
+export declare type FormatValue = number | string | boolean | SupiDate | SimpleGenericData | bigint | string[] | null;
 export declare type WhereHavingObject = {
     condition?: boolean;
     raw?: string;
