@@ -11,7 +11,6 @@ module.exports = class Config {
 	#initialized = false;
 
 	static data = new Map();
-	static uniqueIdentifier = "Name";
 
 	constructor (data) {
 		this.#Name = data.Name;

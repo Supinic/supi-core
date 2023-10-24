@@ -17,9 +17,6 @@ const sanitize = (string) => string
 	.replaceAll(/%2E%2E[/\\]?/g, "");
 
 class StaticGot {
-	static importable = true;
-	static uniqueIdentifier = nameSymbol;
-
 	static get (identifier) {
 		if (identifier instanceof StaticGot) {
 			return identifier;
@@ -206,8 +203,6 @@ class StaticGot {
 	static isRequestError (error) {
 		return gotRequestErrors.some(GotError => error instanceof GotError);
 	}
-
-	static get specificName () { return "Got"; }
 
 	static get FormData () { return FormData; }
 }
