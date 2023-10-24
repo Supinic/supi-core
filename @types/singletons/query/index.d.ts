@@ -104,7 +104,7 @@ export declare type ConstructorOptions = PathConstructorOptions | HostConstructo
  * - {@link RecordUpdater}: UPDATEs specified columns with values, with specified condition(s)
  * - {@link Row}: Single table row, select/insert/update/delete
  */
-export declare class QuerySingleton {
+export declare class Query {
     static get flagMask (): Flags;
     static get sqlKeywords (): string[];
 
@@ -124,12 +124,12 @@ export declare class QuerySingleton {
     /**
      * Alias of {@link Query.raw}
      */
-    send (...args: string[]): ReturnType<QuerySingleton["raw"]>;
+    send (...args: string[]): ReturnType<Query["raw"]>;
 
     /**
      * Allows a transaction-based query, or a regular one if none is provided.
      */
-    transactionQuery (sqlString: string, transaction: PoolConnection | null): ReturnType<QuerySingleton["raw"]>;
+    transactionQuery (sqlString: string, transaction: PoolConnection | null): ReturnType<Query["raw"]>;
 
     /**
      * Prepares a transaction for next use.
