@@ -28,5 +28,4 @@ export declare class MetricsSingleton {
 	destroy (): void;
 
 	get registry (): Registry;
-	get modulePath (): "metrics";
 }

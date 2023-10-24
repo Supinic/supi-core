@@ -1,3 +1,5 @@
+import SupiError from "../../objects/error";
+
 /**
  * Represents the SQL INSERT statement for multiple rows.
  * One instance is always locked to one table and some of its columns based on constructor.
@@ -34,7 +36,7 @@ module.exports = class Batch {
 		const definition = await this.#query.getDefinition(this.database, this.table);
 		for (const column of columns) {
 			if (definition.columns.every(col => column !== col.name)) {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Unrecognized Batch column",
 					args: {
 						database: this.database,
@@ -56,7 +58,7 @@ module.exports = class Batch {
 		for (const key of Object.keys(data)) {
 			const column = this.columns.find(i => i.name === key);
 			if (!column) {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Invalid batch column provided",
 					args: {
 						column: key,
@@ -96,7 +98,7 @@ module.exports = class Batch {
 
 		const { duplicate, ignore } = options;
 		if (duplicate && ignore) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Cannot set ignore and duplicate at the same time"
 			});
 		}

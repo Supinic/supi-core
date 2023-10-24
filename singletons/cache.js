@@ -1,29 +1,42 @@
-const Redis = require("ioredis");
+import Redis from "ioredis";
+import SupiError from "../objects/error";
 
 const GROUP_DELIMITER = String.fromCharCode(7);
 const ITEM_DELIMITER = String.fromCharCode(8);
 
-/**
- * Redis caching module with methods to ease up item lookup.
- */
-module.exports = class CacheSingleton {
+const isValidInteger = (input) => {
+	if (typeof input !== "number") {
+		return false;
+	}
+
+	return Boolean(Number.isFinite(input) && Math.trunc(input) === input);
+};
+
+module.exports = class Cache {
 	/** @type {Redis} */
 	#server = null;
 	#active = false;
 	#version = null;
+	#configuration;
 
-	constructor () {
-		if (sb.Config.has("REDIS_CONFIGURATION", false)) {
-			this.connect(sb.Config.get("REDIS_CONFIGURATION"));
+	constructor (configuration) {
+		if (!configuration) {
+			throw new SupiError({
+				message: "Connection configuration not provided"
+			});
 		}
-		else {
-			console.warn("No Redis configuration detected - skipped sb.Cache initialization");
+		else if (typeof configuration !== "object" && typeof configuration !== "string") {
+			throw new SupiError({
+				message: "When provided, Redis connection configuration must be an object or string"
+			});
 		}
+
+		this.#configuration = configuration;
 	}
 
-	connect (configuration) {
+	async connect () {
 		if (this.#active) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Redis is already connected"
 			});
 		}
@@ -31,39 +44,28 @@ module.exports = class CacheSingleton {
 			this.#server.connect();
 			this.#active = true;
 		}
-		else if (!configuration) {
-			throw new sb.Error({
-				message: "Connection configuration not provided"
-			});
-		}
-		else if (typeof configuration !== "object" && typeof configuration !== "string") {
-			throw new sb.Error({
-				message: "When provided, Redis connection configuration must be an object or string"
-			});
-		}
 
-		this.#server = new Redis(configuration);
+		this.#server = new Redis(this.#configuration);
 		this.#active = true;
 
-		this.#server.info().then(data => {
-			const versionData = data.split("\n").find(i => i.startsWith("redis_version"));
-			if (versionData) {
-				this.#version = versionData.split(":")[1].split(".").map(Number);
-			}
-			else {
-				console.warn("Could not find Redis version!", { info: data });
-			}
-		});
+		const data = await this.#server.info();
+		const versionData = data.split("\n").find(i => i.startsWith("redis_version"));
+		if (versionData) {
+			this.#version = versionData.split(":")[1].split(".").map(Number);
+		}
+		else {
+			console.warn("Could not find Redis version!", { info: data });
+		}
 	}
 
 	disconnect () {
 		if (!this.#active) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Redis is already disconnected"
 			});
 		}
 		else if (!this.#server) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Redis instance has not been created yet"
 			});
 		}
@@ -74,18 +76,18 @@ module.exports = class CacheSingleton {
 
 	async set (data = {}) {
 		if (!this.#active) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Redis server is not connected"
 			});
 		}
 		else if (typeof data.value === "undefined") {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Provided value must not be undefined"
 			});
 		}
 
 		const args = [
-			CacheSingleton.resolveKey(data.key),
+			Cache.resolveKey(data.key),
 			JSON.stringify(data.value)
 		];
 
@@ -94,19 +96,19 @@ module.exports = class CacheSingleton {
 		}
 
 		if (data.expiry && data.expiresAt) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Cannot combine expiry and expireAt parameters"
 			});
 		}
 		else if ((data.expiry || data.expiresAt) && data.keepTTL) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Cannot combine expiry/expiresAt params with keepTTL"
 			});
 		}
 
 		if (data.expiry) {
-			if (!sb.Utils.isValidInteger(data.expiry)) {
-				throw new sb.Error({
+			if (!isValidInteger(data.expiry)) {
+				throw new SupiError({
 					message: "If provided, expiry must be a valid positive integer",
 					args: { data }
 				});
@@ -118,16 +120,16 @@ module.exports = class CacheSingleton {
 		if (data.expiresAt) {
 			data.expiresAt = data.expiresAt.valueOf();
 
-			if (!sb.Utils.isValidInteger(data.expiresAt)) {
-				throw new sb.Error({
+			if (!isValidInteger(data.expiresAt)) {
+				throw new SupiError({
 					message: "If provided, expiresAt must be a valid positive integer",
 					args: { data }
 				});
 			}
 
-			const now = sb.Date.now();
+			const now = Date.now();
 			if (now > data.expiresAt) {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "expiresAt must not be in the past",
 					args: { now, data }
 				});
@@ -157,30 +159,30 @@ module.exports = class CacheSingleton {
 
 	async get (keyIdentifier) {
 		if (!this.#active) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Redis server is not connected"
 			});
 		}
 
-		const key = CacheSingleton.resolveKey(keyIdentifier);
+		const key = Cache.resolveKey(keyIdentifier);
 		return JSON.parse(await this.#server.get(key));
 	}
 
 	async delete (keyIdentifier) {
 		if (!this.#active) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Redis server is not connected"
 			});
 		}
 
-		const key = CacheSingleton.resolveKey(keyIdentifier);
+		const key = Cache.resolveKey(keyIdentifier);
 
 		return await this.#server.del(key);
 	}
 
 	async setByPrefix (prefix, value, options = {}) {
 		if (typeof prefix === "undefined") {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "No key providded"
 			});
 		}
@@ -193,7 +195,7 @@ module.exports = class CacheSingleton {
 		}
 
 		if (typeof value === "undefined") {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "No value providded"
 			});
 		}
@@ -204,7 +206,7 @@ module.exports = class CacheSingleton {
 
 		const rest = Object.fromEntries(optionsMap);
 		return await this.set({
-			key: CacheSingleton.resolvePrefix(prefix, keys),
+			key: Cache.resolvePrefix(prefix, keys),
 			value,
 			...rest
 		});
@@ -212,7 +214,7 @@ module.exports = class CacheSingleton {
 
 	async getByPrefix (prefix, options = {}) {
 		const extraKeys = options.keys ?? {};
-		const key = CacheSingleton.resolvePrefix(prefix, extraKeys);
+		const key = Cache.resolvePrefix(prefix, extraKeys);
 
 		return await this.get(key);
 	}
@@ -256,25 +258,17 @@ module.exports = class CacheSingleton {
 	 * Cleans up and destroys the singleton caching instance
 	 */
 	destroy () {
-		if (this.#server) {
-			if (this.#active) {
-				this.#server.disconnect();
-				this.#active = false;
-			}
-
-			this.#server.end();
+		if (this.#server && this.#active) {
+			this.#server.disconnect();
 		}
 
+		this.#active = false;
 		this.#server = null;
 	}
 
-	/**
-	 * @param {*} value
-	 * @returns {string|*}
-	 */
 	static resolveKey (value) {
 		if (value === null || typeof value === "undefined") {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Cannot use null or undefined as key"
 			});
 		}
@@ -286,7 +280,7 @@ module.exports = class CacheSingleton {
 			return String(value);
 		}
 		else {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Cannot stringify a non-primitive value",
 				args: {
 					value
@@ -305,13 +299,13 @@ module.exports = class CacheSingleton {
 		for (const [key, rawValue] of keys) {
 			const value = String(rawValue);
 			if (key.includes(GROUP_DELIMITER) || key.includes(ITEM_DELIMITER)) {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Cache prefix keys cannot contain reserved characters",
 					args: { key, value }
 				});
 			}
 			else if (value.includes(GROUP_DELIMITER) || value.includes(ITEM_DELIMITER)) {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Cache prefix vaolues cannot contain reserved characters",
 					args: { key, value }
 				});
@@ -328,6 +322,4 @@ module.exports = class CacheSingleton {
 	get version () { return this.#version; }
 
 	get server () { return this.#server; }
-
-	get modulePath () { return "cache"; }
 };

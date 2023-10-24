@@ -28,6 +28,9 @@ export declare type KeysPrefixOptions = Partial<KeyOptions> & {
     count?: number;
 };
 
+/**
+ * Redis caching module with methods to ease up item lookup.
+ */
 export declare class CacheSingleton {
     static resolveKey (value: Key): string;
     static resolvePrefix (mainKey: string, keys: PrefixObject): string;
@@ -35,11 +38,13 @@ export declare class CacheSingleton {
     #active: boolean;
     #server: Redis;
     #version: Version;
+    #configuration: Configuration;
 
-    constructor ();
+    constructor (configuration: Configuration);
 
-    connect (configuration: Configuration): void;
+    connect (): Promise<void>;
     disconnect (): void;
+
     set (data: SetOptions): Promise<Ok | null>; // inferred from Redis["set"] for the non-callback overload
     get (keyIdentifier: Key): Promise<Value>;
     delete (keyIdentifier: Key): Promise<number>; // inferred from Redis["del"] for the non-callback overload;

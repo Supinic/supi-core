@@ -1,7 +1,9 @@
+import SupiError from "../../objects/error";
+
 /**
  * Represents the UPDATE sql statement.
  */
-module.exports = class RecordDeleter {
+export default class RecordDeleter {
 	#query;
 	#transaction;
 	#deleteFrom = { database: null, table: null };
@@ -58,11 +60,11 @@ module.exports = class RecordDeleter {
 	/**
 	 * Translates the RecordDeleter to its SQL representation.
 	 * @returns {Promise<string[]>}
-	 * @throws {sb.Error} If no FROM database/table have been provided.
+	 * @throws {SupiError} If no FROM database/table have been provided.
 	 */
 	async toSQL () {
 		if (!this.#deleteFrom.database || !this.#deleteFrom.table) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "No UPDATE database/table in RecordUpdater - invalid definition"
 			});
 		}
@@ -74,7 +76,7 @@ module.exports = class RecordDeleter {
 			sql.push(`WHERE (${this.#where.join(") AND (")})`);
 		}
 		else if (!this.#confirmedFullDelete) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Unconfirmed full table deletion",
 				args: {
 					from: this.#deleteFrom
@@ -94,4 +96,4 @@ module.exports = class RecordDeleter {
 		const sqlString = sql.join("\n");
 		return await this.#query.transactionQuery(sqlString, this.#transaction);
 	}
-};
+}

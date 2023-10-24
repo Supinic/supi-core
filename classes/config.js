@@ -1,10 +1,12 @@
+import SupiDate from "../objects/date";
+import SupiError from "../objects/error";
+
 const VALID_BOOLEAN_LIKE_VALUES = ["0", "1", "true", "false"];
 
 module.exports = class Config {
 	#Name;
 	#Value;
 	#Type;
-	#Unit;
 	#Secret;
 	#Editable;
 
@@ -16,7 +18,6 @@ module.exports = class Config {
 	constructor (data) {
 		this.#Name = data.Name;
 		this.#Type = data.Type;
-		this.#Unit = data.Unit;
 		this.#Secret = Boolean(data.Secret);
 		this.#Editable = Boolean(data.Editable);
 
@@ -30,7 +31,7 @@ module.exports = class Config {
 	get value () { return this.#Value; }
 	set value (value) {
 		if (!this.#Editable && this.#initialized) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Config variable is not editable"
 			});
 		}
@@ -47,7 +48,7 @@ module.exports = class Config {
 				}
 				else if (VALID_BOOLEAN_LIKE_VALUES.includes(value)) {
 					if (this.#initialized) {
-						throw new sb.Error({
+						throw new SupiError({
 							message: "Cannot use pseudo-boolean values during runtime",
 							args: { value, type: typeof value }
 						});
@@ -56,7 +57,7 @@ module.exports = class Config {
 					this.#Value = (value === "1" || value === "true");
 				}
 				else {
-					throw new sb.Error({
+					throw new SupiError({
 						message: "Unsupported Config boolean value",
 						args: {
 							value,
@@ -77,7 +78,7 @@ module.exports = class Config {
 				break;
 
 			case "date":
-				this.#Value = new sb.Date(value);
+				this.#Value = new SupiDate(value);
 
 				if (Number.isNaN(this.#Value.valueOf())) {
 					console.warn(`Config variable ${this.#Name}: Invalid date value`);
@@ -124,7 +125,7 @@ module.exports = class Config {
 				break;
 
 			default:
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Unrecognized config variable type", args: this.#Type
 				});
 		}
@@ -147,36 +148,29 @@ module.exports = class Config {
 				return JSON.stringify(this.#Value);
 		}
 
-		throw new sb.Error({
+		throw new SupiError({
 			message: "Unrecognized config variable type",
 			args: this.#Type
 		});
 	}
 
-	static async initialize () {
-		Config.data = new Map();
-		await Config.loadData();
-
-		return Config;
-	}
-
-	static async loadData () {
-		const data = await sb.Query.getRecordset(rs => rs
-			.select("*")
-			.from("data", "Config")
-		);
+	static async load (data, options = {}) {
+		const loadedNames = new Set();
 
 		for (const record of data) {
 			const object = new Config(record);
 
-			// If a value exists for the name, it will be overwritten.
-			// Not the cleanest and clearest solution, but it works, and minimizes downtime of each Config.
 			Config.data.set(record.Name, object);
+			loadedNames.add(record.Name);
 		}
-	}
 
-	static async reloadData () {
-		await Config.loadData();
+		if (!options.keepNotLoaded) {
+			for (const recordName of Config.data.keys()) {
+				if (!loadedNames.has(recordName)) {
+					Config.data.delete(recordName);
+				}
+			}
+		}
 	}
 
 	static from (data = {}) {
@@ -197,7 +191,7 @@ module.exports = class Config {
 				}
 
 				case "date": {
-					validType = (value instanceof Date || value instanceof sb.Date);
+					validType = (value instanceof Date || value instanceof SupiDate);
 					break;
 				}
 
@@ -217,7 +211,7 @@ module.exports = class Config {
 				}
 
 				default:
-					throw new sb.Error({
+					throw new SupiError({
 						message: "Unrecognized variable type",
 						args: { type }
 					});
@@ -225,7 +219,7 @@ module.exports = class Config {
 		}
 
 		if (!validType) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Variable type mismatch",
 				args: {
 					name,
@@ -271,7 +265,7 @@ module.exports = class Config {
 
 		if (!target) {
 			if (strict) {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Configuration variable does not exist",
 					args: variable
 				});
@@ -287,12 +281,12 @@ module.exports = class Config {
 	static async set (variable, value) {
 		const target = Config.data.get(variable);
 		if (!target) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Configuration variable does not exist", args: variable
 			});
 		}
 		else if (!target.editable) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Configuration variable is not editable", args: variable
 			});
 		}

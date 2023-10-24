@@ -1,7 +1,9 @@
+import SupiError from "../../objects/error";
+
 /**
  * Represents one row of a SQL database table.
  */
-module.exports = class Row {
+export default class Row {
 	/** @type {TableDefinition} */
 	#definition;
 	/** @type {QuerySingleton} */
@@ -14,13 +16,13 @@ module.exports = class Row {
 	#valueProxy = new Proxy(this.#values, {
 		get: (target, name) => {
 			if (!this.#initialized) {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Cannot get row value - row not initialized",
 					args: this._getErrorInfo()
 				});
 			}
 			else if (typeof target[name] === "undefined") {
-				throw new sb.Error({
+				throw new SupiError({
 					message: `Cannot get row value - column "${name}" does not exist`,
 					args: this._getErrorInfo()
 				});
@@ -30,13 +32,13 @@ module.exports = class Row {
 		},
 		set: (target, name, value) => {
 			if (!this.#initialized) {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Cannot set row value - row not initialized",
 					args: this._getErrorInfo()
 				});
 			}
 			else if (typeof target[name] === "undefined") {
-				throw new sb.Error({
+				throw new SupiError({
 					message: `Cannot set row value - column "${name}" does not exist`,
 					args: this._getErrorInfo()
 				});
@@ -58,7 +60,7 @@ module.exports = class Row {
 
 	async initialize (database, table) {
 		if (!database || !table) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Cannot initialize row - missing database/table",
 				args: { database, table }
 			});
@@ -80,20 +82,20 @@ module.exports = class Row {
 
 	async load (primaryKey, ignoreError = false) {
 		if (!this.#initialized) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Cannot load row - not initialized",
 				args: this._getErrorInfo()
 			});
 		}
 
 		if (primaryKey === null || typeof primaryKey === "undefined") {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Cannot load Row - no primary key provided",
 				args: this._getErrorInfo()
 			});
 		}
 		else if (this.#primaryKeyFields.length === 0) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Cannot load Row - table has no primary keys",
 				args: this._getErrorInfo()
 			});
@@ -106,7 +108,7 @@ module.exports = class Row {
 			for (const [key, value] of Object.entries(primaryKey)) {
 				const column = this.#definition.columns.find(i => i.name === key);
 				if (!column) {
-					throw new sb.Error({
+					throw new SupiError({
 						message: `Cannot load Row - unrecognized column "${key}"`,
 						args: {
 							...this._getErrorInfo(),
@@ -115,7 +117,7 @@ module.exports = class Row {
 					});
 				}
 				else if (!column.primaryKey) {
-					throw new sb.Error({
+					throw new SupiError({
 						message: `Cannot load Row - column "${key}" is not primary`,
 						args: {
 							...this._getErrorInfo(),
@@ -133,7 +135,7 @@ module.exports = class Row {
 		else {
 			if (this.#primaryKeyFields.length > 1) {
 				const pks = this.#primaryKeyFields.map(i => i.name);
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Cannot use implied PK - table has multiple PKs",
 					args: {
 						...this._getErrorInfo(),
@@ -157,7 +159,7 @@ module.exports = class Row {
 				return this;
 			}
 			else {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "No row data found for provided primary key(s)",
 					args: {
 						...this._getErrorInfo(),
@@ -179,7 +181,7 @@ module.exports = class Row {
 
 	async save (options = {}) {
 		if (!this.#initialized) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Cannot save row - not initialized",
 				args: this._getErrorInfo()
 			});
@@ -241,7 +243,7 @@ module.exports = class Row {
 
 	async delete () {
 		if (!this.#initialized) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Cannot delete row - not initialized",
 				args: this._getErrorInfo()
 			});
@@ -257,7 +259,7 @@ module.exports = class Row {
 			this.#deleted = true;
 		}
 		else {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Row is not loaded - cannot delete",
 				args: this._getErrorInfo()
 			});
@@ -266,7 +268,7 @@ module.exports = class Row {
 
 	reset () {
 		if (!this.#initialized) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Cannot reset row - not initialized",
 				args: this._getErrorInfo()
 			});
@@ -281,7 +283,7 @@ module.exports = class Row {
 
 	setValues (data) {
 		if (!this.#initialized) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Cannot set column values - row not initialized",
 				args: this._getErrorInfo()
 			});
@@ -296,7 +298,7 @@ module.exports = class Row {
 
 	hasProperty (property) {
 		if (!this.#initialized) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Cannot check property - row not initialized",
 				args: this._getErrorInfo()
 			});

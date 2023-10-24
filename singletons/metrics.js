@@ -1,4 +1,4 @@
-const Prometheus = require("prom-client");
+import { collectDefaultMetrics, Registry, Gauge, Counter, Histogram } from "prom-client";
 const availableMetricTypes = ["Counter", "Gauge", "Histogram", "Summary"];
 
 /**
@@ -8,9 +8,9 @@ module.exports = class MetricsSingleton {
 	#registry;
 
 	constructor () {
-		this.#registry = new Prometheus.Registry();
+		this.#registry = new Registry();
 
-		Prometheus.collectDefaultMetrics({
+		collectDefaultMetrics({
 			register: this.#registry
 		});
 	}
@@ -28,28 +28,33 @@ module.exports = class MetricsSingleton {
 			return existing;
 		}
 
-		const metric = new Prometheus[type](options);
-		this.#registry.registerMetric(metric);
-
-		return metric;
+		if (type === "Counter") {
+			return this.registerCounter(options);
+		}
+		else if (type === "Gauge") {
+			return this.registerGauge(options);
+		}
+		else if (type === "Histogram") {
+			return this.registerHistogram(options);
+		}
 	}
 
 	registerCounter (options) {
-		const counter = new Prometheus.Counter(options);
+		const counter = new Counter(options);
 		this.#registry.registerMetric(counter);
 
 		return counter;
 	}
 
 	registerGauge (options) {
-		const gauge = new Prometheus.Gauge(options);
+		const gauge = new Gauge(options);
 		this.#registry.registerMetric(gauge);
 
 		return gauge;
 	}
 
 	registerHistogram (options) {
-		const histogram = new Prometheus.Histogram(options);
+		const histogram = new Histogram(options);
 		this.#registry.registerMetric(histogram);
 
 		return histogram;
@@ -66,6 +71,4 @@ module.exports = class MetricsSingleton {
 	destroy () {
 		this.#registry = null;
 	}
-
-	get modulePath () { return "metrics"; }
 };

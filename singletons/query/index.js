@@ -1,13 +1,15 @@
-const Maria = require("mariadb");
-const Batch = require("./batch.js");
-const Recordset = require("./recordset.js");
-const RecordDeleter = require("./record-deleter.js");
-const RecordUpdater = require("./record-updater.js");
-const Row = require("./row.js");
+import SupiDate from "../../objects/date";
+import SupiError from "../../objects/error";
+
+import { createPool as createMariaDbPool } from "mariadb";
+import Batch from "./batch.js";
+import Recordset from "./recordset.js";
+import RecordDeleter from "./record-deleter.js";
+import RecordUpdater from "./record-updater.js";
+import Row from "./row.js";
 
 const updateBatchLimit = 1000;
 const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
-
 const defaultPoolOptions = {
 	multipleStatements: true,
 	insertIdAsNumber: true,
@@ -17,7 +19,7 @@ const defaultPoolOptions = {
 
 const isValidPositiveInteger = (input, min = 0) => Number.isInteger(input) && (input >= min);
 
-module.exports = class QuerySingleton {
+export default class QuerySingleton {
 	#loggingThreshold = null;
 	#definitionPromises = new Map();
 	lifetimes = {
@@ -30,6 +32,9 @@ module.exports = class QuerySingleton {
 		transactions: new WeakSet()
 	};
 
+	/** @type {TableDefinition[]} */
+	tableDefinitions = [];
+
 	throughput = {
 		connectors: {
 			requested: 0,
@@ -38,48 +43,45 @@ module.exports = class QuerySingleton {
 		}
 	};
 
-	constructor () {
-		if (!process.env.MARIA_USER) {
-			throw new sb.Error({
-				message: "Database access must be initialized - missing MARIA_USER"
+	constructor (options = {}) {
+		if (!options.user) {
+			throw new SupiError({
+				message: "Missing `options.user`"
 			});
 		}
-		else if (typeof process.env.MARIA_PASSWORD !== "string") {
-			throw new sb.Error({
-				message: "Database access must be initialized - missing MARIA_PASSWORD (can be empty string)"
+		else if (typeof options.password !== "string") {
+			throw new SupiError({
+				message: "Missing `options.password` (can be empty string)"
 			});
 		}
-		else if ((!process.env.MARIA_HOST && !process.env.MARIA_SOCKET_PATH)) {
-			throw new sb.Error({
-				message: "Database access must be initialized - missing MARIA_HOST or MARIA_SOCKET_PATH"
+		else if (!options.path && !options.host) {
+			throw new SupiError({
+				message: "Missing `options.path` and `options.host` - exactly one must be provided"
 			});
 		}
 
-		/** @type {TableDefinition[]} */
-		this.tableDefinitions = [];
-
-		if (process.env.MARIA_SOCKET_PATH) {
-			this.pool = Maria.createPool({
-				user: process.env.MARIA_USER,
-				password: process.env.MARIA_PASSWORD,
-				socketPath: process.env.MARIA_SOCKET_PATH,
-				connectionLimit: process.env.MARIA_CONNECTION_LIMIT ?? 25,
+		if (options.path) {
+			this.pool = createMariaDbPool({
+				user: options.user,
+				password: options.password,
+				socketPath: options.path,
+				connectionLimit: options.connectionLimit ?? 25,
 				...defaultPoolOptions
 			});
 		}
-		else if (process.env.MARIA_HOST) {
-			this.pool = Maria.createPool({
-				user: process.env.MARIA_USER,
-				password: process.env.MARIA_PASSWORD,
+		else if (options.host) {
+			this.pool = createMariaDbPool({
+				user: options.user,
+				password: options.password,
 				host: process.env.MARIA_HOST,
 				port: process.env.MARIA_PORT ?? 3306,
-				connectionLimit: process.env.MARIA_CONNECTION_LIMIT ?? 25,
+				connectionLimit: options.connectionLimit ?? 25,
 				...defaultPoolOptions
 			});
 		}
 		else {
-			throw new sb.Error({
-				message: "Not enough info provided in process.env for Query to initialize"
+			throw new SupiError({
+				message: "Incomplete configuration passed as `options`"
 			});
 		}
 	}
@@ -93,7 +95,7 @@ module.exports = class QuerySingleton {
 			connector = await this.pool.getConnection();
 		}
 		catch (e) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Fetching database connection failed",
 				args: {
 					code: e.code
@@ -278,7 +280,7 @@ module.exports = class QuerySingleton {
 	async batchUpdate (data, options = {}) {
 		const { batchSize, callback, staggerDelay } = options;
 		if (typeof callback !== "function") {
-			throw new sb.Error({
+			throw new SupiError({
 				message: `Callback must be a function, received ${typeof callback}`
 			});
 		}
@@ -366,7 +368,7 @@ module.exports = class QuerySingleton {
 			// case "TIME":
 			case "DATE":
 			case "DATETIME":
-			case "TIMESTAMP": return new sb.Date(value);
+			case "TIMESTAMP": return new SupiDate(value);
 
 			case "BIGINT":
 			case "LONGLONG": return BigInt(value);
@@ -389,7 +391,7 @@ module.exports = class QuerySingleton {
 		}
 		else if (targetType === "TINY") {
 			if (sourceType !== "boolean") {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Expected value type: boolean",
 					args: value
 				});
@@ -403,11 +405,11 @@ module.exports = class QuerySingleton {
 		}
 		else if (targetType === "TIME" || targetType === "DATE" || targetType === "DATETIME" || targetType === "TIMESTAMP") {
 			if (value instanceof Date) {
-				value = new sb.Date(value);
+				value = new SupiDate(value);
 			}
 
-			if (!(value instanceof sb.Date)) {
-				throw new sb.Error({
+			if (!(value instanceof SupiDate)) {
+				throw new SupiError({
 					message: "Expected value type: date",
 					args: value
 				});
@@ -463,74 +465,74 @@ module.exports = class QuerySingleton {
 		switch (type) {
 			case "b":
 				if (typeof param !== "boolean") {
-					throw new sb.Error({ message: `Expected boolean, got ${param}` });
+					throw new SupiError({ message: `Expected boolean, got ${param}` });
 				}
 
 				return (param ? "1" : "0");
 
 			case "d":
-				if (param instanceof Date && !(param instanceof sb.Date)) {
-					param = new sb.Date(param);
+				if (param instanceof Date && !(param instanceof SupiDate)) {
+					param = new SupiDate(param);
 				}
-				if (!(param instanceof sb.Date)) {
-					throw new sb.Error({ message: `Expected sb.Date, got ${param}` });
+				if (!(param instanceof SupiDate)) {
+					throw new SupiError({ message: `Expected SupiDate, got ${param}` });
 				}
 
 				return `'${param.sqlDate()}'`;
 
 			case "dt":
-				if (param instanceof Date && !(param instanceof sb.Date)) {
-					param = new sb.Date(param);
+				if (param instanceof Date && !(param instanceof SupiDate)) {
+					param = new SupiDate(param);
 				}
-				if (!(param instanceof sb.Date)) {
-					throw new sb.Error({ message: `Expected sb.Date, got ${param}` });
+				if (!(param instanceof SupiDate)) {
+					throw new SupiError({ message: `Expected SupiDate, got ${param}` });
 				}
 
 				return `'${param.sqlDateTime()}'`;
 
 			case "n":
 				if (typeof param !== "number") {
-					throw new sb.Error({ message: `Expected number, got ${param}` });
+					throw new SupiError({ message: `Expected number, got ${param}` });
 				}
 				else if (Number.isNaN(param)) {
-					throw new sb.Error({ message: `Cannot use ${param} as a number in SQL` });
+					throw new SupiError({ message: `Cannot use ${param} as a number in SQL` });
 				}
 
 				return String(param);
 
 			case "s":
 				if (typeof param !== "string") {
-					throw new sb.Error({ message: `Expected string, got ${param}` });
+					throw new SupiError({ message: `Expected string, got ${param}` });
 				}
 
 				return `'${this.escapeString(param)}'`;
 
 			case "t":
-				if (param instanceof Date && !(param instanceof sb.Date)) {
-					param = new sb.Date(param);
+				if (param instanceof Date && !(param instanceof SupiDate)) {
+					param = new SupiDate(param);
 				}
-				if (!(param instanceof sb.Date)) {
-					throw new sb.Error({ message: `Expected sb.Date, got ${param}` });
+				if (!(param instanceof SupiDate)) {
+					throw new SupiError({ message: `Expected SupiDate, got ${param}` });
 				}
 
 				return param.sqlTime();
 
 			case "s+":
 				if (!Array.isArray(param)) {
-					throw new sb.Error({ message: `Expected Array, got ${param}` });
+					throw new SupiError({ message: `Expected Array, got ${param}` });
 				}
 				else if (param.some(i => typeof i !== "string")) {
-					throw new sb.Error({ message: "Array must contain strings only" });
+					throw new SupiError({ message: "Array must contain strings only" });
 				}
 
 				return `(${param.map(i => this.escapeString(i)).map(i => `'${i}'`).join(",")})`;
 
 			case "n+":
 				if (!Array.isArray(param)) {
-					throw new sb.Error({ message: `Expected Array, got ${param}` });
+					throw new SupiError({ message: `Expected Array, got ${param}` });
 				}
 				else if (param.some(i => typeof i !== "number" || Number.isNaN(i))) {
-					throw new sb.Error({ message: "Array must contain proper numbers only" });
+					throw new SupiError({ message: "Array must contain proper numbers only" });
 				}
 
 				return `(${param.join(",")})`;
@@ -540,7 +542,7 @@ module.exports = class QuerySingleton {
 			case "like*":
 			case "*like*": {
 				if (typeof param !== "string") {
-					throw new sb.Error({ message: `Expected string, got ${param}` });
+					throw new SupiError({ message: `Expected string, got ${param}` });
 				}
 
 				const start = (type.startsWith("*")) ? "%" : "";
@@ -550,7 +552,7 @@ module.exports = class QuerySingleton {
 				return ` LIKE '${start}${string}${end}'`;
 			}
 
-			default: throw new sb.Error({
+			default: throw new SupiError({
 				message: "Unknown Recordset replace parameter",
 				args: type
 			});
@@ -559,7 +561,7 @@ module.exports = class QuerySingleton {
 
 	setLogThreshold (value) {
 		if (typeof value !== "number") {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Logging threshold must be a number",
 				args: { value }
 			});
@@ -600,10 +602,8 @@ module.exports = class QuerySingleton {
 		return formatSymbolRegex;
 	}
 
-	get modulePath () { return "query"; }
-
 	destroy () {
 		this.invalidateAllDefinitions();
 		this.pool = null;
 	}
-};
+}

@@ -79,6 +79,21 @@ export declare type GenericQueryBuilderOptions = {
     transaction?: PoolConnection
 };
 
+declare type CommonConstructorOptions = {
+    user: string;
+    password: string;
+    connectionLimit?: number;
+};
+declare type PathConstructorOptions = CommonConstructorOptions & {
+    path: string;
+};
+declare type HostConstructorOptions = CommonConstructorOptions & {
+    host: string;
+    port?: number;
+};
+
+export declare type ConstructorOptions = PathConstructorOptions | HostConstructorOptions;
+
 /**
  * Query represents every possible access to the database.
  *
@@ -98,7 +113,7 @@ export declare class QuerySingleton {
     private tableDefinitions: TableDefinition[];
     private pool: Pool | null;
 
-    constructor ();
+    constructor (options: ConstructorOptions);
 
     /**
      * Executes a raw SQL query.
@@ -200,5 +215,4 @@ export declare class QuerySingleton {
     disableLogThreshold (): void;
 
     destroy (): void;
-    get modulePath (): "query";
 }

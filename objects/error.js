@@ -1,4 +1,4 @@
-class CustomError extends globalThis.Error {
+class SupiError extends globalThis.Error {
 	#args;
 	#timestamp;
 	#messageDescriptor;
@@ -64,7 +64,7 @@ class CustomError extends globalThis.Error {
 	}
 }
 
-class GenericRequestError extends CustomError {
+class GenericRequestError extends SupiError {
 	constructor (object = {}) {
 		super({
 			message: object.message,
@@ -83,4 +83,4 @@ class GenericRequestError extends CustomError {
 	}
 }
 
-module.exports = CustomError;
+export default SupiError;

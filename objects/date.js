@@ -1,4 +1,4 @@
-module.exports = class CustomDate extends Date {
+export default class SupiDate extends Date {
 	static months = [
 		"January",
 		"February",
@@ -98,23 +98,23 @@ module.exports = class CustomDate extends Date {
 					value += this.dayOfTheWeek.slice(0, 3);
 					break;
 				case "F":
-					value += CustomDate.months[month - 1];
+					value += SupiDate.months[month - 1];
 					break;
 				case "M":
-					value += CustomDate.months[month - 1].slice(0, 3);
+					value += SupiDate.months[month - 1].slice(0, 3);
 					break;
 				case "S":
-					value += CustomDate.getDaySuffix(day);
+					value += SupiDate.getDaySuffix(day);
 					break;
 
 				case "d":
-					value += CustomDate.zf(day, 2);
+					value += SupiDate.zf(day, 2);
 					break;
 				case "j":
 					value += day;
 					break;
 				case "m":
-					value += CustomDate.zf(month, 2);
+					value += SupiDate.zf(month, 2);
 					break;
 				case "n":
 					value += month;
@@ -127,16 +127,16 @@ module.exports = class CustomDate extends Date {
 					value += hours;
 					break;
 				case "H":
-					value += CustomDate.zf(hours, 2);
+					value += SupiDate.zf(hours, 2);
 					break;
 				case "i":
-					value += CustomDate.zf(minutes, 2);
+					value += SupiDate.zf(minutes, 2);
 					break;
 				case "s":
-					value += CustomDate.zf(seconds, 2);
+					value += SupiDate.zf(seconds, 2);
 					break;
 				case "v":
-					value += CustomDate.zf(milli, 3);
+					value += SupiDate.zf(milli, 3);
 					break;
 
 				default:

@@ -1,7 +1,9 @@
+import SupiError from "../../objects/error";
+
 /**
  * Represents the UPDATE sql statement.
  */
-module.exports = class RecordUpdater {
+export default class RecordUpdater {
 	#query;
 	#transaction;
 	#update = { database: null, table: null };
@@ -19,7 +21,7 @@ module.exports = class RecordUpdater {
 
 	priority (value) {
 		if (!["normal", "low"].includes(value)) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Incorrect priority value",
 				args: { value }
 			});
@@ -73,12 +75,12 @@ module.exports = class RecordUpdater {
 
 	async toSQL () {
 		if (!this.#update.database || !this.#update.table) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "No UPDATE database/table in RecordUpdater - invalid definition"
 			});
 		}
 		else if (this.#set.length === 0) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "No SET in RecordUpdater - invalid definition"
 			});
 		}
@@ -94,7 +96,7 @@ module.exports = class RecordUpdater {
 		for (const { column, value } of this.#set) {
 			const definition = columns.find(i => i.name === column);
 			if (!definition) {
-				throw new sb.Error({
+				throw new SupiError({
 					message: `Unrecognized column "${column}"`
 				});
 			}
@@ -120,4 +122,4 @@ module.exports = class RecordUpdater {
 		const sqlString = sql.join("\n");
 		return await this.#query.transactionQuery(sqlString, this.#transaction);
 	}
-};
+}
