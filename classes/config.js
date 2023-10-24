@@ -7,9 +7,7 @@ module.exports = class Config {
 	#Name;
 	#Value;
 	#Type;
-	#Secret;
 	#Editable;
-
 	#initialized = false;
 
 	static data = new Map();
@@ -18,7 +16,6 @@ module.exports = class Config {
 	constructor (data) {
 		this.#Name = data.Name;
 		this.#Type = data.Type;
-		this.#Secret = Boolean(data.Secret);
 		this.#Editable = Boolean(data.Editable);
 
 		this.value = data.Value;

@@ -14,7 +14,6 @@ export declare type Representation = {
 export declare type ConstructorData = {
     Name: Name;
     Type: Type;
-    Secret: boolean;
     Editable: boolean;
     Value: string | Value;
 };
@@ -66,7 +65,6 @@ export declare class Config {
     #Name: Name;
     #Value: Value;
     #Type: Type;
-    #Secret: boolean;
     #Editable: boolean;
     #initialized: boolean;
 
