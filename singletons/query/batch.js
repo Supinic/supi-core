@@ -4,7 +4,7 @@ import SupiError from "../../objects/error.js";
  * Represents the SQL INSERT statement for multiple rows.
  * One instance is always locked to one table and some of its columns based on constructor.
  */
-module.exports = class Batch {
+export default class Batch {
 	/** @type {QuerySingleton} */
 	#query;
 	#transaction;

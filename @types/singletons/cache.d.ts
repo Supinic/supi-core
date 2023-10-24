@@ -31,7 +31,7 @@ export declare type KeysPrefixOptions = Partial<KeyOptions> & {
 /**
  * Redis caching module with methods to ease up item lookup.
  */
-export declare class CacheSingleton {
+export declare class Cache {
     static resolveKey (value: Key): string;
     static resolvePrefix (mainKey: string, keys: PrefixObject): string;
 
@@ -48,8 +48,8 @@ export declare class CacheSingleton {
     set (data: SetOptions): Promise<Ok | null>; // inferred from Redis["set"] for the non-callback overload
     get (keyIdentifier: Key): Promise<Value>;
     delete (keyIdentifier: Key): Promise<number>; // inferred from Redis["del"] for the non-callback overload;
-    setByPrefix (prefix: Prefix, value: Value, options?: PrefixOptions): ReturnType<CacheSingleton["set"]>;
-    getByPrefix (prefix: Prefix, options?: PrefixOptions): ReturnType<CacheSingleton["get"]>;
+    setByPrefix (prefix: Prefix, value: Value, options?: PrefixOptions): ReturnType<Cache["set"]>;
+    getByPrefix (prefix: Prefix, options?: PrefixOptions): ReturnType<Cache["get"]>;
     getKeysByPrefix (prefix: Prefix, options: KeysPrefixOptions): Promise<string[]>;
     getKeyValuesByPrefix (prefix: Prefix, options: KeysPrefixOptions): Promise<Value[]>;
     destroy (): void;

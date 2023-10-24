@@ -12,9 +12,9 @@ const isValidInteger = (input) => {
 	return Boolean(Number.isFinite(input) && Math.trunc(input) === input);
 };
 
-module.exports = class Cache {
+export default class Cache {
 	/** @type {Redis} */
-	#server = null;
+	#server;
 	#active = false;
 	#version = null;
 	#configuration;
