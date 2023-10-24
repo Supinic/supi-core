@@ -1,9 +1,9 @@
-import { JSONifiable, SimpleGenericData } from "../globals";
+import type { JSONifiable, SimpleGenericData } from "../globals.d.ts";
 
 /**
  * Custom error object. Receives an arguments object to provide more detailed error context.
  */
-export declare class CustomError extends Error {
+export declare class SupiError extends Error {
 	readonly #args: SimpleGenericData;
 	readonly #timestamp: number;
 	readonly #messageDescriptor: PropertyDescriptor;
@@ -47,7 +47,7 @@ export declare class CustomError extends Error {
 	static get GenericRequest (): GenericRequestError;
 }
 
-export declare class GenericRequestError extends CustomError {
+export declare class GenericRequestError extends SupiError {
 	constructor (obj?: {
 		message: string;
 		statusCode: number | null;

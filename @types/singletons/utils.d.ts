@@ -1,5 +1,5 @@
-import { Message, Stringifiable, URL } from "../globals";
-import { CustomDate } from "../objects/date";
+import type { Message, Stringifiable, URL } from "../globals.d.ts";
+import type { SupiDate } from "../objects/date.d.ts";
 
 import { Url as NativeURLObject } from "url";
 
@@ -75,7 +75,7 @@ declare namespace GeoData {
 }
 
 declare type TimeOptions = {
-    date?: number | Date | CustomDate;
+    date?: number | Date | SupiDate;
     coordinates: GeoData.Location;
     key: string;
 };
@@ -129,7 +129,7 @@ export declare namespace YT {
     };
     type PlaylistVideo = Video & {
         channelTitle: string;
-        published: CustomDate;
+        published: SupiDate;
         position: number;
     };
     type PlaylistResult = {
@@ -202,7 +202,7 @@ export declare class Utils {
     constructor ();
 
     capitalize (string: string): string;
-    timeDelta (target: CustomDate | Date | number, skipAffixes?: boolean, respectLeapYears?: boolean, deltaTo?: CustomDate): string;
+    timeDelta (target: SupiDate | Date | number, skipAffixes?: boolean, respectLeapYears?: boolean, deltaTo?: SupiDate): string;
     toDictionary (message: Message, orderBy: "asc" | "desc"): Map<string, number>;
     round (number: number, places?: number, options?: RoundOptions): number;
     escapeHTML (string: string): string;

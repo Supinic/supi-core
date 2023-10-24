@@ -1,6 +1,6 @@
 import { ExtendOptions, Got, InternalsType, GotReturn } from "got";
 import { URL } from "url";
-import FormData = require("form-data");
+import FormData from "form-data";
 
 export { Got } from "got";
 

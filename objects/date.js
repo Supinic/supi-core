@@ -318,4 +318,4 @@ export default class SupiDate extends Date {
 	set year (y) {
 		super.setFullYear(y);
 	}
-};
+}

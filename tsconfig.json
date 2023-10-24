@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "ESNext",
+    "esModuleInterop": true,
+    "moduleResolution": "node16",
     "target": "es2021",
     "sourceMap": true,
     "strictNullChecks": true,

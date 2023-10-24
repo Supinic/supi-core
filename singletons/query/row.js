@@ -348,4 +348,4 @@ export default class Row {
 	get deleted () { return this.#deleted; }
 	get initialized () { return this.#initialized; }
 	get loaded () { return this.#loaded; }
-};
+}

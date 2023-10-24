@@ -8,4 +8,4 @@ export * from "./singletons/metrics";
 export * from "./singletons/utils";
 
 export * from "./classes/config";
-export * from "./classes/got";
+export * from "./classes/got-proxy.js";

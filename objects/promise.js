@@ -28,4 +28,4 @@ export default class SupiPromise extends global.Promise {
 		this.#reject(value);
 		return this;
 	}
-};
+}

@@ -1,5 +1,5 @@
 import { Redis, RedisOptions } from "ioredis";
-import { JSONifiable, Port, Stringifiable, URL } from "../globals";
+import type { JSONifiable, Port, Stringifiable, URL } from "../globals.d.ts";
 
 declare type Ok = "OK";
 export declare type Configuration = Port | URL | RedisOptions;

@@ -212,7 +212,7 @@ class StaticGot {
 	static get FormData () { return FormData; }
 }
 
-export default new Proxy(StaticGot, {
+const GotProxy = new Proxy(StaticGot, {
 	apply: function (target, thisArg, args) {
 		const options = args.find(i => typeof i === "object" && i?.constructor?.name === "Object");
 		if (options && typeof options.url === "string" && !options.skipURLSanitization) {
@@ -237,3 +237,5 @@ export default new Proxy(StaticGot, {
 		return target[property] ?? gotModule[property] ?? gotModule.got[property];
 	}
 });
+
+export default GotProxy;
