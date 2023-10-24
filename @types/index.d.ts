@@ -8,7 +8,7 @@ import type { Metrics } from "./singletons/metrics.d.ts";
 import type { Utils } from "./singletons/utils.d.ts";
 
 import type { Config } from "./classes/config.d.ts";
-import type { Got } from "./classes/got-proxy.d.ts";
+import type { GotProxy as Got } from "./classes/got-proxy.d.ts";
 
 export {
     Date,
