@@ -1,4 +1,4 @@
-import SupiError from "../../objects/error";
+import SupiError from "../../objects/error.js";
 
 /**
  * Represents one row of a SQL database table.

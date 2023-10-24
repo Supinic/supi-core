@@ -1,4 +1,4 @@
-import SupiError from "../../objects/error";
+import SupiError from "../../objects/error.js";
 
 const ROW_COLLAPSED = Symbol("row-collapsed");
 

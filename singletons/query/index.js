@@ -1,5 +1,5 @@
-import SupiDate from "../../objects/date";
-import SupiError from "../../objects/error";
+import SupiDate from "../../objects/date.js";
+import SupiError from "../../objects/error.js";
 
 import { createPool as createMariaDbPool } from "mariadb";
 import Batch from "./batch.js";

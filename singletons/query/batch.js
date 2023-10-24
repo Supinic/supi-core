@@ -1,4 +1,4 @@
-import SupiError from "../../objects/error";
+import SupiError from "../../objects/error.js";
 
 /**
  * Represents the SQL INSERT statement for multiple rows.
