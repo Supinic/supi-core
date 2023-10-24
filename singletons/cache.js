@@ -322,4 +322,4 @@ export default class Cache {
 	get version () { return this.#version; }
 
 	get server () { return this.#server; }
-};
+}
