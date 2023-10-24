@@ -1062,7 +1062,7 @@ domutils@^3.0.1:
 
 "duration-parser@github:supinic/duration-parser":
   version "1.0.0"
-  resolved "https://codeload.github.com/supinic/duration-parser/tar.gz/61a75c0fc41cd211ac284d5744628608b7f93617"
+  resolved "https://codeload.github.com/supinic/duration-parser/tar.gz/94d68f1b987c96d10c80bf8cb3a450401874e86a"
 
 electron-to-chromium@^1.4.477:
   version "1.4.522"
@@ -1861,7 +1861,7 @@ keyv@^4.0.0, keyv@^4.5.3:
 
 "language-iso-codes@github:supinic/language-iso-codes":
   version "1.0.0"
-  resolved "https://codeload.github.com/supinic/language-iso-codes/tar.gz/0bff9476cc5806d8ae970643b5b0583f6c4028ca"
+  resolved "https://codeload.github.com/supinic/language-iso-codes/tar.gz/dc0e75b4f40978d5549fcf1da5243687c8445963"
 
 levn@^0.4.1:
   version "0.4.1"

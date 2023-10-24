@@ -5,18 +5,11 @@ import { Url as NativeURLObject } from "url";
 
 import { CheerioAPI } from "cheerio";
 import { ParsedResult, ParsingOption } from "chrono-node";
-import { TrackLinkParser } from "track-link-parser";
-import { Parser as LanguageParser } from "language-iso-codes";
 import { Output as RSSOutput } from "rss-parser";
 import { Random } from "random-js";
 import { parse as DurationParseFunction } from "duration-parser";
 // import * as FFProbe from "ffprobe";
 import { transliterate as TransliterateFunction } from "transliteration";
-
-declare type Modules = {
-    linkParser: TrackLinkParser;
-    languageISO: LanguageParser;
-};
 
 declare interface MathProperties {
     [P: string]: keyof Math
@@ -178,7 +171,7 @@ declare type UploadResult = {
     link: string | null;
 };
 
-export declare class UtilsSingleton {
+export declare class Utils {
     static readonly timeUnits: {
         y: { d: 365, h: 8760, m: 525600, s: 31536000, ms: 31536000.0e3 };
         d: { h: 24, m: 1440, s: 86400, ms: 86400.0e3 };
@@ -264,8 +257,6 @@ export declare class UtilsSingleton {
     escapeRegExp (string: string): string;
     parseRegExp (string: string): RegExp | null;
     replaceLinks (string: string, replacement?: string): string;
-
-    get modules (): Modules;
 
     destroy (): void;
     get modulePath (): "cache";
