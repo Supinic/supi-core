@@ -5,7 +5,7 @@ export type * as Promise from "./objects/promise.d.ts";
 
 // classes
 export type * as Config from "./classes/config.d.ts";
-export type * as GotProxy from "./classes/got-proxy.d.ts";
+export type * as Got from "./classes/got-proxy.d.ts";
 
 // singletons
 export type * as Cache from "./singletons/cache.d.ts";
