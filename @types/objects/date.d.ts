@@ -13,7 +13,7 @@ export declare type TimeUnit = "h" | "m" | "s" | "ms";
  * Extension of the native JavaScript Date class, with several additions to its API.
  * Note: the addition of `addX` methods, format and setters/getters for time units.
  */
-export declare class CustomDate extends Date {
+export declare class SupiDate extends Date {
 	static months: Month[];
 
 	/**
@@ -24,7 +24,7 @@ export declare class CustomDate extends Date {
 	/**
 	 * Compares two instances for their equality.
 	 */
-	static equals (from: CustomDate, to: CustomDate): boolean;
+	static equals (from: SupiDate, to: SupiDate): boolean;
 
 	/**
 	 * Pads a number with specified number of zeroes.
@@ -98,25 +98,25 @@ export declare class CustomDate extends Date {
 	 * Sets the current timezone offset to the provided value.
 	 * The offset provided is in minutes
 	 */
-	setTimezoneOffset (offset: number): CustomDate;
+	setTimezoneOffset (offset: number): SupiDate;
 
 	/**
 	 * Sets the provided time units to zero.
 	 */
-	discardTimeUnits (...units: TimeUnit[]): CustomDate;
+	discardTimeUnits (...units: TimeUnit[]): SupiDate;
 
 	/**
-	 * Clones the current CustomDate. The new object is independent of the old one.
+	 * Clones the current SupiDate. The new object is independent of the old one.
 	 */
-	clone (): CustomDate;
+	clone (): SupiDate;
 
-	addYears (y: number): CustomDate;
-	addMonths (m: number): CustomDate;
-	addDays (d: number): CustomDate;
-	addHours (h: number): CustomDate;
-	addMinutes (m: number): CustomDate;
-	addSeconds (s: number): CustomDate;
-	addMilliseconds (ms: number): CustomDate;
+	addYears (y: number): SupiDate;
+	addMonths (m: number): SupiDate;
+	addDays (d: number): SupiDate;
+	addHours (h: number): SupiDate;
+	addMinutes (m: number): SupiDate;
+	addSeconds (s: number): SupiDate;
+	addMilliseconds (ms: number): SupiDate;
 
 	get dayOfTheWeek (): DayOfTheWeek;
 	get year (): number;

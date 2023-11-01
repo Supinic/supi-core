@@ -1,5 +1,5 @@
 import { Redis, RedisOptions } from "ioredis";
-import { JSONifiable, Port, Stringifiable, URL } from "../globals";
+import type { JSONifiable, Port, Stringifiable, URL } from "../globals.d.ts";
 
 declare type Ok = "OK";
 export declare type Configuration = Port | URL | RedisOptions;
@@ -28,23 +28,28 @@ export declare type KeysPrefixOptions = Partial<KeyOptions> & {
     count?: number;
 };
 
-export declare class CacheSingleton {
+/**
+ * Redis caching module with methods to ease up item lookup.
+ */
+export declare class Cache {
     static resolveKey (value: Key): string;
     static resolvePrefix (mainKey: string, keys: PrefixObject): string;
 
     #active: boolean;
     #server: Redis;
     #version: Version;
+    #configuration: Configuration;
 
-    constructor ();
+    constructor (configuration: Configuration);
 
-    connect (configuration: Configuration): void;
+    connect (): Promise<void>;
     disconnect (): void;
+
     set (data: SetOptions): Promise<Ok | null>; // inferred from Redis["set"] for the non-callback overload
     get (keyIdentifier: Key): Promise<Value>;
     delete (keyIdentifier: Key): Promise<number>; // inferred from Redis["del"] for the non-callback overload;
-    setByPrefix (prefix: Prefix, value: Value, options?: PrefixOptions): ReturnType<CacheSingleton["set"]>;
-    getByPrefix (prefix: Prefix, options?: PrefixOptions): ReturnType<CacheSingleton["get"]>;
+    setByPrefix (prefix: Prefix, value: Value, options?: PrefixOptions): ReturnType<Cache["set"]>;
+    getByPrefix (prefix: Prefix, options?: PrefixOptions): ReturnType<Cache["get"]>;
     getKeysByPrefix (prefix: Prefix, options: KeysPrefixOptions): Promise<string[]>;
     getKeyValuesByPrefix (prefix: Prefix, options: KeysPrefixOptions): Promise<Value[]>;
     destroy (): void;

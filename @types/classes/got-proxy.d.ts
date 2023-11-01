@@ -1,6 +1,6 @@
 import { ExtendOptions, Got, InternalsType, GotReturn } from "got";
 import { URL } from "url";
-import FormData = require("form-data");
+import FormData from "form-data";
 
 export { Got } from "got";
 
@@ -51,7 +51,6 @@ declare class StaticGot {
 	static extend (extendOptions: ExtendOptions): Extension;
 	static isRequestError (error: Error): boolean;
 
-	static get specificName (): "Got";
 	static get FormData (): FormData;
 }
 

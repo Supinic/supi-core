@@ -1,10 +1,10 @@
-import {
+import type {
     Database,
     GenericQueryBuilderOptions,
     QuerySingleton as Query,
     Table,
     WhereHavingObject
-} from "./index";
+} from "./index.d.ts";
 
 import { PoolConnection } from "mariadb";
 

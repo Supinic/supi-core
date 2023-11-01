@@ -7,12 +7,12 @@ declare type Handler<T> = (
  * Custom Promise wrapper.
  * Allows resolution/rejection from outside the Promise's context.
  */
-export declare class CustomPromise<T> extends Promise<T> {
+export declare class SupiPromise<T> extends Promise<T> {
 	#resolve;
 	#reject;
 
 	constructor (handler: Handler<T>);
 
-	resolve (value: any): CustomPromise<T>;
-	reject (value: any): CustomPromise<T>;
+	resolve (value: any): SupiPromise<T>;
+	reject (value: any): SupiPromise<T>;
 }

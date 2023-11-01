@@ -1,8 +1,9 @@
 {
   "name": "supi-core",
-  "version": "2.2.0",
-  "description": "Supinic's projects' core modules, created in a global namespace",
+  "version": "3.0.0",
+  "description": "Supinic's projects' core modules",
   "main": "index.js",
+  "type": "module",
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
     "chrono-node": "^2.7.0",

@@ -1,4 +1,4 @@
-import {
+import type {
     ColumnDefinition,
     Database,
     Field,
@@ -6,7 +6,7 @@ import {
     GenericQueryBuilderOptions,
     QuerySingleton as Query,
     Table
-} from "./index";
+} from "./index.d.ts";
 import { PoolConnection } from "mariadb";
 
 declare type ConstructorOptions = GenericQueryBuilderOptions & {

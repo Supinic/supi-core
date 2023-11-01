@@ -1,4 +1,4 @@
-import {
+import type {
     Database,
     Field,
     FormatValue,
@@ -6,7 +6,7 @@ import {
     QuerySingleton as Query,
     Table,
     WhereHavingObject
-} from "./index";
+} from "./index.d.ts";
 
 import { PoolConnection } from "mariadb";
 

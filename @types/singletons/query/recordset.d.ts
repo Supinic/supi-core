@@ -1,11 +1,11 @@
-import {
+import type {
     ColumnDefinition,
     Database,
     FormatValue,
     GenericQueryBuilderOptions,
     QuerySingleton as Query,
     Table
-} from "./index";
+} from "./index.d.ts";
 import { PoolConnection } from "mariadb";
 
 declare type Field = ColumnDefinition["name"];

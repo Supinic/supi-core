@@ -1,11 +1,12 @@
-import { Batch, ConstructorOptions as BatchOptions } from "./batch";
-import { Row } from "./row";
-import { RecordDeleter } from "./record-deleter";
-import { Recordset } from "./recordset";
-import { RecordUpdater } from "./record-updater";
-import { CustomDate as Date } from "../../objects/date";
+import type { Batch, ConstructorOptions as BatchOptions } from "./batch.d.ts";
+import type { Row } from "./row.d.ts";
+import type { RecordDeleter } from "./record-deleter.d.ts";
+import type { Recordset } from "./recordset.d.ts";
+import type { RecordUpdater } from "./record-updater.d.ts";
+import type { SupiDate } from "../../objects/date.d.ts";
+import type { SimpleGenericData } from "../../globals.d.ts";
+
 import { Flags, Pool, PoolConnection, Types as ColumnType } from "mariadb";
-import { SimpleGenericData } from "../../globals";
 
 export {
     Batch,
@@ -70,7 +71,7 @@ export declare type Database = TableDefinition["database"];
 export declare type Field = ColumnDefinition["name"];
 export declare type Table = TableDefinition["name"];
 export declare type FormatSymbol = "b" | "d" | "dt" | "n" | "s" | "t" | "s+" | "n+" | "like" | "like*" | "*like" | "*like*";
-export declare type FormatValue = number | string | boolean | Date | SimpleGenericData | bigint | string[] | null;
+export declare type FormatValue = number | string | boolean | SupiDate | SimpleGenericData | bigint | string[] | null;
 export declare type WhereHavingObject = {
     condition?: boolean;
     raw?: string;
@@ -78,6 +79,21 @@ export declare type WhereHavingObject = {
 export declare type GenericQueryBuilderOptions = {
     transaction?: PoolConnection
 };
+
+declare type CommonConstructorOptions = {
+    user: string;
+    password: string;
+    connectionLimit?: number;
+};
+declare type PathConstructorOptions = CommonConstructorOptions & {
+    path: string;
+};
+declare type HostConstructorOptions = CommonConstructorOptions & {
+    host: string;
+    port?: number;
+};
+
+export declare type ConstructorOptions = PathConstructorOptions | HostConstructorOptions;
 
 /**
  * Query represents every possible access to the database.
@@ -88,7 +104,7 @@ export declare type GenericQueryBuilderOptions = {
  * - {@link RecordUpdater}: UPDATEs specified columns with values, with specified condition(s)
  * - {@link Row}: Single table row, select/insert/update/delete
  */
-export declare class QuerySingleton {
+export declare class Query {
     static get flagMask (): Flags;
     static get sqlKeywords (): string[];
 
@@ -98,7 +114,7 @@ export declare class QuerySingleton {
     private tableDefinitions: TableDefinition[];
     private pool: Pool | null;
 
-    constructor ();
+    constructor (options: ConstructorOptions);
 
     /**
      * Executes a raw SQL query.
@@ -108,12 +124,12 @@ export declare class QuerySingleton {
     /**
      * Alias of {@link Query.raw}
      */
-    send (...args: string[]): ReturnType<QuerySingleton["raw"]>;
+    send (...args: string[]): ReturnType<Query["raw"]>;
 
     /**
      * Allows a transaction-based query, or a regular one if none is provided.
      */
-    transactionQuery (sqlString: string, transaction: PoolConnection | null): ReturnType<QuerySingleton["raw"]>;
+    transactionQuery (sqlString: string, transaction: PoolConnection | null): ReturnType<Query["raw"]>;
 
     /**
      * Prepares a transaction for next use.
@@ -200,5 +216,4 @@ export declare class QuerySingleton {
     disableLogThreshold (): void;
 
     destroy (): void;
-    get modulePath (): "query";
 }

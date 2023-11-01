@@ -1,5 +1,20 @@
 // @todo refactor out all usages of sb.Got - this module must not rely on its "requirees" to properly import specific instances!
 
+import SupiDate from "../objects/date.js";
+import SupiError from "../objects/error.js";
+
+import { MersenneTwister19937, Random } from "random-js";
+import getInfoFfprobe from "ffprobe";
+import { roll } from "roll-dice";
+import { transliterate } from "transliteration";
+import { load as loadCheerio } from "cheerio";
+import { parse as parseChrono } from "chrono-node";
+import RSSParser from "rss-parser";
+import parseDuration from "duration-parser";
+
+const rssParser = new RSSParser();
+const randomizer = new Random(MersenneTwister19937.autoSeed());
+
 const byteUnits = {
 	si: {
 		multiplier: 1000,
@@ -11,58 +26,12 @@ const byteUnits = {
 	}
 };
 
-const moduleMap = {
-	cheerio: () => require("cheerio"),
-	chrono: () => require("chrono-node"),
-	linkParser: () => {
-		const LinkParserFactory = require("track-link-parser");
-		return new LinkParserFactory({
-			youtube: {
-				key: sb.Config.get("API_GOOGLE_YOUTUBE")
-			},
-			bilibili: {
-				appKey: sb.Config.get("BILIBILI_APP_KEY"),
-				token: sb.Config.get("BILIBILI_PRIVATE_TOKEN"),
-				userAgentDescription: sb.Config.get("BILIBILI_USER_AGENT")
-			},
-			soundcloud: {
-				key: sb.Config.get("SOUNDCLOUD_CLIENT_ID")
-			}
-		});
-	},
-	languageISO: () => require("language-iso-codes"),
-	rss: () => new (require("rss-parser"))(),
-	random: () => {
-		const RandomJS = require("random-js");
-		return new RandomJS.Random(RandomJS.MersenneTwister19937.autoSeed());
-	},
-	parseDuration: () => require("duration-parser"),
-	ffprobe: () => require("ffprobe"),
-	transliterate: () => require("transliteration").transliterate
-};
-
-const RollDice = require("roll-dice");
-
 const linkRegex = /(((http|https):\/\/)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*))/gi;
-
-// this object has the same keys as `moduleMap`, but all values are `null`.
-const modules = Object.seal(Object.fromEntries(Object.keys(moduleMap).map(i => [i, null])));
-
-/** @type {Proxy} */
-const moduleProxy = new Proxy(modules, {
-	get: function (target, property) {
-		if (!modules[property]) {
-			modules[property] = moduleMap[property]();
-		}
-
-		return modules[property];
-	}
-});
 
 /**
  * Conscise collection of "helper" and "utility" methods.
  */
-module.exports = class UtilsSingleton {
+export default class Utils {
 	/** Numeric constants to convert between any two time units. */
 	static timeUnits = {
 		y: { d: 365, h: 8760, m: 525600, s: 31536000, ms: 31536000.0e3 },
@@ -116,23 +85,6 @@ module.exports = class UtilsSingleton {
 	};
 
 	/**
-	 * @returns {UtilsModuleProxyWrapper}
-	 */
-	get modules () {
-		return moduleProxy;
-	}
-
-	get languageISO () {
-		console.warn("Deprecated access Utils.languageISO");
-		return this.modules.languageISO;
-	}
-
-	get linkParser () {
-		console.warn("Deprecated access Utils.linkParser");
-		return this.modules.linkParser;
-	}
-
-	/**
 	 * Capitalizes the string's first letter.
 	 * @param {string} string
 	 * @returns {string}
@@ -143,27 +95,27 @@ module.exports = class UtilsSingleton {
 
 	/**
 	 * Returns a formatted string, specifying an amount of time delta from current date to provided date.
-	 * @param {sb.Date|Date|number} target
+	 * @param {SupiDate|Date|number} target
 	 * @param {boolean} [skipAffixes] if true, the affixes "in X hours" or "X hours ago" will be omitted
 	 * @param {boolean} [respectLeapYears] If true, shows a time difference spanning a whole year as `1y` regardless
 	 * of the actual length of the year. If disabled, a year is always counted to be 365 * 24 hours. Defaults to false
-	 * @param {sb.Date} [deltaTo] If set, calculate time delta between target and deltaTo. If undefined, calculate
+	 * @param {SupiDate} [deltaTo] If set, calculate time delta between target and deltaTo. If undefined, calculate
 	 * delta between target and the current time.
 	 * @returns {string}
 	 */
 	timeDelta (target, skipAffixes = false, respectLeapYears = false, deltaTo = undefined) {
 		if (deltaTo === undefined) {
-			deltaTo = new sb.Date();
+			deltaTo = new SupiDate();
 		}
 
 		if (target.valueOf && typeof target.valueOf() === "number") {
-			target = new sb.Date(target.valueOf());
+			target = new SupiDate(target.valueOf());
 		}
 		else {
 			throw new TypeError("Invalid parameter type");
 		}
 
-		if (sb.Date.equals(deltaTo, target)) {
+		if (SupiDate.equals(deltaTo, target)) {
 			return "right now!";
 		}
 
@@ -171,36 +123,36 @@ module.exports = class UtilsSingleton {
 		const delta = Math.abs(deltaTo.valueOf() - target.valueOf());
 		const [prefix, suffix] = (target > deltaTo) ? ["in ", ""] : ["", " ago"];
 
-		if (delta < UtilsSingleton.timeUnits.s.ms) {
+		if (delta < Utils.timeUnits.s.ms) {
 			string = `${delta}ms`;
 		}
-		else if (delta < UtilsSingleton.timeUnits.m.ms) {
-			string = `${this.round(delta / UtilsSingleton.timeUnits.s.ms, 2)}s`;
+		else if (delta < Utils.timeUnits.m.ms) {
+			string = `${this.round(delta / Utils.timeUnits.s.ms, 2)}s`;
 		}
-		else if (delta < UtilsSingleton.timeUnits.h.ms) {
+		else if (delta < Utils.timeUnits.h.ms) {
 			// Discards the data carried in the last 3 digits, aka milliseconds.
 			// E.g. 119999ms should be parsed as "2min, 0sec"; not "1min, 59sec" because of a single millisecond.
 			// Rounding to -3 turns 119999 to 120000, which makes the rounding work properly.
 			const trimmed = this.round(delta, -3);
 
-			const minutes = Math.trunc(trimmed / UtilsSingleton.timeUnits.m.ms);
-			const seconds = Math.trunc((trimmed / UtilsSingleton.timeUnits.s.ms) % UtilsSingleton.timeUnits.m.s);
+			const minutes = Math.trunc(trimmed / Utils.timeUnits.m.ms);
+			const seconds = Math.trunc((trimmed / Utils.timeUnits.s.ms) % Utils.timeUnits.m.s);
 			string = `${minutes}m, ${seconds}s`;
 		}
-		else if (delta < UtilsSingleton.timeUnits.d.ms) {
+		else if (delta < Utils.timeUnits.d.ms) {
 			// Removing one millisecond from a time delta in (hours, minutes) should not affect the result.
 			const trimmed = this.round(delta, -3);
 
-			const hours = Math.trunc(trimmed / UtilsSingleton.timeUnits.h.ms);
-			const minutes = Math.trunc(trimmed / UtilsSingleton.timeUnits.m.ms) % UtilsSingleton.timeUnits.h.m;
+			const hours = Math.trunc(trimmed / Utils.timeUnits.h.ms);
+			const minutes = Math.trunc(trimmed / Utils.timeUnits.m.ms) % Utils.timeUnits.h.m;
 			string = `${hours}h, ${minutes}m`;
 		}
-		else if (delta < UtilsSingleton.timeUnits.y.ms) {
+		else if (delta < Utils.timeUnits.y.ms) {
 			// Removing any amount of milliseconds from a time delta in (days, minutes) should not affect the result.
 			const trimmed = this.round(delta, -3);
 
-			const days = Math.trunc(trimmed / UtilsSingleton.timeUnits.d.ms);
-			const hours = Math.trunc(trimmed / UtilsSingleton.timeUnits.h.ms) % UtilsSingleton.timeUnits.d.h;
+			const days = Math.trunc(trimmed / Utils.timeUnits.d.ms);
+			const hours = Math.trunc(trimmed / Utils.timeUnits.h.ms) % Utils.timeUnits.d.h;
 			string = `${days}d, ${hours}h`;
 		}
 		else if (respectLeapYears) { // 365 days or more
@@ -209,7 +161,7 @@ module.exports = class UtilsSingleton {
 			// Removing any amount of milliseconds from a time delta in (days, minutes) should not affect the result.
 			const trimmed = this.round(delta, -3);
 
-			const laterRounded = new sb.Date(earlier.valueOf() + trimmed);
+			const laterRounded = new SupiDate(earlier.valueOf() + trimmed);
 
 			// how many whole years lie between the dates?
 			let years = laterRounded.getUTCFullYear() - earlier.getUTCFullYear();
@@ -232,7 +184,7 @@ module.exports = class UtilsSingleton {
 
 			// Calculate number of remaining days
 			const remainingDelta = this.round(laterRounded.valueOf() - earlierPlusYears.valueOf(), -4);
-			const days = Math.trunc(remainingDelta / UtilsSingleton.timeUnits.d.ms);
+			const days = Math.trunc(remainingDelta / Utils.timeUnits.d.ms);
 
 			string = `${years}y, ${days}d`;
 		}
@@ -240,8 +192,8 @@ module.exports = class UtilsSingleton {
 			// Removing any amount of seconds from a time delta in (years, days) should not affect the result.
 			const trimmed = this.round(delta, -4);
 
-			const years = Math.trunc(trimmed / UtilsSingleton.timeUnits.y.ms);
-			const days = Math.trunc(trimmed / UtilsSingleton.timeUnits.d.ms) % UtilsSingleton.timeUnits.y.d;
+			const years = Math.trunc(trimmed / Utils.timeUnits.y.ms);
+			const days = Math.trunc(trimmed / Utils.timeUnits.d.ms) % Utils.timeUnits.y.d;
 			string = `${years}y, ${days}d`;
 		}
 
@@ -284,7 +236,7 @@ module.exports = class UtilsSingleton {
 	round (number, places = 0, options = {}) {
 		const direction = options.direction ?? "round";
 		if (!["ceil", "floor", "round", "trunc"].includes(direction)) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Invalid round direction provided",
 				args: { number, places, options }
 			});
@@ -315,7 +267,7 @@ module.exports = class UtilsSingleton {
 	fixHTML (string) {
 		return string.replace(/&#?(?<identifier>[a-z0-9]+);/g, (...params) => {
 			const { identifier } = params.pop();
-			return UtilsSingleton.htmlEntities[identifier] || String.fromCharCode(Number(identifier));
+			return Utils.htmlEntities[identifier] || String.fromCharCode(Number(identifier));
 		});
 	}
 
@@ -338,7 +290,7 @@ module.exports = class UtilsSingleton {
 	 */
 	wrapString (string, length, options = {}) {
 		if (typeof string !== "string") {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Provided input must be a string",
 				args: {
 					type: typeof string,
@@ -363,7 +315,7 @@ module.exports = class UtilsSingleton {
 	 * @returns {number}
 	 */
 	random (min, max) {
-		return this.modules.random.integer(min, max);
+		return randomizer.integer(min, max);
 	}
 
 	/**
@@ -408,33 +360,33 @@ module.exports = class UtilsSingleton {
 		if (videoStyle) {
 			seconds = Math.trunc(seconds);
 
-			if (seconds >= UtilsSingleton.timeUnits.h.s) {
-				const hr = Math.floor(seconds / UtilsSingleton.timeUnits.h.s);
+			if (seconds >= Utils.timeUnits.h.s) {
+				const hr = Math.floor(seconds / Utils.timeUnits.h.s);
 				stuff.push(hr);
-				seconds -= (hr * UtilsSingleton.timeUnits.h.s);
+				seconds -= (hr * Utils.timeUnits.h.s);
 			}
-			const min = Math.floor(seconds / UtilsSingleton.timeUnits.m.s);
+			const min = Math.floor(seconds / Utils.timeUnits.m.s);
 			stuff.push((stuff.length) ? this.zf(min, 2) : min);
-			seconds -= (min * UtilsSingleton.timeUnits.m.s);
+			seconds -= (min * Utils.timeUnits.m.s);
 			stuff.push(this.zf(seconds, 2));
 
 			return stuff.join(":");
 		}
 		else {
-			if (seconds >= UtilsSingleton.timeUnits.d.s) {
-				const days = Math.floor(seconds / UtilsSingleton.timeUnits.d.s);
+			if (seconds >= Utils.timeUnits.d.s) {
+				const days = Math.floor(seconds / Utils.timeUnits.d.s);
 				stuff.push(`${days} days`);
-				seconds -= (days * UtilsSingleton.timeUnits.d.s);
+				seconds -= (days * Utils.timeUnits.d.s);
 			}
-			if (seconds >= UtilsSingleton.timeUnits.h.s) {
-				const hr = Math.floor(seconds / UtilsSingleton.timeUnits.h.s);
+			if (seconds >= Utils.timeUnits.h.s) {
+				const hr = Math.floor(seconds / Utils.timeUnits.h.s);
 				stuff.push(`${hr} hr`);
-				seconds -= (hr * UtilsSingleton.timeUnits.h.s);
+				seconds -= (hr * Utils.timeUnits.h.s);
 			}
-			if (seconds >= UtilsSingleton.timeUnits.m.s) {
-				const min = Math.floor(seconds / UtilsSingleton.timeUnits.m.s);
+			if (seconds >= Utils.timeUnits.m.s) {
+				const min = Math.floor(seconds / Utils.timeUnits.m.s);
 				stuff.push(`${min} min`);
-				seconds -= (min * UtilsSingleton.timeUnits.m.s);
+				seconds -= (min * Utils.timeUnits.m.s);
 			}
 			if (seconds >= 0 || stuff.length === 0) {
 				stuff.push(`${this.round(seconds, 3)} sec`);
@@ -476,7 +428,7 @@ module.exports = class UtilsSingleton {
 		const params = { ...options };
 		if (params.single) {
 			if (typeof params.maxResults !== "undefined") {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Cannot combine params maxResults and single"
 				});
 			}
@@ -523,12 +475,12 @@ module.exports = class UtilsSingleton {
 	 */
 	async fetchYoutubePlaylist (options = {}) {
 		if (!options.key) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "No API key provided"
 			});
 		}
 		else if (!options.playlistID) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "No playlist ID provided"
 			});
 		}
@@ -568,7 +520,7 @@ module.exports = class UtilsSingleton {
 				ID: i.snippet.resourceId.videoId,
 				title: i.snippet.title,
 				channelTitle: i.snippet.channelTitle,
-				published: new sb.Date(i.snippet.publishedAt),
+				published: new SupiDate(i.snippet.publishedAt),
 				position: i.snippet.position
 			})));
 
@@ -577,7 +529,7 @@ module.exports = class UtilsSingleton {
 			}
 			else if (data.pageInfo.totalResults > limit) {
 				if (options.limitAction === "error") {
-					throw new sb.Error({
+					throw new SupiError({
 						message: "Maximum amount of videos exceeded!",
 						args: {
 							limit,
@@ -695,7 +647,7 @@ module.exports = class UtilsSingleton {
 	 * @returns {number|{time: number, ranges: Object[]}}
 	 */
 	parseDuration (string, options) {
-		return this.modules.parseDuration(string, options);
+		return parseDuration(string, options);
 	}
 
 	/**
@@ -723,7 +675,7 @@ module.exports = class UtilsSingleton {
 	}
 
 	parseChrono (string, referenceDate = null, options = {}) {
-		const chronoData = this.modules.chrono.parse(string, referenceDate, options);
+		const chronoData = parseChrono(string, referenceDate, options);
 		if (chronoData.length === 0) {
 			return null;
 		}
@@ -738,7 +690,7 @@ module.exports = class UtilsSingleton {
 
 	convertCase (text, caseFrom, caseTo) {
 		if (typeof text !== "string") {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Text must be typeof string",
 				args: { text, caseFrom, caseTo }
 			});
@@ -807,7 +759,7 @@ module.exports = class UtilsSingleton {
 	 * @returns {string}
 	 */
 	transliterate (...args) {
-		return this.modules.transliterate(...args);
+		return transliterate(...args);
 	}
 
 	/**
@@ -818,7 +770,7 @@ module.exports = class UtilsSingleton {
 	 */
 	splitByCondition (array, filter) {
 		if (!Array.isArray(array)) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "array must be an Array"
 			});
 		}
@@ -871,8 +823,7 @@ module.exports = class UtilsSingleton {
 	 * @returns {*} CheerioAPI
 	 */
 	cheerio (html) {
-		const cheerio = require("cheerio");
-		return cheerio.load(html);
+		return loadCheerio(html);
 	}
 
 	/**
@@ -884,7 +835,7 @@ module.exports = class UtilsSingleton {
 	 */
 	formatByteSize (number, digits = 3, type = "si") {
 		if (type !== "si" && type !== "iec") {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Unsupported byte size format",
 				args: { number, type }
 			});
@@ -920,7 +871,7 @@ module.exports = class UtilsSingleton {
 			characters = characters.split("");
 		}
 		else if (!Array.isArray(characters) || characters.some(i => typeof i !== "string")) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Invalid input format",
 				args: { characters, length }
 			});
@@ -1154,7 +1105,7 @@ module.exports = class UtilsSingleton {
 	 * @returns {Promise<RSSParserResult>}
 	 */
 	async parseRSS (xml) {
-		return await this.modules.rss.parseString(xml);
+		return await rssParser.parseString(xml);
 	}
 
 	/**
@@ -1165,7 +1116,7 @@ module.exports = class UtilsSingleton {
 	async getMediaFileData (link) {
 		try {
 			const path = sb.Config.get("FFMPEG_PATH");
-			const { streams } = await this.modules.ffprobe(link, { path });
+			const { streams } = await getInfoFfprobe(link, { path });
 			return {
 				duration: Number(streams[0].duration),
 				bitrate: Number(streams[0].bit_rate)
@@ -1204,7 +1155,7 @@ module.exports = class UtilsSingleton {
 	 */
 	partitionString (message, limit, messageCount) {
 		if (!this.isValidInteger(limit)) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Limit must be a positive integer"
 			});
 		}
@@ -1262,7 +1213,7 @@ module.exports = class UtilsSingleton {
 		const seed = this.random(0, 1e12);
 		const resultLimit = limit ?? Number.MAX_SAFE_INTEGER;
 		try {
-			return Number(RollDice.roll(input, BigInt(seed), BigInt(resultLimit)));
+			return Number(roll(input, BigInt(seed), BigInt(resultLimit)));
 		}
 		catch {
 			return null;
@@ -1391,13 +1342,13 @@ module.exports = class UtilsSingleton {
 	 * @param {Object} data.coordinates
 	 * @param {string} data.coordinates.lng
 	 * @param {string} data.coordinates.lat
-	 * @param {Date|sb.Date|number} data.date = new sb.Date()
+	 * @param {Date|SupiDate|number} data.date = new SupiDate()
 	 * @returns {Promise<{body: Object, statusCode: number}>}
 	 */
 	async fetchTimeData (data = {}) {
 		const {
 			coordinates,
-			date = new sb.Date(),
+			date = new SupiDate(),
 			key
 		} = data;
 
@@ -1615,7 +1566,7 @@ module.exports = class UtilsSingleton {
 	destroy () {
 		this.duration = null;
 	}
-};
+}
 
 /**
  * @typedef {Object} NSFWDetectionResult
@@ -1663,18 +1614,4 @@ module.exports = class UtilsSingleton {
  * @property {string} link
  * @property {string} pubDate
  * @property {string} title
- */
-
-/**
- * @typedef {Proxy} UtilsModuleProxyWrapper
- * @property {TrackLinkParser} linkParser
- * @property {function} cheerio Fast, flexible & lean implementation of core jQuery designed specifically for the server.
- * @property {function} chrono A natural language date parser in Javascript. It is designed to handle most date/time format and extract information from any given text.
- * @property {ISOLanguageParser} languageISO
- * @property {Object} random
- * @property {Object} rss
- * @property {DurationParserModuleFunction} parseDuration
- * @property {function} ffprobe
- * @property {function} diceRollEval
- * @property {function} transliterate
  */

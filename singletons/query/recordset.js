@@ -1,6 +1,8 @@
+import SupiError from "../../objects/error.js";
+
 const ROW_COLLAPSED = Symbol("row-collapsed");
 
-module.exports = class Recordset {
+export default class Recordset {
 	#query;
 	#transaction;
 	#fetchSingle = false;
@@ -43,7 +45,7 @@ module.exports = class Recordset {
 		this.#limit = Number(number);
 
 		if (!Number.isFinite(this.#limit)) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Limit must be a finite number",
 				args: number
 			});
@@ -56,7 +58,7 @@ module.exports = class Recordset {
 		this.#offset = Number(number);
 
 		if (!Number.isFinite(this.#offset)) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Offset must be a finite number",
 				args: number
 			});
@@ -72,7 +74,7 @@ module.exports = class Recordset {
 
 	from (database, table) {
 		if (!database || !table) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Recordset: database and table must be provided",
 				args: {
 					db: database,
@@ -137,7 +139,7 @@ module.exports = class Recordset {
 			this.#having = this.#having.concat(format);
 		}
 		else {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Recordset: Unrecognized condition wrapper option",
 				args: { type, args }
 			});
@@ -166,7 +168,7 @@ module.exports = class Recordset {
 			} = database;
 
 			if (!toTable || !toDatabase) {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Missing compulsory arguments for join",
 					args: target
 				});
@@ -274,7 +276,7 @@ module.exports = class Recordset {
 			});
 		}
 		else {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Too many missing table specifications"
 			});
 		}
@@ -297,7 +299,7 @@ module.exports = class Recordset {
 		}
 
 		if (this.#select.length === 0) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "No SELECT in Recordset - invalid definition"
 			});
 		}
@@ -337,7 +339,7 @@ module.exports = class Recordset {
 		let result = [];
 		for (const row of rows) {
 			if (this.#flat && typeof row[this.#flat] === "undefined") {
-				throw new sb.Error({
+				throw new SupiError({
 					message: `Column ${this.#flat} is not included in the result`,
 					args: {
 						column: this.#flat,
@@ -424,4 +426,4 @@ module.exports = class Recordset {
 			}
 		}
 	}
-};
+}

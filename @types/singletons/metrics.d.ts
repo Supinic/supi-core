@@ -15,7 +15,7 @@ import {
 
 export { Counter, Gauge, Histogram, MetricType, Registry } from "prom-client";
 
-export declare class MetricsSingleton {
+export declare class Metrics {
 	constructor ();
 
 	register <T extends string>(type: MetricType, options: MetricConfiguration<T>): Metric<T>;
@@ -28,5 +28,4 @@ export declare class MetricsSingleton {
 	destroy (): void;
 
 	get registry (): Registry;
-	get modulePath (): "metrics";
 }

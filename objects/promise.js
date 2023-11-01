@@ -1,4 +1,4 @@
-module.exports = class CustomPromise extends global.Promise {
+export default class SupiPromise extends global.Promise {
 	#resolve = null;
 	#reject = null;
 
@@ -28,4 +28,4 @@ module.exports = class CustomPromise extends global.Promise {
 		this.#reject(value);
 		return this;
 	}
-};
+}
