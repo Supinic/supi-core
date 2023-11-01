@@ -32,6 +32,7 @@ export default class Cache {
 		}
 
 		this.#configuration = configuration;
+		this.connect();
 	}
 
 	async connect () {
@@ -41,7 +42,7 @@ export default class Cache {
 			});
 		}
 		else if (this.#server) {
-			this.#server.connect();
+			await this.#server.connect();
 			this.#active = true;
 		}
 
