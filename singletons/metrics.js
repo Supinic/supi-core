@@ -71,4 +71,4 @@ export default class Metrics {
 	destroy () {
 		this.#registry = null;
 	}
-};
+}

@@ -1,6 +1,6 @@
 {
   "name": "supi-core",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Supinic's projects' core modules",
   "main": "index.js",
   "type": "module",

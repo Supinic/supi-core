@@ -295,4 +295,4 @@ export default class Config {
 			.where("Name = %s", variable)
 		);
 	}
-};
+}
