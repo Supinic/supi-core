@@ -3,7 +3,7 @@ import type { SupiDate } from "../objects/date.d.ts";
 
 import { CheerioAPI } from "cheerio";
 import { Random } from "random-js";
-import { parse as DurationParseFunction } from "duration-parser";
+import DurationParseFunction from "duration-parser";
 
 declare interface MathProperties {
     [P: string]: keyof Math
