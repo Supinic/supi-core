@@ -1,15 +1,9 @@
-import type { Message, Stringifiable, URL } from "../globals.d.ts";
+import type { Message, Stringifiable } from "../globals.d.ts";
 import type { SupiDate } from "../objects/date.d.ts";
 
-import { Url as NativeURLObject } from "url";
-
 import { CheerioAPI } from "cheerio";
-import { ParsedResult, ParsingOption } from "chrono-node";
-import { Output as RSSOutput } from "rss-parser";
 import { Random } from "random-js";
-import { parse as DurationParseFunction } from "duration-parser";
-// import * as FFProbe from "ffprobe";
-import { transliterate as TransliterateFunction } from "transliteration";
+import DurationParseFunction from "duration-parser";
 
 declare interface MathProperties {
     [P: string]: keyof Math
@@ -21,74 +15,7 @@ declare interface RoundOptions extends MathProperties {
 declare type WrapStringProperties = {
     keepWhitespace?: boolean;
 };
-declare type ChronoResult = {
-    date: ReturnType<ParsedResult["date"]>;
-    component: ParsedResult["start"];
-    text: ParsedResult["text"];
-};
 declare type TextCase = "camel" | "snake" | "kebab" | "text";
-
-declare namespace NSFW {
-    type Response = {
-        statusCode: number;
-        data: {
-            id: string | null;
-            score: number | null;
-            detection: Detection[] | null;
-        }
-    };
-    type Detection = {
-        confidence: number; // Range: <0.0, 1.0>
-        bounding_box: [number, number, number, number];
-        name: "Male Breast - Exposed"
-            | "Male Genitalia - Exposed"
-            | "Male Genitalia - Covered"
-            | "Female Genitalia - Exposed"
-            | "Female Genitalia - Covered"
-            | "Female Breast - Exposed"
-            | "Female Breast - Covered"
-            | "Buttocks - Exposed";
-    }
-}
-
-declare namespace GeoData {
-    type Location = {
-        lat: number;
-        lng: number;
-    };
-    type Success = {
-        success: true;
-        placeID: string;
-        formatted: string;
-        components: {
-            country: string;
-            level1: string;
-            level2: string;
-            locality: string;
-        };
-        location: Location
-    };
-    type Failure = {
-        success: false;
-        cause: string;
-    };
-}
-
-declare type TimeOptions = {
-    date?: number | Date | SupiDate;
-    coordinates: GeoData.Location;
-    key: string;
-};
-declare type TimeData = {
-    statusCode: number;
-    body: {
-        dstOffset: number;
-        rawOffset: number;
-        status: string;
-        timeZoneId: string;
-        timeZoneName: string;
-    };
-};
 
 declare namespace Byte {
     type UnitType = "iec" | "si";
@@ -107,38 +34,6 @@ declare namespace Byte {
 export declare type DeepFrozen <T> = {
     readonly [P in keyof T]: DeepFrozen<T[P]>;
 };
-
-export declare namespace YT {
-    type SearchOptions = {
-        single?: boolean;
-        maxResults?: number;
-    };
-    type SingleSearchOptions = SearchOptions & {
-        single: true;
-    };
-    type Video = {
-        ID: string;
-        title: string;
-    };
-    type PlaylistOptions = {
-        key: string;
-        playlistID: string;
-        perPage?: number;
-        limit?: number;
-        limitAction?: "trim" | "error" | "return";
-    };
-    type PlaylistVideo = Video & {
-        channelTitle: string;
-        published: SupiDate;
-        position: number;
-    };
-    type PlaylistResult = {
-        sucess: boolean;
-        result?: PlaylistVideo[];
-        reason?: "not-found" | "limit-exceeded";
-        amount?: number;
-    };
-}
 
 /**
  * CS stands for "Closest String" namespace
@@ -165,11 +60,6 @@ export declare namespace CS {
         fullResult: false | null | undefined;
     }
 }
-
-declare type UploadResult = {
-    statusCode: number;
-    link: string | null;
-};
 
 export declare class Utils {
     static readonly timeUnits: {
@@ -215,47 +105,28 @@ export declare class Utils {
     formatTime (seconds: number, videoStyle?: boolean): string;
     argsToFixedURL (array: string[], character?: string): string;
     removeAccents (string: string): string;
-    searchYoutube (query: string, key: string, options: YT.SingleSearchOptions): Promise<YT.Video>;
-    searchYoutube (query: string, key: string, options?: YT.SearchOptions): Promise<YT.Video[]>;
-    fetchYoutubePlaylist (options: YT.PlaylistOptions): Promise<YT.PlaylistResult>;
     zf (number: number, padding: number): string;
-    formatEnglishOrdinal (number: number): string;
-    fetchGeoLocationData (key: string, query: string): Promise<GeoData.Success | GeoData.Failure>;
     parseDuration: typeof DurationParseFunction;
     parseVideoDuration (string: string): number | null;
-    parseChrono (string: string, referenceDate?: Date, options?: ParsingOption): ChronoResult | null;
     convertCase (text: string, caseFrom: TextCase, caseTo: TextCase): string;
     convertCaseObject <T extends object> (object: T, caseFrom: TextCase, caseTo: TextCase): T;
     isValidInteger (input: number, minLimit?: number): boolean;
-    transliterate: typeof TransliterateFunction;
     splitByCondition <T> (array: T[], filter: (item: T, index: number, arr: T[]) => boolean): [T[], T[]];
-    parseURL (stringURL: URL): NativeURLObject;
-    getPathFromURL (stringURL: URL): string;
     cheerio (html: string): CheerioAPI;
     formatByteSize (number: number, digits: number, type: "iec"): Byte.IEC.Result;
     formatByteSize (number: number, digits?: number, type?: "si"): Byte.SI.Result;
     randomString <T extends string> (length: number, characters: T): T;
     randomString (length: number): string;
     deepFreeze <T extends object> (object: T): DeepFrozen<T>;
-    levenshteinDistance (from: string, target: string): number;
     jaroWinklerSimilarity (from: string, target: string): number;
     selectClosestString (from: string, originalTargets: string[], options: CS.ArrayOptions): CS.Descriptor[] | null;
     selectClosestString (from: string, originalTargets: string[], options: CS.DescriptorOptions): CS.Descriptor | null;
     selectClosestString (from: string, originalTargets: string[], options?: CS.Options): string | null;
     groupDigits (number: number, separator?: string): string;
-    parseRSS (xml: string): Promise<RSSOutput<void>>;
-    getMediaFileData (link: string): Promise<{ duration: number, bitrate: number } | null>;
     formatSI (number: string, unit?: string, places?: number, addSpace?: boolean): string;
     partitionString (message: Message, limit: number, messageCount: number): string[];
-    evalDiceRoll (input: string, limit?: number): number | null;
-    uploadToImgur (fileData: unknown, link?: string, options?: { type?: string }): Promise<UploadResult>;
-    uploadToNuuls (fileData: unknown, fileName?: string): Promise<UploadResult>;
-    checkPictureNSFW (link: string): Promise<NSFW.Response>;
-    fetchTimeData (data: TimeOptions): Promise<TimeData>;
-    /** @deprecated */
-    processArtflowData (data: unknown[]): Promise<unknown[]>;
     escapeRegExp (string: string): string;
-    parseRegExp (string: string): RegExp | null;
+    parseRegExp (input: string): RegExp | null;
     replaceLinks (string: string, replacement?: string): string;
 
     destroy (): void;

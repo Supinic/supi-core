@@ -61,8 +61,7 @@ export default class Batch {
 				throw new SupiError({
 					message: "Invalid batch column provided",
 					args: {
-						column: key,
-						allowedColumns: this.columns.map(i => i.name)
+						column: key, allowedColumns: this.columns.map(i => i.name)
 					}
 				});
 			}
@@ -109,7 +108,8 @@ export default class Batch {
 				`INSERT ${ignore ? "IGNORE" : ""} INTO`,
 				`\`${this.database}\`.\`${this.table}\``,
 				`(${stringColumns.join(", ")})`,
-				`VALUES (${data.map(row => row.join(", ")).join("), (")})`,
+				`VALUES (${data.map(row => row.join(", "))
+					.join("), (")})`,
 				(duplicate ? duplicate(data, stringColumns) : "")
 			].join("\n");
 
@@ -136,4 +136,4 @@ export default class Batch {
 		this.table = null;
 		this.database = null;
 	}
-};
+}
