@@ -54,7 +54,7 @@ export default class Cache {
 
 		this.#server = new Redis({
 			...this.#configuration,
-			retryStrategy: () => {
+			retryStrategy: (times) => {
 				// Initial connect failure - just stop
 				if (this.#initialConnectSuccess === false) {
 					throw new sb.Error({
@@ -65,8 +65,8 @@ export default class Cache {
 					});
 				}
 
-				console.warn("Redis disconnected, reconnecting in 10 seconds...");
-				return 10_000;
+				console.warn(`Redis disconnected, reconnecting in ${times} seconds...`);
+				return (1000 * times);
 			}
 		});
 
