@@ -35,7 +35,6 @@ export declare class Cache {
     static resolveKey (value: Key): string;
     static resolvePrefix (mainKey: string, keys: PrefixObject): string;
 
-    #active: boolean;
     #server: Redis;
     #version: Version;
     #configuration: Configuration;

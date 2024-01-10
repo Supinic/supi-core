@@ -15,7 +15,6 @@ const isValidInteger = (input) => {
 export default class Cache {
 	/** @type {Redis} */
 	#server;
-	#active = false;
 	#version = null;
 	#configuration;
 
@@ -43,25 +42,18 @@ export default class Cache {
 	}
 
 	async connect () {
-		if (this.#active) {
+		if (this.ready) {
 			throw new SupiError({
 				message: "Redis is already connected"
 			});
 		}
 		else if (this.#server) {
 			await this.#server.connect();
-			this.#active = true;
 		}
 
 		this.#server = new Redis({
-			...this.#configuration,
-			retryStrategy: () => {
-				console.warn("Redis server unreachable, retrying in 10s...");
-				return 10_000;
-			}
+			...this.#configuration
 		});
-
-		this.#active = true;
 
 		const data = await this.#server.info();
 		const versionData = data.split("\n").find(i => i.startsWith("redis_version"));
@@ -74,23 +66,22 @@ export default class Cache {
 	}
 
 	disconnect () {
-		if (!this.#active) {
-			throw new SupiError({
-				message: "Redis is already disconnected"
-			});
-		}
-		else if (!this.#server) {
+		if (!this.#server) {
 			throw new SupiError({
 				message: "Redis instance has not been created yet"
 			});
 		}
+		else if (!this.ready) {
+			throw new SupiError({
+				message: "Redis is already disconnected"
+			});
+		}
 
 		this.#server.disconnect();
-		this.#active = false;
 	}
 
 	async set (data = {}) {
-		if (!this.#active) {
+		if (!this.ready) {
 			throw new SupiError({
 				message: "Redis server is not connected"
 			});
@@ -173,7 +164,7 @@ export default class Cache {
 	}
 
 	async get (keyIdentifier) {
-		if (!this.#active) {
+		if (!this.ready) {
 			throw new SupiError({
 				message: "Redis server is not connected"
 			});
@@ -184,7 +175,7 @@ export default class Cache {
 	}
 
 	async delete (keyIdentifier) {
-		if (!this.#active) {
+		if (!this.ready) {
 			throw new SupiError({
 				message: "Redis server is not connected"
 			});
@@ -273,11 +264,10 @@ export default class Cache {
 	 * Cleans up and destroys the singleton caching instance
 	 */
 	destroy () {
-		if (this.#server && this.#active) {
+		if (this.#server && this.#server.status === "active") {
 			this.#server.disconnect();
 		}
 
-		this.#active = false;
 		this.#server = null;
 	}
 
@@ -332,7 +322,21 @@ export default class Cache {
 		return [mainKey, ...rest.sort()].join(GROUP_DELIMITER);
 	}
 
-	get active () { return this.#active; }
+	get ready () {
+		if (!this.#server) {
+			return false;
+		}
+
+		return (this.#server.status === "ready");
+	}
+
+	get status () {
+		if (!this.#server) {
+			return null;
+		}
+
+		return this.#server.status;
+	}
 
 	get version () { return this.#version; }
 
