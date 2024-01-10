@@ -17,6 +17,7 @@ export default class Cache {
 	#server;
 	#version = null;
 	#configuration;
+	#initialConnectSuccess = false;
 
 	constructor (configuration) {
 		if (!configuration) {
@@ -52,10 +53,23 @@ export default class Cache {
 		}
 
 		this.#server = new Redis({
-			...this.#configuration
+			...this.#configuration,
+			retryStrategy: () => {
+				// Initial connect failure - just stop
+				if (this.#initialConnectSuccess === false) {
+					throw new sb.Error({
+						message: "Cannot establish initial connection to Redis"
+					});
+				}
+
+				console.warn("Redis disconnected, reconnecting in 10 seconds...");
+				return 10_000;
+			}
 		});
 
 		const data = await this.#server.info();
+		this.#initialConnectSuccess = true;
+
 		const versionData = data.split("\n").find(i => i.startsWith("redis_version"));
 		if (versionData) {
 			this.#version = versionData.split(":")[1].split(".").map(Number);
