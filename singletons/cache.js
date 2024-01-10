@@ -58,7 +58,10 @@ export default class Cache {
 				// Initial connect failure - just stop
 				if (this.#initialConnectSuccess === false) {
 					throw new sb.Error({
-						message: "Cannot establish initial connection to Redis"
+						message: "Cannot establish initial connection to Redis",
+						args: {
+							configuration: this.#configuration
+						}
 					});
 				}
 
