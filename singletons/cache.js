@@ -25,13 +25,20 @@ export default class Cache {
 				message: "Connection configuration not provided"
 			});
 		}
-		else if (typeof configuration !== "object" && typeof configuration !== "string") {
+		else if (typeof configuration === "string") {
+			this.#configuration = {
+				host: configuration
+			};
+		}
+		else if (typeof configuration === "object") {
+			this.#configuration = configuration;
+		}
+		else {
 			throw new SupiError({
 				message: "When provided, Redis connection configuration must be an object or string"
 			});
 		}
 
-		this.#configuration = configuration;
 		this.connect();
 	}
 
@@ -46,7 +53,14 @@ export default class Cache {
 			this.#active = true;
 		}
 
-		this.#server = new Redis(this.#configuration);
+		this.#server = new Redis({
+			...this.#configuration,
+			retryStrategy: () => {
+				console.warn("Redis server unreachable, retrying in 10s...");
+				return 10_000;
+			}
+		});
+
 		this.#active = true;
 
 		const data = await this.#server.info();
