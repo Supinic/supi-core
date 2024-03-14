@@ -73,8 +73,8 @@ export default class QuerySingleton {
 			this.pool = createMariaDbPool({
 				user: options.user,
 				password: options.password,
-				host: process.env.MARIA_HOST,
-				port: process.env.MARIA_PORT ?? 3306,
+				host: options.host,
+				port: options.port ?? 3306,
 				connectionLimit: options.connectionLimit ?? 25,
 				...defaultPoolOptions
 			});
