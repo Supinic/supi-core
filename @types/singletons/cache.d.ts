@@ -53,7 +53,7 @@ export declare class Cache {
     getKeyValuesByPrefix (prefix: Prefix, options: KeysPrefixOptions): Promise<Value[]>;
     destroy (): void;
 
-    get active (): boolean;
+    get ready (): boolean;
     get server (): Redis;
     get modulePath (): "cache";
     get version (): Version;
