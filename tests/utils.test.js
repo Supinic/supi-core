@@ -1,4 +1,4 @@
-import assert from "assert";
+import assert from "node:assert";
 import SupiDate from "../objects/date.js";
 import UtilsConstructor from "../singletons/utils.js";
 
