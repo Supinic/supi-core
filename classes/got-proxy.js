@@ -1,4 +1,3 @@
-import FormData from "form-data";
 import * as gotModule from "got";
 
 const nameSymbol = Symbol.for("name");
@@ -32,7 +31,7 @@ class StaticGot {
 		}
 	}
 
-	static async importData (definitions) {
+	static async importData (definitions) {y
 		if (!Array.isArray(definitions)) {
 			throw new sb.Error({
 				message: "Definitions must be provided as an array"
