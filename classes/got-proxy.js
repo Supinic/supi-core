@@ -31,7 +31,7 @@ class StaticGot {
 		}
 	}
 
-	static async importData (definitions) {y
+	static async importData (definitions) {
 		if (!Array.isArray(definitions)) {
 			throw new sb.Error({
 				message: "Definitions must be provided as an array"
