@@ -23,7 +23,7 @@ jobs:
         cache: 'yarn'
 
     - name: Prepare Yarn packages
-      run: yarn install --immediate
+      run: yarn
 
     - name: Run tests
       run: yarn test
