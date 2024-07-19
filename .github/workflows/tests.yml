@@ -1,4 +1,4 @@
-name: Automated tests
+name: Automated tests + lint
 
 on:
   push:
@@ -11,6 +11,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - run: yarn install --frozen-lockfile
-    - run: yarn test
+    - uses: actions/checkout@v4
+
+    - name: Enable Corepack
+      run: corepack enable
+
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20.x"
+        cache: 'yarn'
+
+    - name: Prepare Yarn packages
+      run: yarn install --immediate
+
+    - name: Run tests
+      run: yarn test
+
+    - name: Run lint:fix
+      run: yarn lint:fix
+
+    - name: Run lint:fix on tests
+      run: yarn lint-tests:fix
