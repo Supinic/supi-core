@@ -30,5 +30,6 @@
     "mocha": "^10.2.0",
     "nyc": "^15.1.0"
   },
-  "types": "./@types/index.d.ts"
+  "types": "./@types/index.d.ts",
+  "packageManager": "yarn@4.3.1"
 }
