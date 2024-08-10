@@ -22,9 +22,9 @@
     "build": "npx tsc",
     "prepack": "npx tsc",
     "lint": "eslint -c eslint-main.json classes objects singletons index.ts",
-    "lint-tests": "eslint -c build/tests/eslint-tests.json tests",
+    "lint-tests": "eslint -c tests/eslint-tests.json tests",
     "lint:fix": "eslint -c eslint-main.json classes objects singletons index.ts --fix",
-    "lint-tests:fix": "eslint -c build/tests/eslint-tests.json tests --fix",
+    "lint-tests:fix": "eslint -c tests/eslint-tests.json tests --fix",
     "test": "npx tsc && mocha ./build/tests --recursive --exit"
   },
   "devDependencies": {
