@@ -1,6 +1,5 @@
 import { collectDefaultMetrics, Registry, Gauge, Counter, Histogram, MetricType, MetricConfiguration, CounterConfiguration, GaugeConfiguration, HistogramConfiguration, Metric } from "prom-client";
 import SupiError from "../objects/error.js";
-// const availableMetricTypes = [MetricType.Counter, MetricType.Gauge, MetricType.Histogram, MetricType.Summary];
 
 /**
  * Very simple module wrapper around the Prometheus client metrics
