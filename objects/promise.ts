@@ -1,8 +1,13 @@
-export default class SupiPromise extends global.Promise {
-	#resolve = null;
-	#reject = null;
+export declare type Handler<T> = (
+	resolve: (value: T) => void,
+	reject: (reason?: any) => void
+) => void;
 
-	constructor (handler) {
+export default class SupiPromise<T> extends global.Promise<T> {
+	#resolve: any;
+	#reject: any;
+
+	constructor(handler: Handler<T>) {
 		let instanceResolve = null;
 		let instanceReject = null;
 
@@ -19,12 +24,12 @@ export default class SupiPromise extends global.Promise {
 		this.#reject = instanceReject;
 	}
 
-	resolve (value) {
+	resolve(value: any): SupiPromise<T> {
 		this.#resolve(value);
 		return this;
 	}
 
-	reject (value) {
+	reject(value: any): SupiPromise<T> {
 		this.#reject(value);
 		return this;
 	}
