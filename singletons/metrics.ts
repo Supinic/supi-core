@@ -7,7 +7,7 @@ import SupiError from "../objects/error.js";
 export default class Metrics {
 	#registry;
 
-	constructor() {
+	constructor () {
 		this.#registry = new Registry();
 
 		collectDefaultMetrics({
