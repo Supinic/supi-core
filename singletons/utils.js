@@ -81,7 +81,7 @@ export default class Utils {
 	 * @param {string} string
 	 * @returns {string}
 	 */
-	capitalize(string) {
+	capitalize (string) {
 		return string[0].toUpperCase() + string.substring(1).toLowerCase();
 	}
 
@@ -95,7 +95,7 @@ export default class Utils {
 	 * delta between target and the current time.
 	 * @returns {string}
 	 */
-	timeDelta(target, skipAffixes = false, respectLeapYears = false, deltaTo = undefined) {
+	timeDelta (target, skipAffixes = false, respectLeapYears = false, deltaTo = undefined) {
 		if (deltaTo === undefined) {
 			deltaTo = new SupiDate();
 		}
@@ -200,7 +200,7 @@ export default class Utils {
 	 * @param {"asc"|"desc"} [orderBy] Direction to order the result Map by
 	 * @returns {Map<string, number>} The amount of times a word has been used in the message
 	 */
-	toDictionary(message, orderBy = "asc") {
+	toDictionary (message, orderBy = "asc") {
 		const arr = message.replace(/\s+/g, " ").trim().split(" ");
 		let dictionary = new Map(arr.map(i => [i, 0]));
 		for (const i of arr) {
@@ -225,7 +225,7 @@ export default class Utils {
 	 * @param {"ceil"|"floor"|"round"|"trunc"} [options.direction]
 	 * @returns {number}
 	 */
-	round(number, places = 0, options = {}) {
+	round (number, places = 0, options = {}) {
 		const direction = options.direction ?? "round";
 		if (!["ceil", "floor", "round", "trunc"].includes(direction)) {
 			throw new SupiError({
@@ -242,7 +242,7 @@ export default class Utils {
 	 * @param string
 	 * @returns {string}
 	 */
-	escapeHTML(string) {
+	escapeHTML (string) {
 		return string
 			.replace(/&/g, "&amp;")
 			.replace(/</g, "&lt;")
@@ -256,7 +256,7 @@ export default class Utils {
 	 * @param {string} string
 	 * @returns {string}
 	 */
-	fixHTML(string) {
+	fixHTML (string) {
 		return string.replace(/&#?(?<identifier>[a-z0-9]+);/g, (...params) => {
 			const { identifier } = params.pop();
 			return Utils.htmlEntities[identifier] || String.fromCharCode(Number(identifier));
@@ -268,7 +268,7 @@ export default class Utils {
 	 * @param string
 	 * @returns {string}
 	 */
-	removeHTML(string) {
+	removeHTML (string) {
 		return string.replace(/<\s*br.*?>/g, "\n").replace(/<(.*?)>/g, "");
 	}
 
@@ -280,7 +280,7 @@ export default class Utils {
 	 * @param {Object} [options.keepWhitespace] If true, no whitespace
 	 * @returns {string}
 	 */
-	wrapString(string, length, options = {}) {
+	wrapString (string, length, options = {}) {
 		if (typeof string !== "string") {
 			throw new SupiError({
 				message: "Provided input must be a string",
@@ -306,7 +306,7 @@ export default class Utils {
 	 * @param {number} max
 	 * @returns {number}
 	 */
-	random(min, max) {
+	random (min, max) {
 		return randomizer.integer(min, max);
 	}
 
@@ -315,7 +315,7 @@ export default class Utils {
 	 * @param {Array} arr
 	 * @returns {*}
 	 */
-	randArray(arr) {
+	randArray (arr) {
 		return (arr.length === 0)
 			? undefined
 			: arr[this.random(0, arr.length - 1)];
@@ -326,7 +326,7 @@ export default class Utils {
 	 * @param {Array} arr
 	 * @returns {Array}
 	 */
-	shuffleArray(arr) {
+	shuffleArray (arr) {
 		const copy = [...arr];
 		const shuffledArray = [];
 
@@ -347,7 +347,7 @@ export default class Utils {
 	 * @param {boolean} [videoStyle] If false, format will be HH:MM:SS - if true, format will be HH hr, MM min, SS sec
 	 * @returns {string}
 	 */
-	formatTime(seconds = 0, videoStyle = false) {
+	formatTime (seconds = 0, videoStyle = false) {
 		const stuff = [];
 		if (videoStyle) {
 			seconds = Math.trunc(seconds);
@@ -394,7 +394,7 @@ export default class Utils {
 	 * @param {string} [character]
 	 * @returns {string}
 	 */
-	argsToFixedURL(array, character = "+") {
+	argsToFixedURL (array, character = "+") {
 		return array.map(i => encodeURIComponent(i)).join(character);
 	}
 
@@ -403,7 +403,7 @@ export default class Utils {
 	 * @param {string} string
 	 * @returns {string}
 	 */
-	removeAccents(string) {
+	removeAccents (string) {
 		return string.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 	}
 
@@ -413,7 +413,7 @@ export default class Utils {
 	 * @param {number} padding
 	 * @returns {string}
 	 */
-	zf(number, padding) {
+	zf (number, padding) {
 		return ("0".repeat(padding) + number).slice(-padding);
 	}
 
@@ -423,7 +423,7 @@ export default class Utils {
 	 * @param {object} options
 	 * @returns {number|{time: number, ranges: Object[]}}
 	 */
-	parseDuration(string, options) {
+	parseDuration (string, options) {
 		return parseDuration(string, options);
 	}
 
@@ -433,7 +433,7 @@ export default class Utils {
 	 * @param {string} string
 	 * @returns {number|null}
 	 */
-	parseVideoDuration(string) {
+	parseVideoDuration (string) {
 		const parts = string.split(":");
 		if (parts.length === 0) {
 			return Number(string) ?? null;
@@ -451,7 +451,7 @@ export default class Utils {
 		return number ?? null;
 	}
 
-	convertCase(text, caseFrom, caseTo) {
+	convertCase (text, caseFrom, caseTo) {
 		if (typeof text !== "string") {
 			throw new SupiError({
 				message: "Text must be typeof string",
@@ -489,7 +489,7 @@ export default class Utils {
 		return result.replace(/id$/i, "ID");
 	}
 
-	convertCaseObject(object, caseFrom, caseTo) {
+	convertCaseObject (object, caseFrom, caseTo) {
 		const result = {};
 		for (const [key, value] of Object.entries(object)) {
 			if (value && value.constructor === Object) {
@@ -508,7 +508,7 @@ export default class Utils {
 			: result;
 	}
 
-	isValidInteger(input, minLimit = 0) {
+	isValidInteger (input, minLimit = 0) {
 		if (typeof input !== "number") {
 			return false;
 		}
@@ -522,7 +522,7 @@ export default class Utils {
 	 * @param {Function} filter Takes three arguments: (item, index, array)
 	 * @returns {[Array, Array]} Two arrays: First one with condition === true, second one with false.
 	 */
-	splitByCondition(array, filter) {
+	splitByCondition (array, filter) {
 		if (!Array.isArray(array)) {
 			throw new SupiError({
 				message: "array must be an Array"
@@ -549,7 +549,7 @@ export default class Utils {
 	 * @param {string} html
 	 * @returns {*} CheerioAPI
 	 */
-	cheerio(html) {
+	cheerio (html) {
 		return loadCheerio(html);
 	}
 
@@ -560,7 +560,7 @@ export default class Utils {
 	 * @param {"iec"|"si"} type
 	 * @returns {string}
 	 */
-	formatByteSize(number, digits = 3, type = "si") {
+	formatByteSize (number, digits = 3, type = "si") {
 		if (type !== "si" && type !== "iec") {
 			throw new SupiError({
 				message: "Unsupported byte size format",
@@ -590,7 +590,7 @@ export default class Utils {
 	 * @param {string|string[]} [characters]
 	 * @returns {string}
 	 */
-	randomString(length, characters) {
+	randomString (length, characters) {
 		if (!characters) {
 			characters = "abcdefghiklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTUVWXYZ".split("");
 		}
@@ -617,7 +617,7 @@ export default class Utils {
 	 * @param {Object} object
 	 * @returns {Object}
 	 */
-	deepFreeze(object) {
+	deepFreeze (object) {
 		const properties = Object.getOwnPropertyNames(object);
 		for (const key of properties) {
 			const value = object[key];
@@ -635,7 +635,7 @@ export default class Utils {
 	 * @param {string} target
 	 * @returns {number}
 	 */
-	jaroWinklerSimilarity(from, target) {
+	jaroWinklerSimilarity (from, target) {
 		// Exit early if either are empty.
 		if (from.length === 0 || target.length === 0) {
 			return 0;
@@ -714,7 +714,7 @@ export default class Utils {
 	 * @param {boolean} [options.descriptor] if true, a ClosestStringDescriptor will be returned. Mutually exclusive with fullResult
 	 * @returns {null|string|ClosestStringDescriptor|ClosestStringDescriptor[]} null if nothing found, otherwise result based on options
 	 */
-	selectClosestString(from, originalTargets, options = {}) {
+	selectClosestString (from, originalTargets, options = {}) {
 		const targets = originalTargets.slice(0);
 		if (options.ignoreCase) {
 			from = from.toLowerCase();
@@ -773,7 +773,7 @@ export default class Utils {
 	 * @param {string} separator
 	 * @returns {string}
 	 */
-	groupDigits(number, separator = " ") {
+	groupDigits (number, separator = " ") {
 		const local = new Intl.NumberFormat().format(number);
 		return local.replace(/,/g, separator);
 	}
@@ -786,7 +786,7 @@ export default class Utils {
 	 * @param {boolean} addSpace
 	 * @returns {string}
 	 */
-	formatSI(number, unit = "", places = 0, addSpace = false) {
+	formatSI (number, unit = "", places = 0, addSpace = false) {
 		const space = (addSpace) ? " " : "";
 		const prefixes = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"];
 		const digits = Math.ceil(Math.log10(number + 1));
@@ -804,7 +804,7 @@ export default class Utils {
 	 * @param {number} messageCount
 	 * @returns {[]}
 	 */
-	partitionString(message, limit, messageCount) {
+	partitionString (message, limit, messageCount) {
 		if (!this.isValidInteger(limit)) {
 			throw new SupiError({
 				message: "Limit must be a positive integer"
@@ -859,7 +859,7 @@ export default class Utils {
 	 * @param {string} string
 	 * @returns {string}
 	 */
-	escapeRegExp(string) {
+	escapeRegExp (string) {
 		if (typeof string !== "string") {
 			throw new TypeError("Both string and flags must be provided and be a string");
 		}
@@ -872,7 +872,7 @@ export default class Utils {
 	 * @param {string} input
 	 * @returns {RegExp|null} Returns `null` if the regex creation fails with an error
 	 */
-	parseRegExp(input) {
+	parseRegExp (input) {
 		const string = input.replace(/^\/|\/$/g, "");
 
 		// find last possible forward slash that is not escaped with a backslash
@@ -894,14 +894,14 @@ export default class Utils {
 		return regex;
 	}
 
-	replaceLinks(string, replacement = "[LINK]") {
+	replaceLinks (string, replacement = "[LINK]") {
 		return string.replace(linkRegex, replacement);
 	}
 
-	get modulePath() { return "utils"; }
+	get modulePath () { return "utils"; }
 
 	/** @inheritDoc */
-	destroy() {
+	destroy () {
 		this.duration = null;
 	}
 }
