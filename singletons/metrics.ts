@@ -15,8 +15,7 @@ export default class Metrics {
 		});
 	}
 
-	register <T extends string>(type: MetricType, options: MetricConfiguration<T>): Metric<T> {
-
+	register <T extends string> (type: MetricType, options: MetricConfiguration<T>): Metric<T> {
 		const existing = this.get(options.name);
 		if (existing) {
 			return existing;
@@ -37,28 +36,28 @@ export default class Metrics {
 		}
 	}
 
-	registerCounter <T extends string>(options: CounterConfiguration<T>): Counter<T> {
+	registerCounter <T extends string> (options: CounterConfiguration<T>): Counter<T> {
 		const counter = new Counter(options);
 		this.#registry.registerMetric(counter);
 
 		return counter;
 	}
 
-	registerGauge <T extends string>(options: GaugeConfiguration<T>): Gauge<T> {
+	registerGauge <T extends string> (options: GaugeConfiguration<T>): Gauge<T> {
 		const gauge = new Gauge(options);
 		this.#registry.registerMetric(gauge);
 
 		return gauge;
 	}
 
-	registerHistogram <T extends string>(options: HistogramConfiguration<T>): Histogram<T> {
+	registerHistogram <T extends string> (options: HistogramConfiguration<T>): Histogram<T> {
 		const histogram = new Histogram(options);
 		this.#registry.registerMetric(histogram);
 
 		return histogram;
 	}
 
-	get <T extends string>(name: T): Metric<T> | undefined {
+	get <T extends string> (name: T): Metric<T> | undefined {
 		return this.#registry.getSingleMetric(name);
 	}
 

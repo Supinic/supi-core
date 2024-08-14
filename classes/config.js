@@ -253,7 +253,7 @@ export default class Config {
 		// Attempt to fall back to process.env - this is only going to be predictable, if the only variables set
 		// to process.env are string. Since process.env cannot hold non-string values, the type will otherwise be lost.
 		if (!target || !target.value) {
-			const env = process.env[variable];
+			const env = globalThis.process.env[variable];
 			if (env) {
 				return env;
 			}
@@ -274,7 +274,7 @@ export default class Config {
 		return target.value;
 	}
 
-	static async set (variable, value) {
+	static async set (variable, value, Query) {
 		const target = Config.data.get(variable);
 		if (!target) {
 			throw new SupiError({
@@ -289,7 +289,7 @@ export default class Config {
 
 		target.value = value;
 
-		await sb.Query.getRecordUpdater(rs => rs
+		await Query.getRecordUpdater(rs => rs
 			.update("data", "Config")
 			.set("Value", target.stringValue)
 			.where("Name = %s", variable)

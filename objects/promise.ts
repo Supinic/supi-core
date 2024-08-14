@@ -1,15 +1,15 @@
 export declare type Handler<T> = (
 	resolve: (value: T) => void,
-	reject: (reason?: any) => void
+	reject: (reason?: Error) => void
 ) => void;
 
 export default class SupiPromise<T> extends global.Promise<T> {
-	#resolve: any;
-	#reject: any;
+	#resolve: (value: T) => void;
+	#reject: (reason?: Error) => void;
 
 	constructor (handler: Handler<T>) {
-		let instanceResolve = null;
-		let instanceReject = null;
+		let instanceResolve;
+		let instanceReject;
 
 		super((resolve, reject) => {
 			if (handler) {
@@ -20,16 +20,18 @@ export default class SupiPromise<T> extends global.Promise<T> {
 			instanceReject = reject;
 		});
 
+		// @ts-expect-error Instance resolve function is always defined.
 		this.#resolve = instanceResolve;
+		// @ts-expect-error Instance reject function is always defined.
 		this.#reject = instanceReject;
 	}
 
-	resolve (value: any): SupiPromise<T> {
+	resolve (value: T): SupiPromise<T> {
 		this.#resolve(value);
 		return this;
 	}
 
-	reject (value: any): SupiPromise<T> {
+	reject (value: Error): SupiPromise<T> {
 		this.#reject(value);
 		return this;
 	}

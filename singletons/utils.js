@@ -887,7 +887,7 @@ export default class Utils {
 		try {
 			regex = new RegExp(regexBody, flags);
 		}
-		catch (e) {
+		catch {
 			return null;
 		}
 

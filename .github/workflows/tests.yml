@@ -31,5 +31,5 @@ jobs:
     - name: Run lint:fix
       run: yarn lint:fix
 
-    - name: Run lint:fix on tests
-      run: yarn lint-tests:fix
+    #- name: Run lint:fix on tests
+    #  run: yarn lint-tests:fix

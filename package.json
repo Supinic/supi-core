@@ -21,16 +21,18 @@
   "scripts": {
     "build": "npx tsc",
     "prepack": "npx tsc",
-    "lint": "eslint -c eslint-main.json classes objects singletons index.ts",
-    "lint-tests": "eslint -c tests/eslint-tests.json tests",
-    "lint:fix": "eslint -c eslint-main.json classes objects singletons index.ts --fix",
-    "lint-tests:fix": "eslint -c tests/eslint-tests.json tests --fix",
+    "lint": "eslint classes objects singletons index.ts",
+    "lint-tests": "eslint tests",
+    "lint:fix": "eslint classes objects singletons index.ts --fix",
+    "lint-tests:fix": "eslint tests --fix",
     "test": "npx tsc && mocha ./build/tests --recursive --exit"
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",
     "@babel/eslint-parser": "^7.22.15",
     "@types/mocha": "^10.0.7",
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
     "eslint": "^8.51.0",
     "eslint-plugin-unicorn": "^48.0.1",
     "mocha": "^10.2.0",
