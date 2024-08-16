@@ -2,7 +2,7 @@
   "name": "supi-core",
   "version": "3.1.0",
   "description": "Supinic's projects' core modules",
-  "main": "index.js",
+  "main": "build/index.js",
   "type": "module",
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
@@ -13,23 +13,32 @@
     "prom-client": "^15.0.0",
     "random-js": "^2.1.0"
   },
+  "files": [
+    "build"
+  ],
   "author": "Supinic",
   "license": "AGPL-3.0",
   "scripts": {
-    "lint": "eslint -c eslint-main.json classes objects singletons index.js",
-    "lint-tests": "eslint -c tests/eslint-tests.json tests",
-    "lint:fix": "eslint -c eslint-main.json classes objects singletons index.js --fix",
-    "lint-tests:fix": "eslint -c tests/eslint-tests.json tests --fix",
-    "test": "mocha ./tests --recursive --exit"
+    "build": "npx tsc",
+    "prepack": "npx tsc",
+    "lint": "eslint classes objects singletons index.ts",
+    "lint-tests": "eslint tests",
+    "lint:fix": "eslint classes objects singletons index.ts --fix",
+    "lint-tests:fix": "eslint tests --fix",
+    "test": "npx tsc && mocha ./build/tests --recursive --exit"
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",
     "@babel/eslint-parser": "^7.22.15",
+    "@types/mocha": "^10.0.7",
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
     "eslint": "^8.51.0",
     "eslint-plugin-unicorn": "^48.0.1",
     "mocha": "^10.2.0",
-    "nyc": "^15.1.0"
+    "nyc": "^15.1.0",
+    "typescript": "^5.5.4"
   },
-  "types": "./@types/index.d.ts",
+  "types": "./build/index.d.ts",
   "packageManager": "yarn@4.3.1"
 }

@@ -3,10 +3,9 @@ import SupiDate from "../objects/date.js";
 
 /**
  * Generates an Array pre-filled with the index
- * @param {number} length
- * @returns {number[]}
+ * @param length
  */
-const simpleRange = (length) => [...new Array(length)].map((_, idx) => idx);
+const simpleRange = (length: number) => [...new Array(length)].map((_, idx) => idx);
 
 describe("SupiDate", () => {
 	describe("getDaySuffix", () => {
@@ -89,7 +88,7 @@ describe("SupiDate", () => {
 			describe("S", () => {
 				it("should print the day suffix", () => {
 					assert.deepEqual(
-						[1,2,3,4,11,12,13,21,22,23].map(i => new SupiDate(2021, 1, i).format("S")),
+						[1, 2, 3, 4, 11, 12, 13, 21, 22, 23].map(i => new SupiDate(2021, 1, i).format("S")),
 						["st", "nd", "rd", "th", "th", "th", "th", "st", "nd", "rd"]);
 				});
 			});
@@ -184,7 +183,7 @@ describe("SupiDate", () => {
 			for (const value of values) {
 				let date;
 				assert.doesNotThrow(() => { date = new SupiDate(value); });
-				assert.strictEqual(date.isValid(), true, `Date should be valid for value "${value}"`);
+				assert.strictEqual(date!.isValid(), true, `Date should be valid for value "${value}"`);
 			}
 		});
 
@@ -205,7 +204,7 @@ describe("SupiDate", () => {
 			for (const value of values) {
 				let date;
 				assert.doesNotThrow(() => { date = new SupiDate(value); });
-				assert.strictEqual(date.isValid(), false, `Date should be invalid for value "${value}"`);
+				assert.strictEqual(date!.isValid(), false, `Date should be invalid for value "${value}"`);
 			}
 		});
 	});

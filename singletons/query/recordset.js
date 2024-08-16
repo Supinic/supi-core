@@ -306,14 +306,31 @@ export default class Recordset {
 
 		const sql = [];
 		sql.push(`SELECT ${this.#select.map(select => this.#query.escapeIdentifier(select)).join(", ")}`);
-		(this.#from) && sql.push(`FROM \`${this.#from.database}\`.\`${this.#from.table}\``);
-		(this.#join.length !== 0) && sql.push(this.#join.join(" "));
-		(this.#where.length !== 0) && sql.push(`WHERE (${this.#where.join(") AND (")})`);
-		(this.#groupBy.length !== 0) && sql.push(`GROUP BY ${this.#groupBy.join(", ")}`);
-		(this.#having.length !== 0) && sql.push(`HAVING ${this.#having.join(", ")}`);
-		(this.#orderBy.length !== 0) && sql.push(`ORDER BY ${this.#orderBy.join(", ")}`);
-		(this.#limit !== null) && sql.push(`LIMIT ${this.#limit}`);
-		(this.#offset !== null) && sql.push(`OFFSET ${this.#offset}`);
+
+		if (this.#from) {
+			sql.push(`FROM \`${this.#from.database}\`.\`${this.#from.table}\``);
+		}
+		if (this.#join.length !== 0) {
+			sql.push(this.#join.join(" "));
+		}
+		if (this.#where.length !== 0) {
+			sql.push(`WHERE (${this.#where.join(") AND (")})`);
+		}
+		if (this.#groupBy.length !== 0) {
+			sql.push(`GROUP BY ${this.#groupBy.join(", ")}`);
+		}
+		if (this.#having.length !== 0) {
+			sql.push(`HAVING ${this.#having.join(", ")}`);
+		}
+		if (this.#orderBy.length !== 0) {
+			sql.push(`ORDER BY ${this.#orderBy.join(", ")}`);
+		}
+		if (this.#limit !== null) {
+			sql.push(`LIMIT ${this.#limit}`);
+		}
+		if (this.#offset !== null) {
+			sql.push(`OFFSET ${this.#offset}`);
+		}
 
 		return sql;
 	}

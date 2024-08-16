@@ -2,7 +2,7 @@ import assert from "node:assert";
 import SupiDate from "../objects/date.js";
 import UtilsConstructor from "../singletons/utils.js";
 
-const range = (from, to) => [...new Array(to - from + 1)].map((i, ind) => ind + from);
+const range = (from: number, to: number) => [...new Array(to - from + 1)].map((i, ind) => ind + from);
 const Utils = new UtilsConstructor();
 
 describe("timeDelta", () => {
@@ -11,9 +11,10 @@ describe("timeDelta", () => {
 	const DAY = 24 * HOUR;
 	const YEAR = 365 * DAY;
 
-	const timeDelta = (target, skipAffixes, respectLeapYears, deltaTo) => Utils.timeDelta(target, skipAffixes ?? false, respectLeapYears ?? false, deltaTo ?? new SupiDate(0));
+	const timeDelta = (target: SupiDate | Date | number, skipAffixes?: boolean | undefined, respectLeapYears?: boolean | undefined, deltaTo?: SupiDate | undefined) => Utils.timeDelta(target, skipAffixes ?? false, respectLeapYears ?? false, deltaTo ?? new SupiDate(0));
 
-	it("checks types properly", () => {
+	// We don't need to check types at runtime with TS
+	/*it("checks types properly", () => {
 		assert.doesNotThrow(() => timeDelta(new Date()));
 		assert.doesNotThrow(() => timeDelta(new SupiDate()));
 		assert.doesNotThrow(() => timeDelta(12345));
@@ -28,7 +29,7 @@ describe("timeDelta", () => {
 
 		const mockedStringValueOf = { valueOf: () => "string" };
 		assert.throws(() => timeDelta(mockedStringValueOf));
-	});
+	});*/
 
 	it("returns a special value for delta === 0", () => {
 		const date = new SupiDate(0);

@@ -57,7 +57,7 @@ export default class Cache {
 			retryStrategy: (times) => {
 				// Initial connect failure - just stop
 				if (this.#initialConnectSuccess === false) {
-					throw new sb.Error({
+					throw new SupiError({
 						message: "Cannot establish initial connection to Redis",
 						args: {
 							configuration: this.#configuration

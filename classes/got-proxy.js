@@ -1,4 +1,5 @@
 import * as gotModule from "got";
+import SupiError from "../objects/error.js";
 
 const nameSymbol = Symbol.for("name");
 const gotRequestErrors = [
@@ -24,7 +25,7 @@ class StaticGot {
 			return StaticGot.data.find(i => i[nameSymbol] === identifier) ?? null;
 		}
 		else {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Invalid user identifier type",
 				args: { id: identifier, type: typeof identifier }
 			});
@@ -33,7 +34,7 @@ class StaticGot {
 
 	static async importData (definitions) {
 		if (!Array.isArray(definitions)) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Definitions must be provided as an array"
 			});
 		}
@@ -42,7 +43,7 @@ class StaticGot {
 		const availableParents = new Set([null, ...definitions.map(i => i.name)]);
 		for (const instanceParent of instanceParents) {
 			if (!availableParents.has(instanceParent)) {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Instance parent is not defined",
 					args: {
 						requested: instanceParent,
@@ -104,7 +105,7 @@ class StaticGot {
 		let instance;
 		if (initError) {
 			instance = () => {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Instance is not available due to initialization error",
 					args: { definition },
 					cause: initError
@@ -114,7 +115,7 @@ class StaticGot {
 		else if (definition.parent) {
 			const parent = parentDefinitions.find(i => i[nameSymbol] === definition.parent);
 			if (!parent) {
-				throw new sb.Error({
+				throw new SupiError({
 					message: "Requested parent instance does not exist",
 					args: {
 						requested: definition.parent,
@@ -136,7 +137,7 @@ class StaticGot {
 
 	static gql (gqlOptions = {}) {
 		if (!gqlOptions.query) {
-			throw new sb.Error({
+			throw new SupiError({
 				message: "Missing parameter query for GQL request",
 				args: { gqlOptions }
 			});
