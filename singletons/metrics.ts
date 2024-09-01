@@ -22,6 +22,12 @@ declare const enum MetricType {
 	// Summary
 }
 
+declare const enum StringMetricType {
+	Counter = "Counter",
+	Gauge = "Gauge",
+	Histogram = "Histogram"
+}
+
 /**
  * Very simple module wrapper around the Prometheus client metrics
  */
@@ -36,7 +42,7 @@ export default class Metrics {
 		});
 	}
 
-	register<T extends string> (type: MetricType, options: MetricConfiguration<T>): Metric<T> {
+	register<T extends string> (type: MetricType | StringMetricType, options: MetricConfiguration<T>): Metric<T> {
 		const existing = this.get(options.name);
 		if (existing) {
 			return existing;
@@ -44,10 +50,13 @@ export default class Metrics {
 
 		switch (type) {
 			case MetricType.Counter:
+			case StringMetricType.Counter:
 				return this.registerCounter(options);
 			case MetricType.Gauge:
+			case StringMetricType.Gauge:
 				return this.registerGauge(options);
 			case MetricType.Histogram:
+			case StringMetricType.Histogram:
 				return this.registerHistogram(options);
 			default:
 				throw new SupiError({
