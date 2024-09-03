@@ -16,6 +16,9 @@
   "files": [
     "build"
   ],
+  "engines": {
+    "node": ">= 18.0"
+  },
   "author": "Supinic",
   "license": "AGPL-3.0",
   "scripts": {

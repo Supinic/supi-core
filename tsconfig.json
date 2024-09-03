@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2021",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "target": "es2023",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
     "module": "nodenext",                                /* Specify what module code is generated. */
     "resolveJsonModule": true,                           /* Enable importing .json files. */
     // "allowArbitraryExtensions": true,                 /* Enable importing files with any extension, provided a declaration file is present. */
@@ -62,7 +62,7 @@
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true,                                /* Skip type checking all .d.ts files. */
-    
+
     // This option allows the Typescript compiler to detect if the project has been built already.
     // It also enables the `incremental` option, allowing it to perform incremental builds instead of full rebuilds, reducing compile times significantly.
     "composite": true
