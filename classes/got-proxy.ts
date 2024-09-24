@@ -192,12 +192,12 @@ class StaticGot {
 	static isRequestError (error: unknown) {
 		return gotRequestErrors.some(GotError => error instanceof GotError);
 	}
-
-	static get FormData () { return FormData; }
 }
 
 function proxyGet (target: unknown, property: "get"): typeof StaticGot.get;
 function proxyGet (target: unknown, property: "gql"): typeof StaticGot.gql;
+function proxyGet (target: unknown, property: "importData"): typeof StaticGot.importData;
+function proxyGet (target: unknown, property: "importSpecific"): typeof StaticGot.importSpecific;
 function proxyGet (target: unknown, property: "isRequestError"): typeof StaticGot.isRequestError;
 function proxyGet (target: unknown, property: "stream"): typeof gotModule.got.stream;
 function proxyGet (target: unknown, property: "RequestError"): typeof gotModule.RequestError;
@@ -206,6 +206,8 @@ function proxyGet (target: unknown, property: string) {
 	switch (property) {
 		case "get": return StaticGot.get;
 		case "gql": return StaticGot.gql;
+		case "importData": return StaticGot.importData;
+		case "importSpecific": return StaticGot.importSpecific;
 		case "isRequestError": return StaticGot.isRequestError;
 		case "stream": return gotModule.got.stream;
 		case "RequestError": return gotModule.RequestError;
