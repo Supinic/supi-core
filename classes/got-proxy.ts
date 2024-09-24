@@ -194,30 +194,25 @@ class StaticGot {
 	}
 }
 
-function proxyGet (target: unknown, property: "get"): typeof StaticGot.get;
-function proxyGet (target: unknown, property: "gql"): typeof StaticGot.gql;
-function proxyGet (target: unknown, property: "importData"): typeof StaticGot.importData;
-function proxyGet (target: unknown, property: "importSpecific"): typeof StaticGot.importSpecific;
-function proxyGet (target: unknown, property: "isRequestError"): typeof StaticGot.isRequestError;
-function proxyGet (target: unknown, property: "stream"): typeof gotModule.got.stream;
-function proxyGet (target: unknown, property: "RequestError"): typeof gotModule.RequestError;
-function proxyGet (target: unknown, property: "TimeoutError"): typeof gotModule.TimeoutError;
-function proxyGet (target: unknown, property: string) {
-	switch (property) {
-		case "get": return StaticGot.get;
-		case "gql": return StaticGot.gql;
-		case "importData": return StaticGot.importData;
-		case "importSpecific": return StaticGot.importSpecific;
-		case "isRequestError": return StaticGot.isRequestError;
-		case "stream": return gotModule.got.stream;
-		case "RequestError": return gotModule.RequestError;
-		case "TimeoutError": return gotModule.TimeoutError;
-	}
-}
-
 type ProxyApplyArgument = [string] | [string, string] | [string, Partial<gotModule.Options>];
 
-const GotProxy = new Proxy(StaticGot, {
+interface CallableGot extends StaticGot {
+	(url: string): ReturnType<gotModule.Got>;
+	(instance: string): ReturnType<gotModule.Got>;
+	(instance: string, options: Partial<gotModule.Options>): ReturnType<gotModule.Got>;
+
+	get: typeof StaticGot.get;
+	gql: typeof StaticGot.gql;
+	importData: typeof StaticGot.importData;
+	importSpecific: typeof StaticGot.importSpecific;
+	isRequestError: typeof StaticGot.isRequestError;
+
+	stream: typeof gotModule.got.stream;
+	RequestError: typeof gotModule.RequestError;
+	TimeoutError: typeof gotModule.TimeoutError;
+}
+
+const GotProxy: CallableGot = new Proxy<CallableGot>(<unknown>StaticGot as CallableGot, {
 	apply: function (target, thisArg, args: ProxyApplyArgument) {
 		let url: string | null = null;
 		const instance: ExtendedGotInstance | null = StaticGot.get(args[0]);
@@ -264,7 +259,18 @@ const GotProxy = new Proxy(StaticGot, {
 			});
 		}
 	},
-	get: proxyGet
+	get: function (target, property: string) {
+		switch (property) {
+			case "get": return StaticGot.get;
+			case "gql": return StaticGot.gql;
+			case "importData": return StaticGot.importData;
+			case "importSpecific": return StaticGot.importSpecific;
+			case "isRequestError": return StaticGot.isRequestError;
+			case "stream": return gotModule.got.stream;
+			case "RequestError": return gotModule.RequestError;
+			case "TimeoutError": return gotModule.TimeoutError;
+		}
+	}
 });
 
 export default GotProxy;
