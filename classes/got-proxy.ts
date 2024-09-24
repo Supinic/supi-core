@@ -264,7 +264,6 @@ const GotProxy = new Proxy(StaticGot, {
 			});
 		}
 	},
-
 	get: proxyGet
 });
 
