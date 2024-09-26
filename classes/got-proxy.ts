@@ -192,6 +192,10 @@ class StaticGot {
 	static isRequestError (error: unknown) {
 		return gotRequestErrors.some(GotError => error instanceof GotError);
 	}
+
+	static get stream () { return gotModule.got.stream; }
+	static get RequestError () { return gotModule.RequestError; }
+	static get TimeoutError () { return gotModule.TimeoutError; }
 }
 
 type ProxyApplyArgument = [string] | [string, string] | [string, Partial<gotModule.Options>];
@@ -200,19 +204,9 @@ interface CallableGot extends StaticGot {
 	(url: string): ReturnType<gotModule.Got>;
 	(instance: string): ReturnType<gotModule.Got>;
 	(instance: string, options: Partial<gotModule.Options>): ReturnType<gotModule.Got>;
-
-	get: typeof StaticGot.get;
-	gql: typeof StaticGot.gql;
-	importData: typeof StaticGot.importData;
-	importSpecific: typeof StaticGot.importSpecific;
-	isRequestError: typeof StaticGot.isRequestError;
-
-	stream: typeof gotModule.got.stream;
-	RequestError: typeof gotModule.RequestError;
-	TimeoutError: typeof gotModule.TimeoutError;
 }
 
-const GotProxy: CallableGot = new Proxy<CallableGot>(<unknown>StaticGot as CallableGot, {
+const GotProxy = new Proxy(StaticGot, {
 	apply: function (target, thisArg, args: ProxyApplyArgument) {
 		let url: string | null = null;
 		const instance: ExtendedGotInstance | null = StaticGot.get(args[0]);
@@ -258,19 +252,9 @@ const GotProxy: CallableGot = new Proxy<CallableGot>(<unknown>StaticGot as Calla
 				args: { args }
 			});
 		}
-	},
-	get: function (target, property: string) {
-		switch (property) {
-			case "get": return StaticGot.get;
-			case "gql": return StaticGot.gql;
-			case "importData": return StaticGot.importData;
-			case "importSpecific": return StaticGot.importSpecific;
-			case "isRequestError": return StaticGot.isRequestError;
-			case "stream": return gotModule.got.stream;
-			case "RequestError": return gotModule.RequestError;
-			case "TimeoutError": return gotModule.TimeoutError;
-		}
 	}
 });
 
-export default GotProxy;
+// Using `unknown` first because of Proxy not being sufficiently typed - we know the `apply` trap allows
+// calling the result as a function, but the Proxy constructor cannot infer that.
+export default GotProxy as unknown as CallableGot;
