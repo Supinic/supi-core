@@ -46,8 +46,18 @@ type GqlRequestOptions = {
 class StaticGot {
 	static data: ExtendedGotInstance[];
 
-	static get (identifier: string) {
-		return StaticGot.data.find(i => i[nameSymbol] === identifier) ?? null;
+	static get (identifier: string): ExtendedGotInstance;
+	static get (identifier: string, nullOnNone: true): ExtendedGotInstance | null;
+	static get (identifier: string, nullOnNone?: boolean) {
+		const instance = StaticGot.data.find(i => i[nameSymbol] === identifier) ?? null;
+		if (!instance && !nullOnNone) {
+			throw new SupiError({
+				message: "No proper instance name provided",
+				args: { identifier }
+			});
+		}
+
+		return instance;
 	}
 
 	static async importData (definitions: GotInstanceDefinition[]) {
@@ -209,7 +219,7 @@ interface CallableGot extends StaticGot {
 const GotProxy = new Proxy(StaticGot, {
 	apply: function (target, thisArg, args: ProxyApplyArgument) {
 		let url: string | null = null;
-		const instance: ExtendedGotInstance | null = StaticGot.get(args[0]);
+		const instance = StaticGot.get(args[0], true);
 		if (!instance) {
 			url = args[0];
 		}
