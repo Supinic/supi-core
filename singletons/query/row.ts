@@ -1,20 +1,36 @@
 import SupiError from "../../objects/error.js";
+import SupiDate from "../../objects/date.js";
+import type QuerySingleton from "./index.js";
+import { ColumnDefinition, TableDefinition } from "../../@types/singletons/query/index.js";
+import type { PoolConnection } from "mariadb";
+
+const UNSET_VALUE: unique symbol = Symbol.for("UNSET");
+
+type Value = string | number | bigint | SupiDate | null | typeof UNSET_VALUE;
+type Values = Record<string, Value>;
+
+type PrimaryKeyObject = Record<string, Value>;
+type ConstructorOptions = {
+	transaction?: PoolConnection;
+};
+type SaveOptions = {
+	ignore?: boolean;
+	skipLoad?: boolean;
+};
 
 /**
  * Represents one row of a SQL database table.
  */
 export default class Row {
-	/** @type {TableDefinition} */
-	#definition;
-	/** @type {QuerySingleton} */
-	#query;
+	#definition: TableDefinition | null = null;
+	#query: QuerySingleton;
 	#transaction;
 
-	#values = {};
-	#originalValues = {};
-	#primaryKeyFields = [];
-	#valueProxy = new Proxy(this.#values, {
-		get: (target, name) => {
+	#values: Values = {};
+	#originalValues: Values = {};
+	#primaryKeyFields: ColumnDefinition[] = [];
+	#valueProxy: Values = new Proxy(this.#values, {
+		get: (target, name: string) => {
 			if (!this.#initialized) {
 				throw new SupiError({
 					message: "Cannot get row value - row not initialized",
@@ -30,7 +46,7 @@ export default class Row {
 
 			return target[name];
 		},
-		set: (target, name, value) => {
+		set: (target, name: string, value) => {
 			if (!this.#initialized) {
 				throw new SupiError({
 					message: "Cannot set row value - row not initialized",
@@ -53,12 +69,12 @@ export default class Row {
 	#loaded = false;
 	#deleted = false;
 
-	constructor (query, options = {}) {
+	constructor (query: QuerySingleton, options: ConstructorOptions = {}) {
 		this.#query = query;
 		this.#transaction = options.transaction ?? null;
 	}
 
-	async initialize (database, table) {
+	async initialize (database: string, table: string) {
 		if (!database || !table) {
 			throw new SupiError({
 				message: "Cannot initialize row - missing database/table",
@@ -66,10 +82,10 @@ export default class Row {
 			});
 		}
 
-		this.#definition = await this.#query.getDefinition(database, table);
+		this.#definition = await this.#query.getDefinition(database, table) as TableDefinition;
 		for (const column of this.#definition.columns) {
-			this.#values[column.name] = Symbol.for("unset");
-			this.#originalValues[column.name] = Symbol.for("unset");
+			this.#values[column.name] = UNSET_VALUE;
+			this.#originalValues[column.name] = UNSET_VALUE;
 
 			if (column.primaryKey) {
 				this.#primaryKeyFields.push(column);
@@ -80,8 +96,8 @@ export default class Row {
 		return this;
 	}
 
-	async load (primaryKey, ignoreError = false) {
-		if (!this.#initialized) {
+	async load (primaryKey: string | PrimaryKeyObject, ignoreError: boolean = false) {
+		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot load row - not initialized",
 				args: this._getErrorInfo()
@@ -104,7 +120,7 @@ export default class Row {
 		this.reset();
 
 		const conditions = [];
-		if (primaryKey?.constructor?.name === "Object") {
+		if (typeof primaryKey === "object") {
 			for (const [key, value] of Object.entries(primaryKey)) {
 				const column = this.#definition.columns.find(i => i.name === key);
 				if (!column) {
@@ -179,8 +195,8 @@ export default class Row {
 		return this;
 	}
 
-	async save (options = {}) {
-		if (!this.#initialized) {
+	async save (options: SaveOptions = {}) {
+		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot save row - not initialized",
 				args: this._getErrorInfo()
@@ -229,6 +245,12 @@ export default class Row {
 
 			if (outputData.insertId !== 0) {
 				const autoIncrementPK = this.#primaryKeyFields.find(i => i.autoIncrement);
+				if (!autoIncrementPK) {
+					throw new SupiError({
+						message: "No AUTOINCREMENT column found"
+					});
+				}
+
 				this.#values[autoIncrementPK.name] = outputData.insertId;
 			}
 
@@ -242,7 +264,7 @@ export default class Row {
 	}
 
 	async delete () {
-		if (!this.#initialized) {
+		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot delete row - not initialized",
 				args: this._getErrorInfo()
@@ -267,7 +289,7 @@ export default class Row {
 	}
 
 	reset () {
-		if (!this.#initialized) {
+		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot reset row - not initialized",
 				args: this._getErrorInfo()
@@ -276,12 +298,12 @@ export default class Row {
 
 		this.#loaded = false;
 		for (const column of this.#definition.columns) {
-			this.#values[column.name] = Symbol.for("unset");
-			this.#originalValues[column.name] = Symbol.for("unset");
+			this.#values[column.name] = UNSET_VALUE;
+			this.#originalValues[column.name] = UNSET_VALUE;
 		}
 	}
 
-	setValues (data) {
+	setValues (data: Record<string, Value>) {
 		if (!this.#initialized) {
 			throw new SupiError({
 				message: "Cannot set column values - row not initialized",
@@ -290,14 +312,15 @@ export default class Row {
 		}
 
 		for (const [key, value] of Object.entries(data)) {
+			// This should stay as the .values getter, because this method a simple wrapper around multiple values setting at once
 			this.values[key] = value;
 		}
 
 		return this;
 	}
 
-	hasProperty (property) {
-		if (!this.#initialized) {
+	hasProperty (property: string) {
+		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot check property - row not initialized",
 				args: this._getErrorInfo()
@@ -309,11 +332,10 @@ export default class Row {
 
 	_getErrorInfo () {
 		return {
-			database: this.#definition.database,
-			table: this.#definition.name,
+			database: this.#definition?.database ?? null,
+			table: this.#definition?.name ?? null,
 			primaryKeys: this.#primaryKeyFields.map(i => i.name),
 			deleted: this.#deleted,
-			initialized: this.#initialized,
 			loaded: this.#loaded
 		};
 	}
@@ -336,7 +358,7 @@ export default class Row {
 	get originalValues () { return this.#originalValues; }
 
 	get PK () {
-		const obj = {};
+		const obj: Record<string, Value> = {};
 		for (const column of this.#primaryKeyFields) {
 			obj[column.name] = this.#values[column.name];
 		}
@@ -348,4 +370,8 @@ export default class Row {
 	get deleted () { return this.#deleted; }
 	get initialized () { return this.#initialized; }
 	get loaded () { return this.#loaded; }
+
+	hasDefinition (): this is Row & { definition: object } {
+		return this.#initialized;
+	}
 }
