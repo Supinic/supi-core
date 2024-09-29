@@ -20,11 +20,11 @@ type FromObject = {
 	table: Table | null;
 };
 type WhereHavingArgument = string;
-type WhereHavingOptions = {
+export type WhereHavingOptions = {
 	raw?: string;
 	condition?: string;
 };
-type MixedWhereHavingArgument = WhereHavingOptions | WhereHavingArgument;
+export type MixedWhereHavingArgument = WhereHavingOptions | WhereHavingArgument;
 
 type UseOptions = {
 	bigint?: boolean;

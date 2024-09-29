@@ -5,7 +5,7 @@ import { createPool as createMariaDbPool } from "mariadb";
 import Batch from "./batch.js";
 import Recordset from "./recordset";
 import RecordDeleter from "./record-deleter.js";
-import RecordUpdater from "./record-updater.js";
+import RecordUpdater from "./record-updater";
 import Row from "./row";
 
 const updateBatchLimit = 1000;

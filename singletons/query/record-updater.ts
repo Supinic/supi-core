@@ -1,25 +1,43 @@
 import SupiError from "../../objects/error.js";
+import QuerySingleton from "./index.js";
+import type { PoolConnection } from "mariadb";
+import { Database, Table, ColumnDefinition, Value, TableDefinition } from "../../@types/singletons/query/index.js";
+import { MixedWhereHavingArgument, WhereHavingOptions } from "./recordset.js";
+
+type Priority = "normal" | "low";
+type ConstructorOptions = {
+	transaction?: PoolConnection;
+};
+type Column = ColumnDefinition["name"];
+type SetValue = {
+	column: Column;
+	value: Value;
+};
+type UpdateValue = {
+	database: Database | null;
+	table: Table | null;
+};
+type ResultObject = Record<string, Value>;
 
 /**
  * Represents the UPDATE sql statement.
  */
 export default class RecordUpdater {
-	#query;
-	#transaction;
-	#update = { database: null, table: null };
-	#set = [];
-	#where = [];
+	#query: QuerySingleton;
+	#transaction: PoolConnection | null;
+	#update: UpdateValue = { database: null, table: null };
+	#set: SetValue[] = [];
+	#where: string[] = [];
 
-	#priority = "normal";
+	#priority: Priority = "normal";
 	#ignoreDuplicates = false;
 
-	constructor (query, options = {}) {
-		/** @type {Query} */
+	constructor (query: QuerySingleton, options: ConstructorOptions = {}) {
 		this.#query = query;
 		this.#transaction = options.transaction ?? null;
 	}
 
-	priority (value) {
+	priority (value: Priority): this {
 		if (!["normal", "low"].includes(value)) {
 			throw new SupiError({
 				message: "Incorrect priority value",
@@ -31,25 +49,25 @@ export default class RecordUpdater {
 		return this;
 	}
 
-	ignoreDuplicates () {
+	ignoreDuplicates (): this {
 		this.#ignoreDuplicates = true;
 		return this;
 	}
 
-	update (database, table) {
+	update (database: Database, table: Table): this {
 		this.#update.database = database;
 		this.#update.table = table;
 		return this;
 	}
 
-	set (column, value) {
-		this.#set = this.#set.concat({ column, value });
+	set (column: Column, value: Value): this {
+		this.#set.push({ column, value });
 		return this;
 	}
 
-	where (...args) {
-		let options = {};
-		if (args[0] && args[0].constructor === Object) {
+	where (...args: MixedWhereHavingArgument[]): this {
+		let options: WhereHavingOptions = {};
+		if (args[0] && typeof args[0] === "object") {
 			options = args[0];
 			args.shift();
 		}
@@ -60,7 +78,7 @@ export default class RecordUpdater {
 
 		let format = "";
 		if (typeof args[0] === "string") {
-			format = args.shift();
+			format = args.shift() as string;
 		}
 
 		let index = 0;
@@ -68,12 +86,11 @@ export default class RecordUpdater {
 			this.#query.parseFormatSymbol(param, args[index++])
 		));
 
-		this.#where = this.#where.concat(format);
-
+		this.#where.push(format);
 		return this;
 	}
 
-	async toSQL () {
+	async toSQL (): Promise<string[]> {
 		if (!this.#update.database || !this.#update.table) {
 			throw new SupiError({
 				message: "No UPDATE database/table in RecordUpdater - invalid definition"
@@ -87,7 +104,9 @@ export default class RecordUpdater {
 
 		const sql = [];
 		const set = [];
-		const { columns } = await this.#query.getDefinition(this.#update.database, this.#update.table);
+
+		// `as TableDefinition` used while Query is not yet rewritten to TS
+		const { columns } = await this.#query.getDefinition(this.#update.database, this.#update.table) as TableDefinition;
 		const priority = (this.#priority === "low") ? "LOW_PRIORITY " : "";
 		const ignore = (this.#ignoreDuplicates) ? "IGNORE " : "";
 
@@ -117,7 +136,7 @@ export default class RecordUpdater {
 		return sql;
 	}
 
-	async fetch () {
+	async fetch (): Promise<ResultObject[]> {
 		const sql = await this.toSQL();
 		const sqlString = sql.join("\n");
 		return await this.#query.transactionQuery(sqlString, this.#transaction);
