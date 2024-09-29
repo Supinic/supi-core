@@ -1,13 +1,13 @@
 import SupiError from "../../objects/error.js";
-import QuerySingleton from "./index.js";
-import type { PoolConnection } from "mariadb";
-import {
+import QuerySingleton, {
 	Database,
 	Table,
 	ColumnDefinition,
 	TableDefinition,
-	type Field, type FormatValue
-} from "../../@types/singletons/query/index.js";
+	Field,
+	DatabaseValue
+} from "./index.js";
+import type { PoolConnection } from "mariadb";
 
 type ConstructorOptions = {
 	transaction?: PoolConnection;
@@ -16,7 +16,7 @@ type ConstructorOptions = {
 	threshold?: number;
 };
 
-type BatchRecord = Record<Field, FormatValue>;
+type BatchRecord = Record<Field, DatabaseValue>;
 type FindCallback = (value: BatchRecord, index: number, obj: BatchRecord[]) => boolean;
 
 type InsertOptions = {
@@ -30,7 +30,7 @@ type InsertOptions = {
  */
 export default class Batch {
 	#query: QuerySingleton;
-	#transaction: PoolConnection | null;
+	#transaction?: PoolConnection;
 
 	readonly database: Database;
 	readonly table: Table;
@@ -42,7 +42,7 @@ export default class Batch {
 
 	constructor (query: QuerySingleton, options: ConstructorOptions) {
 		this.#query = query;
-		this.#transaction = options.transaction ?? null;
+		this.#transaction = options.transaction;
 		this.database = options.database;
 		this.table = options.table;
 
@@ -112,7 +112,7 @@ export default class Batch {
 
 			for (let i = 0; i < this.records.length; i++) {
 				// `as string` - temporary measure while Query isn't rewritten to TS
-				const sql = this.#query.convertToSQL(this.records[i][name], type) as string;
+				const sql = this.#query.convertToSQL(this.records[i][name], type);
 				data[i].push(sql);
 			}
 		}

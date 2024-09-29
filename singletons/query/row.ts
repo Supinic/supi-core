@@ -1,12 +1,17 @@
 import SupiError from "../../objects/error.js";
-import type QuerySingleton from "./index.js";
-import { ColumnDefinition, TableDefinition, Value } from "../../@types/singletons/query/index.js";
-import type { PoolConnection } from "mariadb";
+import QuerySingleton, {
+	ColumnDefinition,
+	PrimaryKeyValue,
+	TableDefinition,
+	Value as QueryValue
+} from "./index.js";
+import { PoolConnection, UpsertResult } from "mariadb";
 
 const UNSET_VALUE: unique symbol = Symbol.for("UNSET");
 
+type Value = QueryValue | typeof UNSET_VALUE;
 type Values = Record<string, Value>;
-type PrimaryKeyObject = Record<string, Value>;
+type PrimaryKeyObject = Record<string, PrimaryKeyValue>;
 type ConstructorOptions = {
 	transaction?: PoolConnection;
 };
@@ -68,7 +73,7 @@ export default class Row {
 
 	constructor (query: QuerySingleton, options: ConstructorOptions = {}) {
 		this.#query = query;
-		this.#transaction = options.transaction ?? null;
+		this.#transaction = options.transaction;
 	}
 
 	async initialize (database: string, table: string) {
@@ -165,7 +170,7 @@ export default class Row {
 		}
 
 		const sqlString = `SELECT * FROM ${this.#definition.escapedPath} WHERE ${conditions.join(" AND ")}`;
-		const data = await this.#query.transactionQuery(sqlString, this.#transaction);
+		const data = await this.#query.transactionQuery(sqlString, this.#transaction) as Record<string, string | number | null>[];
 
 		if (!data[0]) {
 			if (ignoreError) {
@@ -200,16 +205,22 @@ export default class Row {
 			});
 		}
 
-		let outputData;
+		let outputData: UpsertResult;
 		if (this.#loaded) { // UPDATE
 			const setColumns = [];
 			for (const column of this.#definition.columns) {
 				if (this.#originalValues[column.name] === this.#values[column.name]) {
 					continue;
 				}
+				else if (this.#values[column.name] === UNSET_VALUE) {
+					continue;
+				}
+
+				// Now guaranteed to not include the UNSET_VALUE symbol
+				const rowValue = this.#values[column.name] as QueryValue;
 
 				const identifier = this.#query.escapeIdentifier(column.name);
-				const value = this.#query.convertToSQL(this.#values[column.name], column.type);
+				const value = this.#query.convertToSQL(rowValue, column.type);
 				setColumns.push(`${identifier} = ${value}`);
 			}
 
@@ -221,24 +232,27 @@ export default class Row {
 			const conditions = this._getPrimaryKeyConditions();
 			const sqlString = `UPDATE ${this.#definition.escapedPath} SET ${setColumns.join(", ")} WHERE ${conditions.join(" AND ")}`;
 
-			outputData = await this.#query.transactionQuery(sqlString, this.#transaction);
+			outputData = await this.#query.transactionQuery(sqlString, this.#transaction) as UpsertResult;
 		}
 		else { // INSERT
 			const columns = [];
 			const values = [];
 			for (const column of this.#definition.columns) {
-				if (this.#values[column.name] === Symbol.for("unset")) {
+				if (this.#values[column.name] === UNSET_VALUE) {
 					continue;
 				}
 
+				// Now guaranteed to not include the UNSET_VALUE symbol
+				const rowValue = this.#values[column.name] as QueryValue;
+
 				columns.push(this.#query.escapeIdentifier(column.name));
-				values.push(this.#query.convertToSQL(this.#values[column.name], column.type));
+				values.push(this.#query.convertToSQL(rowValue, column.type));
 			}
 
 			const ignore = (options.ignore === true) ? "IGNORE " : "";
 
 			const sqlString = `INSERT ${ignore}INTO ${this.#definition.escapedPath} (${columns.join(",")}) VALUES (${values.join(",")})`;
-			outputData = await this.#query.transactionQuery(sqlString, this.#transaction);
+			outputData = await this.#query.transactionQuery(sqlString, this.#transaction) as UpsertResult;
 
 			if (outputData.insertId !== 0) {
 				const autoIncrementPK = this.#primaryKeyFields.find(i => i.autoIncrement);
@@ -340,7 +354,10 @@ export default class Row {
 	_getPrimaryKeyConditions () {
 		const conditions = [];
 		for (const column of this.#primaryKeyFields) {
-			const parsedValue = this.#query.convertToSQL(this.#values[column.name], column.type);
+			// Guaranteed to not include the UNSET_VALUE symbol
+			const pkValue = this.#values[column.name] as QueryValue;
+
+			const parsedValue = this.#query.convertToSQL(pkValue, column.type);
 			const identifier = this.#query.escapeIdentifier(column.name);
 
 			conditions.push(`(${identifier} = ${parsedValue})`);
@@ -354,10 +371,11 @@ export default class Row {
 	get values () { return this.#valueProxy; }
 	get originalValues () { return this.#originalValues; }
 
-	get PK () {
-		const obj: Record<string, Value> = {};
+	get PK (): PrimaryKeyObject {
+		const obj: PrimaryKeyObject = {};
 		for (const column of this.#primaryKeyFields) {
-			obj[column.name] = this.#values[column.name];
+			// Guaranteed to not include the UNSET_VALUE symbol
+			obj[column.name] = this.#values[column.name] as QueryValue;
 		}
 
 		return obj;

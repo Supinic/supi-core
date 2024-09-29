@@ -1,14 +1,13 @@
 import SupiError from "../../objects/error.js";
 import type { PoolConnection } from "mariadb";
-import type QuerySingleton from "./index.js";
-import type {
+import QuerySingleton, {
 	Database,
 	Table,
 	Field,
 	MariaRowMeta,
 	ExtendedColumnType,
 	Value
-} from "../../@types/singletons/query/index.js";
+} from "./index.js";
 
 const ROW_COLLAPSED = "#row_collapsed";
 
@@ -72,11 +71,16 @@ type ReferenceDescriptor = {
 	columns: string[];
 	target: string;
 };
-type ResultObject = Record<string, Value>;
+
+export type ResultObject = Record<string, Value>;
+type QueryResultObject = Record<string, Value>;
+type MetaResultObject = QueryResultObject[] & {
+	meta: MariaRowMeta[]
+};
 
 export default class Recordset {
-	#query;
-	#transaction;
+	#query: QuerySingleton;
+	#transaction?: PoolConnection;
 	#fetchSingle = false;
 	#raw = null;
 	#options: UseOptions = {};
@@ -96,7 +100,7 @@ export default class Recordset {
 
 	constructor (query: QuerySingleton, options: ConstructorOptions = {}) {
 		this.#query = query;
-		this.#transaction = options.transaction ?? null;
+		this.#transaction = options.transaction;
 	}
 
 	single (): this {
@@ -430,13 +434,13 @@ export default class Recordset {
 		return sql;
 	}
 
-	async fetch (): Promise<ResultObject | ResultObject[]> {
+	async fetch (): Promise<Value | ResultObject | ResultObject[]> {
 		const sql = this.toSQL();
 		const sqlString = sql.join("\n");
 		let rows = null;
 
 		try {
-			rows = await this.#query.transactionQuery(sqlString, this.#transaction);
+			rows = await this.#query.transactionQuery(sqlString, this.#transaction) as MetaResultObject;
 		}
 		catch (e) {
 			console.error(e);
@@ -444,12 +448,11 @@ export default class Recordset {
 		}
 
 		const definition: Record<string, ExtendedColumnType> = {};
-		const meta = rows.meta as MariaRowMeta[];
-		for (const column of meta) {
+		for (const column of rows.meta) {
 			definition[column.name()] = column.type;
 		}
 
-		let result: ResultObject[] = [];
+		let result = [];
 		for (const row of rows) {
 			if (this.#flat && typeof row[this.#flat] === "undefined") {
 				throw new SupiError({
@@ -481,14 +484,15 @@ export default class Recordset {
 		if (this.#reference.length > 0) {
 			for (const reference of this.#reference) {
 				if (reference.collapseOn) {
-					Recordset.collapseReferencedData(result, reference);
+					Recordset.collapseReferencedData(result as ResultObject[], reference);
 				}
 			}
 
-			result = result.filter(i => !i[ROW_COLLAPSED]);
+			result = (<ResultObject[]>result).filter(i => !i[ROW_COLLAPSED]);
 		}
 
 		// result.sql = sql;
+		// @ts-expect-error @todo
 		return (this.#fetchSingle)
 			? result[0]
 			: result;
@@ -505,6 +509,7 @@ export default class Recordset {
 				keyMap.set(row[collapser], []);
 			}
 			else {
+				// @ts-expect-error @todo
 				data[i][ROW_COLLAPSED] = true;
 			}
 
@@ -531,9 +536,10 @@ export default class Recordset {
 		for (const row of data) {
 			row[target] = keyMap.get(row[collapser]);
 
-			if (row[target].length === 1) {
+			if (Array.isArray(row[target]) && row[target].length === 1) {
 				const allNull = !Object.values(row[target][0]).some(Boolean);
 				if (allNull) {
+					// @ts-expect-error @todo
 					row[target] = [];
 				}
 			}

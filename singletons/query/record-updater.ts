@@ -1,17 +1,18 @@
 import SupiError from "../../objects/error.js";
-import QuerySingleton from "./index.js";
+import QuerySingleton, { Database, Table, ColumnDefinition, Value, TableDefinition } from "./index.js";
 import type { PoolConnection } from "mariadb";
-import { Database, Table, ColumnDefinition, Value, TableDefinition } from "../../@types/singletons/query/index.js";
 import { MixedWhereHavingArgument, WhereHavingOptions } from "./recordset.js";
 
 type Priority = "normal" | "low";
 type ConstructorOptions = {
 	transaction?: PoolConnection;
 };
+
+type WrappedValue = { value: Value; useField: boolean };
 type Column = ColumnDefinition["name"];
 type SetValue = {
 	column: Column;
-	value: Value;
+	value: Value | WrappedValue;
 };
 type UpdateValue = {
 	database: Database | null;
@@ -19,12 +20,17 @@ type UpdateValue = {
 };
 type ResultObject = Record<string, Value>;
 
+const isWrappedValue = (value: Value | WrappedValue): value is WrappedValue => {
+	const wrap = value as WrappedValue;
+	return (wrap && typeof wrap === "object" && typeof wrap.useField === "boolean");
+};
+
 /**
  * Represents the UPDATE sql statement.
  */
 export default class RecordUpdater {
 	#query: QuerySingleton;
-	#transaction: PoolConnection | null;
+	#transaction?: PoolConnection;
 	#update: UpdateValue = { database: null, table: null };
 	#set: SetValue[] = [];
 	#where: string[] = [];
@@ -34,7 +40,7 @@ export default class RecordUpdater {
 
 	constructor (query: QuerySingleton, options: ConstructorOptions = {}) {
 		this.#query = query;
-		this.#transaction = options.transaction ?? null;
+		this.#transaction = options.transaction;
 	}
 
 	priority (value: Priority): this {
@@ -120,8 +126,10 @@ export default class RecordUpdater {
 				});
 			}
 
-			if (value?.useField) {
-				set.push(`${column} = ${value.value}`);
+			if (isWrappedValue(value)) {
+				if (value.useField) {
+					set.push(`${column} = ${value.value}`);
+				}
 			}
 			else {
 				set.push(`${column} = ${this.#query.convertToSQL(value, definition.type)}`);
@@ -139,6 +147,6 @@ export default class RecordUpdater {
 	async fetch (): Promise<ResultObject> {
 		const sql = await this.toSQL();
 		const sqlString = sql.join("\n");
-		return await this.#query.transactionQuery(sqlString, this.#transaction);
+		return await this.#query.transactionQuery(sqlString, this.#transaction) as ResultObject;
 	}
 }

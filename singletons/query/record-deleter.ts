@@ -1,7 +1,6 @@
 import SupiError from "../../objects/error.js";
-import QuerySingleton from "./index.js";
+import QuerySingleton, { Database, Table, Value } from "./index.js";
 import type { PoolConnection } from "mariadb";
-import { Database, Table, Value } from "../../@types/singletons/query/index.js";
 import { MixedWhereHavingArgument, WhereHavingOptions } from "./recordset.js";
 
 type ConstructorOptions = {
@@ -18,14 +17,14 @@ type ResultObject = Record<string, Value>;
  */
 export default class RecordDeleter {
 	#query: QuerySingleton;
-	#transaction: PoolConnection | null;
+	#transaction?: PoolConnection;
 	#deleteFrom: FromValue = { database: null, table: null };
 	#where: string[] = [];
 	#confirmedFullDelete = false;
 
 	constructor (query: QuerySingleton, options: ConstructorOptions = {}) {
 		this.#query = query;
-		this.#transaction = options.transaction ?? null;
+		this.#transaction = options.transaction;
 	}
 
 	/**
@@ -109,6 +108,6 @@ export default class RecordDeleter {
 	async fetch (): Promise<ResultObject> {
 		const sql = await this.toSQL();
 		const sqlString = sql.join("\n");
-		return await this.#query.transactionQuery(sqlString, this.#transaction);
+		return await this.#query.transactionQuery(sqlString, this.#transaction) as ResultObject;
 	}
 }
