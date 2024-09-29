@@ -1,14 +1,11 @@
 import SupiError from "../../objects/error.js";
-import SupiDate from "../../objects/date.js";
 import type QuerySingleton from "./index.js";
-import { ColumnDefinition, TableDefinition } from "../../@types/singletons/query/index.js";
+import { ColumnDefinition, TableDefinition, Value } from "../../@types/singletons/query/index.js";
 import type { PoolConnection } from "mariadb";
 
 const UNSET_VALUE: unique symbol = Symbol.for("UNSET");
 
-type Value = string | number | bigint | SupiDate | null | typeof UNSET_VALUE;
 type Values = Record<string, Value>;
-
 type PrimaryKeyObject = Record<string, Value>;
 type ConstructorOptions = {
 	transaction?: PoolConnection;

@@ -3,10 +3,10 @@ import SupiError from "../../objects/error.js";
 
 import { createPool as createMariaDbPool } from "mariadb";
 import Batch from "./batch.js";
-import Recordset from "./recordset.js";
+import Recordset from "./recordset";
 import RecordDeleter from "./record-deleter.js";
 import RecordUpdater from "./record-updater.js";
-import Row from "./row.js";
+import Row from "./row";
 
 const updateBatchLimit = 1000;
 const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;

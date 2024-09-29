@@ -1,47 +1,121 @@
 import SupiError from "../../objects/error.js";
+import type { PoolConnection } from "mariadb";
+import type QuerySingleton from "./index.js";
+import type {
+	Database,
+	Table,
+	Field,
+	MariaRowMeta,
+	ExtendedColumnType,
+	Value
+} from "../../@types/singletons/query/index.js";
 
-const ROW_COLLAPSED = Symbol("row-collapsed");
+const ROW_COLLAPSED = "#row_collapsed";
+
+type ConstructorOptions = {
+	transaction?: PoolConnection;
+};
+type FromObject = {
+	database: Database | null;
+	table: Table | null;
+};
+type WhereHavingArgument = string;
+type WhereHavingOptions = {
+	raw?: string;
+	condition?: string;
+};
+type MixedWhereHavingArgument = WhereHavingOptions | WhereHavingArgument;
+
+type UseOptions = {
+	bigint?: boolean;
+};
+
+type JoinInput = string | {
+	toDatabase?: Database;
+	toTable: Table;
+	toField?: Field;
+	fromTable?: Table;
+	fromField?: Field;
+	alias?: string;
+	condition?: string;
+	on?: string;
+};
+type JoinTarget = string | {
+	raw: string;
+};
+
+type ReferenceOptions = {
+	sourceDatabase?: Database;
+	sourceTable?: Table;
+	sourceField?: Field;
+
+	targetDatabase?: Database;
+	targetTable: Table;
+	targetField?: Field;
+	targetAlias?: string;
+
+	referenceDatabase?: Database;
+	referenceTable: Table;
+	referenceFieldSource?: Table;
+	referenceFieldTarget?: Table;
+
+	condition: string;
+	referenceCondition: string;
+	targetCondition: string;
+
+	fields: Field[];
+	collapseOn: Field;
+	left: boolean;
+};
+type ReferenceDescriptor = {
+	collapseOn: string;
+	columns: string[];
+	target: string;
+};
+type ResultObject = Record<string, Value>;
 
 export default class Recordset {
 	#query;
 	#transaction;
 	#fetchSingle = false;
 	#raw = null;
-	#options = {};
-	#flat = null;
+	#options: UseOptions = {};
+	#flat: string | null = null;
 
-	#select = [];
-	#from = { database: null, table: null };
-	#where = [];
-	#having = [];
-	#orderBy = [];
-	#groupBy = [];
-	#join = [];
-	#limit = null;
-	#offset = null;
-	#reference = [];
+	#select: string[] = [];
+	#from: FromObject = { database: null, table: null };
+	#where: string[] = [];
+	#having: string[] = [];
+	#orderBy: string[] = [];
+	#groupBy: string[] = [];
+	#join: string[] = [];
 
-	constructor (query, options = {}) {
+	#limit: number | null = null;
+	#offset: number | null = null;
+	#reference: ReferenceDescriptor[] = [];
+
+	constructor (query: QuerySingleton, options: ConstructorOptions = {}) {
 		this.#query = query;
 		this.#transaction = options.transaction ?? null;
 	}
 
-	single () {
+	single (): this {
 		this.#fetchSingle = true;
 		return this;
 	}
 
-	flat (field) {
-		this.#flat = field;
+	flat (expression: string): this {
+		this.#flat = expression;
 		return this;
 	}
 
-	use (option, value) {
+	use (option: "bigint", value: boolean): this;
+	use (option: keyof UseOptions, value: boolean): this {
 		this.#options[option] = value;
 		return this;
 	}
 
-	limit (number) {
+	limit (number: number): this {
 		this.#limit = Number(number);
 
 		if (!Number.isFinite(this.#limit)) {
@@ -54,7 +128,7 @@ export default class Recordset {
 		return this;
 	}
 
-	offset (number) {
+	offset (number: number): this {
 		this.#offset = Number(number);
 
 		if (!Number.isFinite(this.#offset)) {
@@ -67,12 +141,12 @@ export default class Recordset {
 		return this;
 	}
 
-	select (...args) {
-		this.#select = this.#select.concat(args);
+	select (...args: string[]): this {
+		this.#select.push(...args);
 		return this;
 	}
 
-	from (database, table) {
+	from (database: string, table: string): this {
 		if (!database || !table) {
 			throw new SupiError({
 				message: "Recordset: database and table must be provided",
@@ -88,27 +162,27 @@ export default class Recordset {
 		return this;
 	}
 
-	groupBy (...args) {
-		this.#groupBy = this.#groupBy.concat(args);
+	groupBy (...args: string[]): this {
+		this.#groupBy.push(...args);
 		return this;
 	}
 
-	orderBy (...args) {
-		this.#orderBy = this.#orderBy.concat(args);
+	orderBy (...args: string[]): this {
+		this.#orderBy.push(...args);
 		return this;
 	}
 
-	where (...args) {
+	where (...args: MixedWhereHavingArgument[]): this {
 		return this.#conditionWrapper("where", ...args);
 	}
 
-	having (...args) {
+	having (...args: MixedWhereHavingArgument[]): this {
 		return this.#conditionWrapper("having", ...args);
 	}
 
-	#conditionWrapper (type, ...args) {
-		let options = {};
-		if (args[0] && args[0].constructor === Object) {
+	#conditionWrapper (type: "where" | "having", ...args: MixedWhereHavingArgument[]): this {
+		let options: WhereHavingOptions = {};
+		if (args[0] && typeof args[0] === "object") {
 			options = args[0];
 			args.shift();
 		}
@@ -122,14 +196,17 @@ export default class Recordset {
 			return this;
 		}
 
+		// At this point, the remaining arguments are guaranteed to be WhereHavingArgument only,
+		// since the options type has been extracted out.
+		const restArgs = args as WhereHavingArgument[];
 		let format = "";
-		if (typeof args[0] === "string") {
-			format = args.shift();
+		if (typeof restArgs[0] === "string") {
+			format = restArgs.shift() as string;
 		}
 
 		let index = 0;
 		format = format.replace(this.#query.formatSymbolRegex, (fullMatch, param) => (
-			this.#query.parseFormatSymbol(param, args[index++])
+			this.#query.parseFormatSymbol(param, restArgs[index++])
 		));
 
 		if (type === "where") {
@@ -148,12 +225,12 @@ export default class Recordset {
 		return this;
 	}
 
-	join (database, target, customField, left = "") {
+	join (input: JoinInput, target?: JoinTarget, customField?: string, left: string = "") {
 		if (typeof target === "string") {
-			const dot = (database) ? (`${database}.\`${target}\``) : (`\`${target}\``);
+			const dot = (input) ? (`${input}.\`${target}\``) : (`\`${target}\``);
 			this.#join.push(`${left}JOIN ${dot} ON \`${this.#from.table}\`.\`${customField || target}\` = ${dot}.ID`);
 		}
-		else if (database && database.constructor === Object) {
+		else if (input && typeof input === "object") {
 			const {
 				toDatabase = this.#from.database,
 				toTable,
@@ -165,7 +242,7 @@ export default class Recordset {
 				alias,
 				condition,
 				on
-			} = database;
+			} = input;
 
 			if (!toTable || !toDatabase) {
 				throw new SupiError({
@@ -191,18 +268,24 @@ export default class Recordset {
 
 			this.#join.push(result);
 		}
-		else if (target && target.constructor === Object && typeof target.raw === "string") {
+		else if (target && typeof target === "object") {
 			this.#join.push(`${left}JOIN ${target.raw}`);
 		}
 
 		return this;
 	}
 
-	leftJoin (database, target, customField) {
-		return this.join(database, target, customField, "LEFT ");
+	leftJoin (input: JoinInput, target?: string, customField?: string): this {
+		return this.join(input, target, customField, "LEFT ");
 	}
 
-	reference (options = {}) {
+	reference (options: ReferenceOptions): this {
+		if (!this.#from.database || !this.#from.table) {
+			throw new SupiError({
+				message: "Cannot call `reference()` before calling `from()`"
+			});
+		}
+
 		const {
 			sourceDatabase = this.#from.database,
 			sourceTable = this.#from.table,
@@ -211,14 +294,14 @@ export default class Recordset {
 			targetDatabase = this.#from.database,
 			targetTable,
 			targetField = "ID",
-			targetAlias = null,
+			targetAlias,
 
 			referenceDatabase = this.#from.database,
 			referenceTable,
 			referenceFieldSource = sourceTable,
 			referenceFieldTarget = targetTable,
 
-			condition,
+			// condition,
 			referenceCondition,
 			targetCondition,
 
@@ -227,10 +310,8 @@ export default class Recordset {
 			left = true
 		} = options;
 
-		const joinType = (left) ? "leftJoin" : "join";
-
 		if (referenceTable && targetTable) {
-			this[joinType]({
+			const firstOptions = {
 				fromDatabase: sourceDatabase,
 				fromTable: sourceTable,
 				fromField: sourceField,
@@ -238,9 +319,8 @@ export default class Recordset {
 				toTable: referenceTable,
 				toField: referenceFieldSource,
 				condition: referenceCondition
-			});
-
-			this[joinType]({
+			};
+			const secondOptions = {
 				fromDatabase: referenceDatabase,
 				fromTable: referenceTable,
 				fromField: referenceFieldTarget,
@@ -249,25 +329,40 @@ export default class Recordset {
 				toField: targetField,
 				alias: targetAlias,
 				condition: targetCondition
-			});
+			};
+
+			if (left) {
+				this.leftJoin(firstOptions);
+				this.leftJoin(secondOptions);
+			}
+			else {
+				this.join(firstOptions);
+				this.join(secondOptions);
+			}
 
 			this.#reference.push({
-				collapseOn: collapseOn ?? null,
+				collapseOn,
 				columns: fields,
 				target: targetAlias ?? targetTable
 			});
 		}
 		else if (targetTable && !referenceTable) {
-			this[joinType]({
+			const options = {
 				fromDatabase: sourceDatabase,
 				fromTable: sourceTable,
 				fromField: sourceField,
-				toDatabase: targetDatabase,
-				toTable: targetTable,
-				toField: targetField,
-				alias: targetAlias,
-				condition
-			});
+				toDatabase: referenceDatabase,
+				toTable: referenceTable,
+				toField: referenceFieldSource,
+				condition: referenceCondition
+			};
+
+			if (left) {
+				this.leftJoin(options);
+			}
+			else {
+				this.join(options);
+			}
 
 			this.#reference.push({
 				collapseOn: collapseOn ?? null,
@@ -284,7 +379,7 @@ export default class Recordset {
 		return this;
 	}
 
-	toCondition () {
+	toCondition (): string {
 		if (this.#where.length !== 0) {
 			return `(${this.#where.join(") AND (")})`;
 		}
@@ -335,7 +430,7 @@ export default class Recordset {
 		return sql;
 	}
 
-	async fetch () {
+	async fetch (): Promise<ResultObject | ResultObject[]> {
 		const sql = this.toSQL();
 		const sqlString = sql.join("\n");
 		let rows = null;
@@ -348,12 +443,13 @@ export default class Recordset {
 			throw e;
 		}
 
-		const definition = {};
-		for (const column of rows.meta) {
+		const definition: Record<string, ExtendedColumnType> = {};
+		const meta = rows.meta as MariaRowMeta[];
+		for (const column of meta) {
 			definition[column.name()] = column.type;
 		}
 
-		let result = [];
+		let result: ResultObject[] = [];
 		for (const row of rows) {
 			if (this.#flat && typeof row[this.#flat] === "undefined") {
 				throw new SupiError({
@@ -398,7 +494,7 @@ export default class Recordset {
 			: result;
 	}
 
-	static collapseReferencedData (data, options) {
+	static collapseReferencedData (data: ResultObject[], options: ReferenceDescriptor) {
 		const keyMap = new Map();
 		const { collapseOn: collapser, target, columns } = options;
 		const regex = new RegExp(`^${target}_`);
@@ -412,7 +508,7 @@ export default class Recordset {
 				data[i][ROW_COLLAPSED] = true;
 			}
 
-			const copiedProperties = {};
+			const copiedProperties: Record<string, Value> = {};
 			for (const column of columns) {
 				copiedProperties[column.replace(regex, "")] = row[column];
 				delete row[column];

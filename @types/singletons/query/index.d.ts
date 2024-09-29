@@ -33,9 +33,26 @@ declare type Lifetimes = {
     transactions: WeakSet<PoolConnection>;
 }
 
+export type Value = string | number | bigint | SupiDate | null | typeof UNSET_VALUE;
+export type ExtendedColumnType = ColumnType | "LONG";
+export declare type MariaRowMeta = {
+    collation: {
+        index: number;
+        name: string;
+        charset: string;
+        maxLength: number;
+    };
+    columnLength: number;
+    columnType: number;
+    flags: number;
+    scale: number;
+    type: ExtendedColumnType;
+    name: () => string;
+};
+
 export declare type ColumnDefinition = {
     name: string;
-    type: ColumnType,
+    type: ExtendedColumnType,
     notNull: boolean;
     primaryKey: boolean;
     unsigned: boolean;
@@ -189,7 +206,7 @@ export declare class Query {
      * SQL JSON -> JS Object
      * SQL *INT/*TEXT/*CHAR -> JS number/string
      */
-    convertToJS (value: string, type: ColumnType): FormatValue;
+    convertToJS (value: string, type: ExtendedColumnType): FormatValue;
 
     /**
      * Converts a Javascript value to its SQL counterpart
@@ -199,7 +216,7 @@ export declare class Query {
      * JS string -> escaped SQL VARCHAR/*TEXT
      * JS number -> SQL *INT
      */
-    convertToSQL (value: FormatValue, targetType: ColumnType): string;
+    convertToSQL (value: FormatValue, targetType: ExtendedColumnType): string;
     escapeIdentifier (string: string): string;
     escapeString (string: string): string;
 
