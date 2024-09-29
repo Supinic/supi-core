@@ -1,27 +1,46 @@
 import SupiError from "../../objects/error.js";
+import QuerySingleton from "./index.js";
+import type { PoolConnection } from "mariadb";
+import {
+	Database,
+	Table,
+	ColumnDefinition,
+	TableDefinition,
+	type Field, type FormatValue
+} from "../../@types/singletons/query/index.js";
+
+type ConstructorOptions = {
+	transaction?: PoolConnection;
+	database: Database;
+	table: Table;
+	threshold?: number;
+};
+
+type BatchRecord = Record<Field, FormatValue>;
+type FindCallback = (value: BatchRecord, index: number, obj: BatchRecord[]) => boolean;
+
+type InsertOptions = {
+	duplicate?: (data: string[][], stringColumns: Field[]) => string;
+	ignore?: boolean;
+};
 
 /**
  * Represents the SQL INSERT statement for multiple rows.
  * One instance is always locked to one table and some of its columns based on constructor.
  */
 export default class Batch {
-	/** @type {QuerySingleton} */
-	#query;
-	#transaction;
+	#query: QuerySingleton;
+	#transaction: PoolConnection | null;
 
-	/** @type {string} */
-	database;
-	/** @type {string} */
-	table;
-	/** @type {Object[]} */
-	records = [];
-	/** @type {ColumnDefinition[]} */
-	columns = [];
+	readonly database: Database;
+	readonly table: Table;
+	records: BatchRecord[] = [];
+	columns: ColumnDefinition[] = [];
 
 	threshold = 1;
 	ready = false;
 
-	constructor (query, options) {
+	constructor (query: QuerySingleton, options: ConstructorOptions) {
 		this.#query = query;
 		this.#transaction = options.transaction ?? null;
 		this.database = options.database;
@@ -32,8 +51,9 @@ export default class Batch {
 		}
 	}
 
-	async initialize (columns) {
-		const definition = await this.#query.getDefinition(this.database, this.table);
+	async initialize (columns: Field[]): Promise<this> {
+		// Temporary `as TableDefinition` while Query is not yet rewritten to TS
+		const definition = await this.#query.getDefinition(this.database, this.table) as TableDefinition;
 		for (const column of columns) {
 			if (definition.columns.every(col => column !== col.name)) {
 				throw new SupiError({
@@ -54,7 +74,7 @@ export default class Batch {
 		return this;
 	}
 
-	add (data) {
+	add (data: BatchRecord): number {
 		for (const key of Object.keys(data)) {
 			const column = this.columns.find(i => i.name === key);
 			if (!column) {
@@ -70,28 +90,30 @@ export default class Batch {
 		return (this.records.push(data) - 1);
 	}
 
-	delete (index) {
+	delete (index: number): void {
 		this.records.splice(index, 1);
 	}
 
-	find (callback) {
+	find (callback: FindCallback): BatchRecord | undefined {
 		return this.records.find(callback);
 	}
 
-	async insert (options = {}) {
+	async insert (options: InsertOptions): Promise<void> {
 		if (this.records.length < this.threshold) {
 			return;
 		}
 
 		const stringColumns = [];
-		let data = this.records.map(() => []);
+		let data: string[][] = this.records.map(() => []);
 		for (const column of this.columns) {
 			const name = column.name;
 			const type = column.type;
 			stringColumns.push(this.#query.escapeIdentifier(name));
 
 			for (let i = 0; i < this.records.length; i++) {
-				data[i].push(this.#query.convertToSQL(this.records[i][name], type));
+				// `as string` - temporary measure while Query isn't rewritten to TS
+				const sql = this.#query.convertToSQL(this.records[i][name], type) as string;
+				data[i].push(sql);
 			}
 		}
 
@@ -126,14 +148,5 @@ export default class Batch {
 
 	clear () {
 		this.records = [];
-	}
-
-	destroy () {
-		this.clear();
-		this.columns = null;
-		this.records = null;
-		this.#query = null;
-		this.table = null;
-		this.database = null;
 	}
 }
