@@ -4,7 +4,7 @@ import SupiError from "../../objects/error.js";
 import { createPool as createMariaDbPool } from "mariadb";
 import Batch from "./batch.js";
 import Recordset from "./recordset";
-import RecordDeleter from "./record-deleter.js";
+import RecordDeleter from "./record-deleter";
 import RecordUpdater from "./record-updater";
 import Row from "./row";
 

@@ -136,7 +136,7 @@ export default class RecordUpdater {
 		return sql;
 	}
 
-	async fetch (): Promise<ResultObject[]> {
+	async fetch (): Promise<ResultObject> {
 		const sql = await this.toSQL();
 		const sqlString = sql.join("\n");
 		return await this.#query.transactionQuery(sqlString, this.#transaction);

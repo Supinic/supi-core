@@ -1,34 +1,51 @@
 import SupiError from "../../objects/error.js";
+import QuerySingleton from "./index.js";
+import type { PoolConnection } from "mariadb";
+import { Database, Table, Value } from "../../@types/singletons/query/index.js";
+import { MixedWhereHavingArgument, WhereHavingOptions } from "./recordset.js";
+
+type ConstructorOptions = {
+	transaction?: PoolConnection;
+};
+type FromValue = {
+	database: Database | null;
+	table: Table | null;
+};
+type ResultObject = Record<string, Value>;
 
 /**
  * Represents the UPDATE sql statement.
  */
 export default class RecordDeleter {
-	#query;
-	#transaction;
-	#deleteFrom = { database: null, table: null };
-	#where = [];
+	#query: QuerySingleton;
+	#transaction: PoolConnection | null;
+	#deleteFrom: FromValue = { database: null, table: null };
+	#where: string[] = [];
 	#confirmedFullDelete = false;
 
-	constructor (query, options = {}) {
-		/** @type {Query} */
+	constructor (query: QuerySingleton, options: ConstructorOptions = {}) {
 		this.#query = query;
 		this.#transaction = options.transaction ?? null;
 	}
 
-	delete () {
+	/**
+	 * Syntactic sugar, so that the resulting chain call looks nice.
+	 * `recordDeleter.delete().from().where()`
+	 * The method doesn't actually do anything.
+	 */
+	delete (): this {
 		return this;
 	}
 
-	from (database, table) {
+	from (database: Database, table: Table): this {
 		this.#deleteFrom.database = database;
 		this.#deleteFrom.table = table;
 		return this;
 	}
 
-	where (...args) {
-		let options = {};
-		if (args[0] && args[0].constructor === Object) {
+	where (...args: MixedWhereHavingArgument[]): this {
+		let options: WhereHavingOptions = {};
+		if (args[0] && typeof args[0] === "object") {
 			options = args[0];
 			args.shift();
 		}
@@ -39,7 +56,7 @@ export default class RecordDeleter {
 
 		let format = "";
 		if (typeof args[0] === "string") {
-			format = args.shift();
+			format = args.shift() as string;
 		}
 
 		let index = 0;
@@ -47,11 +64,15 @@ export default class RecordDeleter {
 			this.#query.parseFormatSymbol(param, args[index++])
 		));
 
-		this.#where = this.#where.concat(format);
+		this.#where.push(format);
 
 		return this;
 	}
 
+	/**
+	 * Must be called if a RecordDeleter is meant to be used without calling the `where()` method.
+	 * This prevents data deletion in case the `where` method call is omitted by accident.
+	 */
 	confirm () {
 		this.#confirmedFullDelete = true;
 		return this;
@@ -59,10 +80,8 @@ export default class RecordDeleter {
 
 	/**
 	 * Translates the RecordDeleter to its SQL representation.
-	 * @returns {Promise<string[]>}
-	 * @throws {SupiError} If no FROM database/table have been provided.
 	 */
-	async toSQL () {
+	async toSQL (): Promise<string[]> {
 		if (!this.#deleteFrom.database || !this.#deleteFrom.table) {
 			throw new SupiError({
 				message: "No UPDATE database/table in RecordUpdater - invalid definition"
@@ -87,11 +106,7 @@ export default class RecordDeleter {
 		return sql;
 	}
 
-	/**
-	 * Runs the UPDATE SQL query and returns the status object.
-	 * @returns {Object}
-	 */
-	async fetch () {
+	async fetch (): Promise<ResultObject> {
 		const sql = await this.toSQL();
 		const sqlString = sql.join("\n");
 		return await this.#query.transactionQuery(sqlString, this.#transaction);
