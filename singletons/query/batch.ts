@@ -5,7 +5,7 @@ import QuerySingleton, {
 	ColumnDefinition,
 	TableDefinition,
 	Field,
-	DatabaseValue
+	MariaDbValue
 } from "./index.js";
 import type { PoolConnection } from "mariadb";
 
@@ -16,7 +16,7 @@ type ConstructorOptions = {
 	threshold?: number;
 };
 
-type BatchRecord = Record<Field, DatabaseValue>;
+type BatchRecord = Record<Field, MariaDbValue>;
 type FindCallback = (value: BatchRecord, index: number, obj: BatchRecord[]) => boolean;
 
 type InsertOptions = {

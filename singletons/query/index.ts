@@ -20,6 +20,10 @@ const defaultPoolOptions = {
 };
 
 const isValidPositiveInteger = (input: number, min = 0) => Number.isInteger(input) && (input >= min);
+const isStringArray = (input: Array<string|number>): input is string[] => input.every(i => typeof i === "string");
+const isProperNumberArray = (input: Array<string|number>): input is number[] => (
+	input.every(i => typeof i === "number" && !Number.isNaN(i))
+);
 
 export type Value = string | number | bigint | SupiDate | null;
 
@@ -79,10 +83,12 @@ export type Database = TableDefinition["database"];
 export type Field = ColumnDefinition["name"];
 export type Table = TableDefinition["name"];
 
-export type DatabaseValue = number | string | Date | bigint | null;
-export type PrimaryKeyValue = number | string | SupiDate | bigint | null;
+export type JavascriptValue = number | string | bigint | boolean | SupiDate | null;
+export type MariaDbValue = number | string | Date | bigint | null;
+
+export type PrimaryKeyValue = JavascriptValue;
 export type FormatSymbol = "b" | "d" | "dt" | "n" | "s" | "t" | "s+" | "n+" | "like" | "like*" | "*like" | "*like*";
-export type FormatValue = number | string | boolean | SupiDate | SimpleGenericData | bigint | string[] | null;
+export type FormatValue = number | string | boolean | SupiDate | bigint | string[] | number[] | null;
 export type WhereHavingObject = {
 	condition?: boolean;
 	raw?: string;
@@ -398,7 +404,7 @@ export default class QuerySingleton {
 	 * SQL JSON -> JS Object
 	 * SQL *INT/*TEXT/*CHAR -> JS number/string
 	 */
-	convertToJS (value: DatabaseValue, type: ExtendedColumnType) {
+	convertToJS (value: MariaDbValue, type: ExtendedColumnType): JavascriptValue {
 		if (value === null) {
 			return value;
 		}
@@ -436,7 +442,10 @@ export default class QuerySingleton {
 			case "SHORT":
 			case "NEWDECIMAL": return Number(value);
 
-			default: return value;
+			case "STRING":
+			case "VAR_STRING":
+			case "BLOB":
+			default: return String(value);
 		}
 	}
 
@@ -448,7 +457,7 @@ export default class QuerySingleton {
 	 * JS string -> escaped SQL VARCHAR/*TEXT
 	 * JS number -> SQL *INT
 	 */
-	convertToSQL (value: DatabaseValue, targetType: ExtendedColumnType): string {
+	convertToSQL (value: JavascriptValue, targetType: ExtendedColumnType): string {
 		if (value === null) {
 			return "NULL";
 		}
@@ -577,7 +586,7 @@ export default class QuerySingleton {
 				if (!Array.isArray(param)) {
 					throw new SupiError({ message: `Expected Array, got ${param}` });
 				}
-				else if (param.some(i => typeof i !== "string")) {
+				else if (!isStringArray(param)) {
 					throw new SupiError({ message: "Array must contain strings only" });
 				}
 
@@ -587,7 +596,7 @@ export default class QuerySingleton {
 				if (!Array.isArray(param)) {
 					throw new SupiError({ message: `Expected Array, got ${param}` });
 				}
-				else if (param.some(i => typeof i !== "number" || Number.isNaN(i))) {
+				else if (!isProperNumberArray(param)) {
 					throw new SupiError({ message: "Array must contain proper numbers only" });
 				}
 
