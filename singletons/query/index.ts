@@ -117,7 +117,6 @@ type ConstructorOptions = {
 };
 
 export default class QuerySingleton {
-	#loggingThreshold: number | null = null;
 	#definitionPromises: Map<Database, ReturnType<QuerySingleton["getDefinition"]>> = new Map();
 	tableDefinitions: Record<Database, Record<Table, TableDefinition>> = Object.create(null);
 
@@ -622,21 +621,6 @@ export default class QuerySingleton {
 				args: type
 			});
 		}
-	}
-
-	setLogThreshold (value: number): void {
-		if (typeof value !== "number") {
-			throw new SupiError({
-				message: "Logging threshold must be a number",
-				args: { value }
-			});
-		}
-
-		this.#loggingThreshold = value;
-	}
-
-	disableLogThreshold () {
-		this.#loggingThreshold = null;
 	}
 
 	static get sqlKeywords () {
