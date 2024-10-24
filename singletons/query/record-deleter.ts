@@ -55,7 +55,8 @@ export default class RecordDeleter {
 
 		let format = "";
 		if (typeof args[0] === "string") {
-			format = args.shift() as string;
+			format = args[0];
+			args.shift();
 		}
 
 		let index = 0;

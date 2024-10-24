@@ -6,7 +6,8 @@ import QuerySingleton, {
 	Field,
 	MariaRowMeta,
 	ExtendedColumnType,
-	Value
+	Value,
+	JavascriptValue
 } from "./index.js";
 
 const ROW_COLLAPSED = "#row_collapsed";
@@ -72,7 +73,8 @@ type ReferenceDescriptor = {
 	target: string;
 };
 
-export type ResultObject = Record<string, Value>;
+export type ResultObject = Record<string, JavascriptValue>;
+
 type QueryResultObject = Record<string, Value>;
 type MetaResultObject = QueryResultObject[] & {
 	meta: MariaRowMeta[]
@@ -434,7 +436,7 @@ export default class Recordset {
 		return sql;
 	}
 
-	async fetch (): Promise<Value | ResultObject | ResultObject[]> {
+	async fetch (): Promise<JavascriptValue | JavascriptValue[] | ResultObject | ResultObject[]> {
 		const sql = this.toSQL();
 		const sqlString = sql.join("\n");
 		let rows = null;
@@ -452,7 +454,12 @@ export default class Recordset {
 			definition[column.name()] = column.type;
 		}
 
-		let result = [];
+		/**
+		 * @todo this type isn't technically true, should be `JavascriptValue[] | ResultObject[]` instead
+		 * But the current API doesn't really allow this at this moment.
+		 */
+		// let result: Array<JavascriptValue | ResultObject> = [];
+		let result: Array<JavascriptValue> | Array<ResultObject> = [];
 		for (const row of rows) {
 			if (this.#flat && typeof row[this.#flat] === "undefined") {
 				throw new SupiError({
@@ -464,20 +471,22 @@ export default class Recordset {
 				});
 			}
 
+			const outRow: ResultObject = {};
 			for (const [name, value] of Object.entries(row)) {
 				let type = definition[name];
 				if (definition[name] === "LONGLONG" && !this.#options.bigint) {
 					type = "LONG";
 				}
 
-				row[name] = this.#query.convertToJS(value, type);
+				outRow[name] = this.#query.convertToJS(value, type);
 			}
 
 			if (this.#flat) {
-				result.push(row[this.#flat]);
+				const xd = outRow[this.#flat];
+				result.push(xd);
 			}
 			else {
-				result.push(row);
+				result.push(outRow);
 			}
 		}
 
@@ -491,8 +500,8 @@ export default class Recordset {
 			result = (<ResultObject[]>result).filter(i => !i[ROW_COLLAPSED]);
 		}
 
-		// result.sql = sql;
-		// @ts-expect-error @todo
+		return result;
+
 		return (this.#fetchSingle)
 			? result[0]
 			: result;
