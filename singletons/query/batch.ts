@@ -98,7 +98,7 @@ export default class Batch {
 		return this.records.find(callback);
 	}
 
-	async insert (options: InsertOptions): Promise<void> {
+	async insert (options: InsertOptions = {}): Promise<void> {
 		if (this.records.length < this.threshold) {
 			return;
 		}
