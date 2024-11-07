@@ -89,10 +89,6 @@ export type SqlValue = number | string | Date | bigint | null;
 export type PrimaryKeyValue = JavascriptValue;
 export type FormatSymbol = "b" | "d" | "dt" | "n" | "s" | "t" | "s+" | "n+" | "like" | "like*" | "*like" | "*like*";
 export type FormatValue = number | string | boolean | SupiDate | bigint | string[] | number[] | null;
-export type WhereHavingObject = {
-	condition?: boolean;
-	raw?: string;
-};
 export type GenericQueryBuilderOptions = {
 	transaction?: PoolConnection
 };
