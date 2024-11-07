@@ -77,7 +77,6 @@ export default class RecordDeleter {
 		));
 
 		this.#where.push(format);
-
 		return this;
 	}
 

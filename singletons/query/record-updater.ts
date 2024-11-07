@@ -1,7 +1,14 @@
 import SupiError from "../../objects/error.js";
-import QuerySingleton, { Database, Table, ColumnDefinition, Value, TableDefinition } from "./index.js";
+import QuerySingleton, {
+	Database,
+	Table,
+	ColumnDefinition,
+	Value,
+	TableDefinition,
+	JavascriptValue,
+	formatSymbolRegex
+} from "./index.js";
 import type { PoolConnection } from "mariadb";
-import { MixedWhereHavingArgument, WhereHavingOptions } from "./recordset.js";
 
 type Priority = "normal" | "low";
 type ConstructorOptions = {
@@ -19,6 +26,8 @@ type UpdateValue = {
 	table: Table | null;
 };
 type ResultObject = Record<string, Value>;
+
+type ConditionObject = { condition: boolean; };
 
 const isWrappedValue = (value: Value | WrappedValue): value is WrappedValue => {
 	const wrap = value as WrappedValue;
@@ -71,24 +80,36 @@ export default class RecordUpdater {
 		return this;
 	}
 
-	where (...args: MixedWhereHavingArgument[]): this {
-		let options: WhereHavingOptions = {};
-		if (args[0] && typeof args[0] === "object") {
-			options = args[0];
-			args.shift();
+	where (format: string, ...args: JavascriptValue[]): this;
+	where (options: ConditionObject, format: string, ...args: JavascriptValue[]): this;
+	where (first: string | ConditionObject, ...second: JavascriptValue[]): this {
+		let args: JavascriptValue[];
+		let options: Partial<ConditionObject>;
+		let format: string;
+
+		if (first && typeof first === "object") {
+			if (typeof second[0] !== "string") {
+				throw new SupiError({
+					message: "Invalid combination of arguments, must be `string`"
+				});
+			}
+
+			options = first;
+			format = second[0];
+			args = second.slice(1);
+		}
+		else {
+			options = {};
+			format = first;
+			args = second;
 		}
 
 		if (typeof options.condition !== "undefined" && !options.condition) {
 			return this;
 		}
 
-		let format = "";
-		if (typeof args[0] === "string") {
-			format = args.shift() as string;
-		}
-
 		let index = 0;
-		format = format.replace(this.#query.formatSymbolRegex, (fullMatch, param) => (
+		format = format.replace(formatSymbolRegex, (fullMatch, param) => (
 			this.#query.parseFormatSymbol(param, args[index++])
 		));
 
