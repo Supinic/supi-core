@@ -1,6 +1,6 @@
 import SupiError from "../../objects/error.js";
 import QuerySingleton, {
-	ColumnDefinition,
+	ColumnDefinition, JavascriptValue,
 	PrimaryKeyValue,
 	TableDefinition,
 	Value as QueryValue
@@ -9,7 +9,7 @@ import { PoolConnection, UpsertResult } from "mariadb";
 
 const UNSET_VALUE: unique symbol = Symbol.for("UNSET");
 
-type Value = QueryValue | typeof UNSET_VALUE;
+type Value = JavascriptValue | typeof UNSET_VALUE;
 type Values = Record<string, Value>;
 type PrimaryKeyObject = Record<string, PrimaryKeyValue>;
 type ConstructorOptions = {
