@@ -5,7 +5,7 @@ import QuerySingleton, {
 	ColumnDefinition,
 	TableDefinition,
 	Field,
-	MariaDbValue
+	JavascriptValue
 } from "./index.js";
 import type { PoolConnection } from "mariadb";
 
@@ -16,7 +16,7 @@ type ConstructorOptions = {
 	threshold?: number;
 };
 
-type BatchRecord = Record<Field, MariaDbValue>;
+type BatchRecord = Record<Field, JavascriptValue>;
 type FindCallback = (value: BatchRecord, index: number, obj: BatchRecord[]) => boolean;
 
 type InsertOptions = {
@@ -111,7 +111,6 @@ export default class Batch {
 			stringColumns.push(this.#query.escapeIdentifier(name));
 
 			for (let i = 0; i < this.records.length; i++) {
-				// `as string` - temporary measure while Query isn't rewritten to TS
 				const sql = this.#query.convertToSQL(this.records[i][name], type);
 				data[i].push(sql);
 			}

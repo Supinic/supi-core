@@ -11,7 +11,7 @@ import { createPool as createMariaDbPool, Pool, PoolConnection, SqlError, Types 
 import type { SimpleGenericData } from "../../@types/globals.js";
 
 const updateBatchLimit = 1000;
-const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
+export const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
 const defaultPoolOptions = {
 	multipleStatements: true,
 	insertIdAsNumber: true,
@@ -84,7 +84,7 @@ export type Field = ColumnDefinition["name"];
 export type Table = TableDefinition["name"];
 
 export type JavascriptValue = number | string | bigint | boolean | SupiDate | null;
-export type MariaDbValue = number | string | Date | bigint | null;
+export type SqlValue = number | string | Date | bigint | null;
 
 export type PrimaryKeyValue = JavascriptValue;
 export type FormatSymbol = "b" | "d" | "dt" | "n" | "s" | "t" | "s+" | "n+" | "like" | "like*" | "*like" | "*like*";
@@ -403,7 +403,7 @@ export default class QuerySingleton {
 	 * SQL JSON -> JS Object
 	 * SQL *INT/*TEXT/*CHAR -> JS number/string
 	 */
-	convertToJS (value: MariaDbValue, type: ExtendedColumnType): JavascriptValue {
+	convertToJS (value: SqlValue, type: ExtendedColumnType): JavascriptValue {
 		if (value === null) {
 			return value;
 		}

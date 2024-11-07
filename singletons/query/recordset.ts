@@ -7,7 +7,7 @@ import QuerySingleton, {
 	MariaRowMeta,
 	ExtendedColumnType,
 	Value,
-	JavascriptValue
+	JavascriptValue, PrimaryKeyValue
 } from "./index.js";
 
 const ROW_COLLAPSED = "#row_collapsed";
@@ -19,7 +19,7 @@ type FromObject = {
 	database: Database | null;
 	table: Table | null;
 };
-type WhereHavingArgument = string;
+export type WhereHavingArgument = string;
 export type WhereHavingOptions = {
 	raw?: string;
 	condition?: string;
@@ -74,6 +74,7 @@ type ReferenceDescriptor = {
 };
 
 export type ResultObject = Record<string, JavascriptValue>;
+export type EnhancedResultObject = Record<string, JavascriptValue | ResultObject[]>;
 
 type QueryResultObject = Record<string, Value>;
 type MetaResultObject = QueryResultObject[] & {
@@ -454,12 +455,8 @@ export default class Recordset {
 			definition[column.name()] = column.type;
 		}
 
-		/**
-		 * @todo this type isn't technically true, should be `JavascriptValue[] | ResultObject[]` instead
-		 * But the current API doesn't really allow this at this moment.
-		 */
-		// let result: Array<JavascriptValue | ResultObject> = [];
-		let result: Array<JavascriptValue> | Array<ResultObject> = [];
+		const valueResult: JavascriptValue[] = [];
+		let objectResult: ResultObject[] = [];
 		for (const row of rows) {
 			if (this.#flat && typeof row[this.#flat] === "undefined") {
 				throw new SupiError({
@@ -482,33 +479,31 @@ export default class Recordset {
 			}
 
 			if (this.#flat) {
-				const xd = outRow[this.#flat];
-				result.push(xd);
+				valueResult.push(outRow[this.#flat]);
 			}
 			else {
-				result.push(outRow);
+				objectResult.push(outRow);
 			}
 		}
 
-		if (this.#reference.length > 0) {
+		if (objectResult.length !== 0 && !this.#flat && this.#reference.length > 0) {
 			for (const reference of this.#reference) {
 				if (reference.collapseOn) {
-					Recordset.collapseReferencedData(result as ResultObject[], reference);
+					Recordset.collapseReferencedData(objectResult, reference);
 				}
 			}
 
-			result = (<ResultObject[]>result).filter(i => !i[ROW_COLLAPSED]);
+			objectResult = objectResult.filter(i => !i[ROW_COLLAPSED]);
 		}
 
-		return result;
-
+		const result = (this.#flat) ? valueResult : objectResult;
 		return (this.#fetchSingle)
 			? result[0]
 			: result;
 	}
 
 	static collapseReferencedData (data: ResultObject[], options: ReferenceDescriptor) {
-		const keyMap = new Map();
+		const keyMap: Map<PrimaryKeyValue, ResultObject[]> = new Map();
 		const { collapseOn: collapser, target, columns } = options;
 		const regex = new RegExp(`^${target}_`);
 
@@ -518,18 +513,18 @@ export default class Recordset {
 				keyMap.set(row[collapser], []);
 			}
 			else {
-				// @ts-expect-error @todo
 				data[i][ROW_COLLAPSED] = true;
 			}
 
-			const copiedProperties: Record<string, Value> = {};
+			const copiedProperties: Record<string, JavascriptValue> = {};
 			for (const column of columns) {
 				copiedProperties[column.replace(regex, "")] = row[column];
 				delete row[column];
 			}
 
 			let addProperties = true;
-			for (const value of keyMap.get(row[collapser])) {
+			const collapseArray = keyMap.get(row[collapser]) as ResultObject[];
+			for (const value of collapseArray) {
 				const skip = Object.keys(value).every(i => value[i] === copiedProperties[i]);
 				if (skip) {
 					addProperties = false;
@@ -538,20 +533,30 @@ export default class Recordset {
 			}
 
 			if (addProperties) {
-				keyMap.get(row[collapser]).push(copiedProperties);
+				collapseArray.push(copiedProperties);
 			}
 		}
 
+		const resultData: EnhancedResultObject[] = [];
 		for (const row of data) {
-			row[target] = keyMap.get(row[collapser]);
+			const resultRow: EnhancedResultObject = { ...row };
+			const collapsedValue = keyMap.get(row[collapser]);
+			if (!collapsedValue) {
+				continue;
+			}
+
+			resultRow[target] = collapsedValue;
 
 			if (Array.isArray(row[target]) && row[target].length === 1) {
 				const allNull = !Object.values(row[target][0]).some(Boolean);
 				if (allNull) {
-					// @ts-expect-error @todo
-					row[target] = [];
+					resultRow[target] = [];
 				}
 			}
+
+			resultData.push(resultRow);
 		}
+
+		return resultData;
 	}
 }
