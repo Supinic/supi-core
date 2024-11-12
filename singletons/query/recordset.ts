@@ -76,6 +76,8 @@ type ReferenceDescriptor = {
 export type ResultObject = Record<string, JavascriptValue>;
 export type EnhancedResultObject = Record<string, JavascriptValue | ResultObject[]>;
 
+const isEnhancedResultObject = (input: JavascriptValue | ResultObject[]): input is ResultObject[] => Array.isArray(input);
+
 type QueryResultObject = Record<string, Value>;
 type MetaResultObject = QueryResultObject[] & {
 	meta: MariaRowMeta[]
@@ -437,7 +439,7 @@ export default class Recordset {
 		return sql;
 	}
 
-	async fetch (): Promise<JavascriptValue | JavascriptValue[] | ResultObject | ResultObject[]> {
+	async fetch (): Promise<JavascriptValue | JavascriptValue[] | EnhancedResultObject | EnhancedResultObject[]> {
 		const sql = this.toSQL();
 		const sqlString = sql.join("\n");
 		let rows = null;
@@ -456,7 +458,7 @@ export default class Recordset {
 		}
 
 		const valueResult: JavascriptValue[] = [];
-		let objectResult: ResultObject[] = [];
+		let objectResult: EnhancedResultObject[] = [];
 		for (const row of rows) {
 			if (this.#flat && typeof row[this.#flat] === "undefined") {
 				throw new SupiError({
@@ -502,28 +504,40 @@ export default class Recordset {
 			: result;
 	}
 
-	static collapseReferencedData (data: ResultObject[], options: ReferenceDescriptor) {
-		const keyMap: Map<PrimaryKeyValue, ResultObject[]> = new Map();
+	static collapseReferencedData (data: EnhancedResultObject[], options: ReferenceDescriptor) {
+		const keyMap: Map<PrimaryKeyValue, EnhancedResultObject[]> = new Map();
 		const { collapseOn: collapser, target, columns } = options;
 		const regex = new RegExp(`^${target}_`);
 
 		for (let i = data.length - 1; i >= 0; i--) {
 			const row = data[i];
-			if (!keyMap.has(row[collapser])) {
-				keyMap.set(row[collapser], []);
+			const identifier = row[collapser];
+			if (isEnhancedResultObject(identifier)) {
+				throw new SupiError({
+					message: "Invalid identifier type",
+					args: {
+						identifier,
+						collapser,
+						row
+					}
+				});
+			}
+
+			if (!keyMap.has(identifier)) {
+				keyMap.set(identifier, []);
 			}
 			else {
 				data[i][ROW_COLLAPSED] = true;
 			}
 
-			const copiedProperties: Record<string, JavascriptValue> = {};
+			const copiedProperties: Record<string, JavascriptValue | ResultObject[]> = {};
 			for (const column of columns) {
 				copiedProperties[column.replace(regex, "")] = row[column];
 				delete row[column];
 			}
 
 			let addProperties = true;
-			const collapseArray = keyMap.get(row[collapser]) as ResultObject[];
+			const collapseArray = keyMap.get(identifier) as EnhancedResultObject[];
 			for (const value of collapseArray) {
 				const skip = Object.keys(value).every(i => value[i] === copiedProperties[i]);
 				if (skip) {
@@ -540,12 +554,24 @@ export default class Recordset {
 		const resultData: EnhancedResultObject[] = [];
 		for (const row of data) {
 			const resultRow: EnhancedResultObject = { ...row };
-			const collapsedValue = keyMap.get(row[collapser]);
+			const identifier = row[collapser];
+			if (isEnhancedResultObject(identifier)) {
+				throw new SupiError({
+					message: "Invalid identifier type",
+					args: {
+						identifier,
+						collapser,
+						row
+					}
+				});
+			}
+
+			const collapsedValue = keyMap.get(identifier);
 			if (!collapsedValue) {
 				continue;
 			}
 
-			resultRow[target] = collapsedValue;
+			resultRow[target] = collapsedValue as ResultObject[];
 
 			if (Array.isArray(row[target]) && row[target].length === 1) {
 				const allNull = !Object.values(row[target][0]).some(Boolean);
