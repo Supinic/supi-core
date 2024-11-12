@@ -99,6 +99,7 @@ export default class Batch {
 	}
 
 	async insert (options: InsertOptions = {}): Promise<void> {
+		// If there are not enough records, skip immediately
 		if (this.records.length < this.threshold) {
 			return;
 		}
