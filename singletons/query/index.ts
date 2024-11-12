@@ -27,7 +27,8 @@ const isProperNumberArray = (input: Array<string|number>): input is number[] => 
 
 export type Value = string | number | bigint | SupiDate | null;
 
-export type ExtendedColumnType = ColumnType | "LONG" | "SET" | "INT" | "BIGINT";
+// @todo check if all of these column types actually appear in the result of a Mariadb fetch()
+export type ExtendedColumnType = ColumnType | "LONG" | "LONGLONG" | "SET" | "INT" | "BIGINT";
 export declare type MariaRowMeta = {
 	collation: {
 		index: number;
