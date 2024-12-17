@@ -1,5 +1,5 @@
 import SupiError from "../../objects/error.js";
-import QuerySingleton, { Database, Table, Value, formatSymbolRegex, JavascriptValue } from "./index.js";
+import QuerySingleton, { Database, Table, Value, formatSymbolRegex, FormatValue } from "./index.js";
 import type { PoolConnection } from "mariadb";
 
 type ConstructorOptions = {
@@ -43,10 +43,10 @@ export default class RecordDeleter {
 		return this;
 	}
 
-	where (format: string, ...args: JavascriptValue[]): this;
-	where (options: ConditionObject, format: string, ...args: JavascriptValue[]): this;
-	where (first: string | ConditionObject, ...second: JavascriptValue[]): this {
-		let args: JavascriptValue[];
+	where (format: string, ...args: FormatValue[]): this;
+	where (options: ConditionObject, format: string, ...args: FormatValue[]): this;
+	where (first: string | ConditionObject, ...second: FormatValue[]): this {
+		let args: FormatValue[];
 		let options: Partial<ConditionObject>;
 		let format: string;
 

@@ -24,6 +24,7 @@ const isStringArray = (input: Array<string|number>): input is string[] => input.
 const isProperNumberArray = (input: Array<string|number>): input is number[] => (
 	input.every(i => typeof i === "number" && !Number.isNaN(i))
 );
+const isMariaSet = (input: SqlValue): input is string[] => Array.isArray(input) && isStringArray(input);
 
 export type Value = string | number | bigint | SupiDate | null;
 
@@ -73,8 +74,8 @@ export type Database = TableDefinition["database"];
 export type Field = ColumnDefinition["name"];
 export type Table = TableDefinition["name"];
 
-export type JavascriptValue = number | string | bigint | boolean | SupiDate | null;
-export type SqlValue = number | string | Date | bigint | null;
+export type JavascriptValue = number | string | bigint | boolean | SupiDate | null | string[];
+export type SqlValue = number | string | Date | bigint | null | string[];
 
 export type PrimaryKeyValue = JavascriptValue;
 export type FormatSymbol = "b" | "d" | "dt" | "n" | "s" | "t" | "s+" | "n+" | "like" | "like*" | "*like" | "*like*";
@@ -389,13 +390,23 @@ export default class QuerySingleton {
 	 * SQL JSON -> JS Object
 	 * SQL *INT/*TEXT/*CHAR -> JS number/string
 	 */
-	convertToJS (value: SqlValue, type: ExtendedColumnType): JavascriptValue {
+	convertToJS (value: SqlValue, type: ExtendedColumnType): JavascriptValue | string[] {
 		if (value === null) {
 			return value;
 		}
 
 		switch (type) {
 			case "TINY": return (value === 1);
+
+			case "SET": {
+				if (!isMariaSet(value)) {
+					throw new SupiError({
+						message: "SET value must be a string[]"
+					});
+				}
+
+				return value;
+			}
 
 			// case "TIME":
 			case "DATE":
