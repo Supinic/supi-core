@@ -476,10 +476,11 @@ export default class Recordset {
 			const outRow: ResultObject = {};
 			for (const [name, value] of Object.entries(row)) {
 				const columnDef = columns.find(i => i.name === name);
+
+				// This case only occurs when SELECT-ing a non-column value, e.g. "SELECT 1" or similar.
 				if (!columnDef) {
-					throw new SupiError({
-						message: `Column ${name} not found`
-					});
+					outRow[name] = value;
+					continue;
 				}
 
 				// If Recordset is not configured for BigInt and the column is BIGINT, do some impromptu conversion
