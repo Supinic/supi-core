@@ -1,15 +1,17 @@
 import SupiDate from "../../objects/date.js";
 import SupiError from "../../objects/error.js";
 
-import { createPool as createMariaDbPool } from "mariadb";
 import Batch from "./batch.js";
-import Recordset from "./recordset.js";
+import Recordset, { ResultObject as RecordsetResultObject } from "./recordset.js";
 import RecordDeleter from "./record-deleter.js";
 import RecordUpdater from "./record-updater.js";
 import Row from "./row.js";
 
+import { createPool as createMariaDbPool, Pool, PoolConnection, SqlError, Types as ColumnType } from "mariadb";
+import type { SimpleGenericData } from "../../@types/globals.js";
+
 const updateBatchLimit = 1000;
-const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
+export const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
 const defaultPoolOptions = {
 	multipleStatements: true,
 	insertIdAsNumber: true,
@@ -17,219 +19,236 @@ const defaultPoolOptions = {
 	bigIntAsNumber: false
 };
 
-const isValidPositiveInteger = (input, min = 0) => Number.isInteger(input) && (input >= min);
+const isValidPositiveInteger = (input: number, min = 0) => Number.isInteger(input) && (input >= min);
+const isStringArray = (input: Array<string|number>): input is string[] => input.every(i => typeof i === "string");
+const isProperNumberArray = (input: Array<string|number>): input is number[] => (
+	input.every(i => typeof i === "number" && !Number.isNaN(i))
+);
+
+export type Value = string | number | bigint | SupiDate | null;
+
+/**
+ * The "INT" value is added on top of `mariadb`s types, because it uses two different enums for column types.
+ * Compare the type `3` defined in `field-type.js` and in `types/index.d.ts`:
+ * - https://github.com/mariadb-corporation/mariadb-connector-nodejs/blob/master/lib/const/field-type.js#L12
+ * - https://github.com/mariadb-corporation/mariadb-connector-nodejs/blob/master/types/index.d.ts#L933
+*/
+export type ExtendedColumnType = ColumnType | "INT";
+export declare type MariaRowMeta = {
+	collation: {
+		index: number;
+		name: string;
+		charset: string;
+		maxLength: number;
+	};
+	columnLength: number;
+	columnType: number;
+	flags: number;
+	scale: number;
+	type: ColumnType;
+	name: () => string;
+}
+
+export type ColumnDefinition = {
+	name: string;
+	type: ExtendedColumnType,
+	notNull: boolean;
+	primaryKey: boolean;
+	unsigned: boolean;
+	autoIncrement: boolean;
+	/** @description If true, the column is a numeric field left-filled with zeroes */
+	zeroFill: boolean;
+	length: number;
+};
+
+export type TableDefinition = {
+	database: string;
+	name: string;
+	path: string;
+	escapedPath: string;
+	columns: ColumnDefinition[];
+};
+
+export type Database = TableDefinition["database"];
+export type Field = ColumnDefinition["name"];
+export type Table = TableDefinition["name"];
+
+export type JavascriptValue = number | string | bigint | boolean | SupiDate | null;
+export type SqlValue = number | string | Date | bigint | null;
+
+export type PrimaryKeyValue = JavascriptValue;
+export type FormatSymbol = "b" | "d" | "dt" | "n" | "s" | "t" | "s+" | "n+" | "like" | "like*" | "*like" | "*like*";
+export type FormatValue = number | string | boolean | SupiDate | bigint | string[] | number[] | null;
+export type GenericQueryBuilderOptions = {
+	transaction?: PoolConnection
+};
+
+type BatchOptions = ConstructorParameters<typeof Batch> & {
+	database: Database;
+	table: Table;
+};
+
+type BatchUpdateOptions <T> = {
+	batchSize: number;
+	callback: (ru: RecordUpdater, row: T) => void;
+	staggerDelay: number;
+};
+
+type ConstructorOptions = {
+	user: string;
+	password: string;
+	connectionLimit?: number;
+	host: string;
+	port?: number;
+};
 
 export default class QuerySingleton {
-	#loggingThreshold = null;
-	#definitionPromises = new Map();
-	lifetimes = {
-		batches: new WeakSet(),
-		connectors: new WeakMap(),
-		recordDeleters: new WeakSet(),
-		recordsets: new WeakSet(),
-		recordUpdaters: new WeakSet(),
-		rows: new WeakSet(),
-		transactions: new WeakSet()
-	};
+	#definitionPromises: Map<Database, ReturnType<QuerySingleton["getDefinition"]>> = new Map();
+	tableDefinitions: Record<Database, Record<Table, TableDefinition>> = Object.create(null);
 
-	/** @type {TableDefinition[]} */
-	tableDefinitions = [];
+	pool: Pool;
 
-	throughput = {
-		connectors: {
-			requested: 0,
-			retrieved: 0,
-			released: 0
-		}
-	};
-
-	constructor (options = {}) {
-		if (!options.user) {
-			throw new SupiError({
-				message: "Missing `options.user`"
-			});
-		}
-		else if (typeof options.password !== "string") {
-			throw new SupiError({
-				message: "Missing `options.password` (can be empty string)"
-			});
-		}
-		else if (!options.path && !options.host) {
-			throw new SupiError({
-				message: "Missing `options.path` and `options.host` - exactly one must be provided"
-			});
-		}
-
-		if (options.path) {
-			this.pool = createMariaDbPool({
-				user: options.user,
-				password: options.password,
-				socketPath: options.path,
-				connectionLimit: options.connectionLimit ?? 25,
-				...defaultPoolOptions
-			});
-		}
-		else if (options.host) {
-			this.pool = createMariaDbPool({
-				user: options.user,
-				password: options.password,
-				host: options.host,
-				port: options.port ?? 3306,
-				connectionLimit: options.connectionLimit ?? 25,
-				...defaultPoolOptions
-			});
-		}
-		else {
-			throw new SupiError({
-				message: "Incomplete configuration passed as `options`"
-			});
-		}
+	constructor (options: ConstructorOptions) {
+		this.pool = createMariaDbPool({
+			user: options.user,
+			password: options.password,
+			host: options.host,
+			port: options.port ?? 3306,
+			connectionLimit: options.connectionLimit ?? 25,
+			...defaultPoolOptions
+		});
 	}
 
-	async raw (...args) {
-		this.throughput.connectors.requested++;
-
+	async raw (...args: string[]): ReturnType<PoolConnection["query"]> {
 		const query = args.join("\n");
 		let connector;
 		try {
 			connector = await this.pool.getConnection();
 		}
 		catch (e) {
+			let code: string | null = null;
+			if (e instanceof SqlError) {
+				code = e.code;
+			}
+
 			throw new SupiError({
 				message: "Fetching database connection failed",
-				args: {
-					code: e.code
-				},
+				args: { code },
 				cause: e
 			});
 		}
 
-		this.throughput.connectors.retrieved++;
-		this.lifetimes.connectors.set(connector, {
-			args,
-			error: new Error().stack
-		});
-
 		let result;
 		try {
 			result = connector.query({
-				sql: query,
-				multipleStatements: true
+				sql: query
 			});
 		}
 		finally {
 			await connector.release();
-			this.throughput.connectors.released++;
 		}
 
 		return result;
 	}
 
-	async send (...args) {
+	async send (...args: string[]): ReturnType<QuerySingleton["raw"]> {
 		return this.raw(...args);
 	}
 
-	async transactionQuery (sql, transaction) {
+	async transactionQuery (sql: string, transaction?: PoolConnection): ReturnType<PoolConnection["query"]> {
 		if (transaction) {
-			return transaction.query({
-				sql,
-				multipleStatements: true
-			});
+			return transaction.query({ sql });
 		}
 		else {
 			return this.raw(sql);
 		}
 	}
 
-	async getTransaction () {
+	async getTransaction (): Promise<PoolConnection> {
 		const connector = await this.pool.getConnection();
-		this.lifetimes.transactions.add(connector);
-
 		await connector.beginTransaction();
 		return connector;
 	}
 
-	async getRecordset (callback, options = {}) {
+	async getRecordset (callback: (rs: Recordset) => Recordset, options: GenericQueryBuilderOptions = {}): ReturnType<Recordset["fetch"]> {
 		const rs = new Recordset(this, options);
-		this.lifetimes.recordsets.add(rs);
-
 		callback(rs);
 		return await rs.fetch();
 	}
 
-	async getRecordDeleter (callback, options = {}) {
+	async getRecordDeleter (callback: (rd: RecordDeleter) => RecordDeleter, options: GenericQueryBuilderOptions = {}): ReturnType<RecordDeleter["fetch"]> {
 		const rd = new RecordDeleter(this, options);
-		this.lifetimes.recordDeleters.add(rd);
-
 		callback(rd);
 		return await rd.fetch();
 	}
 
-	async getRecordUpdater (callback, options = {}) {
+	async getRecordUpdater (callback: (ru: RecordUpdater) => RecordUpdater, options: GenericQueryBuilderOptions = {}): ReturnType<RecordUpdater["fetch"]> {
 		const ru = new RecordUpdater(this, options);
-		this.lifetimes.recordUpdaters.add(ru);
-
 		callback(ru);
 		return await ru.fetch();
 	}
 
-	async getRow (database, table, options = {}) {
-		/** @type {Row} */
+	async getRow (database: Database, table: Table, options: GenericQueryBuilderOptions = {}): Promise<Row> {
 		const row = new Row(this, options);
-		this.lifetimes.rows.add(row);
-
 		await row.initialize(database, table);
 		return row;
 	}
 
-	async getBatch (database, table, columns, options = {}) {
+	async getBatch (database: Database, table: Table, columns: Field[], options: BatchOptions): Promise<Batch> {
 		const batch = new Batch(this, {
 			...options,
 			database,
 			table
 		});
-		this.lifetimes.batches.add(batch);
 
 		await batch.initialize(columns);
 		return batch;
 	}
 
-	isRecordset (input) { return (input instanceof Recordset); }
-	isRecordDeleter (input) { return (input instanceof RecordDeleter); }
-	isRecordUpdater (input) { return (input instanceof RecordUpdater); }
-	isRow (input) { return (input instanceof Row); }
-	isBatch (input) { return (input instanceof Batch); }
+	isRecordset (input: unknown): input is Recordset { return (input instanceof Recordset); }
+	isRecordDeleter (input: unknown): input is RecordDeleter { return (input instanceof RecordDeleter); }
+	isRecordUpdater (input: unknown): input is RecordUpdater { return (input instanceof RecordUpdater); }
+	isRow (input: unknown): input is Row { return (input instanceof Row); }
+	isBatch (input: unknown): input is Batch { return (input instanceof Batch); }
 
-	async getDefinition (database, table) {
+	async getDefinition (database: Database, table: Table): Promise<TableDefinition> {
 		const key = `${database}.${table}`;
 		if (this.tableDefinitions[database] && this.tableDefinitions[database][table]) {
 			return this.tableDefinitions[database][table];
 		}
 		else if (this.#definitionPromises.has(key)) {
-			return this.#definitionPromises.get(key);
+			return this.#definitionPromises.get(key) as Promise<TableDefinition>;
 		}
 
 		const promise = (async () => {
 			const path = `${this.escapeIdentifier(database)}.${this.escapeIdentifier(table)}`;
 			const escapedPath = `\`${this.escapeIdentifier(database)}\`.\`${this.escapeIdentifier(table)}\``;
-			this.tableDefinitions[database] = this.tableDefinitions[database] || {};
-			const obj = {
-				name: table, database, path, escapedPath, columns: []
+
+			this.tableDefinitions[database] ??= {};
+
+			const obj: TableDefinition = {
+				name: table,
+				database,
+				path,
+				escapedPath,
+				columns: []
 			};
 
-			const data = await this.raw(`SELECT * FROM ${escapedPath} WHERE 1 = 0`);
+			const data = await this.raw(`SELECT * FROM ${escapedPath} WHERE 1 = 0`) as {
+				meta: MariaRowMeta[]
+			};
 
 			/* eslint-disable no-bitwise */
 			for (const column of data.meta) {
 				obj.columns.push({
 					name: column.name(),
 					length: column.columnLength ?? null,
-					type: ((column.flags & QuerySingleton.flagMask.SET) === 0) ? column.type : "SET",
+					type: ((column.flags & QuerySingleton.flagMask.SET) === 0) ? column.type : ColumnType.SET,
 					notNull: Boolean(column.flags & QuerySingleton.flagMask.NOT_NULL),
 					primaryKey: Boolean(column.flags & QuerySingleton.flagMask.PRIMARY_KEY),
 					unsigned: Boolean(column.flags & QuerySingleton.flagMask.UNSIGNED),
 					autoIncrement: Boolean(column.flags & QuerySingleton.flagMask.AUTO_INCREMENT),
-					zeroFill: Boolean(column.flags & QuerySingleton.flagMask.ZERO_FILL)
+					zeroFill: Boolean(column.flags & QuerySingleton.flagMask.ZEROFILL_FLAG)
 				});
 			}
 			/* eslint-enable no-bitwise */
@@ -244,40 +263,47 @@ export default class QuerySingleton {
 		return promise;
 	}
 
-	async isDatabasePresent (database) {
+	async isDatabasePresent (database: Database): Promise<boolean> {
 		const exists = await this.getRecordset(rs => rs
 			.select("1")
 			.from("INFORMATION_SCHEMA", "SCHEMATA")
 			.where("SCHEMA_NAME = %s", database)
-		);
+		) as RecordsetResultObject;
 
 		return (exists.length !== 0);
 	}
 
-	async isTablePresent (database, table) {
+	async isTablePresent (database: Database, table: Table): Promise<boolean> {
 		const exists = await this.getRecordset(rs => rs
 			.select("1")
 			.from("INFORMATION_SCHEMA", "TABLES")
 			.where("TABLE_SCHEMA = %s", database)
 			.where("TABLE_NAME = %s", table)
-		);
+		) as RecordsetResultObject;
 
 		return (exists.length !== 0);
 	}
 
-	async isTableColumnPresent (database, table, column) {
+	async isTableColumnPresent (database: Database, table: Table, column: Field): Promise<boolean> {
 		const exists = await this.getRecordset(rs => rs
 			.select("1")
 			.from("INFORMATION_SCHEMA", "COLUMNS")
 			.where("TABLE_SCHEMA = %s", database)
 			.where("TABLE_NAME = %s", table)
 			.where("COLUMN_NAME = %s", column)
-		);
+		) as RecordsetResultObject;
 
 		return (exists.length !== 0);
 	}
 
-	async batchUpdate (data, options = {}) {
+	/**
+	 * Performs a configurable batched update.
+	 * Supports staggering, grouping statements into transactions, and more.
+	 * @param data List of rows to update
+	 * @param options Configurable options object
+	 * @param options.callback Callback that gets passed into the RecordUpdater instances
+	 */
+	async batchUpdate <T extends SimpleGenericData> (data: T[], options: BatchUpdateOptions<T>) {
 		const { batchSize, callback, staggerDelay } = options;
 		if (typeof callback !== "function") {
 			throw new SupiError({
@@ -300,7 +326,7 @@ export default class QuerySingleton {
 		if (isValidPositiveInteger(staggerDelay, 0)) {
 			let counter = 0;
 			for (let i = 0; i <= queries.length; i += limit) {
-				let slice = queries.slice(i, i + limit).join("\n");
+				const slice = queries.slice(i, i + limit).join("\n");
 
 				setTimeout(async () => {
 					const transaction = await this.getTransaction();
@@ -314,7 +340,6 @@ export default class QuerySingleton {
 					}
 					finally {
 						await transaction.end();
-						slice = null;
 					}
 				}, (counter * staggerDelay));
 
@@ -341,23 +366,30 @@ export default class QuerySingleton {
 		}
 	}
 
-	getCondition (callback) {
+	getCondition (callback: (rs: Recordset) => Recordset): string {
 		const rs = new Recordset(this);
 		callback(rs);
 		return rs.toCondition();
 	}
 
-	invalidateDefinition (database, table) {
+	invalidateDefinition (database: Database, table: Table) {
 		if (this.tableDefinitions[database] && this.tableDefinitions[database][table]) {
-			this.tableDefinitions[database][table] = null;
+			delete this.tableDefinitions[database][table];
 		}
 	}
 
 	invalidateAllDefinitions () {
-		this.tableDefinitions = [];
+		this.tableDefinitions = {};
 	}
 
-	convertToJS (value, type) {
+	/**
+	 * Converts a SQL value and type to a Javascript value
+	 * SQL TINYINT(1) -> JS boolean
+	 * SQL DATE/DATETIME/TIMESTAMP -> JS sb.Date
+	 * SQL JSON -> JS Object
+	 * SQL *INT/*TEXT/*CHAR -> JS number/string
+	 */
+	convertToJS (value: SqlValue, type: ExtendedColumnType): JavascriptValue {
 		if (value === null) {
 			return value;
 		}
@@ -370,34 +402,58 @@ export default class QuerySingleton {
 			case "DATETIME":
 			case "TIMESTAMP": return new SupiDate(value);
 
-			case "BIGINT":
-			case "LONGLONG": return BigInt(value);
+			case "BIGINT": {
+				if (typeof value !== "number" && typeof value !== "string") {
+					throw new SupiError({
+						message: "Bigint value must be number or string"
+					});
+				}
 
-			case "JSON": return JSON.parse(value);
+				return BigInt(value);
+			}
+
+			case "JSON": {
+				if (typeof value !== "string") {
+					throw new SupiError({
+						message: "JSON value must be string"
+					});
+				}
+
+				return JSON.parse(value);
+			}
 
 			case "INT":
 			case "SHORT":
 			case "NEWDECIMAL": return Number(value);
 
-			default: return value;
+			case "STRING":
+			case "VAR_STRING":
+			case "BLOB":
+			default: return String(value);
 		}
 	}
 
-	convertToSQL (value, targetType) {
-		const sourceType = typeof value;
-
+	/**
+	 * Converts a Javascript value to its SQL counterpart
+	 * JS null -> SQL NULL
+	 * JS boolean -> SQL TINYINT(1)
+	 * JS Date/sb.Date -> SQL TIME/DATE/DATETIME/TIMESTAMP
+	 * JS string -> escaped SQL VARCHAR/*TEXT
+	 * JS number -> SQL *INT
+	 */
+	convertToSQL (value: JavascriptValue, targetType: ExtendedColumnType): string {
 		if (value === null) {
 			return "NULL";
 		}
 		else if (targetType === "TINY") {
-			if (sourceType !== "boolean") {
+			if (typeof value !== "boolean") {
 				throw new SupiError({
 					message: "Expected value type: boolean",
 					args: value
 				});
 			}
 
-			return (value === true) ? "1" : "0";
+			return (value) ? "1" : "0";
 		}
 		else if (targetType === "SET" && Array.isArray(value)) {
 			const string = this.escapeString(value.join(","));
@@ -422,46 +478,39 @@ export default class QuerySingleton {
 				case "TIMESTAMP": return `'${value.sqlDateTime()}'`;
 			}
 		}
-		else if (sourceType === "string") {
+		else if (typeof value === "string") {
 			return `'${this.escapeString(value)}'`;
 		}
-		else {
-			return value;
-		}
+
+		return String(value);
 	}
 
-	escapeIdentifier (string) {
-		// @todo figure this out
+	escapeIdentifier (string: string) {
+		// @todo should safely escape identifiers into backticks
 
-		// // console.log("escape identifier", "`" + string.replace(/^`|`$/g, "").replace(/`/g, "``") + "`");
 		// const result = (/\*$/.test(string))
 		// 	? string
 		// 	: "`" + string.replace(/^`|`$/g, "").replace(/`/g, "``") + "`";
 		//
 
-		if (typeof string === "string" && string.includes("chatrooms")) {
-			string = `\`${string}\``;
-		}
-
-		// console.warn(string);
-
 		return string;
-
-		// return string;
 
 		// return "`" + string.replace(/^`|`$/g, "").replace(/`/g, "``") + "`";
 		// return "`" + string.replace(/^`|`$/g, "").replace(/`/g, "\\`") + "`";
 	}
 
-	escapeString (string) {
+	escapeString (string: string): string {
 		return string.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "\\\"");
 	}
 
-	escapeLikeString (string) {
+	escapeLikeString (string: string): string {
 		return this.escapeString(string).replace(/%/g, "\\%").replace(/_/g, "\\_");
 	}
 
-	parseFormatSymbol (type, param) {
+	/**
+	 * Replaces format symbols used in WHERE/HAVING with their provided values and escapes/parses them.
+	 */
+	parseFormatSymbol (type: FormatSymbol, param: FormatValue): string {
 		switch (type) {
 			case "b":
 				if (typeof param !== "boolean") {
@@ -521,7 +570,7 @@ export default class QuerySingleton {
 				if (!Array.isArray(param)) {
 					throw new SupiError({ message: `Expected Array, got ${param}` });
 				}
-				else if (param.some(i => typeof i !== "string")) {
+				else if (!isStringArray(param)) {
 					throw new SupiError({ message: "Array must contain strings only" });
 				}
 
@@ -531,7 +580,7 @@ export default class QuerySingleton {
 				if (!Array.isArray(param)) {
 					throw new SupiError({ message: `Expected Array, got ${param}` });
 				}
-				else if (param.some(i => typeof i !== "number" || Number.isNaN(i))) {
+				else if (!isProperNumberArray(param)) {
 					throw new SupiError({ message: "Array must contain proper numbers only" });
 				}
 
@@ -559,23 +608,8 @@ export default class QuerySingleton {
 		}
 	}
 
-	setLogThreshold (value) {
-		if (typeof value !== "number") {
-			throw new SupiError({
-				message: "Logging threshold must be a number",
-				args: { value }
-			});
-		}
-
-		this.#loggingThreshold = value;
-	}
-
-	disableLogThreshold () {
-		this.#loggingThreshold = null;
-	}
-
 	static get sqlKeywords () {
-		return ["SUM", "COUNT", "AVG"];
+		return ["SUM", "COUNT", "AVG"] as const;
 	}
 
 	static get flagMask () {
@@ -595,15 +629,10 @@ export default class QuerySingleton {
 			NO_DEFAULT_VALUE_FLAG: 4096,
 			ON_UPDATE_NOW_FLAG: 8192,
 			NUM_FLAG: 32768
-		};
+		} as const;
 	}
 
 	get formatSymbolRegex () {
 		return formatSymbolRegex;
-	}
-
-	destroy () {
-		this.invalidateAllDefinitions();
-		this.pool = null;
 	}
 }

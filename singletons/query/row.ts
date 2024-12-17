@@ -1,20 +1,38 @@
 import SupiError from "../../objects/error.js";
+import QuerySingleton, {
+	ColumnDefinition, JavascriptValue,
+	PrimaryKeyValue,
+	TableDefinition,
+	Value as QueryValue
+} from "./index.js";
+import { PoolConnection, UpsertResult } from "mariadb";
+
+const UNSET_VALUE: unique symbol = Symbol.for("UNSET");
+
+type Value = JavascriptValue | typeof UNSET_VALUE;
+type Values = Record<string, Value>;
+type PrimaryKeyObject = Record<string, PrimaryKeyValue>;
+type ConstructorOptions = {
+	transaction?: PoolConnection;
+};
+type SaveOptions = {
+	ignore?: boolean;
+	skipLoad?: boolean;
+};
 
 /**
  * Represents one row of a SQL database table.
  */
 export default class Row {
-	/** @type {TableDefinition} */
-	#definition;
-	/** @type {QuerySingleton} */
-	#query;
+	#definition: TableDefinition | null = null;
+	#query: QuerySingleton;
 	#transaction;
 
-	#values = {};
-	#originalValues = {};
-	#primaryKeyFields = [];
-	#valueProxy = new Proxy(this.#values, {
-		get: (target, name) => {
+	#values: Values = {};
+	#originalValues: Values = {};
+	#primaryKeyFields: ColumnDefinition[] = [];
+	#valueProxy: Values = new Proxy(this.#values, {
+		get: (target, name: string) => {
 			if (!this.#initialized) {
 				throw new SupiError({
 					message: "Cannot get row value - row not initialized",
@@ -30,7 +48,7 @@ export default class Row {
 
 			return target[name];
 		},
-		set: (target, name, value) => {
+		set: (target, name: string, value) => {
 			if (!this.#initialized) {
 				throw new SupiError({
 					message: "Cannot set row value - row not initialized",
@@ -53,12 +71,12 @@ export default class Row {
 	#loaded = false;
 	#deleted = false;
 
-	constructor (query, options = {}) {
+	constructor (query: QuerySingleton, options: ConstructorOptions = {}) {
 		this.#query = query;
-		this.#transaction = options.transaction ?? null;
+		this.#transaction = options.transaction;
 	}
 
-	async initialize (database, table) {
+	async initialize (database: string, table: string) {
 		if (!database || !table) {
 			throw new SupiError({
 				message: "Cannot initialize row - missing database/table",
@@ -66,10 +84,10 @@ export default class Row {
 			});
 		}
 
-		this.#definition = await this.#query.getDefinition(database, table);
+		this.#definition = await this.#query.getDefinition(database, table) as TableDefinition;
 		for (const column of this.#definition.columns) {
-			this.#values[column.name] = Symbol.for("unset");
-			this.#originalValues[column.name] = Symbol.for("unset");
+			this.#values[column.name] = UNSET_VALUE;
+			this.#originalValues[column.name] = UNSET_VALUE;
 
 			if (column.primaryKey) {
 				this.#primaryKeyFields.push(column);
@@ -80,8 +98,8 @@ export default class Row {
 		return this;
 	}
 
-	async load (primaryKey, ignoreError = false) {
-		if (!this.#initialized) {
+	async load (primaryKey: string | PrimaryKeyObject, ignoreError: boolean = false) {
+		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot load row - not initialized",
 				args: this._getErrorInfo()
@@ -104,7 +122,7 @@ export default class Row {
 		this.reset();
 
 		const conditions = [];
-		if (primaryKey?.constructor?.name === "Object") {
+		if (typeof primaryKey === "object") {
 			for (const [key, value] of Object.entries(primaryKey)) {
 				const column = this.#definition.columns.find(i => i.name === key);
 				if (!column) {
@@ -152,7 +170,7 @@ export default class Row {
 		}
 
 		const sqlString = `SELECT * FROM ${this.#definition.escapedPath} WHERE ${conditions.join(" AND ")}`;
-		const data = await this.#query.transactionQuery(sqlString, this.#transaction);
+		const data = await this.#query.transactionQuery(sqlString, this.#transaction) as Record<string, string | number | null>[];
 
 		if (!data[0]) {
 			if (ignoreError) {
@@ -179,24 +197,30 @@ export default class Row {
 		return this;
 	}
 
-	async save (options = {}) {
-		if (!this.#initialized) {
+	async save (options: SaveOptions = {}) {
+		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot save row - not initialized",
 				args: this._getErrorInfo()
 			});
 		}
 
-		let outputData;
+		let outputData: UpsertResult;
 		if (this.#loaded) { // UPDATE
 			const setColumns = [];
 			for (const column of this.#definition.columns) {
 				if (this.#originalValues[column.name] === this.#values[column.name]) {
 					continue;
 				}
+				else if (this.#values[column.name] === UNSET_VALUE) {
+					continue;
+				}
+
+				// Now guaranteed to not include the UNSET_VALUE symbol
+				const rowValue = this.#values[column.name] as QueryValue;
 
 				const identifier = this.#query.escapeIdentifier(column.name);
-				const value = this.#query.convertToSQL(this.#values[column.name], column.type);
+				const value = this.#query.convertToSQL(rowValue, column.type);
 				setColumns.push(`${identifier} = ${value}`);
 			}
 
@@ -208,27 +232,36 @@ export default class Row {
 			const conditions = this._getPrimaryKeyConditions();
 			const sqlString = `UPDATE ${this.#definition.escapedPath} SET ${setColumns.join(", ")} WHERE ${conditions.join(" AND ")}`;
 
-			outputData = await this.#query.transactionQuery(sqlString, this.#transaction);
+			outputData = await this.#query.transactionQuery(sqlString, this.#transaction) as UpsertResult;
 		}
 		else { // INSERT
 			const columns = [];
 			const values = [];
 			for (const column of this.#definition.columns) {
-				if (this.#values[column.name] === Symbol.for("unset")) {
+				if (this.#values[column.name] === UNSET_VALUE) {
 					continue;
 				}
 
+				// Now guaranteed to not include the UNSET_VALUE symbol
+				const rowValue = this.#values[column.name] as QueryValue;
+
 				columns.push(this.#query.escapeIdentifier(column.name));
-				values.push(this.#query.convertToSQL(this.#values[column.name], column.type));
+				values.push(this.#query.convertToSQL(rowValue, column.type));
 			}
 
 			const ignore = (options.ignore === true) ? "IGNORE " : "";
 
 			const sqlString = `INSERT ${ignore}INTO ${this.#definition.escapedPath} (${columns.join(",")}) VALUES (${values.join(",")})`;
-			outputData = await this.#query.transactionQuery(sqlString, this.#transaction);
+			outputData = await this.#query.transactionQuery(sqlString, this.#transaction) as UpsertResult;
 
 			if (outputData.insertId !== 0) {
 				const autoIncrementPK = this.#primaryKeyFields.find(i => i.autoIncrement);
+				if (!autoIncrementPK) {
+					throw new SupiError({
+						message: "No AUTOINCREMENT column found"
+					});
+				}
+
 				this.#values[autoIncrementPK.name] = outputData.insertId;
 			}
 
@@ -242,7 +275,7 @@ export default class Row {
 	}
 
 	async delete () {
-		if (!this.#initialized) {
+		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot delete row - not initialized",
 				args: this._getErrorInfo()
@@ -267,7 +300,7 @@ export default class Row {
 	}
 
 	reset () {
-		if (!this.#initialized) {
+		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot reset row - not initialized",
 				args: this._getErrorInfo()
@@ -276,12 +309,12 @@ export default class Row {
 
 		this.#loaded = false;
 		for (const column of this.#definition.columns) {
-			this.#values[column.name] = Symbol.for("unset");
-			this.#originalValues[column.name] = Symbol.for("unset");
+			this.#values[column.name] = UNSET_VALUE;
+			this.#originalValues[column.name] = UNSET_VALUE;
 		}
 	}
 
-	setValues (data) {
+	setValues (data: Record<string, Value>) {
 		if (!this.#initialized) {
 			throw new SupiError({
 				message: "Cannot set column values - row not initialized",
@@ -290,14 +323,15 @@ export default class Row {
 		}
 
 		for (const [key, value] of Object.entries(data)) {
+			// This should stay as the .values getter, because this method a simple wrapper around multiple values setting at once
 			this.values[key] = value;
 		}
 
 		return this;
 	}
 
-	hasProperty (property) {
-		if (!this.#initialized) {
+	hasProperty (property: string) {
+		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot check property - row not initialized",
 				args: this._getErrorInfo()
@@ -309,11 +343,10 @@ export default class Row {
 
 	_getErrorInfo () {
 		return {
-			database: this.#definition.database,
-			table: this.#definition.name,
+			database: this.#definition?.database ?? null,
+			table: this.#definition?.name ?? null,
 			primaryKeys: this.#primaryKeyFields.map(i => i.name),
 			deleted: this.#deleted,
-			initialized: this.#initialized,
 			loaded: this.#loaded
 		};
 	}
@@ -321,7 +354,10 @@ export default class Row {
 	_getPrimaryKeyConditions () {
 		const conditions = [];
 		for (const column of this.#primaryKeyFields) {
-			const parsedValue = this.#query.convertToSQL(this.#values[column.name], column.type);
+			// Guaranteed to not include the UNSET_VALUE symbol
+			const pkValue = this.#values[column.name] as QueryValue;
+
+			const parsedValue = this.#query.convertToSQL(pkValue, column.type);
 			const identifier = this.#query.escapeIdentifier(column.name);
 
 			conditions.push(`(${identifier} = ${parsedValue})`);
@@ -335,10 +371,11 @@ export default class Row {
 	get values () { return this.#valueProxy; }
 	get originalValues () { return this.#originalValues; }
 
-	get PK () {
-		const obj = {};
+	get PK (): PrimaryKeyObject {
+		const obj: PrimaryKeyObject = {};
 		for (const column of this.#primaryKeyFields) {
-			obj[column.name] = this.#values[column.name];
+			// Guaranteed to not include the UNSET_VALUE symbol
+			obj[column.name] = this.#values[column.name] as QueryValue;
 		}
 
 		return obj;
@@ -348,4 +385,8 @@ export default class Row {
 	get deleted () { return this.#deleted; }
 	get initialized () { return this.#initialized; }
 	get loaded () { return this.#loaded; }
+
+	hasDefinition (): this is Row & { definition: object } {
+		return this.#initialized;
+	}
 }
