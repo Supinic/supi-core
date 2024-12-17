@@ -26,6 +26,21 @@ const isProperNumberArray = (input: Array<string|number>): input is number[] => 
 );
 const isMariaSet = (input: SqlValue): input is string[] => Array.isArray(input) && isStringArray(input);
 
+const getTypeName = (input: unknown): string => {
+	if (input === null) {
+		return "null";
+	}
+	else if (input === undefined) {
+		return "undefined";
+	}
+	else if (typeof input === "object" && typeof input?.constructor?.name === "string") {
+		return input.constructor.name;
+	}
+	else {
+		return typeof input;
+	}
+};
+
 export type Value = string | number | bigint | SupiDate | null;
 
 /**
@@ -105,7 +120,7 @@ type ConstructorOptions = {
 
 export default class QuerySingleton {
 	#definitionPromises: Map<Database, ReturnType<QuerySingleton["getDefinition"]>> = new Map();
-	tableDefinitions: Record<Database, Record<Table, TableDefinition>> = Object.create(null);
+	tableDefinitions: Record<Database, Record<Table, TableDefinition>> = {};
 
 	pool: Pool;
 
@@ -329,6 +344,7 @@ export default class QuerySingleton {
 			for (let i = 0; i <= queries.length; i += limit) {
 				const slice = queries.slice(i, i + limit).join("\n");
 
+				// eslint-disable-next-line @typescript-eslint/no-misused-promises
 				setTimeout(async () => {
 					const transaction = await this.getTransaction();
 					try {
@@ -396,9 +412,9 @@ export default class QuerySingleton {
 		}
 
 		switch (type) {
-			case "TINY": return (value === 1);
+			case ColumnType.TINY: return (value === 1);
 
-			case "SET": {
+			case ColumnType.SET: {
 				if (!isMariaSet(value)) {
 					throw new SupiError({
 						message: "SET value must be a string[]"
@@ -408,12 +424,12 @@ export default class QuerySingleton {
 				return value;
 			}
 
-			// case "TIME":
-			case "DATE":
-			case "DATETIME":
-			case "TIMESTAMP": return new SupiDate(value);
+			// case ColumnType.TIME:
+			case ColumnType.DATE:
+			case ColumnType.DATETIME:
+			case ColumnType.TIMESTAMP: return new SupiDate(value);
 
-			case "BIGINT": {
+			case ColumnType.BIGINT: {
 				if (typeof value !== "number" && typeof value !== "string") {
 					throw new SupiError({
 						message: "Bigint value must be number or string"
@@ -423,23 +439,34 @@ export default class QuerySingleton {
 				return BigInt(value);
 			}
 
-			case "JSON": {
+			case ColumnType.JSON: {
 				if (typeof value !== "string") {
 					throw new SupiError({
 						message: "JSON value must be string"
 					});
 				}
 
-				return JSON.parse(value);
+				try {
+					JSON.parse(value);
+				}
+				catch (e) {
+					throw new SupiError({
+						message: "Could not parse JSON value",
+						args: { value },
+						cause: e
+					});
+				}
+
+				return value;
 			}
 
 			case "INT":
-			case "SHORT":
-			case "NEWDECIMAL": return Number(value);
+			case ColumnType.SHORT:
+			case ColumnType.NEWDECIMAL: return Number(value);
 
-			case "STRING":
-			case "VAR_STRING":
-			case "BLOB":
+			case ColumnType.STRING:
+			case ColumnType.VAR_STRING:
+			case ColumnType.BLOB:
 			default: return String(value);
 		}
 	}
@@ -456,7 +483,7 @@ export default class QuerySingleton {
 		if (value === null) {
 			return "NULL";
 		}
-		else if (targetType === "TINY") {
+		else if (targetType === ColumnType.TINY) {
 			if (typeof value !== "boolean") {
 				throw new SupiError({
 					message: "Expected value type: boolean",
@@ -466,11 +493,11 @@ export default class QuerySingleton {
 
 			return (value) ? "1" : "0";
 		}
-		else if (targetType === "SET" && Array.isArray(value)) {
+		else if (targetType === ColumnType.SET && Array.isArray(value)) {
 			const string = this.escapeString(value.join(","));
 			return `'${string}'`;
 		}
-		else if (targetType === "TIME" || targetType === "DATE" || targetType === "DATETIME" || targetType === "TIMESTAMP") {
+		else if (targetType === ColumnType.TIME || ColumnType.DATE || ColumnType.DATETIME || targetType === ColumnType.TIMESTAMP) {
 			if (value instanceof Date) {
 				value = new SupiDate(value);
 			}
@@ -483,10 +510,10 @@ export default class QuerySingleton {
 			}
 
 			switch (targetType) {
-				case "TIME": return `'${value.sqlTime()}'`;
-				case "DATE": return `'${value.sqlDate()}'`;
-				case "DATETIME": return `'${value.sqlDateTime()}'`;
-				case "TIMESTAMP": return `'${value.sqlDateTime()}'`;
+				case ColumnType.TIME: return `'${value.sqlTime()}'`;
+				case ColumnType.DATE: return `'${value.sqlDate()}'`;
+				case ColumnType.DATETIME: return `'${value.sqlDateTime()}'`;
+				case ColumnType.TIMESTAMP: return `'${value.sqlDateTime()}'`;
 			}
 		}
 		else if (typeof value === "string") {
@@ -525,7 +552,7 @@ export default class QuerySingleton {
 		switch (type) {
 			case "b":
 				if (typeof param !== "boolean") {
-					throw new SupiError({ message: `Expected boolean, got ${param}` });
+					throw new SupiError({ message: `Expected boolean, got ${getTypeName(param)}` });
 				}
 
 				return (param ? "1" : "0");
@@ -535,7 +562,7 @@ export default class QuerySingleton {
 					param = new SupiDate(param);
 				}
 				if (!(param instanceof SupiDate)) {
-					throw new SupiError({ message: `Expected SupiDate, got ${param}` });
+					throw new SupiError({ message: `Expected SupiDate, got ${getTypeName(param)}` });
 				}
 
 				return `'${param.sqlDate()}'`;
@@ -545,14 +572,14 @@ export default class QuerySingleton {
 					param = new SupiDate(param);
 				}
 				if (!(param instanceof SupiDate)) {
-					throw new SupiError({ message: `Expected SupiDate, got ${param}` });
+					throw new SupiError({ message: `Expected SupiDate, got ${getTypeName(param)}` });
 				}
 
 				return `'${param.sqlDateTime()}'`;
 
 			case "n":
 				if (typeof param !== "number") {
-					throw new SupiError({ message: `Expected number, got ${param}` });
+					throw new SupiError({ message: `Expected number, got ${getTypeName(param)}` });
 				}
 				else if (Number.isNaN(param)) {
 					throw new SupiError({ message: `Cannot use ${param} as a number in SQL` });
@@ -562,7 +589,7 @@ export default class QuerySingleton {
 
 			case "s":
 				if (typeof param !== "string") {
-					throw new SupiError({ message: `Expected string, got ${param}` });
+					throw new SupiError({ message: `Expected string, got ${getTypeName(param)}` });
 				}
 
 				return `'${this.escapeString(param)}'`;
@@ -572,14 +599,14 @@ export default class QuerySingleton {
 					param = new SupiDate(param);
 				}
 				if (!(param instanceof SupiDate)) {
-					throw new SupiError({ message: `Expected SupiDate, got ${param}` });
+					throw new SupiError({ message: `Expected SupiDate, got ${getTypeName(param)}` });
 				}
 
 				return param.sqlTime();
 
 			case "s+":
 				if (!Array.isArray(param)) {
-					throw new SupiError({ message: `Expected Array, got ${param}` });
+					throw new SupiError({ message: `Expected Array, got ${getTypeName(param)}` });
 				}
 				else if (!isStringArray(param)) {
 					throw new SupiError({ message: "Array must contain strings only" });
@@ -589,7 +616,7 @@ export default class QuerySingleton {
 
 			case "n+":
 				if (!Array.isArray(param)) {
-					throw new SupiError({ message: `Expected Array, got ${param}` });
+					throw new SupiError({ message: `Expected Array, got ${getTypeName(param)}` });
 				}
 				else if (!isProperNumberArray(param)) {
 					throw new SupiError({ message: "Array must contain proper numbers only" });
@@ -602,7 +629,7 @@ export default class QuerySingleton {
 			case "like*":
 			case "*like*": {
 				if (typeof param !== "string") {
-					throw new SupiError({ message: `Expected string, got ${param}` });
+					throw new SupiError({ message: `Expected string, got ${getTypeName(param)}` });
 				}
 
 				const start = (type.startsWith("*")) ? "%" : "";

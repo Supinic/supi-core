@@ -3,7 +3,6 @@ import QuerySingleton, {
 	Database,
 	Table,
 	ColumnDefinition,
-	TableDefinition,
 	Field,
 	JavascriptValue
 } from "./index.js";
@@ -52,8 +51,7 @@ export default class Batch {
 	}
 
 	async initialize (columns: Field[]): Promise<this> {
-		// Temporary `as TableDefinition` while Query is not yet rewritten to TS
-		const definition = await this.#query.getDefinition(this.database, this.table) as TableDefinition;
+		const definition = await this.#query.getDefinition(this.database, this.table);
 		for (const column of columns) {
 			if (definition.columns.every(col => column !== col.name)) {
 				throw new SupiError({
@@ -62,7 +60,7 @@ export default class Batch {
 						database: this.database,
 						table: this.table,
 						unrecognizedColumn: column,
-						tableColumns: definition.columns.join(", ")
+						tableColumns: definition.columns
 					}
 				});
 			}

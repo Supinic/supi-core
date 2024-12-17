@@ -1,12 +1,12 @@
 import SupiError from "../../objects/error.js";
-import type { PoolConnection } from "mariadb";
+import { PoolConnection, Types } from "mariadb";
 import QuerySingleton, {
 	Database,
 	Table,
 	Field,
 	MariaRowMeta,
 	Value,
-	JavascriptValue, PrimaryKeyValue
+	JavascriptValue, PrimaryKeyValue, FormatSymbol
 } from "./index.js";
 
 const ROW_COLLAPSED = "#row_collapsed";
@@ -213,7 +213,7 @@ export default class Recordset {
 		}
 
 		let index = 0;
-		format = format.replace(this.#query.formatSymbolRegex, (fullMatch, param) => (
+		format = format.replace(this.#query.formatSymbolRegex, (fullMatch, param: FormatSymbol) => (
 			this.#query.parseFormatSymbol(param, restArgs[index++])
 		));
 
@@ -234,7 +234,7 @@ export default class Recordset {
 	}
 
 	join (input: JoinInput, target?: JoinTarget, customField?: string, left: string = "") {
-		if (typeof target === "string") {
+		if (typeof input === "string" && typeof target === "string") {
 			const dot = (input) ? (`${input}.\`${target}\``) : (`\`${target}\``);
 			this.#join.push(`${left}JOIN ${dot} ON \`${this.#from.table}\`.\`${customField || target}\` = ${dot}.ID`);
 		}
@@ -483,7 +483,7 @@ export default class Recordset {
 				}
 
 				// If Recordset is not configured for BigInt and the column is BIGINT, do some impromptu conversion
-				if (columnDef.type === "BIGINT" && !this.#options.bigint) {
+				if (columnDef.type === Types.BIGINT && !this.#options.bigint) {
 					outRow[name] = this.#query.convertToJS(value, "INT");
 				}
 				else {

@@ -60,7 +60,7 @@ class StaticGot {
 		return instance;
 	}
 
-	static async importData (definitions: GotInstanceDefinition[]) {
+	static importData (definitions: GotInstanceDefinition[]) {
 		if (!Array.isArray(definitions)) {
 			throw new SupiError({
 				message: "Definitions must be provided as an array"
@@ -102,7 +102,7 @@ class StaticGot {
 		StaticGot.data = result;
 	}
 
-	static async importSpecific (...definitions: GotInstanceDefinition[]) {
+	static importSpecific (...definitions: GotInstanceDefinition[]) {
 		for (const definition of definitions) {
 			const oldInstanceIndex = StaticGot.data.findIndex(i => i[nameSymbol] === definition.name);
 			if (oldInstanceIndex !== -1) {

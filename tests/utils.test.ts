@@ -11,25 +11,9 @@ describe("timeDelta", () => {
 	const DAY = 24 * HOUR;
 	const YEAR = 365 * DAY;
 
-	const timeDelta = (target: SupiDate | Date | number, skipAffixes?: boolean | undefined, respectLeapYears?: boolean | undefined, deltaTo?: SupiDate | undefined) => Utils.timeDelta(target, skipAffixes ?? false, respectLeapYears ?? false, deltaTo ?? new SupiDate(0));
-
-	// We don't need to check types at runtime with TS
-	/*it("checks types properly", () => {
-		assert.doesNotThrow(() => timeDelta(new Date()));
-		assert.doesNotThrow(() => timeDelta(new SupiDate()));
-		assert.doesNotThrow(() => timeDelta(12345));
-
-		const mockedNumberValueOf = { valueOf: () => 12345 };
-		assert.doesNotThrow(() => timeDelta(mockedNumberValueOf));
-
-		assert.throws(() => timeDelta(null));
-		assert.throws(() => timeDelta("string"));
-		assert.throws(() => timeDelta({}));
-		assert.throws(() => timeDelta([]));
-
-		const mockedStringValueOf = { valueOf: () => "string" };
-		assert.throws(() => timeDelta(mockedStringValueOf));
-	});*/
+	const timeDelta = (target: SupiDate | Date | number, skipAffixes?: boolean, respectLeapYears?: boolean, deltaTo?: SupiDate) => (
+		Utils.timeDelta(target, skipAffixes ?? false, respectLeapYears ?? false, deltaTo ?? new SupiDate(0))
+	);
 
 	it("returns a special value for delta === 0", () => {
 		const date = new SupiDate(0);

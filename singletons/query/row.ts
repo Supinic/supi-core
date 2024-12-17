@@ -48,7 +48,7 @@ export default class Row {
 
 			return target[name];
 		},
-		set: (target, name: string, value) => {
+		set: (target, name: string, value: Value) => {
 			if (!this.#initialized) {
 				throw new SupiError({
 					message: "Cannot set row value - row not initialized",
@@ -84,7 +84,7 @@ export default class Row {
 			});
 		}
 
-		this.#definition = await this.#query.getDefinition(database, table) as TableDefinition;
+		this.#definition = await this.#query.getDefinition(database, table);
 		for (const column of this.#definition.columns) {
 			this.#values[column.name] = UNSET_VALUE;
 			this.#originalValues[column.name] = UNSET_VALUE;
