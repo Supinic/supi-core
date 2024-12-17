@@ -74,7 +74,7 @@ export type Database = TableDefinition["database"];
 export type Field = ColumnDefinition["name"];
 export type Table = TableDefinition["name"];
 
-export type JavascriptValue = number | string | bigint | boolean | SupiDate | null | JavascriptValue[];
+export type JavascriptValue = number | string | bigint | boolean | SupiDate | null | string[];
 export type SqlValue = number | string | Date | bigint | null | string[];
 
 export type PrimaryKeyValue = JavascriptValue;
@@ -390,7 +390,7 @@ export default class QuerySingleton {
 	 * SQL JSON -> JS Object
 	 * SQL *INT/*TEXT/*CHAR -> JS number/string
 	 */
-	convertToJS (value: SqlValue, type: ExtendedColumnType): JavascriptValue {
+	convertToJS (value: SqlValue, type: ExtendedColumnType): JavascriptValue | string[] {
 		if (value === null) {
 			return value;
 		}
