@@ -440,6 +440,12 @@ export default class Recordset {
 	}
 
 	async fetch (): Promise<JavascriptValue | JavascriptValue[] | EnhancedResultObject | EnhancedResultObject[]> {
+		if (!this.#from.database || !this.#from.table) {
+			throw new SupiError({
+				message: "No from() call used in Recordset"
+			});
+		}
+
 		const sql = this.toSQL();
 		const sqlString = sql.join("\n");
 		let rows = null;
@@ -452,13 +458,10 @@ export default class Recordset {
 			throw e;
 		}
 
-		const definition: Record<string, ExtendedColumnType> = {};
-		for (const column of rows.meta) {
-			definition[column.name()] = column.type;
-		}
-
+		const { columns } = await this.#query.getDefinition(this.#from.database, this.#from.table);
 		const valueResult: JavascriptValue[] = [];
 		let objectResult: EnhancedResultObject[] = [];
+
 		for (const row of rows) {
 			if (this.#flat && typeof row[this.#flat] === "undefined") {
 				throw new SupiError({
@@ -472,14 +475,19 @@ export default class Recordset {
 
 			const outRow: ResultObject = {};
 			for (const [name, value] of Object.entries(row)) {
-				const type = definition[name];
+				const columnDef = columns.find(i => i.name === name);
+				if (!columnDef) {
+					throw new SupiError({
+						message: `Column ${name} not found`
+					});
+				}
 
 				// If Recordset is not configured for BigInt and the column is BIGINT, do some impromptu conversion
-				if (type === "BIGINT" && !this.#options.bigint) {
+				if (columnDef.type === "BIGINT" && !this.#options.bigint) {
 					outRow[name] = this.#query.convertToJS(value, "INT");
 				}
 				else {
-					outRow[name] = this.#query.convertToJS(value, type);
+					outRow[name] = this.#query.convertToJS(value, columnDef.type);
 				}
 			}
 
