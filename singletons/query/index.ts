@@ -27,8 +27,13 @@ const isProperNumberArray = (input: Array<string|number>): input is number[] => 
 
 export type Value = string | number | bigint | SupiDate | null;
 
-// @todo check if all of these column types actually appear in the result of a Mariadb fetch()
-export type ExtendedColumnType = ColumnType | "LONG" | "LONGLONG" | "SET" | "INT" | "BIGINT";
+/**
+ * The "INT" value is added on top of `mariadb`s types, because it uses two different enums for column types.
+ * Compare the type `3` defined in `field-type.js` and in `types/index.d.ts`:
+ * - https://github.com/mariadb-corporation/mariadb-connector-nodejs/blob/master/lib/const/field-type.js#L12
+ * - https://github.com/mariadb-corporation/mariadb-connector-nodejs/blob/master/types/index.d.ts#L933
+*/
+export type ExtendedColumnType = ColumnType | "INT";
 export declare type MariaRowMeta = {
 	collation: {
 		index: number;
@@ -238,7 +243,7 @@ export default class QuerySingleton {
 				obj.columns.push({
 					name: column.name(),
 					length: column.columnLength ?? null,
-					type: ((column.flags & QuerySingleton.flagMask.SET) === 0) ? column.type : "SET",
+					type: ((column.flags & QuerySingleton.flagMask.SET) === 0) ? column.type : ColumnType.SET,
 					notNull: Boolean(column.flags & QuerySingleton.flagMask.NOT_NULL),
 					primaryKey: Boolean(column.flags & QuerySingleton.flagMask.PRIMARY_KEY),
 					unsigned: Boolean(column.flags & QuerySingleton.flagMask.UNSIGNED),
@@ -397,8 +402,7 @@ export default class QuerySingleton {
 			case "DATETIME":
 			case "TIMESTAMP": return new SupiDate(value);
 
-			case "BIGINT":
-			case "LONGLONG": {
+			case "BIGINT": {
 				if (typeof value !== "number" && typeof value !== "string") {
 					throw new SupiError({
 						message: "Bigint value must be number or string"

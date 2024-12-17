@@ -472,12 +472,15 @@ export default class Recordset {
 
 			const outRow: ResultObject = {};
 			for (const [name, value] of Object.entries(row)) {
-				let type = definition[name];
-				if (definition[name] === "LONGLONG" && !this.#options.bigint) {
-					type = "LONG";
-				}
+				const type = definition[name];
 
-				outRow[name] = this.#query.convertToJS(value, type);
+				// If Recordset is not configured for BigInt and the column is BIGINT, do some impromptu conversion
+				if (type === "BIGINT" && !this.#options.bigint) {
+					outRow[name] = this.#query.convertToJS(value, "INT");
+				}
+				else {
+					outRow[name] = this.#query.convertToJS(value, type);
+				}
 			}
 
 			if (this.#flat) {
