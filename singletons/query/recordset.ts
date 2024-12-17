@@ -5,7 +5,6 @@ import QuerySingleton, {
 	Table,
 	Field,
 	MariaRowMeta,
-	ExtendedColumnType,
 	Value,
 	JavascriptValue, PrimaryKeyValue
 } from "./index.js";
