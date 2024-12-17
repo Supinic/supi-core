@@ -51,33 +51,17 @@ export type ColumnDefinition = {
 	primaryKey: boolean;
 	unsigned: boolean;
 	autoIncrement: boolean;
+	/** @description If true, the column is a numeric field left-filled with zeroes */
 	zeroFill: boolean;
 	length: number;
-
-	/**
-	 * @property {string} name Column name
-	 * @property {string} type Column type
-	 * @property {boolean} notNull If true, column can be set to null
-	 * @property {boolean} primaryKey If true, column is the primary key or a part of it
-	 * @property {boolean} unsigned If true, a numeric column is unsigned
-	 * @property {boolean} autoIncrement If true, the column is an AUTO_INCREMENT primary key
-	 * @property {boolean} zeroFill If true, the column is a numeric field left-filled with zeroes
-	 */
 };
+
 export type TableDefinition = {
 	database: string;
 	name: string;
 	path: string;
 	escapedPath: string;
 	columns: ColumnDefinition[];
-
-	/**
-	 * @property {string} database Database of table
-	 * @property {string} name Name of table
-	 * @property {string} path {@link TableDefinition#database} . {@link TableDefinition#name}
-	 * @property {string} escapedPath like `.path`, but escaped with backticks
-	 * @property {ColumnDefinition[]} columns Column definition
-	 */
 };
 
 export type Database = TableDefinition["database"];
