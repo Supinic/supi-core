@@ -204,7 +204,7 @@ describe("SupiDate", () => {
 			for (const value of values) {
 				let date;
 				assert.doesNotThrow(() => { date = new SupiDate(value); });
-				assert.strictEqual(date!.isValid(), false, `Date should be invalid for value "${value}"`);
+				assert.strictEqual(date!.isValid(), false, "Date should be invalid");
 			}
 		});
 	});
