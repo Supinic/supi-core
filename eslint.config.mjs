@@ -7,8 +7,12 @@ export default tseslint.config(
 	eslintJs.configs.recommended,
 	tseslint.configs.recommendedTypeChecked,
 	{
+		ignores: ["build/", "**/*.js"]
+	},
+	{
 		languageOptions: {
 			parserOptions: {
+				project: true,
 				projectService: true,
 				tsconfigRootDir: import.meta.dirname
 			},
@@ -19,10 +23,6 @@ export default tseslint.config(
 			ecmaVersion: 12,
 			sourceType: "module"
 		},
-		ignores: [
-			"*.d.ts",
-			"*.test.ts"
-		],
 		plugins: {
 			unicorn: unicornPlugin
 		},

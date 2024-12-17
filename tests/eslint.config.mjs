@@ -4,6 +4,9 @@ import baseConfig from "../eslint.config.mjs";
 export default tseslint.config(
 	baseConfig,
 	{
+		ignores: ["**/*.js"]
+	},
+	{
 		rules: {
 			"max-nested-callbacks": "off",
 			"max-statements-per-line": "off",

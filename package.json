@@ -24,9 +24,9 @@
   "scripts": {
     "build": "npx tsc",
     "prepack": "npx tsc",
-    "lint": "eslint --config=eslint.config.mjs index.ts classes/**.ts objects/**.ts singletons/**.ts",
+    "lint": "eslint index.ts classes objects singletons",
     "lint-tests": "eslint --config=tests/eslint.config.mjs tests",
-    "lint:fix": "eslint index.ts classes/**.ts objects/**.ts singletons/**.ts --fix",
+    "lint:fix": "eslint --fix index.ts classes objects singletons",
     "lint-tests:fix": "eslint --fix --config=tests/eslint.config.mjs tests",
     "test": "npx tsc && mocha ./build/tests --recursive --exit",
     "ncu": "yarn dlx npm-check-updates"
