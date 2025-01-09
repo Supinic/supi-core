@@ -1,5 +1,5 @@
 import SupiError from "../../objects/error.js";
-import QuerySingleton, { Database, Table, Value, formatSymbolRegex, FormatValue } from "./index.js";
+import QuerySingleton, { Database, Table, Value, formatSymbolRegex, FormatValue, FormatSymbol } from "./index.js";
 import type { PoolConnection } from "mariadb";
 
 type ConstructorOptions = {
@@ -72,7 +72,7 @@ export default class RecordDeleter {
 		}
 
 		let index = 0;
-		format = format.replace(formatSymbolRegex, (fullMatch, param) => (
+		format = format.replace(formatSymbolRegex, (fullMatch, param: FormatSymbol) => (
 			this.#query.parseFormatSymbol(param, args[index++])
 		));
 
@@ -92,7 +92,7 @@ export default class RecordDeleter {
 	/**
 	 * Translates the RecordDeleter to its SQL representation.
 	 */
-	async toSQL (): Promise<string[]> {
+	toSQL (): string[] {
 		if (!this.#deleteFrom.database || !this.#deleteFrom.table) {
 			throw new SupiError({
 				message: "No UPDATE database/table in RecordUpdater - invalid definition"
@@ -118,7 +118,7 @@ export default class RecordDeleter {
 	}
 
 	async fetch (): Promise<ResultObject> {
-		const sql = await this.toSQL();
+		const sql = this.toSQL();
 		const sqlString = sql.join("\n");
 		return await this.#query.transactionQuery(sqlString, this.#transaction) as ResultObject;
 	}

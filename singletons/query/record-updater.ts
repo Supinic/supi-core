@@ -4,9 +4,8 @@ import QuerySingleton, {
 	Table,
 	ColumnDefinition,
 	Value,
-	TableDefinition,
 	formatSymbolRegex,
-	FormatValue
+	FormatValue, FormatSymbol
 } from "./index.js";
 import type { PoolConnection } from "mariadb";
 
@@ -15,7 +14,7 @@ type ConstructorOptions = {
 	transaction?: PoolConnection;
 };
 
-type WrappedValue = { value: Value; useField: boolean };
+type WrappedValue = { value: string; useField: boolean };
 type Column = ColumnDefinition["name"];
 type SetValue = {
 	column: Column;
@@ -109,7 +108,7 @@ export default class RecordUpdater {
 		}
 
 		let index = 0;
-		format = format.replace(formatSymbolRegex, (fullMatch, param) => (
+		format = format.replace(formatSymbolRegex, (fullMatch, param: FormatSymbol) => (
 			this.#query.parseFormatSymbol(param, args[index++])
 		));
 
@@ -132,8 +131,7 @@ export default class RecordUpdater {
 		const sql = [];
 		const set = [];
 
-		// `as TableDefinition` used while Query is not yet rewritten to TS
-		const { columns } = await this.#query.getDefinition(this.#update.database, this.#update.table) as TableDefinition;
+		const { columns } = await this.#query.getDefinition(this.#update.database, this.#update.table);
 		const priority = (this.#priority === "low") ? "LOW_PRIORITY " : "";
 		const ignore = (this.#ignoreDuplicates) ? "IGNORE " : "";
 
