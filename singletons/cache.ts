@@ -1,10 +1,10 @@
-import Redis from "ioredis";
+import { Redis, RedisOptions } from "ioredis";
 import SupiError from "../objects/error.js";
 
 const GROUP_DELIMITER = String.fromCharCode(7);
 const ITEM_DELIMITER = String.fromCharCode(8);
 
-const isValidInteger = (input) => {
+const isValidInteger = (input: unknown): boolean => {
 	if (typeof input !== "number") {
 		return false;
 	}
@@ -12,14 +12,23 @@ const isValidInteger = (input) => {
 	return Boolean(Number.isFinite(input) && Math.trunc(input) === input);
 };
 
+type KeyObject = {
+	value?: unknown;
+	key?: string;
+	specificKey?: string;
+	expiry?: number;
+	expiresAt?: number;
+	keepTTL?: number;
+}
+
 export default class Cache {
 	/** @type {Redis} */
-	#server;
-	#version = null;
-	#configuration;
+	#server: Redis | null = null;
+	#version: number[] | null = null;
+	#configuration: Partial<RedisOptions>;
 	#initialConnectSuccess = false;
 
-	constructor (configuration) {
+	constructor (configuration: Partial<RedisOptions>) {
 		if (!configuration) {
 			throw new SupiError({
 				message: "Connection configuration not provided"
@@ -39,7 +48,7 @@ export default class Cache {
 			});
 		}
 
-		this.connect();
+		void this.connect();
 	}
 
 	async connect () {
@@ -54,9 +63,9 @@ export default class Cache {
 
 		this.#server = new Redis({
 			...this.#configuration,
-			retryStrategy: (times) => {
+			retryStrategy: (times: number) => {
 				// Initial connect failure - just stop
-				if (this.#initialConnectSuccess === false) {
+				if (!this.#initialConnectSuccess) {
 					throw new SupiError({
 						message: "Cannot establish initial connection to Redis",
 						args: {
@@ -97,8 +106,8 @@ export default class Cache {
 		this.#server.disconnect();
 	}
 
-	async set (data = {}) {
-		if (!this.ready) {
+	async set (data: KeyObject = {}) {
+		if (!this.ready || !this.#server) {
 			throw new SupiError({
 				message: "Redis server is not connected"
 			});
@@ -137,7 +146,7 @@ export default class Cache {
 				});
 			}
 
-			args.push("PX", data.expiry);
+			args.push("PX", String(data.expiry));
 		}
 
 		if (data.expiresAt) {
@@ -158,14 +167,14 @@ export default class Cache {
 				});
 			}
 
-			args.push("PX", (data.expiresAt - now));
+			args.push("PX", String(data.expiresAt - now));
 		}
 
 		if (data.keepTTL) {
 			if (!this.#version || this.#version[0] < 6) {
 				const existingTTL = await this.#server.pttl(args[0]);
 				if (existingTTL >= 0) {
-					args.push("PX", existingTTL);
+					args.push("PX", String(existingTTL));
 				}
 			}
 			else {
@@ -281,14 +290,14 @@ export default class Cache {
 	 * Cleans up and destroys the singleton caching instance
 	 */
 	destroy () {
-		if (this.#server && this.#server.status === "active") {
+		if (this.#server && this.#server.status === "ready") {
 			this.#server.disconnect();
 		}
 
 		this.#server = null;
 	}
 
-	static resolveKey (value) {
+	static resolveKey (value): string {
 		if (value === null || typeof value === "undefined") {
 			throw new SupiError({
 				message: "Cannot use null or undefined as key"
