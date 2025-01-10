@@ -473,8 +473,8 @@ export default class Utils {
 		return result.replace(/id$/i, "ID");
 	}
 
-	convertCaseObject (object: Record<string, unknown>, caseFrom: TextCase, caseTo: TextCase): Record<string, unknown>;
-	convertCaseObject (object: unknown[], caseFrom: TextCase, caseTo: TextCase): unknown[];
+	convertCaseObject<T extends Record<string, unknown>> (object: T, caseFrom: TextCase, caseTo: TextCase): T;
+	convertCaseObject<T extends unknown[]> (object: T, caseFrom: TextCase, caseTo: TextCase): T;
 	convertCaseObject (object: Record<string, unknown> | unknown[], caseFrom: TextCase, caseTo: TextCase): Record<string, unknown> | unknown[] {
 		const result: Record<string, unknown> = {};
 		for (const [key, value] of Object.entries(object)) {
