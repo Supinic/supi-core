@@ -1,3 +1,11 @@
+type DayOfMonth = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+	| 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19
+	| 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29
+	| 30 | 31;
+
+type EnglishDaySuffix = "st" | "nd" | "rd" | "th";
+type HasValueOf = { valueOf: () => number };
+
 export default class SupiDate extends Date {
 	static months = [
 		"January",
@@ -12,13 +20,9 @@ export default class SupiDate extends Date {
 		"October",
 		"November",
 		"December"
-	];
+	] as const;
 
-	static getDaySuffix (number) {
-		if (typeof number !== "number" || Math.trunc(number) !== number) {
-			throw new Error("Input must be an integer");
-		}
-
+	static getDaySuffix (number: DayOfMonth): EnglishDaySuffix {
 		switch (number) {
 			case 1:
 			case 21:
@@ -35,24 +39,18 @@ export default class SupiDate extends Date {
 		}
 	}
 
-	static zf (number, padding) {
+	static zf (number: number, padding: number): string {
 		return ("0".repeat(padding) + number).slice(-padding);
 	}
 
-	static equals (from, to) {
-		const fromValue = from?.valueOf();
-		const toValue = to?.valueOf();
-		if (typeof fromValue !== "number") {
-			throw new Error("from value cannot be converted to a number");
-		}
-		else if (typeof toValue !== "number") {
-			throw new Error("to value cannot be converted to a number");
-		}
+	static equals (from: HasValueOf, to: HasValueOf): boolean {
+		const fromValue = from.valueOf();
+		const toValue = to.valueOf();
 
 		return (fromValue === toValue);
 	}
 
-	static UTC (year, month, ...args) {
+	static UTC (year: number, month: number, ...args: number[]): number {
 		if (typeof month === "number") {
 			month -= 1;
 		}
@@ -60,7 +58,7 @@ export default class SupiDate extends Date {
 		return super.UTC(year, month, ...args);
 	}
 
-	static getTodayUTC () {
+	static getTodayUTC (): number {
 		const today = new Date();
 
 		return super.UTC(
@@ -70,16 +68,17 @@ export default class SupiDate extends Date {
 		);
 	}
 
-	constructor (...args) {
+	constructor (...args: Date[] | SupiDate[] | string[] | number[]) {
 		if (args.length > 1 && args.every(i => typeof i === "number")) {
 			// Subtract one from the month parameter, because of how stupid the JS Date constructor does it.
 			args[1] = args[1] - 1;
 		}
 
+		// @ts-expect-error Date Constructor is too detailed, just pass whatever.
 		super(...args);
 	}
 
-	format (formatString) {
+	format (formatString: string): string {
 		const year = this.year;
 		const month = this.month;
 		const day = this.day;
@@ -146,41 +145,36 @@ export default class SupiDate extends Date {
 		return value;
 	}
 
-	isValid () {
-		return (Number.isNaN(this.valueOf()) === false);
+	isValid (): boolean {
+		return !Number.isNaN(this.valueOf());
 	}
 
-	simpleDate () {
+	simpleDate (): string {
 		return this.format("j.n.Y");
 	}
 
-	simpleDateTime () {
+	simpleDateTime (): string {
 		return this.format("j.n.Y H:i:s");
 	}
 
-	fullDateTime () {
+	fullDateTime (): string {
 		return this.format("j.n.Y H:i:s.v");
 	}
 
-	sqlDate () {
+	sqlDate (): string {
 		return this.format("Y-m-d");
 	}
 
-	sqlTime () {
+	sqlTime (): string {
 		return this.format("H:i:s.v");
 	}
 
-	sqlDateTime () {
+	sqlDateTime (): string {
 		return this.format("Y-m-d H:i:s.v");
 	}
 
-	setTimezoneOffset (offset) {
-		offset = Number(offset);
-
-		if (Number.isNaN(offset)) {
-			throw new Error("Invalid offset");
-		}
-		else if (offset % 15 !== 0) {
+	setTimezoneOffset (offset: number): this {
+		if (offset % 15 !== 0) {
 			throw new Error("Unrecognized offset - make sure to use offset in minutes");
 		}
 
@@ -188,7 +182,7 @@ export default class SupiDate extends Date {
 		return this;
 	}
 
-	discardTimeUnits (...units) {
+	discardTimeUnits (...units: Array<"h" | "m" | "s" | "ms">): this {
 		for (const unit of units) {
 			switch (unit) {
 				case "h":
@@ -203,48 +197,46 @@ export default class SupiDate extends Date {
 				case "ms":
 					this.setMilliseconds(0);
 					break;
-				default:
-					throw new Error(`Unrecognized time unit ${unit}`);
 			}
 		}
 		return this;
 	}
 
-	clone () {
-		return new this.constructor(this);
+	clone (): SupiDate {
+		return new SupiDate(this);
 	}
 
-	addYears (y) {
+	addYears (y: number): this {
 		this.year += y;
 		return this;
 	}
 
-	addMonths (m) {
+	addMonths (m: number): this {
 		this.month += m;
 		return this;
 	}
 
-	addDays (d) {
+	addDays (d: number): this {
 		this.day += d;
 		return this;
 	}
 
-	addHours (h) {
+	addHours (h: number): this {
 		this.hours += h;
 		return this;
 	}
 
-	addMinutes (m) {
+	addMinutes (m: number): this {
 		this.minutes += m;
 		return this;
 	}
 
-	addSeconds (s) {
+	addSeconds (s: number): this {
 		this.seconds += s;
 		return this;
 	}
 
-	addMilliseconds (ms) {
+	addMilliseconds (ms: number): this {
 		this.milliseconds += ms;
 		return this;
 	}
@@ -263,7 +255,7 @@ export default class SupiDate extends Date {
 		}
 	}
 
-	get milliseconds () {
+	get milliseconds (): number {
 		return super.getMilliseconds();
 	}
 
@@ -295,8 +287,8 @@ export default class SupiDate extends Date {
 		super.setHours(h);
 	}
 
-	get day () {
-		return super.getDate();
+	get day (): DayOfMonth {
+		return (super.getDate() as DayOfMonth);
 	}
 
 	set day (d) {
