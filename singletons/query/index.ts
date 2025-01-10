@@ -427,7 +427,15 @@ export default class QuerySingleton {
 			// case ColumnType.TIME:
 			case ColumnType.DATE:
 			case ColumnType.DATETIME:
-			case ColumnType.TIMESTAMP: return new SupiDate(value);
+			case ColumnType.TIMESTAMP: {
+				if (typeof value !== "number") {
+					throw new SupiError({
+						message: "Cannot use non-number values for dates and timestamps"
+					});
+				}
+
+				return new SupiDate(value);
+			}
 
 			case ColumnType.BIGINT: {
 				if (typeof value !== "number" && typeof value !== "string") {

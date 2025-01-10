@@ -68,6 +68,8 @@ export default class SupiDate extends Date {
 		);
 	}
 
+	// @todo make overloads for this
+
 	constructor (...args: Date[] | SupiDate[] | string[] | number[]) {
 		if (args.length > 1 && args.every(i => typeof i === "number")) {
 			// Subtract one from the month parameter, because of how stupid the JS Date constructor does it.
