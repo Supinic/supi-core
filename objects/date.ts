@@ -68,16 +68,24 @@ export default class SupiDate extends Date {
 		);
 	}
 
-	// @todo make overloads for this
-
-	constructor (...args: Date[] | SupiDate[] | string[] | number[]) {
-		if (args.length > 1 && args.every(i => typeof i === "number")) {
+	constructor (input?: string | number | Date | SupiDate);
+	constructor (year: number, month: number, day?: number, hour?: number, minute?: number, second?: number, millis?: number);
+	// eslint-disable-next-line max-params
+	constructor (input?: number | string | Date | SupiDate, month?: number, day?: number, hour?: number, minute?: number, second?: number, millis?: number) {
+		if (typeof month === "number") {
 			// Subtract one from the month parameter, because of how stupid the JS Date constructor does it.
-			args[1] = args[1] - 1;
+			month -= 1;
 		}
 
-		// @ts-expect-error Date Constructor is too detailed, just pass whatever.
-		super(...args);
+		if (typeof input === "undefined") {
+			super();
+		}
+		else if (typeof input === "number" && typeof month === "number") {
+			super(input, month, day, hour, minute, second, millis);
+		}
+		else {
+			super(input);
+		}
 	}
 
 	format (formatString: string): string {

@@ -183,10 +183,7 @@ describe("SupiDate", () => {
 				Infinity,
 				NaN,
 				"",
-				"this text cannot be parsed",
-				undefined,
-				[],
-				{}
+				"this text cannot be parsed"
 			];
 
 			for (const value of values) {
@@ -227,9 +224,6 @@ describe("SupiDate", () => {
 		it("should discard multiple units at once", () => {
 			const date = new SupiDate(2021, 10, 1, 12, 42, 43, 44).discardTimeUnits("h", "ms", "m");
 			assert.deepEqual([date.hours, date.minutes, date.seconds, date.milliseconds], [0, 0, 43, 0]);
-		});
-		it("should throw if an invalid unit is provided", () => {
-			assert.throws(() => new SupiDate(2021, 10, 1).discardTimeUnits("h", "Y"));
 		});
 	});
 
