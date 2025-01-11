@@ -30,7 +30,7 @@ const isFunctionKeyObject = (input: unknown): input is FunctionKeyObject => {
 
 type KeyObject = {
 	key: string;
-	value?: unknown;
+	value: SimpleValue;
 	specificKey?: string;
 	expiry?: number;
 	expiresAt?: number;
@@ -93,7 +93,7 @@ export default class Cache {
 					throw new SupiError({
 						message: "Cannot establish initial connection to Redis",
 						args: {
-							configuration: this.#configuration
+							jsonConfiguration: JSON.stringify(this.#configuration)
 						}
 					});
 				}

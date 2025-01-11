@@ -63,7 +63,10 @@ export default class Metrics {
 					message: "Unsupported metric type provided",
 					args: {
 						type,
-						options
+						options: {
+							name: options.name,
+							help: options.help
+						}
 					}
 				});
 		}

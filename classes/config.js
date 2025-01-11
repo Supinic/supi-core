@@ -1,5 +1,5 @@
 import SupiDate from "../objects/date.ts";
-import SupiError from "../objects/error.js";
+import SupiError from "../objects/error.ts";
 
 const VALID_BOOLEAN_LIKE_VALUES = ["0", "1", "true", "false"];
 

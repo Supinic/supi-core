@@ -150,7 +150,7 @@ export default class QuerySingleton {
 			throw new SupiError({
 				message: "Fetching database connection failed",
 				args: { code },
-				cause: e
+				cause: e as Error
 			});
 		}
 
@@ -461,7 +461,7 @@ export default class QuerySingleton {
 					throw new SupiError({
 						message: "Could not parse JSON value",
 						args: { value },
-						cause: e
+						cause: e as Error
 					});
 				}
 
@@ -495,7 +495,7 @@ export default class QuerySingleton {
 			if (typeof value !== "boolean") {
 				throw new SupiError({
 					message: "Expected value type: boolean",
-					args: value
+					args: { value }
 				});
 			}
 
@@ -513,7 +513,7 @@ export default class QuerySingleton {
 			if (!(value instanceof SupiDate)) {
 				throw new SupiError({
 					message: "Expected value type: date",
-					args: value
+					args: { value }
 				});
 			}
 
