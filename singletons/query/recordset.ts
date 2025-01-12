@@ -129,7 +129,7 @@ export default class Recordset {
 		if (!Number.isFinite(this.#limit)) {
 			throw new SupiError({
 				message: "Limit must be a finite number",
-				args: number
+				args: { number }
 			});
 		}
 
@@ -142,7 +142,7 @@ export default class Recordset {
 		if (!Number.isFinite(this.#offset)) {
 			throw new SupiError({
 				message: "Offset must be a finite number",
-				args: number
+				args: { number }
 			});
 		}
 
@@ -255,7 +255,7 @@ export default class Recordset {
 			if (!toTable || !toDatabase) {
 				throw new SupiError({
 					message: "Missing compulsory arguments for join",
-					args: target
+					args: { target }
 				});
 			}
 

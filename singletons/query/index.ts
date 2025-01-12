@@ -8,7 +8,9 @@ import RecordUpdater from "./record-updater.js";
 import Row from "./row.js";
 
 import { createPool as createMariaDbPool, Pool, PoolConnection, SqlError, Types as ColumnType } from "mariadb";
-import type { SimpleGenericData } from "../../@types/globals.js";
+
+export type JSONifiable = null | boolean | number | string | { [P: string]: JSONifiable } | JSONifiable[];
+export type SimpleGenericData = Record<string, JSONifiable>;
 
 const updateBatchLimit = 1000;
 export const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
@@ -18,6 +20,8 @@ const defaultPoolOptions = {
 	decimalAsNumber: true,
 	bigIntAsNumber: false
 };
+
+const DATE_TIME_TYPES: string[] = [ColumnType.TIME, ColumnType.DATE, ColumnType.DATETIME, ColumnType.TIMESTAMP];
 
 const isValidPositiveInteger = (input: number, min = 0) => Number.isInteger(input) && (input >= min);
 const isStringArray = (input: Array<string|number>): input is string[] => input.every(i => typeof i === "string");
@@ -150,7 +154,7 @@ export default class QuerySingleton {
 			throw new SupiError({
 				message: "Fetching database connection failed",
 				args: { code },
-				cause: e
+				cause: e as Error
 			});
 		}
 
@@ -427,7 +431,15 @@ export default class QuerySingleton {
 			// case ColumnType.TIME:
 			case ColumnType.DATE:
 			case ColumnType.DATETIME:
-			case ColumnType.TIMESTAMP: return new SupiDate(value);
+			case ColumnType.TIMESTAMP: {
+				if (typeof value !== "number" && !(value instanceof Date)) {
+					throw new SupiError({
+						message: "Invalid date value provided"
+					});
+				}
+
+				return new SupiDate(value);
+			}
 
 			case ColumnType.BIGINT: {
 				if (typeof value !== "number" && typeof value !== "string") {
@@ -453,7 +465,7 @@ export default class QuerySingleton {
 					throw new SupiError({
 						message: "Could not parse JSON value",
 						args: { value },
-						cause: e
+						cause: e as Error
 					});
 				}
 
@@ -487,7 +499,7 @@ export default class QuerySingleton {
 			if (typeof value !== "boolean") {
 				throw new SupiError({
 					message: "Expected value type: boolean",
-					args: value
+					args: { value }
 				});
 			}
 
@@ -497,7 +509,7 @@ export default class QuerySingleton {
 			const string = this.escapeString(value.join(","));
 			return `'${string}'`;
 		}
-		else if (targetType === ColumnType.TIME || ColumnType.DATE || ColumnType.DATETIME || targetType === ColumnType.TIMESTAMP) {
+		else if (DATE_TIME_TYPES.includes(targetType)) {
 			if (value instanceof Date) {
 				value = new SupiDate(value);
 			}
@@ -505,7 +517,7 @@ export default class QuerySingleton {
 			if (!(value instanceof SupiDate)) {
 				throw new SupiError({
 					message: "Expected value type: date",
-					args: value
+					args: { value }
 				});
 			}
 

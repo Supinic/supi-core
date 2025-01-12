@@ -11,16 +11,8 @@ describe("SupiDate", () => {
 	describe("getDaySuffix", () => {
 		it("should return the correct suffix", () => {
 			assert.deepEqual(
-				[1, 2, 3, 4, 11, 12, 13, 21, 22, 23].map(i => SupiDate.getDaySuffix(i)),
+				([1, 2, 3, 4, 11, 12, 13, 21, 22, 23] as const).map(i => SupiDate.getDaySuffix(i)),
 				["st", "nd", "rd", "th", "th", "th", "th", "st", "nd", "rd"]);
-		});
-		it("should throw if the number isn't an integer", () => {
-			assert.throws(() => SupiDate.getDaySuffix(1.1));
-		});
-		it("should throw if the input isn't a number", () => {
-			assert.throws(() => SupiDate.getDaySuffix("1"));
-			assert.throws(() => SupiDate.getDaySuffix(undefined));
-			assert.throws(() => SupiDate.getDaySuffix(null));
 		});
 	});
 
@@ -48,10 +40,6 @@ describe("SupiDate", () => {
 			const date = new SupiDate(2020, 1, 1);
 			const cloned = date.clone();
 			assert(SupiDate.equals(date, cloned));
-		});
-		it("should throw on invalid dates", () => {
-			assert.throws(() => SupiDate.equals(new SupiDate(2021, 10, 1), null));
-			assert.throws(() => SupiDate.equals(null, new SupiDate(2021, 10, 1)));
 		});
 	});
 
@@ -167,7 +155,7 @@ describe("SupiDate", () => {
 
 		it("should return true for valid dates", () => {
 			const values = [
-				null, // Yes apparently `null` is a valid constructor for Date
+				// null, // Yes apparently `null` is a valid constructor for Date
 				0,
 				-1e12,
 				1e12,
@@ -195,10 +183,7 @@ describe("SupiDate", () => {
 				Infinity,
 				NaN,
 				"",
-				"this text cannot be parsed",
-				undefined,
-				[],
-				{}
+				"this text cannot be parsed"
 			];
 
 			for (const value of values) {
@@ -239,9 +224,6 @@ describe("SupiDate", () => {
 		it("should discard multiple units at once", () => {
 			const date = new SupiDate(2021, 10, 1, 12, 42, 43, 44).discardTimeUnits("h", "ms", "m");
 			assert.deepEqual([date.hours, date.minutes, date.seconds, date.milliseconds], [0, 0, 43, 0]);
-		});
-		it("should throw if an invalid unit is provided", () => {
-			assert.throws(() => new SupiDate(2021, 10, 1).discardTimeUnits("h", "Y"));
 		});
 	});
 

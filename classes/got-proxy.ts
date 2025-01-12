@@ -229,7 +229,7 @@ const GotProxy = new Proxy(StaticGot, {
 			if (url) {
 				throw new SupiError({
 					message: "Invalid definition - potential duplicate URL argument used",
-					args: { args }
+					args: { url, options }
 				});
 			}
 
@@ -259,7 +259,7 @@ const GotProxy = new Proxy(StaticGot, {
 		else {
 			throw new SupiError({
 				message: "Invalid combination of arguments",
-				args: { args }
+				args: { url, options }
 			});
 		}
 	}
