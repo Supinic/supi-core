@@ -81,7 +81,8 @@ export default class SupiDate extends Date {
 			super();
 		}
 		else if (typeof input === "number" && typeof month === "number") {
-			super(input, month, day, hour, minute, second, millis);
+			const rest = [day, hour, minute, second, millis].filter(i => typeof i === "number");
+			super(input, month, ...rest);
 		}
 		else {
 			super(input);
