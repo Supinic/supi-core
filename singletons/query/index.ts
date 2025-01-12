@@ -8,7 +8,9 @@ import RecordUpdater from "./record-updater.js";
 import Row from "./row.js";
 
 import { createPool as createMariaDbPool, Pool, PoolConnection, SqlError, Types as ColumnType } from "mariadb";
-import type { SimpleGenericData } from "../../@types/globals.js";
+
+export type JSONifiable = null | boolean | number | string | { [P: string]: JSONifiable } | JSONifiable[];
+export type SimpleGenericData = Record<string, JSONifiable>;
 
 const updateBatchLimit = 1000;
 export const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
