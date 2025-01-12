@@ -430,9 +430,9 @@ export default class QuerySingleton {
 			case ColumnType.DATE:
 			case ColumnType.DATETIME:
 			case ColumnType.TIMESTAMP: {
-				if (typeof value !== "number") {
+				if (typeof value !== "number" && !(value instanceof Date)) {
 					throw new SupiError({
-						message: "Cannot use non-number values for dates and timestamps"
+						message: "Invalid date value provided"
 					});
 				}
 
