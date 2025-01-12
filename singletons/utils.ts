@@ -186,7 +186,7 @@ export default class Utils {
 			// now only a difference of <1 year remains.
 			// Then calculate the remaining time range -> The remaining time delta is then represented by
 			// `earlierPlusYears` and `laterRounded`
-			const earlierPlusYears = earlier.clone() as SupiDate; // @todo remove after SupiDate is in Typescript
+			const earlierPlusYears = earlier.clone();
 			earlierPlusYears.setUTCFullYear(earlierPlusYears.getUTCFullYear() + years);
 
 			// this is in case `earlier` lies later "in the year" then `later`.
