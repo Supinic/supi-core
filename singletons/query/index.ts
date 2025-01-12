@@ -21,6 +21,8 @@ const defaultPoolOptions = {
 	bigIntAsNumber: false
 };
 
+const DATE_TIME_TYPES: string[] = [ColumnType.TIME, ColumnType.DATE, ColumnType.DATETIME, ColumnType.TIMESTAMP];
+
 const isValidPositiveInteger = (input: number, min = 0) => Number.isInteger(input) && (input >= min);
 const isStringArray = (input: Array<string|number>): input is string[] => input.every(i => typeof i === "string");
 const isProperNumberArray = (input: Array<string|number>): input is number[] => (
@@ -507,7 +509,7 @@ export default class QuerySingleton {
 			const string = this.escapeString(value.join(","));
 			return `'${string}'`;
 		}
-		else if (targetType === ColumnType.TIME || ColumnType.DATE || ColumnType.DATETIME || targetType === ColumnType.TIMESTAMP) {
+		else if (DATE_TIME_TYPES.includes(targetType)) {
 			if (value instanceof Date) {
 				value = new SupiDate(value);
 			}
