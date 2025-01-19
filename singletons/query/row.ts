@@ -98,7 +98,7 @@ export default class Row {
 		return this;
 	}
 
-	async load (primaryKey: string | PrimaryKeyObject, ignoreError: boolean = false) {
+	async load (primaryKey: PrimaryKeyValue | PrimaryKeyObject, ignoreError: boolean = false) {
 		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot load row - not initialized",

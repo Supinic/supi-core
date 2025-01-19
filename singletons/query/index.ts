@@ -96,7 +96,7 @@ export type Table = TableDefinition["name"];
 export type JavascriptValue = number | string | bigint | boolean | SupiDate | null | string[];
 export type SqlValue = number | string | Date | bigint | null | string[];
 
-export type PrimaryKeyValue = JavascriptValue;
+export type PrimaryKeyValue = number | string | bigint | SupiDate | null;
 export type FormatSymbol = "b" | "d" | "dt" | "n" | "s" | "t" | "s+" | "n+" | "like" | "like*" | "*like" | "*like*";
 export type FormatValue = number | string | boolean | SupiDate | bigint | string[] | number[] | null;
 export type GenericQueryBuilderOptions = {
