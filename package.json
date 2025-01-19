@@ -6,7 +6,7 @@
   "type": "module",
   "dependencies": {
     "cheerio": "^1.0.0",
-    "duration-parser": "github:supinic/duration-parser",
+    "duration-parser": "supinic/duration-parser",
     "got": "^14.4.5",
     "ioredis": "^5.4.2",
     "mariadb": "^3.4.0",
