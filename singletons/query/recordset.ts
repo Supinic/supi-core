@@ -6,7 +6,8 @@ import QuerySingleton, {
 	Field,
 	MariaRowMeta,
 	Value,
-	JavascriptValue, PrimaryKeyValue, FormatSymbol
+	JavascriptValue,
+	FormatSymbol
 } from "./index.js";
 
 const ROW_COLLAPSED = "#row_collapsed";
@@ -516,7 +517,7 @@ export default class Recordset {
 	}
 
 	static collapseReferencedData (data: EnhancedResultObject[], options: ReferenceDescriptor) {
-		const keyMap: Map<PrimaryKeyValue, EnhancedResultObject[]> = new Map();
+		const keyMap: Map<JavascriptValue, EnhancedResultObject[]> = new Map();
 		const { collapseOn: collapser, target, columns } = options;
 		const regex = new RegExp(`^${target}_`);
 

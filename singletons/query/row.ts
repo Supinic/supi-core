@@ -20,6 +20,14 @@ type SaveOptions = {
 	skipLoad?: boolean;
 };
 
+const isPrimaryKeyObject = (input: unknown): input is PrimaryKeyObject => {
+	if (!input || typeof input !== "object") {
+		return false;
+	}
+
+	return (input.constructor === Object);
+};
+
 /**
  * Represents one row of a SQL database table.
  */
@@ -122,7 +130,7 @@ export default class Row {
 		this.reset();
 
 		const conditions = [];
-		if (typeof primaryKey === "object") {
+		if (isPrimaryKeyObject(primaryKey)) {
 			for (const [key, value] of Object.entries(primaryKey)) {
 				const column = this.#definition.columns.find(i => i.name === key);
 				if (!column) {
