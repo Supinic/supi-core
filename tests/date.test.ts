@@ -1,4 +1,4 @@
-import assert from "node:assert";
+import * as assert from "node:assert";
 import SupiDate from "../objects/date.js";
 
 /**
@@ -25,21 +25,21 @@ describe("SupiDate", () => {
 
 	describe("equals", () => {
 		it("should work with itself", () => {
-			assert(SupiDate.equals(new SupiDate(2020, 1, 1), new SupiDate(2020, 1, 1)));
-			assert(!SupiDate.equals(new SupiDate(2020, 1, 1), new SupiDate(2021, 1, 1)));
+			assert.strictEqual(true, SupiDate.equals(new SupiDate(2020, 1, 1), new SupiDate(2020, 1, 1)));
+			assert.strictEqual(true, !SupiDate.equals(new SupiDate(2020, 1, 1), new SupiDate(2021, 1, 1)));
 		});
 		it("should work with native dates", () => {
-			assert(SupiDate.equals(new SupiDate(2020, 1, 1), new Date(2020, 0, 1)));
-			assert(!SupiDate.equals(new SupiDate(2020, 1, 1), new Date(2021, 0, 1)));
+			assert.strictEqual(true, SupiDate.equals(new SupiDate(2020, 1, 1), new Date(2020, 0, 1)));
+			assert.strictEqual(true, !SupiDate.equals(new SupiDate(2020, 1, 1), new Date(2021, 0, 1)));
 		});
 		it("should work with the same object", () => {
 			const date = new SupiDate(2020, 1, 1);
-			assert(SupiDate.equals(date, date));
+			assert.strictEqual(true, SupiDate.equals(date, date));
 		});
 		it("should work with clones", () => {
 			const date = new SupiDate(2020, 1, 1);
 			const cloned = date.clone();
-			assert(SupiDate.equals(date, cloned));
+			assert.strictEqual(true, SupiDate.equals(date, cloned));
 		});
 	});
 
@@ -200,7 +200,7 @@ describe("SupiDate", () => {
 			const other = date.clone();
 			date.setTimezoneOffset(60);
 			other.addMinutes(other.getTimezoneOffset() + 60);
-			assert(SupiDate.equals(date, other));
+			assert.strictEqual(true, SupiDate.equals(date, other));
 		});
 		it("should only accept quarter hours", () => {
 			assert.throws(() => new SupiDate(2021, 10, 1).setTimezoneOffset(42));
@@ -233,7 +233,7 @@ describe("SupiDate", () => {
 			const d2 = d1.clone();
 			d2.setHours(4);
 			assert.deepEqual([d1.hours, d2.hours], [0, 4]);
-			assert(d1 !== d2);
+			assert.strictEqual(true, d1 !== d2);
 		});
 	});
 
