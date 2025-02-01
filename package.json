@@ -32,17 +32,17 @@
     "ncu": "yarn dlx npm-check-updates"
   },
   "devDependencies": {
-    "@eslint/js": "^9.18.0",
+    "@eslint/js": "^9.19.0",
     "@types/mocha": "^10.0.10",
-    "eslint": "^9.18.0",
+    "eslint": "^9.19.0",
     "eslint-plugin-unicorn": "^56.0.1",
     "globals": "^15.14.0",
     "jiti": "^2.4.2",
-    "mocha": "^11.0.1",
+    "mocha": "^11.1.0",
     "nyc": "^17.1.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.19.1"
+    "typescript-eslint": "^8.22.0"
   },
   "types": "./build/index.d.ts",
-  "packageManager": "yarn@4.3.1"
+  "packageManager": "yarn@4.6.0"
 }
