@@ -32,12 +32,8 @@
     "ncu": "yarn dlx npm-check-updates"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.0",
-    "@babel/eslint-parser": "^7.26.5",
     "@eslint/js": "^9.18.0",
     "@types/mocha": "^10.0.10",
-    "@typescript-eslint/eslint-plugin": "latest",
-    "@typescript-eslint/parser": "latest",
     "eslint": "^9.18.0",
     "eslint-plugin-unicorn": "^56.0.1",
     "globals": "^15.14.0",
