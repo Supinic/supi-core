@@ -1,3 +1,4 @@
+export type { RequestError } from "got";
 import * as gotModule from "got";
 import SupiError from "../objects/error.js";
 
