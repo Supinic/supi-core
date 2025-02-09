@@ -1,4 +1,4 @@
-import SupiError from "../../objects/error.js";
+import { SupiError } from "../../objects/error.js";
 import { PoolConnection, Types } from "mariadb";
 import QuerySingleton, {
 	Database,

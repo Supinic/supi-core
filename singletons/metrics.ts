@@ -15,14 +15,14 @@ import {
 import SupiError from "../objects/error.js";
 
 // equivalent of MetricType from `prom-client`, but couldn't be re-imported due to a problematic library export
-declare const enum MetricType {
+const enum MetricType {
 	Counter,
 	Gauge,
 	Histogram,
 	// Summary
 }
 
-declare const enum StringMetricType {
+const enum StringMetricType {
 	Counter = "Counter",
 	Gauge = "Gauge",
 	Histogram = "Histogram"

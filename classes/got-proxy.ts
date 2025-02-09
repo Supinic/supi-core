@@ -18,7 +18,7 @@ const sanitize = (string: string) => string
 
 type ExtendedGotInstance = gotModule.Got & {
 	[nameSymbol]: string;
-}
+};
 
 type GotInstanceFunctionDefinition = {
 	name: string;

@@ -13,7 +13,7 @@ type RequestErrorOptions = ErrorOptions & {
 	hostname?: string;
 };
 
-class SupiError extends globalThis.Error {
+export class SupiError extends globalThis.Error {
 	#args;
 	#timestamp;
 	#messageDescriptor;
@@ -83,7 +83,7 @@ class SupiError extends globalThis.Error {
 	}
 }
 
-class GenericRequestError extends SupiError {
+export class GenericRequestError extends SupiError {
 	constructor (object: RequestErrorOptions) {
 		super({
 			message: object.message,

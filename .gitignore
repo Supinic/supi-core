@@ -1,5 +1,5 @@
 node_modules
 .nyc_output
-.idea/*
-.yarn/*
+.idea/
+.yarn/
 build/

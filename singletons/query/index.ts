@@ -1,5 +1,5 @@
 import SupiDate from "../../objects/date.js";
-import SupiError from "../../objects/error.js";
+import { SupiError } from "../../objects/error.js";
 
 import Batch from "./batch.js";
 import Recordset, { ResultObject as RecordsetResultObject } from "./recordset.js";

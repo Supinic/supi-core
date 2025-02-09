@@ -1,4 +1,4 @@
-import SupiError from "../../objects/error.js";
+import { SupiError } from "../../objects/error.js";
 import QuerySingleton, {
 	Database,
 	Table,
