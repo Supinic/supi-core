@@ -1,19 +1,8 @@
 export { SupiError, GenericRequestError } from "./objects/error.js";
-
-import Date from "./objects/date.js";
-import Promise from "./objects/promise.js";
-import Got from "./classes/got-proxy.js";
-import Query from "./singletons/query/index.js";
-import Cache from "./singletons/cache.js";
-import Metrics from "./singletons/metrics.js";
-import Utils from "./singletons/utils.js";
-
-export {
-	Date,
-	Promise,
-	Got,
-	Query,
-	Cache,
-	Metrics,
-	Utils
-};
+export { default as Date } from "./objects/date.js";
+export { default as Promise } from "./objects/promise.js";
+export { default as Got } from "./classes/got-proxy.js";
+export { default as Query } from "./singletons/query/index.js";
+export { default as Cache } from "./singletons/cache.js";
+export { default as Metrics } from "./singletons/metrics.js";
+export { default as Utils } from "./singletons/utils.js";
