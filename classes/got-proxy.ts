@@ -1,4 +1,3 @@
-export type { RequestError } from "got";
 import * as gotModule from "got";
 import SupiError from "../objects/error.js";
 
@@ -9,6 +8,8 @@ const gotRequestErrors = [
 	gotModule.RequestError,
 	gotModule.TimeoutError
 ];
+
+export const isGotRequestError = (input: unknown): input is gotModule.RequestError => (input instanceof gotModule.RequestError);
 
 // Replace out all occurrences of the "up one level" string - "../"
 // Also if they are followed with another one, like so: "../.."

@@ -1,4 +1,5 @@
 import type SupiDate from "./date.js";
+import * as gotModule from "got";
 
 type SimpleArgument = null | undefined | bigint | SupiDate | boolean | number | string | { [P: string]: SimpleArgument } | SimpleArgument[];
 type ErrorOptions = {
@@ -97,5 +98,8 @@ export class GenericRequestError extends SupiError {
 		return "GenericRequestError" as const;
 	}
 }
+
+export const isSupiError = (input: unknown): input is SupiError => (input instanceof SupiError);
+export const isGenericRequestError = (input: unknown): input is GenericRequestError => (input instanceof GenericRequestError);
 
 export default SupiError;
