@@ -1,5 +1,4 @@
 import type SupiDate from "./date.js";
-import * as gotModule from "got";
 
 type SimpleArgument = null | undefined | bigint | SupiDate | boolean | number | string | { [P: string]: SimpleArgument } | SimpleArgument[];
 type ErrorOptions = {
@@ -15,24 +14,19 @@ type RequestErrorOptions = ErrorOptions & {
 };
 
 export class SupiError extends globalThis.Error {
-	#args;
-	#timestamp;
-	#messageDescriptor;
-	#cause?: SupiError | Error;
+	readonly #args: Record<string, SimpleArgument>;
+	readonly #timestamp: number;
+	readonly #messageDescriptor: PropertyDescriptor;
+	readonly #cause: SupiError | Error | null;
 
 	constructor (obj: ErrorOptions) {
-		const { cause, message } = obj;
+		const { args, cause, message, name } = obj;
 
 		super(message, { cause });
 
-		if (obj.args) {
-			this.#args = Object.freeze(obj.args);
-		}
-		if (cause) {
-			this.#cause = cause;
-		}
-
-		this.name = obj.name ?? "sb.Error";
+		this.#args = args ?? {};
+		this.#cause = cause ?? null;
+		this.name = name ?? "sb.Error";
 		this.#timestamp = Date.now();
 
 		const messageDescriptor = Object.getOwnPropertyDescriptor(this, "message");
