@@ -77,10 +77,6 @@ export class SupiError extends globalThis.Error {
 	get args () { return this.#args; }
 	get timestamp () { return this.#timestamp; }
 	get date () { return new Date(this.#timestamp); }
-
-	static get GenericRequest () {
-		return GenericRequestError;
-	}
 }
 
 export class GenericRequestError extends SupiError {
