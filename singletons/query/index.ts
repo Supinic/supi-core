@@ -122,8 +122,9 @@ type ConstructorOptions = {
 	port?: number;
 };
 
-export default class QuerySingleton {
-	#definitionPromises: Map<Database, ReturnType<QuerySingleton["getDefinition"]>> = new Map();
+export type { Row, Recordset, Batch, RecordDeleter, RecordUpdater };
+export class Query {
+	#definitionPromises: Map<Database, ReturnType<Query["getDefinition"]>> = new Map();
 	tableDefinitions: Record<Database, Record<Table, TableDefinition>> = {};
 
 	pool: Pool;
@@ -171,7 +172,7 @@ export default class QuerySingleton {
 		return result;
 	}
 
-	async send (...args: string[]): ReturnType<QuerySingleton["raw"]> {
+	async send (...args: string[]): ReturnType<Query["raw"]> {
 		return this.raw(...args);
 	}
 
@@ -263,12 +264,12 @@ export default class QuerySingleton {
 				obj.columns.push({
 					name: column.name(),
 					length: column.columnLength ?? null,
-					type: ((column.flags & QuerySingleton.flagMask.SET) === 0) ? column.type : ColumnType.SET,
-					notNull: Boolean(column.flags & QuerySingleton.flagMask.NOT_NULL),
-					primaryKey: Boolean(column.flags & QuerySingleton.flagMask.PRIMARY_KEY),
-					unsigned: Boolean(column.flags & QuerySingleton.flagMask.UNSIGNED),
-					autoIncrement: Boolean(column.flags & QuerySingleton.flagMask.AUTO_INCREMENT),
-					zeroFill: Boolean(column.flags & QuerySingleton.flagMask.ZEROFILL_FLAG)
+					type: ((column.flags & Query.flagMask.SET) === 0) ? column.type : ColumnType.SET,
+					notNull: Boolean(column.flags & Query.flagMask.NOT_NULL),
+					primaryKey: Boolean(column.flags & Query.flagMask.PRIMARY_KEY),
+					unsigned: Boolean(column.flags & Query.flagMask.UNSIGNED),
+					autoIncrement: Boolean(column.flags & Query.flagMask.AUTO_INCREMENT),
+					zeroFill: Boolean(column.flags & Query.flagMask.ZEROFILL_FLAG)
 				});
 			}
 			/* eslint-enable no-bitwise */
@@ -686,3 +687,5 @@ export default class QuerySingleton {
 		return formatSymbolRegex;
 	}
 }
+
+export default Query;

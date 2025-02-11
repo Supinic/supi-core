@@ -28,24 +28,24 @@ const isFunctionKeyObject = (input: unknown): input is FunctionKeyObject => {
 	return (typeof prop.value === "function");
 };
 
-type KeyObject = {
+export type KeyObject = {
 	key: string;
-	value: SimpleValue;
+	value: CacheValue;
 	specificKey?: string;
 	expiry?: number;
 	expiresAt?: number;
 	keepTTL?: number;
-}
+};
 type FunctionKeyObject = {
 	getCacheKey: () => string;
 };
 type KeyLike = string | FunctionKeyObject;
 
-type SimpleValue = string | number | boolean | null | SimpleValue[] | { [P: string]: SimpleValue };
+export type CacheValue = string | number | boolean | null | CacheValue[] | { [P: string]: CacheValue };
 type PrefixOptions = { keys?: Record<string, string> };
 type KeysPrefixOptions = PrefixOptions & { count?: number };
 
-export default class Cache {
+export class Cache {
 	/** @type {Redis} */
 	#server: Redis | null = null;
 	#version: number[] | null = null;
@@ -214,7 +214,7 @@ export default class Cache {
 		return await this.#server.set(...args);
 	}
 
-	async get (keyIdentifier: KeyLike): Promise<SimpleValue> {
+	async get (keyIdentifier: KeyLike): Promise<CacheValue> {
 		if (!this.#server) {
 			throw new SupiError({
 				message: "Redis server is not connected"
@@ -227,7 +227,7 @@ export default class Cache {
 			return value;
 		}
 
-		return JSON.parse(value) as SimpleValue;
+		return JSON.parse(value) as CacheValue;
 	}
 
 	async delete (keyIdentifier: KeyLike): Promise<number> {
@@ -241,7 +241,7 @@ export default class Cache {
 		return this.#server.del(key);
 	}
 
-	async setByPrefix (prefix: KeyLike, value: SimpleValue, options: PrefixOptions = {}): Promise<"OK"> {
+	async setByPrefix (prefix: KeyLike, value: CacheValue, options: PrefixOptions = {}): Promise<"OK"> {
 		if (isFunctionKeyObject(prefix)) {
 			return await this.set({
 				key: prefix.getCacheKey(), // prefix is the object with cache-key method
@@ -262,7 +262,7 @@ export default class Cache {
 		});
 	}
 
-	async getByPrefix (prefix: string, options: PrefixOptions = {}): Promise<SimpleValue> {
+	async getByPrefix (prefix: string, options: PrefixOptions = {}): Promise<CacheValue> {
 		const extraKeys = options.keys ?? {};
 		const key = Cache.resolvePrefix(prefix, extraKeys);
 
@@ -303,7 +303,7 @@ export default class Cache {
 		return results;
 	}
 
-	async getKeyValuesByPrefix (prefix: string, options: KeysPrefixOptions): Promise<SimpleValue[]> {
+	async getKeyValuesByPrefix (prefix: string, options: KeysPrefixOptions): Promise<CacheValue[]> {
 		const keys = await this.getKeysByPrefix(prefix, options);
 		const promises = keys.map(async i => await this.get(i));
 

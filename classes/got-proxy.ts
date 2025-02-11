@@ -218,7 +218,7 @@ interface CallableGot extends StaticGot {
 	(instance: string, options: Partial<gotModule.Options>): ReturnType<gotModule.Got>;
 }
 
-const GotProxy = new Proxy(StaticGot, {
+export const GotProxy = new Proxy(StaticGot, {
 	apply: function (target, thisArg, args: ProxyApplyArgument) {
 		let url: string | null = null;
 		const instance = StaticGot.get(args[0], true);
@@ -265,8 +265,6 @@ const GotProxy = new Proxy(StaticGot, {
 			});
 		}
 	}
-});
-
+}) as unknown as CallableGot;
 // Using `unknown` first because of Proxy not being sufficiently typed - we know the `apply` trap allows
 // calling the result as a function, but the Proxy constructor cannot infer that.
-export default GotProxy as unknown as CallableGot;
