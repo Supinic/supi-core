@@ -22,7 +22,7 @@ type FromObject = {
 export type WhereHavingArgument = string | number | bigint | boolean | null;
 export type WhereHavingOptions = {
 	raw?: string;
-	condition?: string;
+	condition?: boolean | null;
 };
 export type MixedWhereHavingArgument = WhereHavingOptions | WhereHavingArgument;
 
