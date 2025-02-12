@@ -12,7 +12,7 @@ const isValidInteger = (input: unknown): boolean => {
 	return Boolean(Number.isFinite(input) && Math.trunc(input) === input);
 };
 
-const isFunctionKeyObject = (input: unknown): input is FunctionKeyObject => {
+export const isFunctionKeyObject = (input: unknown): input is FunctionKeyObject => {
 	if (!input) {
 		return false;
 	}
@@ -36,12 +36,12 @@ export type KeyObject = {
 	expiresAt?: number;
 	keepTTL?: number;
 };
-type FunctionKeyObject = {
+export type FunctionKeyObject = {
 	getCacheKey: () => string;
 };
-type KeyLike = string | FunctionKeyObject;
-
+export type KeyLike = string | FunctionKeyObject;
 export type CacheValue = string | number | boolean | null | CacheValue[] | { [P: string]: CacheValue };
+
 type PrefixOptions = { keys?: Record<string, string> };
 type KeysPrefixOptions = PrefixOptions & { count?: number };
 
