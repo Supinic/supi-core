@@ -3,8 +3,17 @@ export { default as Date, default as SupiDate } from "./objects/date.js";
 export { default as Promise, default as SupiPromise } from "./objects/promise.js";
 export { GotProxy as Got, isGotRequestError } from "./classes/got-proxy.js";
 export { Cache, type CacheValue } from "./singletons/cache.js";
-export { default as Metrics } from "./singletons/metrics.js";
 export { default as Utils } from "./singletons/utils.js";
+export {
+	Metrics,
+	type Gauge,
+	type Registry,
+	type Counter,
+	type Histogram,
+	type Metric,
+	type MetricConfiguration
+} from "./singletons/metrics.js";
+
 export {
 	Query,
 	type Recordset,

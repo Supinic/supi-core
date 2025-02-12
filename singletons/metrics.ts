@@ -12,6 +12,15 @@ import {
 	Metric
 } from "prom-client";
 
+export {
+	type Gauge,
+	type Registry,
+	type Counter,
+	type Histogram,
+	type Metric,
+	type MetricConfiguration
+} from "prom-client";
+
 import SupiError from "../objects/error.js";
 
 // equivalent of MetricType from `prom-client`, but couldn't be re-imported due to a problematic library export
@@ -31,7 +40,7 @@ const enum StringMetricType {
 /**
  * Very simple module wrapper around the Prometheus client metrics
  */
-export default class Metrics {
+export class Metrics {
 	#registry;
 
 	constructor () {
@@ -101,3 +110,5 @@ export default class Metrics {
 		return this.#registry;
 	}
 }
+
+export default Metrics;
