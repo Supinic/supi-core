@@ -1,9 +1,9 @@
+import SupiDate from "../../objects/date.js";
 import { SupiError } from "../../objects/error.js";
 import QuerySingleton, {
 	Database,
 	Table,
 	ColumnDefinition,
-	Value,
 	formatSymbolRegex,
 	FormatValue, FormatSymbol
 } from "./index.js";
@@ -14,6 +14,7 @@ type ConstructorOptions = {
 	transaction?: PoolConnection;
 };
 
+type Value = string | number | bigint | boolean | SupiDate | null;
 type WrappedValue = { value: string; useField: boolean };
 type Column = ColumnDefinition["name"];
 type SetValue = {
