@@ -1,6 +1,6 @@
-export { SupiError, GenericRequestError, isGenericRequestError, isSupiError } from "./objects/error.js";
-export { default as Date } from "./objects/date.js";
-export { default as Promise } from "./objects/promise.js";
+export { SupiError, SupiError as Error, GenericRequestError, isGenericRequestError, isSupiError } from "./objects/error.js";
+export { default as Date, default as SupiDate } from "./objects/date.js";
+export { default as Promise, default as SupiPromise } from "./objects/promise.js";
 export { GotProxy as Got, isGotRequestError } from "./classes/got-proxy.js";
 export { Cache, type CacheValue } from "./singletons/cache.js";
 export { default as Metrics } from "./singletons/metrics.js";
