@@ -45,7 +45,7 @@ const getTypeName = (input: unknown): string => {
 	}
 };
 
-export type Value = string | number | bigint | SupiDate | null;
+export type Value = string | number | boolean | bigint | SupiDate | null;
 
 /**
  * The "INT" value is added on top of `mariadb`s types, because it uses two different enums for column types.
