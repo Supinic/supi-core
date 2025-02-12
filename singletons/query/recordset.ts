@@ -19,7 +19,7 @@ type FromObject = {
 	database: Database | null;
 	table: Table | null;
 };
-export type WhereHavingArgument = string;
+export type WhereHavingArgument = string | number | bigint | boolean | null;
 export type WhereHavingOptions = {
 	raw?: string;
 	condition?: string;
@@ -181,10 +181,14 @@ export default class Recordset {
 		return this;
 	}
 
+	where (options: WhereHavingOptions, where: string, ...args: WhereHavingArgument[]): this;
+	where (where: string, ...args: WhereHavingArgument[]): this;
 	where (...args: MixedWhereHavingArgument[]): this {
 		return this.#conditionWrapper("where", ...args);
 	}
 
+	having (options: WhereHavingOptions, having: string, ...args: WhereHavingArgument[]): this;
+	having (having: string, ...args: WhereHavingArgument[]): this;
 	having (...args: MixedWhereHavingArgument[]): this {
 		return this.#conditionWrapper("having", ...args);
 	}
