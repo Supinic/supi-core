@@ -4,7 +4,7 @@ import {
 	Gauge,
 	Counter,
 	Histogram,
-	// MetricType,
+	MetricType,
 	MetricConfiguration,
 	CounterConfiguration,
 	GaugeConfiguration,
@@ -18,20 +18,13 @@ export {
 	type Counter,
 	type Histogram,
 	type Metric,
+	type MetricType,
 	type MetricConfiguration
 } from "prom-client";
 
 import SupiError from "../objects/error.js";
 
-// equivalent of MetricType from `prom-client`, but couldn't be re-imported due to a problematic library export
-const enum MetricType {
-	Counter,
-	Gauge,
-	Histogram,
-	// Summary
-}
-
-const enum StringMetricType {
+export const enum StringMetricType {
 	Counter = "Counter",
 	Gauge = "Gauge",
 	Histogram = "Histogram"
