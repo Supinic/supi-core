@@ -19,6 +19,8 @@ export {
 	type Counter,
 	type Histogram,
 	type Metric,
+	type MetricType,
+	type StringMetricType,
 	type MetricConfiguration
 } from "./singletons/metrics.js";
 
