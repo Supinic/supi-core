@@ -19,7 +19,7 @@ type FromObject = {
 	database: Database | null;
 	table: Table | null;
 };
-export type WhereHavingArgument = string | number | bigint | boolean | null;
+export type WhereHavingArgument = string | string[] | number | number[] | bigint | boolean | null;
 export type WhereHavingOptions = {
 	raw?: string;
 	condition?: boolean | null;
@@ -195,7 +195,7 @@ export default class Recordset {
 
 	#conditionWrapper (type: "where" | "having", ...args: MixedWhereHavingArgument[]): this {
 		let options: WhereHavingOptions = {};
-		if (args[0] && typeof args[0] === "object") {
+		if (args[0] && typeof args[0] === "object" && !Array.isArray(args[0])) {
 			options = args[0];
 			args.shift();
 		}
