@@ -4,7 +4,6 @@ import {
 	Gauge,
 	Counter,
 	Histogram,
-	MetricType,
 	MetricConfiguration,
 	CounterConfiguration,
 	GaugeConfiguration,
@@ -18,13 +17,14 @@ export {
 	type Counter,
 	type Histogram,
 	type Metric,
-	type MetricType,
+	// Cannot use MetricType due to:
+	// SyntaxError: Named export 'MetricType' not found. The requested module 'prom-client' is a CommonJS module, which may not support all module.exports as named exports.
 	type MetricConfiguration
 } from "prom-client";
 
 import SupiError from "../objects/error.js";
 
-export const enum StringMetricType {
+export const enum MetricType {
 	Counter = "Counter",
 	Gauge = "Gauge",
 	Histogram = "Histogram"
@@ -44,7 +44,7 @@ export class Metrics {
 		});
 	}
 
-	register<T extends string> (type: MetricType | StringMetricType, options: MetricConfiguration<T>): Metric<T> {
+	register<T extends string> (type: MetricType, options: MetricConfiguration<T>): Metric<T> {
 		const existing = this.get(options.name);
 		if (existing) {
 			return existing;
@@ -52,13 +52,10 @@ export class Metrics {
 
 		switch (type) {
 			case MetricType.Counter:
-			case StringMetricType.Counter:
 				return this.registerCounter(options);
 			case MetricType.Gauge:
-			case StringMetricType.Gauge:
 				return this.registerGauge(options);
 			case MetricType.Histogram:
-			case StringMetricType.Histogram:
 				return this.registerHistogram(options);
 			default:
 				throw new SupiError({
