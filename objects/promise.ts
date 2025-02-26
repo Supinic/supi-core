@@ -7,7 +7,7 @@ export default class SupiPromise<T> extends global.Promise<T> {
 	#resolve: (value: T) => void;
 	#reject: (reason?: Error) => void;
 
-	constructor (handler: Handler<T>) {
+	constructor (handler?: Handler<T>) {
 		let instanceResolve;
 		let instanceReject;
 
