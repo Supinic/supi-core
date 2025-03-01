@@ -42,7 +42,10 @@ export type FunctionKeyObject = {
 export type KeyLike = string | FunctionKeyObject;
 export type CacheValue = string | number | boolean | null | CacheValue[] | { [P: string]: CacheValue };
 
-type PrefixOptions = { keys?: Record<string, string> };
+type PrefixOptions = {
+	keys?: Record<string, string>;
+	expiry?: number;
+};
 type KeysPrefixOptions = PrefixOptions & { count?: number };
 
 export class Cache {
@@ -251,12 +254,11 @@ export class Cache {
 		}
 
 		const optionsMap = new Map(Object.entries(options));
-		const keys = optionsMap.get("keys") ?? {};
 		optionsMap.delete("keys");
-
 		const rest = Object.fromEntries(optionsMap);
+
 		return await this.set({
-			key: Cache.resolvePrefix(prefix, keys),
+			key: Cache.resolvePrefix(prefix, options.keys ?? {}),
 			value,
 			...rest
 		});
