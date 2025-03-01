@@ -52,7 +52,7 @@ export class Cache {
 	#configuration: Partial<RedisOptions>;
 	#initialConnectSuccess = false;
 
-	constructor (configuration: Partial<RedisOptions>) {
+	constructor (configuration: Partial<RedisOptions> | string) {
 		if (!configuration) {
 			throw new SupiError({
 				message: "Connection configuration not provided"
