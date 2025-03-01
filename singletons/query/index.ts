@@ -117,7 +117,7 @@ type BatchUpdateOptions <T> = {
 type ConstructorOptions = {
 	user: string;
 	password: string;
-	connectionLimit?: number;
+	connectionLimit?: number | null;
 	host: string;
 	port?: number;
 };
