@@ -83,7 +83,7 @@ type MetaResultObject = QueryResultObject[] & {
 	meta: MariaRowMeta[]
 };
 
-export type DefaultFetchResult = JavascriptValue | JavascriptValue[] | EnhancedResultObject | EnhancedResultObject[];
+export type DefaultFetchResult = JavascriptValue | JavascriptValue[] | EnhancedResultObject | EnhancedResultObject[] | undefined;
 
 export default class Recordset <T = DefaultFetchResult> {
 	#query: QuerySingleton;
