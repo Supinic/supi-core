@@ -322,7 +322,7 @@ export default class Row <T extends Values = Values> {
 		}
 	}
 
-	setValues (data: T) {
+	setValues (data: Partial<T>) {
 		if (!this.#initialized) {
 			throw new SupiError({
 				message: "Cannot set column values - row not initialized",
@@ -330,7 +330,7 @@ export default class Row <T extends Values = Values> {
 			});
 		}
 
-		for (const [key, value] of Object.entries(data)) {
+		for (const [key, value] of Object.entries(data as Values)) {
 			// This should stay as the .values getter, because this method a simple wrapper around multiple values setting at once
 			this.#values[key] = value;
 		}
