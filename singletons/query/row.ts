@@ -10,7 +10,7 @@ import { PoolConnection, UpsertResult } from "mariadb";
 const UNSET_VALUE: unique symbol = Symbol.for("UNSET");
 
 type Value = JavascriptValue | typeof UNSET_VALUE;
-type Values = Record<string, Value>;
+export type Values = Record<string, Value>;
 type PrimaryKeyObject = Record<string, PrimaryKeyValue>;
 type ConstructorOptions = {
 	transaction?: PoolConnection;
@@ -31,7 +31,7 @@ const isPrimaryKeyObject = (input: unknown): input is PrimaryKeyObject => {
 /**
  * Represents one row of a SQL database table.
  */
-export default class Row <T = Record<string, unknown>> {
+export default class Row <T extends Values = Values> {
 	#definition: TableDefinition | null = null;
 	#query: QuerySingleton;
 	#transaction;
@@ -322,7 +322,7 @@ export default class Row <T = Record<string, unknown>> {
 		}
 	}
 
-	setValues (data: Record<string, Value>) {
+	setValues (data: T) {
 		if (!this.#initialized) {
 			throw new SupiError({
 				message: "Cannot set column values - row not initialized",
@@ -332,7 +332,7 @@ export default class Row <T = Record<string, unknown>> {
 
 		for (const [key, value] of Object.entries(data)) {
 			// This should stay as the .values getter, because this method a simple wrapper around multiple values setting at once
-			this.values[key] = value;
+			this.#values[key] = value;
 		}
 
 		return this;
@@ -374,10 +374,10 @@ export default class Row <T = Record<string, unknown>> {
 		return conditions;
 	}
 
-	get valuesObject () { return { ...this.#values }; }
+	get valuesObject (): T { return { ...this.#values } as T; }
 
-	get values () { return this.#valueProxy; }
-	get originalValues () { return this.#originalValues; }
+	get values (): T { return this.#valueProxy as T; }
+	get originalValues () { return this.#originalValues as T; }
 
 	get PK (): PrimaryKeyObject {
 		const obj: PrimaryKeyObject = {};

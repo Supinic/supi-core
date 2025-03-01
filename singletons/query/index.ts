@@ -5,7 +5,7 @@ import Batch from "./batch.js";
 import Recordset, { DefaultFetchResult, ResultObject as RecordsetResultObject } from "./recordset.js";
 import RecordDeleter from "./record-deleter.js";
 import RecordUpdater from "./record-updater.js";
-import Row from "./row.js";
+import Row, { Values } from "./row.js";
 
 import { createPool as createMariaDbPool, Pool, PoolConnection, SqlError, Types as ColumnType } from "mariadb";
 
@@ -191,7 +191,7 @@ export class Query {
 		return connector;
 	}
 
-	async getRecordset <T = DefaultFetchResult> (callback: (rs: Recordset<T>) => Recordset<T>, options: GenericQueryBuilderOptions = {}): ReturnType<Recordset<T>["fetch"]> {
+	async getRecordset <T extends DefaultFetchResult = DefaultFetchResult> (callback: (rs: Recordset<T>) => Recordset<T>, options: GenericQueryBuilderOptions = {}): ReturnType<Recordset<T>["fetch"]> {
 		const rs = new Recordset<T>(this, options);
 		callback(rs);
 		return await rs.fetch();
@@ -209,8 +209,8 @@ export class Query {
 		return await ru.fetch();
 	}
 
-	async getRow <T = Record<string, unknown>> (database: Database, table: Table, options: GenericQueryBuilderOptions = {}): Promise<Row<T>> {
-		const row = new Row(this, options);
+	async getRow <T extends Values = Values> (database: Database, table: Table, options: GenericQueryBuilderOptions = {}): Promise<Row<T>> {
+		const row = new Row<T>(this, options);
 		await row.initialize(database, table);
 		return row;
 	}
