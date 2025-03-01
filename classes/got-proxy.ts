@@ -213,9 +213,9 @@ class StaticGot {
 type ProxyApplyArgument = [string] | [string, string] | [string, Partial<gotModule.Options>];
 
 type CallableGot = typeof StaticGot & {
-	(url: string): ReturnType<gotModule.Got>;
-	(instance: string): ReturnType<gotModule.Got>;
-	(instance: string, options: Partial<gotModule.Options>): ReturnType<gotModule.Got>;
+	<T = string>(url: string): gotModule.Response<T>;
+	<T = string>(instance: string): gotModule.Response<T>;
+	<T = string>(instance: string, options: Partial<gotModule.Options>): gotModule.Response<T>;
 };
 
 export const GotProxy = new Proxy(StaticGot, {
