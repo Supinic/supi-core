@@ -215,7 +215,7 @@ export class Query {
 		return row;
 	}
 
-	async getBatch (database: Database, table: Table, columns: Field[], options: BatchOptions): Promise<Batch> {
+	async getBatch (database: Database, table: Table, columns: Field[], options?: BatchOptions): Promise<Batch> {
 		const batch = new Batch(this, {
 			...options,
 			database,
