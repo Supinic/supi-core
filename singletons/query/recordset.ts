@@ -83,7 +83,9 @@ type MetaResultObject = QueryResultObject[] & {
 	meta: MariaRowMeta[]
 };
 
-export default class Recordset {
+type DefaultFetchResult = JavascriptValue | JavascriptValue[] | EnhancedResultObject | EnhancedResultObject[];
+
+export default class Recordset <T = DefaultFetchResult> {
 	#query: QuerySingleton;
 	#transaction?: PoolConnection;
 	#fetchSingle = false;
@@ -443,7 +445,7 @@ export default class Recordset {
 		return sql;
 	}
 
-	async fetch (): Promise<JavascriptValue | JavascriptValue[] | EnhancedResultObject | EnhancedResultObject[]> {
+	async fetch (): Promise<T> {
 		if (!this.#from.database || !this.#from.table) {
 			throw new SupiError({
 				message: "No from() call used in Recordset"
@@ -516,8 +518,8 @@ export default class Recordset {
 
 		const result = (this.#flat) ? valueResult : objectResult;
 		return (this.#fetchSingle)
-			? result[0]
-			: result;
+			? result[0] as T
+			: result as T;
 	}
 
 	static collapseReferencedData (data: EnhancedResultObject[], options: ReferenceDescriptor) {
