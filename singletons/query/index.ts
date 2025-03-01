@@ -2,7 +2,7 @@ import SupiDate from "../../objects/date.js";
 import { SupiError } from "../../objects/error.js";
 
 import Batch from "./batch.js";
-import Recordset, { ResultObject as RecordsetResultObject } from "./recordset.js";
+import Recordset, { DefaultFetchResult, ResultObject as RecordsetResultObject } from "./recordset.js";
 import RecordDeleter from "./record-deleter.js";
 import RecordUpdater from "./record-updater.js";
 import Row from "./row.js";
@@ -191,8 +191,8 @@ export class Query {
 		return connector;
 	}
 
-	async getRecordset (callback: (rs: Recordset) => Recordset, options: GenericQueryBuilderOptions = {}): ReturnType<Recordset["fetch"]> {
-		const rs = new Recordset(this, options);
+	async getRecordset <T = DefaultFetchResult> (callback: (rs: Recordset<T>) => Recordset<T>, options: GenericQueryBuilderOptions = {}): ReturnType<Recordset<T>["fetch"]> {
+		const rs = new Recordset<T>(this, options);
 		callback(rs);
 		return await rs.fetch();
 	}
