@@ -209,7 +209,7 @@ export class Query {
 		return await ru.fetch();
 	}
 
-	async getRow (database: Database, table: Table, options: GenericQueryBuilderOptions = {}): Promise<Row> {
+	async getRow <T = Record<string, unknown>> (database: Database, table: Table, options: GenericQueryBuilderOptions = {}): Promise<Row<T>> {
 		const row = new Row(this, options);
 		await row.initialize(database, table);
 		return row;
@@ -285,34 +285,34 @@ export class Query {
 	}
 
 	async isDatabasePresent (database: Database): Promise<boolean> {
-		const exists = await this.getRecordset(rs => rs
+		const exists = await this.getRecordset<RecordsetResultObject>(rs => rs
 			.select("1")
 			.from("INFORMATION_SCHEMA", "SCHEMATA")
 			.where("SCHEMA_NAME = %s", database)
-		) as RecordsetResultObject;
+		);
 
 		return (exists.length !== 0);
 	}
 
 	async isTablePresent (database: Database, table: Table): Promise<boolean> {
-		const exists = await this.getRecordset(rs => rs
+		const exists = await this.getRecordset<RecordsetResultObject>(rs => rs
 			.select("1")
 			.from("INFORMATION_SCHEMA", "TABLES")
 			.where("TABLE_SCHEMA = %s", database)
 			.where("TABLE_NAME = %s", table)
-		) as RecordsetResultObject;
+		);
 
 		return (exists.length !== 0);
 	}
 
 	async isTableColumnPresent (database: Database, table: Table, column: Field): Promise<boolean> {
-		const exists = await this.getRecordset(rs => rs
+		const exists = await this.getRecordset<RecordsetResultObject>(rs => rs
 			.select("1")
 			.from("INFORMATION_SCHEMA", "COLUMNS")
 			.where("TABLE_SCHEMA = %s", database)
 			.where("TABLE_NAME = %s", table)
 			.where("COLUMN_NAME = %s", column)
-		) as RecordsetResultObject;
+		);
 
 		return (exists.length !== 0);
 	}

@@ -31,7 +31,7 @@ const isPrimaryKeyObject = (input: unknown): input is PrimaryKeyObject => {
 /**
  * Represents one row of a SQL database table.
  */
-export default class Row {
+export default class Row <T = Record<string, unknown>> {
 	#definition: TableDefinition | null = null;
 	#query: QuerySingleton;
 	#transaction;
@@ -394,7 +394,7 @@ export default class Row {
 	get initialized () { return this.#initialized; }
 	get loaded () { return this.#loaded; }
 
-	hasDefinition (): this is Row & { definition: object } {
+	hasDefinition (): this is Row<T> & { definition: object } {
 		return this.#initialized;
 	}
 }
