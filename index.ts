@@ -1,7 +1,7 @@
 export { SupiError, SupiError as Error, GenericRequestError, isGenericRequestError, isSupiError } from "./objects/error.js";
 export { default as Date, default as SupiDate } from "./objects/date.js";
 export { default as Promise, default as SupiPromise } from "./objects/promise.js";
-export { GotProxy as Got, isGotRequestError } from "./classes/got-proxy.js";
+export { GotProxy as Got, isGotRequestError, type GotInstanceDefinition } from "./classes/got-proxy.js";
 export { default as Utils } from "./singletons/utils.js";
 export {
 	Cache,

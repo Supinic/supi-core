@@ -36,7 +36,7 @@ type GotInstanceObjectDefinition = {
 	parent: string | null;
 	description: string;
 }
-type GotInstanceDefinition = GotInstanceFunctionDefinition | GotInstanceObjectDefinition;
+export type GotInstanceDefinition = GotInstanceFunctionDefinition | GotInstanceObjectDefinition;
 
 type GqlRequestOptions = {
 	query?: string;
