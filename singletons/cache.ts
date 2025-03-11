@@ -378,5 +378,13 @@ export class Cache {
 
 	get version () { return this.#version; }
 
-	get server () { return this.#server; }
+	get server () {
+		if (!this.#server) {
+			throw new SupiError({
+				message: "Cache server is not initialized"
+			});
+		}
+
+		return this.#server;
+	}
 }
