@@ -26,13 +26,11 @@ export default class SupiPromise<T> extends global.Promise<T> {
 		this.#reject = instanceReject;
 	}
 
-	resolve (value: T): SupiPromise<T> {
+	resolve (value: T) {
 		this.#resolve(value);
-		return this;
 	}
 
-	reject (value: Error): SupiPromise<T> {
+	reject (value: Error) {
 		this.#reject(value);
-		return this;
 	}
 }
