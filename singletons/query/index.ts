@@ -37,7 +37,7 @@ const getTypeName = (input: unknown): string => {
 	else if (input === undefined) {
 		return "undefined";
 	}
-	else if (typeof input === "object" && typeof input?.constructor?.name === "string") {
+	else if (typeof input === "object" && typeof input.constructor.name === "string") {
 		return input.constructor.name;
 	}
 	else {
@@ -103,9 +103,12 @@ export type GenericQueryBuilderOptions = {
 	transaction?: PoolConnection
 };
 
-type BatchOptions = ConstructorParameters<typeof Batch> & {
+type BatchOptions = {
 	database: Database;
 	table: Table;
+	query: Query;
+	transaction?: PoolConnection;
+	threshold?: number;
 };
 
 type BatchUpdateOptions <T> = {
@@ -125,7 +128,7 @@ type ConstructorOptions = {
 export type { Row, Recordset, Batch, RecordDeleter, RecordUpdater };
 export class Query {
 	#definitionPromises: Map<Database, ReturnType<Query["getDefinition"]>> = new Map();
-	tableDefinitions: Record<Database, Record<Table, TableDefinition>> = {};
+	tableDefinitions: Record<Database, Record<Table, TableDefinition | undefined> | undefined> = {};
 
 	pool: Pool;
 
@@ -263,7 +266,7 @@ export class Query {
 			for (const column of data.meta) {
 				obj.columns.push({
 					name: column.name(),
-					length: column.columnLength ?? null,
+					length: column.columnLength,
 					type: ((column.flags & Query.flagMask.SET) === 0) ? column.type : ColumnType.SET,
 					notNull: Boolean(column.flags & Query.flagMask.NOT_NULL),
 					primaryKey: Boolean(column.flags & Query.flagMask.PRIMARY_KEY),
@@ -306,7 +309,8 @@ export class Query {
 	}
 
 	async isTableColumnPresent (database: Database, table: Table, column: Field): Promise<boolean> {
-		const exists = await this.getRecordset<RecordsetResultObject>(rs => rs
+		type OneResult = [{ 1: 1; }];
+		const exists = await this.getRecordset<[] | OneResult>(rs => rs
 			.select("1")
 			.from("INFORMATION_SCHEMA", "COLUMNS")
 			.where("TABLE_SCHEMA = %s", database)
@@ -396,7 +400,7 @@ export class Query {
 
 	invalidateDefinition (database: Database, table: Table) {
 		if (this.tableDefinitions[database] && this.tableDefinitions[database][table]) {
-			delete this.tableDefinitions[database][table];
+			this.tableDefinitions[database][table] = undefined;
 		}
 	}
 

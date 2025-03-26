@@ -86,10 +86,10 @@ type MetaResultObject = QueryResultObject[] & {
 export type DefaultFetchResult = JavascriptValue | JavascriptValue[] | EnhancedResultObject | EnhancedResultObject[] | undefined;
 
 export default class Recordset <T = DefaultFetchResult> {
-	#query: QuerySingleton;
-	#transaction?: PoolConnection;
+	private readonly query: QuerySingleton;
+	private readonly transaction: PoolConnection | undefined;
+
 	#fetchSingle = false;
-	#raw = null;
 	#options: UseOptions = {};
 	#flat: string | null = null;
 
@@ -106,8 +106,8 @@ export default class Recordset <T = DefaultFetchResult> {
 	#reference: ReferenceDescriptor[] = [];
 
 	constructor (query: QuerySingleton, options: ConstructorOptions = {}) {
-		this.#query = query;
-		this.#transaction = options.transaction;
+		this.query = query;
+		this.transaction = options.transaction;
 	}
 
 	single (): this {
@@ -220,21 +220,15 @@ export default class Recordset <T = DefaultFetchResult> {
 		}
 
 		let index = 0;
-		format = format.replace(this.#query.formatSymbolRegex, (fullMatch, param: FormatSymbol) => (
-			this.#query.parseFormatSymbol(param, restArgs[index++])
+		format = format.replace(this.query.formatSymbolRegex, (fullMatch, param: FormatSymbol) => (
+			this.query.parseFormatSymbol(param, restArgs[index++])
 		));
 
 		if (type === "where") {
 			this.#where = this.#where.concat(format);
 		}
-		else if (type === "having") {
-			this.#having = this.#having.concat(format);
-		}
 		else {
-			throw new SupiError({
-				message: "Recordset: Unrecognized condition wrapper option",
-				args: { type, args }
-			});
+			this.#having = this.#having.concat(format);
 		}
 
 		return this;
@@ -380,7 +374,7 @@ export default class Recordset <T = DefaultFetchResult> {
 			}
 
 			this.#reference.push({
-				collapseOn: collapseOn ?? null,
+				collapseOn,
 				columns: fields,
 				target: targetAlias ?? targetTable
 			});
@@ -404,22 +398,17 @@ export default class Recordset <T = DefaultFetchResult> {
 	}
 
 	toSQL () {
-		if (this.#raw) {
-			return this.#raw;
-		}
-
 		if (this.#select.length === 0) {
 			throw new SupiError({
 				message: "No SELECT in Recordset - invalid definition"
 			});
 		}
 
-		const sql = [];
-		sql.push(`SELECT ${this.#select.map(select => this.#query.escapeIdentifier(select)).join(", ")}`);
+		const sql = [
+			`SELECT ${this.#select.map(select => this.query.escapeIdentifier(select)).join(", ")}`,
+			`FROM \`${this.#from.database}\`.\`${this.#from.table}\``
+		];
 
-		if (this.#from) {
-			sql.push(`FROM \`${this.#from.database}\`.\`${this.#from.table}\``);
-		}
 		if (this.#join.length !== 0) {
 			sql.push(this.#join.join(" "));
 		}
@@ -457,14 +446,14 @@ export default class Recordset <T = DefaultFetchResult> {
 		let rows = null;
 
 		try {
-			rows = await this.#query.transactionQuery(sqlString, this.#transaction) as MetaResultObject;
+			rows = await this.query.transactionQuery(sqlString, this.transaction) as MetaResultObject;
 		}
 		catch (e) {
 			console.error(e);
 			throw e;
 		}
 
-		const { columns } = await this.#query.getDefinition(this.#from.database, this.#from.table);
+		const { columns } = await this.query.getDefinition(this.#from.database, this.#from.table);
 		const valueResult: JavascriptValue[] = [];
 		let objectResult: EnhancedResultObject[] = [];
 
@@ -491,10 +480,10 @@ export default class Recordset <T = DefaultFetchResult> {
 
 				// If Recordset is not configured for BigInt and the column is BIGINT, do some impromptu conversion
 				if (columnDef.type === Types.BIGINT && !this.#options.bigint) {
-					outRow[name] = this.#query.convertToJS(value, "INT");
+					outRow[name] = this.query.convertToJS(value, "INT");
 				}
 				else {
-					outRow[name] = this.#query.convertToJS(value, columnDef.type);
+					outRow[name] = this.query.convertToJS(value, columnDef.type);
 				}
 			}
 
@@ -551,6 +540,7 @@ export default class Recordset <T = DefaultFetchResult> {
 			const copiedProperties: Record<string, JavascriptValue | ResultObject[]> = {};
 			for (const column of columns) {
 				copiedProperties[column.replace(regex, "")] = row[column];
+				// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 				delete row[column];
 			}
 

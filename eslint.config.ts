@@ -5,7 +5,7 @@ import globals from "globals";
 
 export default tseslint.config(
 	eslintJs.configs.recommended,
-	tseslint.configs.recommendedTypeChecked,
+	tseslint.configs.strictTypeChecked,
 	{
 		ignores: ["build/", "**/*.js"]
 	},
@@ -28,6 +28,9 @@ export default tseslint.config(
 		},
 		rules: {
 			"@typescript-eslint/no-floating-promises": "error",
+			"@typescript-eslint/restrict-template-expressions": ["error", {
+				allowNumber: true
+			}],
 			"array-bracket-newline": ["warn", "consistent"],
 			"array-bracket-spacing": ["warn", "never"],
 			"array-element-newline": ["warn", "consistent"],

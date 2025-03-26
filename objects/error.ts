@@ -43,12 +43,12 @@ export class SupiError extends globalThis.Error {
 					: this.#messageDescriptor.value as string;
 
 				const parts = [superMessage];
-				if (this.#args) {
+				if (Object.keys(this.#args).length !== 0) {
 					parts.push(`- arguments: ${JSON.stringify(this.#args)}`);
 				}
 
 				if (this.#cause) {
-					const causeMessage = `cause: ${this.#cause.message ?? "(empty message)"} ${this.#cause.stack ?? "(no stack)"}`;
+					const causeMessage = `cause: ${this.#cause.message} ${this.#cause.stack ?? "(no stack)"}`;
 					const tabbedMessage = causeMessage
 						.trim()
 						.split("\n")

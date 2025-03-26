@@ -30,8 +30,11 @@ type ResultObject = Record<string, Value>;
 type ConditionObject = { condition: boolean; };
 
 const isWrappedValue = (value: Value | WrappedValue): value is WrappedValue => {
-	const wrap = value as WrappedValue;
-	return (wrap && typeof wrap === "object" && typeof wrap.useField === "boolean");
+	if (!value || typeof value !== "object" || value instanceof SupiDate) {
+		return false;
+	}
+
+	return (typeof value.useField === "boolean");
 };
 
 /**

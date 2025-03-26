@@ -45,6 +45,7 @@ type GqlRequestOptions = {
 	headers?: Record<string, string>;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 class StaticGot {
 	static data: ExtendedGotInstance[];
 
@@ -213,9 +214,7 @@ class StaticGot {
 type ProxyApplyArgument = [string] | [string, string] | [string, Partial<gotModule.Options>];
 
 type CallableGot = typeof StaticGot & {
-	<T = string>(url: string): gotModule.Response<T>;
-	<T = string>(instance: string): gotModule.Response<T>;
-	<T = string>(instance: string, options: Partial<gotModule.Options>): gotModule.Response<T>;
+	<T = string>(urlOrInstanceName: string, options: Partial<gotModule.Options>): gotModule.Response<T>;
 };
 
 export const GotProxy = new Proxy(StaticGot, {

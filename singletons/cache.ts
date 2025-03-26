@@ -28,6 +28,14 @@ export const isFunctionKeyObject = (input: unknown): input is FunctionKeyObject 
 	return (typeof prop.value === "function");
 };
 
+const assertServerConnected: ((input: Redis | null) => asserts input is Redis) = (input) => {
+	if (input === null) {
+		throw new SupiError({
+			message: "Redis server is not connected"
+		});
+	}
+};
+
 export type KeyObject = {
 	key: string;
 	value: CacheValue;
@@ -49,7 +57,6 @@ type PrefixOptions = {
 type KeysPrefixOptions = PrefixOptions & { count?: number };
 
 export class Cache {
-	/** @type {Redis} */
 	#server: Redis | null = null;
 	#version: number[] | null = null;
 	#configuration: Partial<RedisOptions>;
@@ -134,12 +141,9 @@ export class Cache {
 	}
 
 	async set (data: KeyObject): Promise<"OK"> {
-		if (!this.ready || !this.#server) {
-			throw new SupiError({
-				message: "Redis server is not connected"
-			});
-		}
-		else if (typeof data.value === "undefined") {
+		assertServerConnected(this.#server);
+
+		if (typeof data.value === "undefined") {
 			throw new SupiError({
 				message: "Provided value must not be undefined"
 			});
@@ -218,11 +222,7 @@ export class Cache {
 	}
 
 	async get (keyIdentifier: KeyLike): Promise<CacheValue> {
-		if (!this.#server) {
-			throw new SupiError({
-				message: "Redis server is not connected"
-			});
-		}
+		assertServerConnected(this.#server);
 
 		const key = Cache.resolveKey(keyIdentifier);
 		const value = await this.#server.get(key);
@@ -234,11 +234,7 @@ export class Cache {
 	}
 
 	async delete (keyIdentifier: KeyLike): Promise<number> {
-		if (!this.#server) {
-			throw new SupiError({
-				message: "Redis server is not connected"
-			});
-		}
+		assertServerConnected(this.#server);
 
 		const key = Cache.resolveKey(keyIdentifier);
 		return this.#server.del(key);
@@ -272,22 +268,13 @@ export class Cache {
 	}
 
 	async getKeysByPrefix (prefix: string, options: KeysPrefixOptions = {}): Promise<string[]> {
-		if (!this.#server) {
-			throw new SupiError({
-				message: "Redis server is not connected"
-			});
-		}
+		assertServerConnected(this.#server);
 
 		const prefixKey = [prefix];
 		const extraKeys = options.keys ?? {};
 
 		for (const [key, value] of Object.entries(extraKeys)) {
-			if (value === null || value === undefined) {
-				prefixKey.push(key, ITEM_DELIMITER, "*");
-			}
-			else {
-				prefixKey.push(key, ITEM_DELIMITER, String(value));
-			}
+			prefixKey.push(key, ITEM_DELIMITER, String(value));
 		}
 
 		const searchKey = prefixKey.join(GROUP_DELIMITER);
@@ -379,12 +366,7 @@ export class Cache {
 	get version () { return this.#version; }
 
 	get server () {
-		if (!this.#server) {
-			throw new SupiError({
-				message: "Cache server is not initialized"
-			});
-		}
-
+		assertServerConnected(this.#server);
 		return this.#server;
 	}
 }

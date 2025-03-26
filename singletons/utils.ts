@@ -403,7 +403,7 @@ export default class Utils {
 	 * Pads a number with specified number of zeroes.
 	 */
 	zf (number: number, padding: number): string {
-		return ("0".repeat(padding) + number).slice(-padding);
+		return ("0".repeat(padding) + String(number)).slice(-padding);
 	}
 
 	/**
