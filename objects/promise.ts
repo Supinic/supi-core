@@ -3,6 +3,9 @@ export declare type Handler<T> = (
 	reject: (reason?: Error) => void
 ) => void;
 
+/**
+ * @deprecated Use Promise.withResolvers if available
+ */
 export default class SupiPromise<T> extends global.Promise<T> {
 	#resolve: (value: T) => void;
 	#reject: (reason?: Error) => void;
