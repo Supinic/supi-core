@@ -13,25 +13,20 @@ type RequestErrorOptions = ErrorOptions & {
 	hostname?: string;
 };
 
-class SupiError extends globalThis.Error {
-	#args;
-	#timestamp;
-	#messageDescriptor;
-	#cause?: SupiError | Error;
+export class SupiError extends globalThis.Error {
+	readonly #args: Record<string, SimpleArgument>;
+	readonly #timestamp: number;
+	readonly #messageDescriptor: PropertyDescriptor;
+	readonly #cause: SupiError | Error | null;
 
 	constructor (obj: ErrorOptions) {
-		const { cause, message } = obj;
+		const { args, cause, message, name } = obj;
 
 		super(message, { cause });
 
-		if (obj.args) {
-			this.#args = Object.freeze(obj.args);
-		}
-		if (cause) {
-			this.#cause = cause;
-		}
-
-		this.name = obj.name ?? "sb.Error";
+		this.#args = args ?? {};
+		this.#cause = cause ?? null;
+		this.name = name ?? "sb.Error";
 		this.#timestamp = Date.now();
 
 		const messageDescriptor = Object.getOwnPropertyDescriptor(this, "message");
@@ -48,12 +43,12 @@ class SupiError extends globalThis.Error {
 					: this.#messageDescriptor.value as string;
 
 				const parts = [superMessage];
-				if (this.#args) {
+				if (Object.keys(this.#args).length !== 0) {
 					parts.push(`- arguments: ${JSON.stringify(this.#args)}`);
 				}
 
 				if (this.#cause) {
-					const causeMessage = `cause: ${this.#cause.message ?? "(empty message)"} ${this.#cause.stack ?? "(no stack)"}`;
+					const causeMessage = `cause: ${this.#cause.message} ${this.#cause.stack ?? "(no stack)"}`;
 					const tabbedMessage = causeMessage
 						.trim()
 						.split("\n")
@@ -77,13 +72,9 @@ class SupiError extends globalThis.Error {
 	get args () { return this.#args; }
 	get timestamp () { return this.#timestamp; }
 	get date () { return new Date(this.#timestamp); }
-
-	static get GenericRequest () {
-		return GenericRequestError;
-	}
 }
 
-class GenericRequestError extends SupiError {
+export class GenericRequestError extends SupiError {
 	constructor (object: RequestErrorOptions) {
 		super({
 			message: object.message,
@@ -101,5 +92,8 @@ class GenericRequestError extends SupiError {
 		return "GenericRequestError" as const;
 	}
 }
+
+export const isSupiError = (input: unknown): input is SupiError => (input instanceof SupiError);
+export const isGenericRequestError = (input: unknown): input is GenericRequestError => (input instanceof GenericRequestError);
 
 export default SupiError;

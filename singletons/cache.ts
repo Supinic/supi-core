@@ -12,7 +12,7 @@ const isValidInteger = (input: unknown): boolean => {
 	return Boolean(Number.isFinite(input) && Math.trunc(input) === input);
 };
 
-const isFunctionKeyObject = (input: unknown): input is FunctionKeyObject => {
+export const isFunctionKeyObject = (input: unknown): input is FunctionKeyObject => {
 	if (!input) {
 		return false;
 	}
@@ -28,31 +28,41 @@ const isFunctionKeyObject = (input: unknown): input is FunctionKeyObject => {
 	return (typeof prop.value === "function");
 };
 
-type KeyObject = {
+const assertServerConnected: ((input: Redis | null) => asserts input is Redis) = (input) => {
+	if (input === null) {
+		throw new SupiError({
+			message: "Redis server is not connected"
+		});
+	}
+};
+
+export type KeyObject = {
 	key: string;
-	value: SimpleValue;
+	value: CacheValue;
 	specificKey?: string;
 	expiry?: number;
 	expiresAt?: number;
 	keepTTL?: number;
-}
-type FunctionKeyObject = {
+};
+export type FunctionKeyObject = {
 	getCacheKey: () => string;
 };
-type KeyLike = string | FunctionKeyObject;
+export type KeyLike = string | FunctionKeyObject;
+export type CacheValue = string | number | boolean | null | CacheValue[] | { [P: string]: CacheValue };
 
-type SimpleValue = string | number | boolean | null | SimpleValue[] | { [P: string]: SimpleValue };
-type PrefixOptions = { keys?: Record<string, string> };
+type PrefixOptions = {
+	keys?: Record<string, string>;
+	expiry?: number;
+};
 type KeysPrefixOptions = PrefixOptions & { count?: number };
 
-export default class Cache {
-	/** @type {Redis} */
+export class Cache {
 	#server: Redis | null = null;
 	#version: number[] | null = null;
 	#configuration: Partial<RedisOptions>;
 	#initialConnectSuccess = false;
 
-	constructor (configuration: Partial<RedisOptions>) {
+	constructor (configuration: Partial<RedisOptions> | string) {
 		if (!configuration) {
 			throw new SupiError({
 				message: "Connection configuration not provided"
@@ -131,12 +141,9 @@ export default class Cache {
 	}
 
 	async set (data: KeyObject): Promise<"OK"> {
-		if (!this.ready || !this.#server) {
-			throw new SupiError({
-				message: "Redis server is not connected"
-			});
-		}
-		else if (typeof data.value === "undefined") {
+		assertServerConnected(this.#server);
+
+		if (typeof data.value === "undefined") {
 			throw new SupiError({
 				message: "Provided value must not be undefined"
 			});
@@ -214,12 +221,8 @@ export default class Cache {
 		return await this.#server.set(...args);
 	}
 
-	async get (keyIdentifier: KeyLike): Promise<SimpleValue> {
-		if (!this.#server) {
-			throw new SupiError({
-				message: "Redis server is not connected"
-			});
-		}
+	async get (keyIdentifier: KeyLike): Promise<CacheValue> {
+		assertServerConnected(this.#server);
 
 		const key = Cache.resolveKey(keyIdentifier);
 		const value = await this.#server.get(key);
@@ -227,21 +230,17 @@ export default class Cache {
 			return value;
 		}
 
-		return JSON.parse(value) as SimpleValue;
+		return JSON.parse(value) as CacheValue;
 	}
 
 	async delete (keyIdentifier: KeyLike): Promise<number> {
-		if (!this.#server) {
-			throw new SupiError({
-				message: "Redis server is not connected"
-			});
-		}
+		assertServerConnected(this.#server);
 
 		const key = Cache.resolveKey(keyIdentifier);
 		return this.#server.del(key);
 	}
 
-	async setByPrefix (prefix: KeyLike, value: SimpleValue, options: PrefixOptions = {}): Promise<"OK"> {
+	async setByPrefix (prefix: KeyLike, value: CacheValue, options: PrefixOptions = {}): Promise<"OK"> {
 		if (isFunctionKeyObject(prefix)) {
 			return await this.set({
 				key: prefix.getCacheKey(), // prefix is the object with cache-key method
@@ -251,18 +250,17 @@ export default class Cache {
 		}
 
 		const optionsMap = new Map(Object.entries(options));
-		const keys = optionsMap.get("keys") ?? {};
 		optionsMap.delete("keys");
-
 		const rest = Object.fromEntries(optionsMap);
+
 		return await this.set({
-			key: Cache.resolvePrefix(prefix, keys),
+			key: Cache.resolvePrefix(prefix, options.keys ?? {}),
 			value,
 			...rest
 		});
 	}
 
-	async getByPrefix (prefix: string, options: PrefixOptions = {}): Promise<SimpleValue> {
+	async getByPrefix (prefix: string, options: PrefixOptions = {}): Promise<CacheValue> {
 		const extraKeys = options.keys ?? {};
 		const key = Cache.resolvePrefix(prefix, extraKeys);
 
@@ -270,22 +268,13 @@ export default class Cache {
 	}
 
 	async getKeysByPrefix (prefix: string, options: KeysPrefixOptions = {}): Promise<string[]> {
-		if (!this.#server) {
-			throw new SupiError({
-				message: "Redis server is not connected"
-			});
-		}
+		assertServerConnected(this.#server);
 
 		const prefixKey = [prefix];
 		const extraKeys = options.keys ?? {};
 
 		for (const [key, value] of Object.entries(extraKeys)) {
-			if (value === null || value === undefined) {
-				prefixKey.push(key, ITEM_DELIMITER, "*");
-			}
-			else {
-				prefixKey.push(key, ITEM_DELIMITER, String(value));
-			}
+			prefixKey.push(key, ITEM_DELIMITER, String(value));
 		}
 
 		const searchKey = prefixKey.join(GROUP_DELIMITER);
@@ -303,7 +292,7 @@ export default class Cache {
 		return results;
 	}
 
-	async getKeyValuesByPrefix (prefix: string, options: KeysPrefixOptions): Promise<SimpleValue[]> {
+	async getKeyValuesByPrefix (prefix: string, options: KeysPrefixOptions): Promise<CacheValue[]> {
 		const keys = await this.getKeysByPrefix(prefix, options);
 		const promises = keys.map(async i => await this.get(i));
 
@@ -376,5 +365,8 @@ export default class Cache {
 
 	get version () { return this.#version; }
 
-	get server () { return this.#server; }
+	get server () {
+		assertServerConnected(this.#server);
+		return this.#server;
+	}
 }

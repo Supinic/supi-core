@@ -3,11 +3,14 @@ export declare type Handler<T> = (
 	reject: (reason?: Error) => void
 ) => void;
 
+/**
+ * @deprecated Use Promise.withResolvers if available
+ */
 export default class SupiPromise<T> extends global.Promise<T> {
 	#resolve: (value: T) => void;
 	#reject: (reason?: Error) => void;
 
-	constructor (handler: Handler<T>) {
+	constructor (handler?: Handler<T>) {
 		let instanceResolve;
 		let instanceReject;
 
@@ -26,13 +29,11 @@ export default class SupiPromise<T> extends global.Promise<T> {
 		this.#reject = instanceReject;
 	}
 
-	resolve (value: T): SupiPromise<T> {
+	resolve (value: T) {
 		this.#resolve(value);
-		return this;
 	}
 
-	reject (value: Error): SupiPromise<T> {
+	reject (value: Error) {
 		this.#reject(value);
-		return this;
 	}
 }

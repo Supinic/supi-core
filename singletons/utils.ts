@@ -83,7 +83,7 @@ export default class Utils {
 
 	/** Collection of string template "tag" functions */
 	tag = {
-		trim: (strings: string[], ...values: Array<string|number>) => {
+		trim: (strings: TemplateStringsArray, ...values: Array<string|number>) => {
 			const result = [];
 			for (let i = 0; i < strings.length; i++) {
 				result.push(strings[i].replace(/\s+/g, " "), values[i]);
@@ -91,7 +91,7 @@ export default class Utils {
 
 			return result.join("").trim();
 		},
-		groupDigits: (strings: string[], ...values: Array<string|number>) => {
+		groupDigits: (strings: TemplateStringsArray, ...values: Array<string|number>) => {
 			const result = [];
 			for (let i = 0; i < strings.length; i++) {
 				result.push(strings[i]);
@@ -403,7 +403,7 @@ export default class Utils {
 	 * Pads a number with specified number of zeroes.
 	 */
 	zf (number: number, padding: number): string {
-		return ("0".repeat(padding) + number).slice(-padding);
+		return ("0".repeat(padding) + String(number)).slice(-padding);
 	}
 
 	/**

@@ -1,11 +1,11 @@
 import SupiDate from "../../objects/date.js";
-import SupiError from "../../objects/error.js";
+import { SupiError } from "../../objects/error.js";
 
 import Batch from "./batch.js";
-import Recordset, { ResultObject as RecordsetResultObject } from "./recordset.js";
+import Recordset, { DefaultFetchResult, ResultObject as RecordsetResultObject } from "./recordset.js";
 import RecordDeleter from "./record-deleter.js";
 import RecordUpdater from "./record-updater.js";
-import Row from "./row.js";
+import Row, { Values } from "./row.js";
 
 import { createPool as createMariaDbPool, Pool, PoolConnection, SqlError, Types as ColumnType } from "mariadb";
 
@@ -37,7 +37,7 @@ const getTypeName = (input: unknown): string => {
 	else if (input === undefined) {
 		return "undefined";
 	}
-	else if (typeof input === "object" && typeof input?.constructor?.name === "string") {
+	else if (typeof input === "object" && typeof input.constructor.name === "string") {
 		return input.constructor.name;
 	}
 	else {
@@ -103,9 +103,12 @@ export type GenericQueryBuilderOptions = {
 	transaction?: PoolConnection
 };
 
-type BatchOptions = ConstructorParameters<typeof Batch> & {
+type BatchOptions = {
 	database: Database;
 	table: Table;
+	query: Query;
+	transaction?: PoolConnection;
+	threshold?: number;
 };
 
 type BatchUpdateOptions <T> = {
@@ -117,14 +120,15 @@ type BatchUpdateOptions <T> = {
 type ConstructorOptions = {
 	user: string;
 	password: string;
-	connectionLimit?: number;
+	connectionLimit?: number | null;
 	host: string;
 	port?: number;
 };
 
-export default class QuerySingleton {
-	#definitionPromises: Map<Database, ReturnType<QuerySingleton["getDefinition"]>> = new Map();
-	tableDefinitions: Record<Database, Record<Table, TableDefinition>> = {};
+export type { Row, Recordset, Batch, RecordDeleter, RecordUpdater };
+export class Query {
+	#definitionPromises: Map<Database, ReturnType<Query["getDefinition"]>> = new Map();
+	tableDefinitions: Record<Database, Record<Table, TableDefinition | undefined> | undefined> = {};
 
 	pool: Pool;
 
@@ -171,7 +175,7 @@ export default class QuerySingleton {
 		return result;
 	}
 
-	async send (...args: string[]): ReturnType<QuerySingleton["raw"]> {
+	async send (...args: string[]): ReturnType<Query["raw"]> {
 		return this.raw(...args);
 	}
 
@@ -190,8 +194,8 @@ export default class QuerySingleton {
 		return connector;
 	}
 
-	async getRecordset (callback: (rs: Recordset) => Recordset, options: GenericQueryBuilderOptions = {}): ReturnType<Recordset["fetch"]> {
-		const rs = new Recordset(this, options);
+	async getRecordset <T extends DefaultFetchResult = DefaultFetchResult> (callback: (rs: Recordset<T>) => Recordset<T>, options: GenericQueryBuilderOptions = {}): ReturnType<Recordset<T>["fetch"]> {
+		const rs = new Recordset<T>(this, options);
 		callback(rs);
 		return await rs.fetch();
 	}
@@ -208,13 +212,13 @@ export default class QuerySingleton {
 		return await ru.fetch();
 	}
 
-	async getRow (database: Database, table: Table, options: GenericQueryBuilderOptions = {}): Promise<Row> {
-		const row = new Row(this, options);
+	async getRow <T extends Values = Values> (database: Database, table: Table, options: GenericQueryBuilderOptions = {}): Promise<Row<T>> {
+		const row = new Row<T>(this, options);
 		await row.initialize(database, table);
 		return row;
 	}
 
-	async getBatch (database: Database, table: Table, columns: Field[], options: BatchOptions): Promise<Batch> {
+	async getBatch (database: Database, table: Table, columns: Field[], options?: BatchOptions): Promise<Batch> {
 		const batch = new Batch(this, {
 			...options,
 			database,
@@ -262,13 +266,13 @@ export default class QuerySingleton {
 			for (const column of data.meta) {
 				obj.columns.push({
 					name: column.name(),
-					length: column.columnLength ?? null,
-					type: ((column.flags & QuerySingleton.flagMask.SET) === 0) ? column.type : ColumnType.SET,
-					notNull: Boolean(column.flags & QuerySingleton.flagMask.NOT_NULL),
-					primaryKey: Boolean(column.flags & QuerySingleton.flagMask.PRIMARY_KEY),
-					unsigned: Boolean(column.flags & QuerySingleton.flagMask.UNSIGNED),
-					autoIncrement: Boolean(column.flags & QuerySingleton.flagMask.AUTO_INCREMENT),
-					zeroFill: Boolean(column.flags & QuerySingleton.flagMask.ZEROFILL_FLAG)
+					length: column.columnLength,
+					type: ((column.flags & Query.flagMask.SET) === 0) ? column.type : ColumnType.SET,
+					notNull: Boolean(column.flags & Query.flagMask.NOT_NULL),
+					primaryKey: Boolean(column.flags & Query.flagMask.PRIMARY_KEY),
+					unsigned: Boolean(column.flags & Query.flagMask.UNSIGNED),
+					autoIncrement: Boolean(column.flags & Query.flagMask.AUTO_INCREMENT),
+					zeroFill: Boolean(column.flags & Query.flagMask.ZEROFILL_FLAG)
 				});
 			}
 			/* eslint-enable no-bitwise */
@@ -284,34 +288,35 @@ export default class QuerySingleton {
 	}
 
 	async isDatabasePresent (database: Database): Promise<boolean> {
-		const exists = await this.getRecordset(rs => rs
+		const exists = await this.getRecordset<RecordsetResultObject>(rs => rs
 			.select("1")
 			.from("INFORMATION_SCHEMA", "SCHEMATA")
 			.where("SCHEMA_NAME = %s", database)
-		) as RecordsetResultObject;
+		);
 
 		return (exists.length !== 0);
 	}
 
 	async isTablePresent (database: Database, table: Table): Promise<boolean> {
-		const exists = await this.getRecordset(rs => rs
+		const exists = await this.getRecordset<RecordsetResultObject>(rs => rs
 			.select("1")
 			.from("INFORMATION_SCHEMA", "TABLES")
 			.where("TABLE_SCHEMA = %s", database)
 			.where("TABLE_NAME = %s", table)
-		) as RecordsetResultObject;
+		);
 
 		return (exists.length !== 0);
 	}
 
 	async isTableColumnPresent (database: Database, table: Table, column: Field): Promise<boolean> {
-		const exists = await this.getRecordset(rs => rs
+		type OneResult = [{ 1: 1; }];
+		const exists = await this.getRecordset<[] | OneResult>(rs => rs
 			.select("1")
 			.from("INFORMATION_SCHEMA", "COLUMNS")
 			.where("TABLE_SCHEMA = %s", database)
 			.where("TABLE_NAME = %s", table)
 			.where("COLUMN_NAME = %s", column)
-		) as RecordsetResultObject;
+		);
 
 		return (exists.length !== 0);
 	}
@@ -395,7 +400,7 @@ export default class QuerySingleton {
 
 	invalidateDefinition (database: Database, table: Table) {
 		if (this.tableDefinitions[database] && this.tableDefinitions[database][table]) {
-			delete this.tableDefinitions[database][table];
+			this.tableDefinitions[database][table] = undefined;
 		}
 	}
 
@@ -686,3 +691,5 @@ export default class QuerySingleton {
 		return formatSymbolRegex;
 	}
 }
+
+export default Query;

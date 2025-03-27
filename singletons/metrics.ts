@@ -4,7 +4,6 @@ import {
 	Gauge,
 	Counter,
 	Histogram,
-	// MetricType,
 	MetricConfiguration,
 	CounterConfiguration,
 	GaugeConfiguration,
@@ -12,17 +11,20 @@ import {
 	Metric
 } from "prom-client";
 
+export {
+	type Gauge,
+	type Registry,
+	type Counter,
+	type Histogram,
+	type Metric,
+	// Cannot use MetricType due to:
+	// SyntaxError: Named export 'MetricType' not found. The requested module 'prom-client' is a CommonJS module, which may not support all module.exports as named exports.
+	type MetricConfiguration
+} from "prom-client";
+
 import SupiError from "../objects/error.js";
 
-// equivalent of MetricType from `prom-client`, but couldn't be re-imported due to a problematic library export
-declare const enum MetricType {
-	Counter,
-	Gauge,
-	Histogram,
-	// Summary
-}
-
-declare const enum StringMetricType {
+export const enum MetricType {
 	Counter = "Counter",
 	Gauge = "Gauge",
 	Histogram = "Histogram"
@@ -31,7 +33,7 @@ declare const enum StringMetricType {
 /**
  * Very simple module wrapper around the Prometheus client metrics
  */
-export default class Metrics {
+export class Metrics {
 	#registry;
 
 	constructor () {
@@ -42,7 +44,7 @@ export default class Metrics {
 		});
 	}
 
-	register<T extends string> (type: MetricType | StringMetricType, options: MetricConfiguration<T>): Metric<T> {
+	register<T extends string> (type: MetricType, options: MetricConfiguration<T>): Metric<T> {
 		const existing = this.get(options.name);
 		if (existing) {
 			return existing;
@@ -50,13 +52,10 @@ export default class Metrics {
 
 		switch (type) {
 			case MetricType.Counter:
-			case StringMetricType.Counter:
 				return this.registerCounter(options);
 			case MetricType.Gauge:
-			case StringMetricType.Gauge:
 				return this.registerGauge(options);
 			case MetricType.Histogram:
-			case StringMetricType.Histogram:
 				return this.registerHistogram(options);
 			default:
 				throw new SupiError({
@@ -101,3 +100,5 @@ export default class Metrics {
 		return this.#registry;
 	}
 }
+
+export default Metrics;

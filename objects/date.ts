@@ -40,7 +40,7 @@ export default class SupiDate extends Date {
 	}
 
 	static zf (number: number, padding: number): string {
-		return ("0".repeat(padding) + number).slice(-padding);
+		return ("0".repeat(padding) + String(number)).slice(-padding);
 	}
 
 	static equals (from: HasValueOf, to: HasValueOf): boolean {
@@ -121,20 +121,20 @@ export default class SupiDate extends Date {
 					value += SupiDate.zf(day, 2);
 					break;
 				case "j":
-					value += day;
+					value += String(day);
 					break;
 				case "m":
 					value += SupiDate.zf(month, 2);
 					break;
 				case "n":
-					value += month;
+					value += String(month);
 					break;
 				case "Y":
-					value += year;
+					value += String(year);
 					break;
 
 				case "G":
-					value += hours;
+					value += String(hours);
 					break;
 				case "H":
 					value += SupiDate.zf(hours, 2);

@@ -9,6 +9,8 @@ const gotRequestErrors = [
 	gotModule.TimeoutError
 ];
 
+export const isGotRequestError = (input: unknown): input is gotModule.RequestError => (input instanceof gotModule.RequestError);
+
 // Replace out all occurrences of the "up one level" string - "../"
 // Also if they are followed with another one, like so: "../.."
 // Same thing applies for "%2E" - the escaped version of "."; and for backslash used instead of forward slash.
@@ -18,7 +20,7 @@ const sanitize = (string: string) => string
 
 type ExtendedGotInstance = gotModule.Got & {
 	[nameSymbol]: string;
-}
+};
 
 type GotInstanceFunctionDefinition = {
 	name: string;
@@ -34,7 +36,7 @@ type GotInstanceObjectDefinition = {
 	parent: string | null;
 	description: string;
 }
-type GotInstanceDefinition = GotInstanceFunctionDefinition | GotInstanceObjectDefinition;
+export type GotInstanceDefinition = GotInstanceFunctionDefinition | GotInstanceObjectDefinition;
 
 type GqlRequestOptions = {
 	query?: string;
@@ -43,6 +45,7 @@ type GqlRequestOptions = {
 	headers?: Record<string, string>;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 class StaticGot {
 	static data: ExtendedGotInstance[];
 
@@ -210,13 +213,11 @@ class StaticGot {
 
 type ProxyApplyArgument = [string] | [string, string] | [string, Partial<gotModule.Options>];
 
-interface CallableGot extends StaticGot {
-	(url: string): ReturnType<gotModule.Got>;
-	(instance: string): ReturnType<gotModule.Got>;
-	(instance: string, options: Partial<gotModule.Options>): ReturnType<gotModule.Got>;
-}
+type CallableGot = typeof StaticGot & {
+	<T = string>(urlOrInstanceName: string, options: Partial<gotModule.Options>): gotModule.Response<T>;
+};
 
-const GotProxy = new Proxy(StaticGot, {
+export const GotProxy = new Proxy(StaticGot, {
 	apply: function (target, thisArg, args: ProxyApplyArgument) {
 		let url: string | null = null;
 		const instance = StaticGot.get(args[0], true);
@@ -263,8 +264,6 @@ const GotProxy = new Proxy(StaticGot, {
 			});
 		}
 	}
-});
-
+}) as unknown as CallableGot;
 // Using `unknown` first because of Proxy not being sufficiently typed - we know the `apply` trap allows
 // calling the result as a function, but the Proxy constructor cannot infer that.
-export default GotProxy as unknown as CallableGot;

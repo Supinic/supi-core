@@ -1,9 +1,9 @@
-import SupiError from "../../objects/error.js";
+import SupiDate from "../../objects/date.js";
+import { SupiError } from "../../objects/error.js";
 import QuerySingleton, {
 	Database,
 	Table,
 	ColumnDefinition,
-	Value,
 	formatSymbolRegex,
 	FormatValue, FormatSymbol
 } from "./index.js";
@@ -14,6 +14,7 @@ type ConstructorOptions = {
 	transaction?: PoolConnection;
 };
 
+type Value = string | number | bigint | boolean | SupiDate | null;
 type WrappedValue = { value: string; useField: boolean };
 type Column = ColumnDefinition["name"];
 type SetValue = {
@@ -29,8 +30,11 @@ type ResultObject = Record<string, Value>;
 type ConditionObject = { condition: boolean; };
 
 const isWrappedValue = (value: Value | WrappedValue): value is WrappedValue => {
-	const wrap = value as WrappedValue;
-	return (wrap && typeof wrap === "object" && typeof wrap.useField === "boolean");
+	if (!value || typeof value !== "object" || value instanceof SupiDate) {
+		return false;
+	}
+
+	return (typeof value.useField === "boolean");
 };
 
 /**
