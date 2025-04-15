@@ -22,13 +22,7 @@ export {
 	type MetricConfiguration
 } from "prom-client";
 
-import SupiError from "../objects/error.js";
-
-export const enum MetricType {
-	Counter = "Counter",
-	Gauge = "Gauge",
-	Histogram = "Histogram"
-}
+export type MetricType = "Gauge" | "Counter" | "Histogram";
 
 /**
  * Very simple module wrapper around the Prometheus client metrics
@@ -51,23 +45,9 @@ export class Metrics {
 		}
 
 		switch (type) {
-			case MetricType.Counter:
-				return this.registerCounter(options);
-			case MetricType.Gauge:
-				return this.registerGauge(options);
-			case MetricType.Histogram:
-				return this.registerHistogram(options);
-			default:
-				throw new SupiError({
-					message: "Unsupported metric type provided",
-					args: {
-						type,
-						options: {
-							name: options.name,
-							help: options.help
-						}
-					}
-				});
+			case "Counter": return this.registerCounter(options);
+			case "Gauge": return this.registerGauge(options);
+			case "Histogram": return this.registerHistogram(options);
 		}
 	}
 
