@@ -1,6 +1,8 @@
 import * as gotModule from "got";
 import SupiError from "../objects/error.js";
 
+export { Response as GotResponse } from "got";
+
 const nameSymbol: unique symbol = Symbol.for("name");
 const gotRequestErrors = [
 	gotModule.CancelError,
