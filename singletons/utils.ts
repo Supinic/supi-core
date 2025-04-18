@@ -313,9 +313,9 @@ export default class Utils {
 	 * Returns a random array element.
 	 * Returns `undefined` if the array is empty.
 	 */
-	randArray (arr: []): undefined;
-	randArray<T> (arr: T[]): T;
-	randArray<T> (arr: T[]): T | undefined {
+	randArray (arr: readonly []): undefined;
+	randArray<T> (arr: readonly T[]): T;
+	randArray<T> (arr: readonly T[]): T | undefined {
 		return (arr.length === 0)
 			? undefined
 			: arr[this.random(0, arr.length - 1)];
@@ -324,7 +324,7 @@ export default class Utils {
 	/**
 	 * Creates a shuffled shallow copy of the provided array.
 	 */
-	shuffleArray<T> (arr: T[]): T[] {
+	shuffleArray<T> (arr: readonly T[]): T[] {
 		const copy = [...arr];
 		const shuffledArray = [];
 
