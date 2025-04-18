@@ -75,6 +75,10 @@ export class SupiError extends globalThis.Error {
 }
 
 export class GenericRequestError extends SupiError {
+	readonly statusCode: number | null;
+	readonly statusMessage: string | null;
+	readonly hostname: string | null;
+
 	constructor (object: RequestErrorOptions) {
 		super({
 			message: object.message,
@@ -86,6 +90,10 @@ export class GenericRequestError extends SupiError {
 				hostname: object.hostname ?? null
 			}
 		});
+
+		this.statusCode = object.statusCode ?? null;
+		this.statusMessage = object.statusMessage ?? null;
+		this.hostname = object.hostname ?? null;
 	}
 
 	static get name () {
