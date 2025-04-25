@@ -1,17 +1,21 @@
+import { PoolConnection, UpsertResult } from "mariadb";
 import { SupiError } from "../../objects/error.js";
+
 import QuerySingleton, {
-	ColumnDefinition, JavascriptValue,
-	PrimaryKeyValue,
+	ColumnDefinition,
+	JavascriptValue,
 	TableDefinition,
 	Value as QueryValue
 } from "./index.js";
-import { PoolConnection, UpsertResult } from "mariadb";
 
 const UNSET_VALUE: unique symbol = Symbol.for("UNSET");
 
-type Value = JavascriptValue | typeof UNSET_VALUE;
-export type Values = Record<string, Value>;
-type PrimaryKeyObject = Record<string, PrimaryKeyValue>;
+type RowValue = JavascriptValue;
+export type RowValues = Record<string, RowValue>;
+
+type InternalValue = RowValue | typeof UNSET_VALUE;
+export type InternalValues = Partial<Record<keyof RowValues, InternalValue>>;
+
 type ConstructorOptions = {
 	transaction?: PoolConnection;
 };
@@ -20,7 +24,11 @@ type SaveOptions = {
 	skipLoad?: boolean;
 };
 
-const isPrimaryKeyObject = (input: unknown): input is PrimaryKeyObject => {
+const typedEntries = <T extends Record<string, unknown>> (object: T): [keyof T, T[keyof T]][] => (
+	Object.entries(object) as [keyof T, T[keyof T]][]
+);
+
+const isPrimaryKeyObject = <T extends RowValues> (input: unknown): input is SpecificPrimaryKeyObject<T> => {
 	if (!input || typeof input !== "object") {
 		return false;
 	}
@@ -28,18 +36,23 @@ const isPrimaryKeyObject = (input: unknown): input is PrimaryKeyObject => {
 	return (input.constructor === Object);
 };
 
+type OnlyStringKeys <T> = Extract<keyof T, string>;
+type SpecificPrimaryKey <T extends RowValues> = OnlyStringKeys<T>;
+type SpecificPrimaryKeyObject <T extends RowValues> = { [P in OnlyStringKeys<T>]?: T[P]; };
+
 /**
  * Represents one row of a SQL database table.
  */
-export default class Row <T extends Values = Values> {
+export default class Row <T extends RowValues = RowValues> {
 	#definition: TableDefinition | null = null;
 	#query: QuerySingleton;
 	#transaction;
 
-	#values: Values = {};
-	#originalValues: Values = {};
+	#values: InternalValues = {};
+	#originalValues: InternalValues = {};
+
 	#primaryKeyFields: ColumnDefinition[] = [];
-	#valueProxy: Values = new Proxy(this.#values, {
+	#valueProxy: InternalValues = new Proxy(this.#values, {
 		get: (target, name: string) => {
 			if (!this.#initialized) {
 				throw new SupiError({
@@ -56,7 +69,7 @@ export default class Row <T extends Values = Values> {
 
 			return target[name];
 		},
-		set: (target, name: string, value: Value) => {
+		set: (target, name: string, value: InternalValue) => {
 			if (!this.#initialized) {
 				throw new SupiError({
 					message: "Cannot set row value - row not initialized",
@@ -106,17 +119,10 @@ export default class Row <T extends Values = Values> {
 		return this;
 	}
 
-	async load (primaryKey: PrimaryKeyValue | PrimaryKeyObject, ignoreError: boolean = false) {
+	async load (primaryKey: SpecificPrimaryKey<T> | SpecificPrimaryKeyObject<T>, ignoreError: boolean = false) {
 		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot load row - not initialized",
-				args: this._getErrorInfo()
-			});
-		}
-
-		if (primaryKey === null || typeof primaryKey === "undefined") {
-			throw new SupiError({
-				message: "Cannot load Row - no primary key provided",
 				args: this._getErrorInfo()
 			});
 		}
@@ -131,8 +137,9 @@ export default class Row <T extends Values = Values> {
 
 		const conditions = [];
 		if (isPrimaryKeyObject(primaryKey)) {
-			for (const [key, value] of Object.entries(primaryKey)) {
+			for (const [key, value] of typedEntries(primaryKey)) {
 				const column = this.#definition.columns.find(i => i.name === key);
+
 				if (!column) {
 					throw new SupiError({
 						message: `Cannot load Row - unrecognized column "${key}"`,
@@ -145,6 +152,15 @@ export default class Row <T extends Values = Values> {
 				else if (!column.primaryKey) {
 					throw new SupiError({
 						message: `Cannot load Row - column "${key}" is not primary`,
+						args: {
+							...this._getErrorInfo(),
+							column: key
+						}
+					});
+				}
+				else if (value === null || typeof value === "undefined") {
+					throw new SupiError({
+						message: `Cannot load Row - column "${key}" has no value set`,
 						args: {
 							...this._getErrorInfo(),
 							column: key
@@ -330,7 +346,7 @@ export default class Row <T extends Values = Values> {
 			});
 		}
 
-		for (const [key, value] of Object.entries(data as Values)) {
+		for (const [key, value] of typedEntries(data as InternalValues)) {
 			// This should stay as the .values getter, because this method a simple wrapper around multiple values setting at once
 			this.#values[key] = value;
 		}
@@ -375,18 +391,17 @@ export default class Row <T extends Values = Values> {
 	}
 
 	get valuesObject (): T { return { ...this.#values } as T; }
-
 	get values (): T { return this.#valueProxy as T; }
-	get originalValues () { return this.#originalValues as T; }
+	get originalValues (): T { return this.#originalValues as T; }
 
-	get PK (): PrimaryKeyObject {
-		const obj: PrimaryKeyObject = {};
+	get PK (): SpecificPrimaryKeyObject<T> {
+		const obj: Partial<RowValues> = {};
 		for (const column of this.#primaryKeyFields) {
 			// Guaranteed to not include the UNSET_VALUE symbol
-			obj[column.name] = this.#values[column.name] as QueryValue;
+			obj[column.name] = this.#values[column.name] as NonNullable<QueryValue>;
 		}
 
-		return obj;
+		return obj as SpecificPrimaryKeyObject<T>;
 	}
 
 	get definition () { return this.#definition || null; }

@@ -5,7 +5,7 @@ import Batch from "./batch.js";
 import Recordset, { DefaultFetchResult, ResultObject as RecordsetResultObject } from "./recordset.js";
 import RecordDeleter from "./record-deleter.js";
 import RecordUpdater from "./record-updater.js";
-import Row, { Values } from "./row.js";
+import Row, { RowValues } from "./row.js";
 
 import { createPool as createMariaDbPool, Pool, PoolConnection, SqlError, Types as ColumnType } from "mariadb";
 
@@ -96,7 +96,7 @@ export type Table = TableDefinition["name"];
 export type JavascriptValue = number | string | bigint | boolean | SupiDate | null | string[];
 export type SqlValue = number | string | Date | bigint | null | string[];
 
-export type PrimaryKeyValue = number | string | bigint | SupiDate | null;
+export type PrimaryKeyValue = number | string | bigint | SupiDate;
 export type FormatSymbol = "b" | "d" | "dt" | "n" | "s" | "t" | "s+" | "n+" | "like" | "like*" | "*like" | "*like*";
 export type FormatValue = number | string | boolean | SupiDate | bigint | string[] | number[] | null;
 export type GenericQueryBuilderOptions = {
@@ -212,7 +212,7 @@ export class Query {
 		return await ru.fetch();
 	}
 
-	async getRow <T extends Values = Values> (database: Database, table: Table, options: GenericQueryBuilderOptions = {}): Promise<Row<T>> {
+	async getRow <T extends RowValues = RowValues> (database: Database, table: Table, options: GenericQueryBuilderOptions = {}): Promise<Row<T>> {
 		const row = new Row<T>(this, options);
 		await row.initialize(database, table);
 		return row;
