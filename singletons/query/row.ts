@@ -37,7 +37,7 @@ const isPrimaryKeyObject = <T extends RowValues> (input: unknown): input is Spec
 };
 
 type OnlyStringKeys <T> = Extract<keyof T, string>;
-type SpecificPrimaryKey <T extends RowValues> = OnlyStringKeys<T>;
+type SpecificPrimaryKey <T extends RowValues> = T[keyof T];
 type SpecificPrimaryKeyObject <T extends RowValues> = { [P in OnlyStringKeys<T>]?: T[P]; };
 
 /**
