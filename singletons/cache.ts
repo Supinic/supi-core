@@ -42,7 +42,7 @@ export type KeyObject = {
 	specificKey?: string;
 	expiry?: number;
 	expiresAt?: number;
-	keepTTL?: number;
+	keepTTL?: boolean;
 };
 export type FunctionKeyObject = {
 	getCacheKey: () => string;
