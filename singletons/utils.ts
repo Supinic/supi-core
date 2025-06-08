@@ -32,12 +32,10 @@ type BaseClosestStringOptions = {
 	ignoreCase?: boolean;
 };
 type DescriptorClosestStringOptions = BaseClosestStringOptions & {
-	fullResult: never;
 	descriptor: true;
 };
 type FullResultClosestStringOptions = BaseClosestStringOptions & {
 	fullResult: true;
-	descriptor: never;
 };
 type ClosestStringDescriptor = {
 	string: string;
