@@ -513,6 +513,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:*":
+  version: 24.0.12
+  resolution: "@types/node@npm:24.0.12"
+  dependencies:
+    undici-types: "npm:~7.8.0"
+  checksum: 10c0/333777c3416b758bbdb72a09e9db5599ff7789dca519d3fcf8150a1c56c79d808e0009e92d52016e80033b3c52724def08aad2c5b396e28f00dbdfe40a1756a4
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:^22.5.4":
   version: 22.10.9
   resolution: "@types/node@npm:22.10.9"
@@ -526,6 +535,15 @@ __metadata:
   version: 2.4.4
   resolution: "@types/normalize-package-data@npm:2.4.4"
   checksum: 10c0/aef7bb9b015883d6f4119c423dd28c4bdc17b0e8a0ccf112c78b4fe0e91fbc4af7c6204b04bba0e199a57d2f3fbbd5b4a14bf8739bf9d2a39b2a0aad545e0f86
+  languageName: node
+  linkType: hard
+
+"@types/xml2js@npm:^0.4.14":
+  version: 0.4.14
+  resolution: "@types/xml2js@npm:0.4.14"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/06776e7f7aec55a698795e60425417caa7d7db3ff680a7b4ccaae1567c5fec28ff49b9975e9a0d74ff4acb8f4a43730501bbe64f9f761d784c6476ba4db12e13
   languageName: node
   linkType: hard
 
@@ -3587,6 +3605,7 @@ duration-parser@supinic/duration-parser:
   dependencies:
     "@eslint/js": "npm:^9.19.0"
     "@types/mocha": "npm:^10.0.10"
+    "@types/xml2js": "npm:^0.4.14"
     cheerio: "npm:^1.0.0"
     duration-parser: supinic/duration-parser
     eslint: "npm:^9.19.0"
@@ -3759,6 +3778,13 @@ duration-parser@supinic/duration-parser:
   version: 6.20.0
   resolution: "undici-types@npm:6.20.0"
   checksum: 10c0/68e659a98898d6a836a9a59e6adf14a5d799707f5ea629433e025ac90d239f75e408e2e5ff086afc3cace26f8b26ee52155293564593fbb4a2f666af57fc59bf
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~7.8.0":
+  version: 7.8.0
+  resolution: "undici-types@npm:7.8.0"
+  checksum: 10c0/9d9d246d1dc32f318d46116efe3cfca5a72d4f16828febc1918d94e58f6ffcf39c158aa28bf5b4fc52f410446bc7858f35151367bd7a49f21746cab6497b709b
   languageName: node
   linkType: hard
 
