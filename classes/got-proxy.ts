@@ -24,20 +24,17 @@ type ExtendedGotInstance = gotModule.Got & {
 	[nameSymbol]: string;
 };
 
-type FixedGotOptions = gotModule.Options & {
-	hooks: Partial<gotModule.Hooks>;
-};
 type GotInstanceFunctionDefinition = {
 	name: string;
 	optionsType: "function";
-	options: () => Partial<FixedGotOptions>;
+	options: () => Partial<gotModule.Options>;
 	parent: string | null;
 	description: string;
 }
 type GotInstanceObjectDefinition = {
 	name: string;
 	optionsType: "object";
-	options: Partial<FixedGotOptions>;
+	options: Partial<gotModule.Options>;
 	parent: string | null;
 	description: string;
 }
