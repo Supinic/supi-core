@@ -1,7 +1,7 @@
 import { SupiError } from "../../objects/error.js";
 import QuerySingleton, {
-	ColumnDefinition, JavascriptValue,
-	PrimaryKeyValue,
+	ColumnDefinition, JavascriptValue, MariaRowMeta,
+	PrimaryKeyValue, SqlValue,
 	TableDefinition,
 	Value as QueryValue
 } from "./index.js";
@@ -213,7 +213,7 @@ export default class Row <T extends Values = Values> {
 			});
 		}
 
-		let outputData: UpsertResult;
+		let outputData;
 		if (this.#loaded) { // UPDATE
 			const setColumns = [];
 			for (const column of this.#definition.columns) {
@@ -259,23 +259,36 @@ export default class Row <T extends Values = Values> {
 
 			const ignore = (options.ignore === true) ? "IGNORE " : "";
 
-			const sqlString = `INSERT ${ignore}INTO ${this.#definition.escapedPath} (${columns.join(",")}) VALUES (${values.join(",")})`;
-			outputData = await this.#query.transactionQuery(sqlString, this.#transaction) as UpsertResult;
+			if (options.skipLoad) {
+				const sqlString = `INSERT ${ignore}INTO ${this.#definition.escapedPath} (${columns.join(",")}) VALUES (${values.join(",")})`;
+				outputData = await this.#query.transactionQuery(sqlString, this.#transaction) as UpsertResult;
 
-			if (outputData.insertId !== 0) {
-				const autoIncrementPK = this.#primaryKeyFields.find(i => i.autoIncrement);
-				if (!autoIncrementPK) {
-					throw new SupiError({
-						message: "No AUTOINCREMENT column found"
-					});
+				if (outputData.insertId !== 0) {
+					const autoIncrementPK = this.#primaryKeyFields.find(i => i.autoIncrement);
+					if (!autoIncrementPK) {
+						throw new SupiError({
+							message: "No AUTOINCREMENT column found"
+						});
+					}
+
+					this.#values[autoIncrementPK.name] = outputData.insertId;
 				}
-
-				this.#values[autoIncrementPK.name] = outputData.insertId;
 			}
+			else {
+				type ReceivedData = { [K in keyof T]: SqlValue };
+				const sqlString = `INSERT ${ignore}INTO ${this.#definition.escapedPath} (${columns.join(",")}) VALUES (${values.join(",")}) RETURNING *`;
+				outputData = await this.#query.transactionQuery(sqlString, this.#transaction) as [ReceivedData] & { meta: MariaRowMeta[] };
 
-			if (!options.skipLoad) {
-				// @todo with MariaDB 10.5+, use INSERT RETURNING to fetch inserted data immediately insted of having to re-load the Row
-				await this.load(this.PK);
+				const firstResult = outputData.at(0);
+				if (firstResult) {
+					this.reset();
+
+					for (const column of this.#definition.columns) {
+						const value = this.#query.convertToJS(firstResult[column.name], column.type);
+						this.#values[column.name] = value;
+						this.#originalValues[column.name] = value;
+					}
+				}
 			}
 		}
 
