@@ -447,9 +447,9 @@ export class Query {
 			}
 
 			case ColumnType.BIGINT: {
-				if (typeof value !== "number" && typeof value !== "string") {
+				if (typeof value !== "number" && typeof value !== "string" && typeof value !== "bigint") {
 					throw new SupiError({
-						message: "Bigint value must be number or string"
+						message: "Bigint value must be number, string or bigint"
 					});
 				}
 
