@@ -162,11 +162,14 @@ export class Query {
 			});
 		}
 
+		await connector.beginTransaction();
+
 		let result;
 		try {
 			result = connector.query({
 				sql: query
 			});
+			await connector.commit();
 		}
 		finally {
 			await connector.release();
