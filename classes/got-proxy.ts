@@ -156,7 +156,7 @@ class StaticGot {
 		return extendedInstance;
 	}
 
-	static gql <T = Record<string, unknown>> (gqlOptions: GqlRequestOptions): gotModule.Response<T> {
+	static gql (gqlOptions: GqlRequestOptions) {
 		if (!gqlOptions.query) {
 			throw new SupiError({
 				message: "Missing parameter query for GQL request",
@@ -189,8 +189,7 @@ class StaticGot {
 			delete gqlOptions.variables;
 		}
 
-		// @ts-expect-error calling `got` within gql results in the same shape as other calls
-		return gotModule.got({ ...gqlOptions, ...options });
+		return gotModule.got({ ...gqlOptions, ...options }) as Promise<gotModule.Response>;
 	}
 
 	static sanitize (strings: string[], ...values: string[]) {
