@@ -41,6 +41,7 @@ type GotInstanceObjectDefinition = {
 export type GotInstanceDefinition = GotInstanceFunctionDefinition | GotInstanceObjectDefinition;
 
 type GqlRequestOptions = {
+	url: string,
 	query?: string;
 	token?: string;
 	variables?: string;
@@ -155,7 +156,7 @@ class StaticGot {
 		return extendedInstance;
 	}
 
-	static gql (gqlOptions: GqlRequestOptions) {
+	static gql <T = Record<string, unknown>> (gqlOptions: GqlRequestOptions): gotModule.Response<T> {
 		if (!gqlOptions.query) {
 			throw new SupiError({
 				message: "Missing parameter query for GQL request",
@@ -188,6 +189,7 @@ class StaticGot {
 			delete gqlOptions.variables;
 		}
 
+		// @ts-expect-error calling `got` within gql results in the same shape as other calls
 		return gotModule.got({ ...gqlOptions, ...options });
 	}
 
