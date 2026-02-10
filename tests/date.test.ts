@@ -153,7 +153,7 @@ describe("SupiDate", () => {
 		const MAX_VALUE = 864e5 * 100_000_000;
 		const MIN_VALUE = -864e5 * 100_000_000;
 
-		it("should return true for valid dates", () => {
+		describe("should return true for valid dates", () => {
 			const values = [
 				// null, // Yes apparently `null` is a valid constructor for Date
 				0,
@@ -169,13 +169,14 @@ describe("SupiDate", () => {
 			];
 
 			for (const value of values) {
-				let date;
-				assert.doesNotThrow(() => { date = new SupiDate(value); });
-				assert.strictEqual(date!.isValid(), true, `Date should be valid for value "${value}"`);
+				it(`for value ${value}`, () => {
+					const date = new SupiDate(value);
+					assert.strictEqual(date.isValid(), true, `Date should be valid for value "${value}"`);
+				});
 			}
 		});
 
-		it("should return false for invalid dates", () => {
+		describe("should return false for invalid dates", () => {
 			const values = [
 				MIN_VALUE - 1,
 				MAX_VALUE + 1,
@@ -187,9 +188,11 @@ describe("SupiDate", () => {
 			];
 
 			for (const value of values) {
-				let date;
-				assert.doesNotThrow(() => { date = new SupiDate(value); });
-				assert.strictEqual(date!.isValid(), false, "Date should be invalid");
+				const prettyValue = (value === "") ? "(empty string)" : String(value);
+				it(`for value ${prettyValue}`, () => {
+					const date = new SupiDate(value);
+					assert.strictEqual(date.isValid(), false, "Date should be invalid");
+				});
 			}
 		});
 	});
