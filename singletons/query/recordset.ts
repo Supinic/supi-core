@@ -1,5 +1,6 @@
-import { SupiError } from "../../objects/error.js";
 import { PoolConnection, Types } from "mariadb";
+import { SupiError } from "../../objects/error.js";
+import SupiDate from "../../objects/date.js";
 import QuerySingleton, {
 	Database,
 	Table,
@@ -19,7 +20,7 @@ type FromObject = {
 	database: Database | null;
 	table: Table | null;
 };
-export type WhereHavingArgument = string | string[] | number | number[] | bigint | boolean | null;
+export type WhereHavingArgument = string | string[] | number | number[] | bigint | boolean | null | SupiDate;
 export type WhereHavingOptions = {
 	raw?: string;
 	condition?: boolean | null;
@@ -197,7 +198,7 @@ export default class Recordset <T = DefaultFetchResult> {
 
 	#conditionWrapper (type: "where" | "having", ...args: MixedWhereHavingArgument[]): this {
 		let options: WhereHavingOptions = {};
-		if (args[0] && typeof args[0] === "object" && !Array.isArray(args[0])) {
+		if (args[0] && typeof args[0] === "object" && !(args[0] instanceof SupiDate) && !Array.isArray(args[0])) {
 			options = args[0];
 			args.shift();
 		}
