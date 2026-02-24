@@ -2,7 +2,7 @@ import SupiDate from "../objects/date.js";
 import SupiError from "../objects/error.js";
 
 import { MersenneTwister19937, Random } from "random-js";
-import { load as loadCheerio, CheerioAPI } from "cheerio";
+import { load as loadCheerio, type CheerioAPI } from "cheerio";
 import parseDuration from "duration-parser";
 
 const randomizer = new Random(MersenneTwister19937.autoSeed());
@@ -56,11 +56,11 @@ const isSomeObjectArray = (input: unknown): input is Record<string, unknown>[] =
 export default class Utils {
 	/** Numeric constants to convert between any two time units. */
 	static timeUnits = {
-		y: { d: 365, h: 8760, m: 525600, s: 31536000, ms: 31536000.0e3 },
-		d: { h: 24, m: 1440, s: 86400, ms: 86400.0e3 },
-		h: { m: 60, s: 3600, ms: 3600.0e3 },
-		m: { s: 60, ms: 60.0e3 },
-		s: { ms: 1.0e3 }
+		y: { d: 365, h: 8760, m: 525_600, s: 31_536_000, ms: 31_536_000_000 },
+		d: { h: 24, m: 1440, s: 86_400, ms: 86_400_000 },
+		h: { m: 60, s: 3600, ms: 3_600_000 },
+		m: { s: 60, ms: 60_000 },
+		s: { ms: 1000 }
 	} as const;
 
 	/** List of named HTML entities and their identifiers */
@@ -84,7 +84,7 @@ export default class Utils {
 		trim: (strings: TemplateStringsArray, ...values: Array<string|number>) => {
 			const result = [];
 			for (let i = 0; i < strings.length; i++) {
-				result.push(strings[i].replace(/\s+/g, " "), values[i]);
+				result.push(strings[i].replaceAll(/\s+/g, " "), values[i]);
 			}
 
 			return result.join("").trim();
@@ -111,7 +111,7 @@ export default class Utils {
 	 * Capitalizes the string's first letter.
 	 */
 	capitalize (string: string) {
-		return string[0].toUpperCase() + string.substring(1).toLowerCase();
+		return string[0].toUpperCase() + string.slice(1).toLowerCase();
 	}
 
 	/**
@@ -225,7 +225,7 @@ export default class Utils {
 	 * @returns The amount of times a word has been used in the message
 	 */
 	toDictionary (message: string, orderBy: "asc" | "desc" = "asc"): Map<string, number> {
-		const arr = message.replace(/\s+/g, " ").trim().split(" ");
+		const arr = message.replaceAll(/\s+/g, " ").trim().split(" ");
 		let dictionary = new Map(arr.map(i => [i, 0]));
 		for (const i of arr) {
 			const value = dictionary.get(i) as number; // Value is always a number, declared above [i, 0]
@@ -262,20 +262,20 @@ export default class Utils {
 	 */
 	escapeHTML (string: string): string {
 		return string
-			.replace(/&/g, "&amp;")
-			.replace(/</g, "&lt;")
-			.replace(/>/g, "&gt;")
-			.replace(/"/g, "&quot;")
-			.replace(/'/g, "&#39;");
+			.replaceAll("&", "&amp;")
+			.replaceAll("<", "&lt;")
+			.replaceAll(">", "&gt;")
+			.replaceAll("\"", "&quot;")
+			.replaceAll("'", "&#39;");
 	}
 
 	/**
 	 * Fixes an HTML string by replacing all escape sequences with their character representations
 	 */
 	fixHTML (string: string): string {
-		return string.replace(/&#?(?<identifier>[a-z0-9]+);/g, (...params) => {
+		return string.replaceAll(/&#?(?<identifier>[a-z0-9]+);/g, (...params) => {
 			const { identifier } = params.at(-1) as { identifier: string };
-			return Utils.htmlEntities[identifier] ?? String.fromCharCode(Number(identifier));
+			return Utils.htmlEntities[identifier] ?? String.fromCodePoint(Number(identifier));
 		});
 	}
 
@@ -283,7 +283,7 @@ export default class Utils {
 	 * Removes all HTML-like tags from input string.
 	 */
 	removeHTML (string: string): string {
-		return string.replace(/<\s*br.*?>/g, "\n").replace(/<(.*?)>/g, "");
+		return string.replaceAll(/<\s*br.*?>/g, "\n").replaceAll(/<(.*?)>/g, "");
 	}
 
 	/**
@@ -292,7 +292,7 @@ export default class Utils {
 	 */
 	wrapString (string: string, length: number, options: { keepWhitespace?: boolean } = {}) {
 		if (!options.keepWhitespace) {
-			string = string.replace(/\r?\n/g, " ").replace(/\s+/g, " ");
+			string = string.replaceAll(/\r?\n/g, " ").replaceAll(/\s+/g, " ");
 		}
 
 		return (string.length >= length)
@@ -394,7 +394,7 @@ export default class Utils {
 	 * Removes all (central European?) accents from a string.
 	 */
 	removeAccents (string: string): string {
-		return string.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+		return string.normalize("NFD").replaceAll(/[\u0300-\u036F]/g, "");
 	}
 
 	/**
@@ -608,14 +608,12 @@ export default class Utils {
 
 		let matches = 0;
 		const range = (Math.floor(Math.max(from.length, target.length) / 2)) - 1;
-		const fromMatches = new Array(from.length);
-		const targetMatches = new Array(target.length);
+		const fromMatches = Array.from({ length: from.length });
+		const targetMatches = Array.from({ length: target.length });
 
 		for (let i = 0; i < from.length; i++) {
 			const low = (i >= range) ? i - range : 0;
-			const high = (i + range <= (target.length - 1))
-				? (i + range)
-				: (target.length - 1);
+			const high = Math.min(i + range, target.length - 1);
 
 			for (let j = low; j <= high; j++) {
 				if (fromMatches[i] !== true && targetMatches[j] !== true && from[i] === target[j]) {
@@ -733,7 +731,7 @@ export default class Utils {
 	 */
 	groupDigits (number: number, separator = " "): string {
 		const local = new Intl.NumberFormat().format(number);
-		return local.replace(/,/g, separator);
+		return local.replaceAll(",", separator);
 	}
 
 	/**
@@ -812,7 +810,7 @@ export default class Utils {
 	 * @returns {string}
 	 */
 	escapeRegExp (string: string): string {
-		return string.replace(/([.+*?^$()[\]{}|\\])/g, "\\$1");
+		return string.replaceAll(/([.+*?^$()[\]{}|\\])/g, "\\$1");
 	}
 
 	/**
@@ -820,7 +818,7 @@ export default class Utils {
 	 * Returns `null` if the regex creation fails with an error
 	 */
 	parseRegExp (input: string): RegExp | null {
-		const string = input.replace(/^\/|\/$/g, "");
+		const string = input.replaceAll(/^\/|\/$/g, "");
 
 		// find last possible forward slash that is not escaped with a backslash
 		// this determines the forceful end of a regex, which is then followed by flag characters
@@ -842,6 +840,6 @@ export default class Utils {
 	}
 
 	replaceLinks (string: string, replacement = "[LINK]"): string {
-		return string.replace(linkRegex, replacement);
+		return string.replaceAll(linkRegex, replacement);
 	}
 }

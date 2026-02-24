@@ -1,11 +1,6 @@
 import { SupiError } from "../../objects/error.js";
-import QuerySingleton, {
-	Database,
-	Table,
-	ColumnDefinition,
-	Field,
-	JavascriptValue
-} from "./index.js";
+import type QuerySingleton from "./index.js";
+import type { Database, Table, ColumnDefinition, Field, JavascriptValue } from "./index.js";
 import type { PoolConnection } from "mariadb";
 
 type ConstructorOptions = {

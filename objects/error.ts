@@ -84,7 +84,7 @@ export class GenericRequestError extends SupiError {
 			message: object.message,
 			name: "GenericRequestError",
 			args: {
-				...(object.args ?? {}),
+				...object.args,
 				statusCode: object.statusCode ?? null,
 				statusMessage: object.statusMessage ?? null,
 				hostname: object.hostname ?? null

@@ -1,14 +1,16 @@
-import { PoolConnection } from "mariadb";
+import type { PoolConnection } from "mariadb";
 import { SupiError } from "../../objects/error.js";
 import SupiDate from "../../objects/date.js";
-import QuerySingleton, {
-	Database,
-	Table,
-	Field,
-	MariaRowMeta,
-	Value,
-	JavascriptValue,
-	FormatSymbol, columnTypes
+import {
+	type Database,
+	type Table,
+	type Field,
+	type MariaRowMeta,
+	type Value,
+	type JavascriptValue,
+	type FormatSymbol,
+	type Query as QuerySingleton,
+	columnTypes
 } from "./index.js";
 
 const ROW_COLLAPSED = "#row_collapsed";

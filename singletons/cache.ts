@@ -1,8 +1,8 @@
-import { Redis, RedisOptions } from "ioredis";
+import { Redis, type RedisOptions } from "ioredis";
 import SupiError from "../objects/error.js";
 
-const GROUP_DELIMITER = String.fromCharCode(7);
-const ITEM_DELIMITER = String.fromCharCode(8);
+const GROUP_DELIMITER = String.fromCodePoint(7);
+const ITEM_DELIMITER = String.fromCodePoint(8);
 
 const isValidInteger = (input: unknown): boolean => {
 	if (typeof input !== "number") {

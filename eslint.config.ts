@@ -6,6 +6,7 @@ import globals from "globals";
 
 export default defineConfig(
 	eslintJs.configs.recommended,
+	unicornPlugin.configs.recommended,
 	tseslint.configs.strictTypeChecked,
 	{
 		ignores: ["build/", "**/*.js"]
@@ -24,14 +25,7 @@ export default defineConfig(
 			ecmaVersion: "latest",
 			sourceType: "module"
 		},
-		plugins: {
-			unicorn: unicornPlugin
-		},
 		rules: {
-			"@typescript-eslint/no-floating-promises": "error",
-			"@typescript-eslint/restrict-template-expressions": ["error", {
-				allowNumber: true
-			}],
 			"array-bracket-newline": ["warn", "consistent"],
 			"array-bracket-spacing": ["warn", "never"],
 			"array-element-newline": ["warn", "consistent"],
@@ -121,18 +115,19 @@ export default defineConfig(
 			"no-underscore-dangle": "off",
 			"no-unneeded-ternary": "warn",
 			"no-unused-vars": "off",
-			"@typescript-eslint/no-unused-vars": "warn",
 			"no-useless-computed-key": "warn",
 			"no-useless-constructor": "warn",
 			"no-useless-rename": "error",
 			"no-var": "error",
 			"no-whitespace-before-property": "warn",
+			"no-unused-private-class-members": "warn",
+			// "no-use-before-define": "error",
 			"no-with": "error",
 			"object-curly-newline": ["warn", {
 				consistent: true
 			}],
 			"object-curly-spacing": ["warn", "always", {
-				arraysInObjects: false,
+				arraysInObjects: true,
 				objectsInObjects: true
 			}],
 			"object-property-newline": ["warn", {
@@ -179,6 +174,7 @@ export default defineConfig(
 			"unicorn/catch-error-name": ["warn", {
 				name: "e"
 			}],
+			"unicorn/prefer-spread": "off",
 			"unicorn/empty-brace-spaces": "warn",
 			"unicorn/new-for-builtins": "error",
 			"unicorn/no-array-for-each": "error",
@@ -203,9 +199,46 @@ export default defineConfig(
 			"unicorn/prefer-date-now": "warn",
 			"unicorn/prefer-includes": "warn",
 			"unicorn/prefer-math-trunc": "warn",
+			"unicorn/prefer-string-raw": "off",
 			"unicorn/prefer-string-starts-ends-with": "warn",
 			"unicorn/prefer-string-trim-start-end": "warn",
 			"unicorn/throw-new-error": "error",
+
+			"@typescript-eslint/no-floating-promises": "error",
+			"@typescript-eslint/consistent-type-imports": "error",
+			"@typescript-eslint/restrict-template-expressions": ["warn", { // Allow numbers in template expressions without requiring explicit stringification
+				allowNumber: true
+			}],
+			"@typescript-eslint/no-confusing-void-expression": ["warn", { // Ignore arrow functions implicitly "returning" another void function's result
+				ignoreVoidReturningFunctions: true
+			}],
+			"@typescript-eslint/no-unused-vars": "warn", // Only warn for unused vars instead of resulting in an error
+			"@typescript-eslint/no-unnecessary-condition": "warn", // Only warn for unnecessary conditions  instead of resulting in an error
+			"@typescript-eslint/no-unnecessary-type-conversion": "off", // Maybe re-enable later to force proper types
+			"@typescript-eslint/no-useless-default-assignment": "off", // Does not work for rest arguments
+
+			"unicorn/prefer-switch": ["error", { minimumCases: 4 }],
+			"unicorn/consistent-function-scoping": ["warn", { checkArrowFunctions: false }], // triggers on class timeout/interval callbacks that use `this`
+
+			"unicorn/prevent-abbreviations": "off",
+			"unicorn/no-null": "off",
+			"unicorn/explicit-length-check": "off",
+			"unicorn/no-negated-condition": "off",
+			"unicorn/prefer-ternary": "off",
+			"unicorn/no-for-loop": "off",
+			"unicorn/text-encoding-identifier-case": "off", // Also applies to standalone strings rather than arguments => disable
+			"unicorn/no-typeof-undefined": "off",
+			"unicorn/no-static-only-class": "off",
+			"unicorn/switch-case-braces": "off",
+			"unicorn/prefer-default-parameters": "off",
+			"unicorn/prefer-type-error": "off",
+			"unicorn/no-anonymous-default-export": "off", // Remove when refactored to imports/exports
+			"unicorn/prefer-module": "off", // Remove when refactored to imports/exports too
+			"unicorn/no-array-method-this-argument": "off", // Doesn't work for custom array methods
+			"unicorn/no-array-callback-reference": "off", // Doesn't work for custom array methods either
+			"unicorn/no-array-sort": "off", // Doesn't allow in-place sorting
+			"unicorn/prefer-event-target": "off", // Not necessary at the moment, can be considered if project moves away from Node
+
 			"wrap-iife": ["warn", "inside"],
 			yoda: "error"
 		}

@@ -1,11 +1,15 @@
+import type { PoolConnection, UpsertResult } from "mariadb";
 import { SupiError } from "../../objects/error.js";
-import QuerySingleton, {
-	ColumnDefinition, JavascriptValue, MariaRowMeta,
-	PrimaryKeyValue, SqlValue,
+import type {
+	ColumnDefinition,
+	JavascriptValue,
+	MariaRowMeta,
+	PrimaryKeyValue,
+	SqlValue,
 	TableDefinition,
-	Value as QueryValue
+	Value as QueryValue,
+	Query as QuerySingleton
 } from "./index.js";
-import { PoolConnection, UpsertResult } from "mariadb";
 
 const UNSET_VALUE: unique symbol = Symbol.for("UNSET");
 

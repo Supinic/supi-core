@@ -4,11 +4,11 @@ import {
 	Gauge,
 	Counter,
 	Histogram,
-	MetricConfiguration,
-	CounterConfiguration,
-	GaugeConfiguration,
-	HistogramConfiguration,
-	Metric
+	type MetricConfiguration,
+	type CounterConfiguration,
+	type GaugeConfiguration,
+	type HistogramConfiguration,
+	type Metric
 } from "prom-client";
 
 export {

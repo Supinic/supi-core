@@ -1,6 +1,14 @@
-import { SupiError } from "../../objects/error.js";
-import QuerySingleton, { Database, Table, Value, formatSymbolRegex, FormatValue, FormatSymbol } from "./index.js";
 import type { PoolConnection } from "mariadb";
+import { SupiError } from "../../objects/error.js";
+import {
+	type Database,
+	type Table,
+	type Value,
+	formatSymbolRegex,
+	type FormatValue,
+	type FormatSymbol,
+	type Query as QuerySingleton
+} from "./index.js";
 
 type ConstructorOptions = {
 	transaction?: PoolConnection;
@@ -99,8 +107,9 @@ export default class RecordDeleter {
 			});
 		}
 
-		const sql = [];
-		sql.push(`DELETE FROM \`${this.#deleteFrom.database}\`.\`${this.#deleteFrom.table}\``);
+		const sql = [
+			`DELETE FROM \`${this.#deleteFrom.database}\`.\`${this.#deleteFrom.table}\``
+		];
 
 		if (this.#where.length !== 0) {
 			sql.push(`WHERE (${this.#where.join(") AND (")})`);

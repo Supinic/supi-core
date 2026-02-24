@@ -1,11 +1,13 @@
 import SupiDate from "../../objects/date.js";
 import { SupiError } from "../../objects/error.js";
-import QuerySingleton, {
-	Database,
-	Table,
-	ColumnDefinition,
+import {
+	type ColumnDefinition,
+	type Database,
+	type Table,
 	formatSymbolRegex,
-	FormatValue, FormatSymbol
+	type FormatValue,
+	type FormatSymbol,
+	type Query as QuerySingleton
 } from "./index.js";
 import type { PoolConnection } from "mariadb";
 

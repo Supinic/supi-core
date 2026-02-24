@@ -2,12 +2,14 @@ import SupiDate from "../../objects/date.js";
 import { SupiError } from "../../objects/error.js";
 
 import Batch from "./batch.js";
-import Recordset, { DefaultFetchResult, ResultObject as RecordsetResultObject } from "./recordset.js";
+import Recordset, { type DefaultFetchResult, type ResultObject as RecordsetResultObject } from "./recordset.js";
 import RecordDeleter from "./record-deleter.js";
 import RecordUpdater from "./record-updater.js";
-import Row, { Values } from "./row.js";
+import Row, { type Values } from "./row.js";
+// eslint-disable-next-line unicorn/prefer-export-from
+export type { Row, Recordset, Batch, RecordDeleter, RecordUpdater };
 
-import { createPool as createMariaDbPool, Pool, PoolConnection, SqlError } from "mariadb";
+import { createPool as createMariaDbPool, type Pool, type PoolConnection, SqlError } from "mariadb";
 
 export const columnTypes = {
 	DECIMAL: "DECIMAL",
@@ -56,7 +58,7 @@ const defaultPoolOptions = {
 	bigIntAsNumber: false
 };
 
-const DATE_TIME_TYPES: readonly string[] = [columnTypes.TIME, columnTypes.DATE, columnTypes.DATETIME, columnTypes.TIMESTAMP];
+const DATE_TIME_TYPES = new Set<string>([columnTypes.TIME, columnTypes.DATE, columnTypes.DATETIME, columnTypes.TIMESTAMP]);
 
 const isValidPositiveInteger = (input: number, min = 0) => Number.isInteger(input) && (input >= min);
 const isStringArray = (input: Array<string|number>): input is string[] => input.every(i => typeof i === "string");
@@ -160,7 +162,6 @@ type ConstructorOptions = {
 	port?: number;
 };
 
-export type { Row, Recordset, Batch, RecordDeleter, RecordUpdater };
 export class Query {
 	#definitionPromises: Map<Database, ReturnType<Query["getDefinition"]>> = new Map();
 	tableDefinitions: Record<Database, Record<Table, TableDefinition | undefined> | undefined> = {};
@@ -519,9 +520,6 @@ export class Query {
 			case columnTypes.SHORT:
 			case columnTypes.NEWDECIMAL: return Number(value);
 
-			case columnTypes.STRING:
-			case columnTypes.VAR_STRING:
-			case columnTypes.BLOB:
 			default: return String(value);
 		}
 	}
@@ -552,7 +550,7 @@ export class Query {
 			const string = this.escapeString(value.join(","));
 			return `'${string}'`;
 		}
-		else if (DATE_TIME_TYPES.includes(targetType)) {
+		else if (DATE_TIME_TYPES.has(targetType)) {
 			if (value instanceof Date) {
 				value = new SupiDate(value);
 			}
@@ -593,11 +591,16 @@ export class Query {
 	}
 
 	escapeString (string: string): string {
-		return string.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "\\\"");
+		return string
+			.replaceAll("\\", "\\\\")
+			.replaceAll("'", "\\'")
+			.replaceAll("\"", "\\\"");
 	}
 
 	escapeLikeString (string: string): string {
-		return this.escapeString(string).replace(/%/g, "\\%").replace(/_/g, "\\_");
+		return this.escapeString(string)
+			.replaceAll("%", "\\%")
+			.replaceAll("_", "\\_");
 	}
 
 	/**
