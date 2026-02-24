@@ -1,4 +1,4 @@
-import { PoolConnection, Types } from "mariadb";
+import { PoolConnection } from "mariadb";
 import { SupiError } from "../../objects/error.js";
 import SupiDate from "../../objects/date.js";
 import QuerySingleton, {
@@ -8,7 +8,7 @@ import QuerySingleton, {
 	MariaRowMeta,
 	Value,
 	JavascriptValue,
-	FormatSymbol
+	FormatSymbol, columnTypes
 } from "./index.js";
 
 const ROW_COLLAPSED = "#row_collapsed";
@@ -480,7 +480,7 @@ export default class Recordset <T = DefaultFetchResult> {
 				}
 
 				// If Recordset is not configured for BigInt and the column is BIGINT, do some impromptu conversion
-				if (columnDef.type === Types.BIGINT && !this.#options.bigint) {
+				if (columnDef.type === columnTypes.BIGINT && !this.#options.bigint) {
 					outRow[name] = this.query.convertToJS(value, "INT");
 				}
 				else {

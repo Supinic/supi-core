@@ -7,7 +7,42 @@ import RecordDeleter from "./record-deleter.js";
 import RecordUpdater from "./record-updater.js";
 import Row, { Values } from "./row.js";
 
-import { createPool as createMariaDbPool, Pool, PoolConnection, SqlError, Types as ColumnType } from "mariadb";
+import { createPool as createMariaDbPool, Pool, PoolConnection, SqlError } from "mariadb";
+
+export const columnTypes = {
+	DECIMAL: "DECIMAL",
+	TINY: "TINY",
+	SHORT: "SHORT",
+	LONG: "LONG",
+	FLOAT: "FLOAT",
+	DOUBLE: "DOUBLE",
+	NULL: "NULL",
+	TIMESTAMP: "TIMESTAMP",
+	BIGINT: "BIGINT",
+	INT24: "INT24",
+	DATE: "DATE",
+	TIME: "TIME",
+	DATETIME: "DATETIME",
+	YEAR: "YEAR",
+	NEWDATE: "NEWDATE",
+	VARCHAR: "VARCHAR",
+	BIT: "BIT",
+	TIMESTAMP2: "TIMESTAMP2",
+	DATETIME2: "DATETIME2",
+	TIME2: "TIME2",
+	JSON: "JSON",
+	NEWDECIMAL: "NEWDECIMAL",
+	ENUM: "ENUM",
+	SET: "SET",
+	TINY_BLOB: "TINY_BLOB",
+	MEDIUM_BLOB: "MEDIUM_BLOB",
+	LONG_BLOB: "LONG_BLOB",
+	BLOB: "BLOB",
+	VAR_STRING: "VAR_STRING",
+	STRING: "STRING",
+	GEOMETRY: "GEOMETRY"
+} as const;
+export type ColumnType = keyof typeof columnTypes;
 
 export type JSONifiable = null | boolean | number | string | { [P: string]: JSONifiable } | JSONifiable[];
 export type SimpleGenericData = Record<string, JSONifiable>;
@@ -21,7 +56,7 @@ const defaultPoolOptions = {
 	bigIntAsNumber: false
 };
 
-const DATE_TIME_TYPES: string[] = [ColumnType.TIME, ColumnType.DATE, ColumnType.DATETIME, ColumnType.TIMESTAMP];
+const DATE_TIME_TYPES: readonly string[] = [columnTypes.TIME, columnTypes.DATE, columnTypes.DATETIME, columnTypes.TIMESTAMP];
 
 const isValidPositiveInteger = (input: number, min = 0) => Number.isInteger(input) && (input >= min);
 const isStringArray = (input: Array<string|number>): input is string[] => input.every(i => typeof i === "string");
@@ -53,7 +88,7 @@ export type Value = string | number | bigint | SupiDate | null;
  * - https://github.com/mariadb-corporation/mariadb-connector-nodejs/blob/master/lib/const/field-type.js#L12
  * - https://github.com/mariadb-corporation/mariadb-connector-nodejs/blob/master/types/index.d.ts#L933
 */
-export type ExtendedColumnType = ColumnType | "INT";
+export type ExtendedColumnType = keyof typeof columnTypes | "INT";
 export declare type MariaRowMeta = {
 	collation: {
 		index: number;
@@ -270,7 +305,7 @@ export class Query {
 				obj.columns.push({
 					name: column.name(),
 					length: column.columnLength,
-					type: ((column.flags & Query.flagMask.SET) === 0) ? column.type : ColumnType.SET,
+					type: ((column.flags & Query.flagMask.SET) === 0) ? column.type : columnTypes.SET,
 					notNull: Boolean(column.flags & Query.flagMask.NOT_NULL),
 					primaryKey: Boolean(column.flags & Query.flagMask.PRIMARY_KEY),
 					unsigned: Boolean(column.flags & Query.flagMask.UNSIGNED),
@@ -424,9 +459,9 @@ export class Query {
 		}
 
 		switch (type) {
-			case ColumnType.TINY: return (value === 1);
+			case columnTypes.TINY: return (value === 1);
 
-			case ColumnType.SET: {
+			case columnTypes.SET: {
 				if (!isMariaSet(value)) {
 					throw new SupiError({
 						message: "SET value must be a string[]"
@@ -437,9 +472,9 @@ export class Query {
 			}
 
 			// case ColumnType.TIME:
-			case ColumnType.DATE:
-			case ColumnType.DATETIME:
-			case ColumnType.TIMESTAMP: {
+			case columnTypes.DATE:
+			case columnTypes.DATETIME:
+			case columnTypes.TIMESTAMP: {
 				if (typeof value !== "number" && !(value instanceof Date)) {
 					throw new SupiError({
 						message: "Invalid date value provided"
@@ -449,7 +484,7 @@ export class Query {
 				return new SupiDate(value);
 			}
 
-			case ColumnType.BIGINT: {
+			case columnTypes.BIGINT: {
 				if (typeof value !== "number" && typeof value !== "string" && typeof value !== "bigint") {
 					throw new SupiError({
 						message: "Bigint value must be number, string or bigint"
@@ -459,7 +494,7 @@ export class Query {
 				return BigInt(value);
 			}
 
-			case ColumnType.JSON: {
+			case columnTypes.JSON: {
 				if (typeof value !== "string") {
 					throw new SupiError({
 						message: "JSON value must be string"
@@ -481,12 +516,12 @@ export class Query {
 			}
 
 			case "INT":
-			case ColumnType.SHORT:
-			case ColumnType.NEWDECIMAL: return Number(value);
+			case columnTypes.SHORT:
+			case columnTypes.NEWDECIMAL: return Number(value);
 
-			case ColumnType.STRING:
-			case ColumnType.VAR_STRING:
-			case ColumnType.BLOB:
+			case columnTypes.STRING:
+			case columnTypes.VAR_STRING:
+			case columnTypes.BLOB:
 			default: return String(value);
 		}
 	}
@@ -503,7 +538,7 @@ export class Query {
 		if (value === null) {
 			return "NULL";
 		}
-		else if (targetType === ColumnType.TINY) {
+		else if (targetType === columnTypes.TINY) {
 			if (typeof value !== "boolean") {
 				throw new SupiError({
 					message: "Expected value type: boolean",
@@ -513,7 +548,7 @@ export class Query {
 
 			return (value) ? "1" : "0";
 		}
-		else if (targetType === ColumnType.SET && Array.isArray(value)) {
+		else if (targetType === columnTypes.SET && Array.isArray(value)) {
 			const string = this.escapeString(value.join(","));
 			return `'${string}'`;
 		}
@@ -530,10 +565,10 @@ export class Query {
 			}
 
 			switch (targetType) {
-				case ColumnType.TIME: return `'${value.sqlTime()}'`;
-				case ColumnType.DATE: return `'${value.sqlDate()}'`;
-				case ColumnType.DATETIME: return `'${value.sqlDateTime()}'`;
-				case ColumnType.TIMESTAMP: return `'${value.sqlDateTime()}'`;
+				case columnTypes.TIME: return `'${value.sqlTime()}'`;
+				case columnTypes.DATE: return `'${value.sqlDate()}'`;
+				case columnTypes.DATETIME: return `'${value.sqlDateTime()}'`;
+				case columnTypes.TIMESTAMP: return `'${value.sqlDateTime()}'`;
 			}
 		}
 		else if (typeof value === "string") {
