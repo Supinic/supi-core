@@ -128,7 +128,7 @@ export default class Recordset <T = DefaultFetchResult> {
 	}
 
 	limit (number: number): this {
-		this.#limit = Number(number);
+		this.#limit = number;
 
 		if (!Number.isFinite(this.#limit)) {
 			throw new SupiError({
@@ -141,7 +141,7 @@ export default class Recordset <T = DefaultFetchResult> {
 	}
 
 	offset (number: number): this {
-		this.#offset = Number(number);
+		this.#offset = number;
 
 		if (!Number.isFinite(this.#offset)) {
 			throw new SupiError({
@@ -315,9 +315,9 @@ export default class Recordset <T = DefaultFetchResult> {
 			referenceCondition,
 			targetCondition,
 
-			fields = [],
+			fields,
 			collapseOn,
-			left = true
+			left
 		} = options;
 
 		if (referenceTable && targetTable) {
@@ -444,8 +444,8 @@ export default class Recordset <T = DefaultFetchResult> {
 
 		const sql = this.toSQL();
 		const sqlString = sql.join("\n");
-		let rows = null;
 
+		let rows;
 		try {
 			rows = await this.query.transactionQuery(sqlString, this.transaction) as MetaResultObject;
 		}

@@ -498,7 +498,9 @@ export default class Utils {
 			return false;
 		}
 
-		return Boolean(Number.isFinite(input) && Math.trunc(input) === input && input >= minLimit);
+		return (Number.isFinite(input))
+			&& (Math.trunc(input) === input)
+			&& (input >= minLimit);
 	}
 
 	/**
@@ -539,7 +541,7 @@ export default class Utils {
 	formatByteSize (number: number, digits = 3, type: "si" | "iec" = "si") {
 		const { multiplier, units } = byteUnits[type];
 
-		number = Math.abs(Math.trunc(Number(number)));
+		number = Math.abs(Math.trunc(number));
 
 		if (number < multiplier) {
 			return `${number} B`;
@@ -689,7 +691,7 @@ export default class Utils {
 				original: originalTargets[ind],
 				score: i,
 				index: ind,
-				includes: Boolean(targets[ind].includes(from))
+				includes: targets[ind].includes(from)
 			}));
 
 			return result.sort((a, b) => b.score - a.score);
@@ -716,7 +718,7 @@ export default class Utils {
 					string: targets[index],
 					original: originalTargets[index],
 					score,
-					includes: Boolean(targets[index].includes(from)),
+					includes: targets[index].includes(from),
 					index
 				};
 			}

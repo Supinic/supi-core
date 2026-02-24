@@ -9,7 +9,7 @@ const isValidInteger = (input: unknown): boolean => {
 		return false;
 	}
 
-	return Boolean(Number.isFinite(input) && Math.trunc(input) === input);
+	return (Number.isFinite(input)) && (Math.trunc(input) === input);
 };
 
 export const isFunctionKeyObject = (input: unknown): input is FunctionKeyObject => {
@@ -274,7 +274,7 @@ export class Cache {
 		const extraKeys = options.keys ?? {};
 
 		for (const [key, value] of Object.entries(extraKeys)) {
-			prefixKey.push(key, ITEM_DELIMITER, String(value));
+			prefixKey.push(key, ITEM_DELIMITER, value);
 		}
 
 		const searchKey = prefixKey.join(GROUP_DELIMITER);
@@ -311,8 +311,8 @@ export class Cache {
 	}
 
 	static resolveKey (value: KeyLike): string {
-		if (typeof value === "string" || typeof value === "number") {
-			return String(value);
+		if (typeof value === "string") {
+			return value;
 		}
 		else {
 			return value.getCacheKey();
@@ -326,8 +326,7 @@ export class Cache {
 		}
 
 		const rest = [];
-		for (const [key, rawValue] of keys) {
-			const value = String(rawValue);
+		for (const [key, value] of keys) {
 			if (key.includes(GROUP_DELIMITER) || key.includes(ITEM_DELIMITER)) {
 				throw new SupiError({
 					message: "Cache prefix keys cannot contain reserved characters",

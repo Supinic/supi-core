@@ -1,9 +1,10 @@
+import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
 import eslintJs from "@eslint/js";
 import unicornPlugin from "eslint-plugin-unicorn";
 import globals from "globals";
 
-export default tseslint.config(
+export default defineConfig(
 	eslintJs.configs.recommended,
 	tseslint.configs.strictTypeChecked,
 	{
@@ -12,15 +13,15 @@ export default tseslint.config(
 	{
 		languageOptions: {
 			parserOptions: {
-				project: true,
 				projectService: true,
 				tsconfigRootDir: import.meta.dirname
 			},
 			globals: {
 				...globals.browser,
-				...globals.es2021
+				...globals.es2025,
+				...globals.node
 			},
-			ecmaVersion: 12,
+			ecmaVersion: "latest",
 			sourceType: "module"
 		},
 		plugins: {
