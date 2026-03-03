@@ -1,5 +1,6 @@
 import * as gotModule from "got";
 import SupiError from "../objects/error.js";
+import type { JSONifiable } from "../singletons/query/index.js";
 
 export { Response as GotResponse } from "got";
 
@@ -44,7 +45,7 @@ type GqlRequestOptions = {
 	url: string,
 	query?: string;
 	token?: string;
-	variables?: string;
+	variables?: Record<string, JSONifiable>;
 	headers?: Record<string, string>;
 };
 
