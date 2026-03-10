@@ -45,6 +45,7 @@ type GqlRequestOptions = {
 	url: string,
 	query?: string;
 	token?: string;
+	throwHttpErrors?: boolean;
 	variables?: Record<string, JSONifiable>;
 	headers?: Record<string, string>;
 };
@@ -168,6 +169,7 @@ class StaticGot {
 		const options: Partial<gotModule.Options> = {
 			method: "POST",
 			responseType: "json",
+			throwHttpErrors: gqlOptions.throwHttpErrors ?? true,
 			json: {
 				query: gqlOptions.query
 			}
