@@ -1,3 +1,4 @@
+// If `UpsertResult` suddenly becomes unreachable in mariadb, check versioning! worked in 3.5.1, broken in 3.5.2
 import type { PoolConnection, UpsertResult } from "mariadb";
 import { SupiError } from "../../objects/error.js";
 import type {

@@ -2,7 +2,7 @@ import * as gotModule from "got";
 import SupiError from "../objects/error.js";
 import type { JSONifiable } from "../singletons/query/index.js";
 
-export { Response as GotResponse } from "got";
+export type { Response as GotResponse } from "got";
 
 const nameSymbol: unique symbol = Symbol.for("name");
 const gotRequestErrors = [
