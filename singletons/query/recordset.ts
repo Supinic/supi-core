@@ -473,12 +473,20 @@ export default class Recordset <T = DefaultFetchResult> {
 
 			const outRow: ResultObject = {};
 			for (const [name, value] of Object.entries(row)) {
-				const columnDef = columns.find(i => i.name === name);
+				let columnDef = columns.find(i => i.name === name);
 
 				// This case only occurs when SELECT-ing a non-column value, e.g. "SELECT 1" or similar.
 				if (!columnDef) {
-					outRow[name] = value;
-					continue;
+					const possibleAliasMatch = this.#select.find(i => i.endsWith(`AS ${name}`));
+					if (possibleAliasMatch) {
+						const realName = possibleAliasMatch.split(" AS ")[0];
+						columnDef = columns.find(i => i.name === realName);
+					}
+
+					if (!columnDef) {
+						outRow[name] = value;
+						continue;
+					}
 				}
 
 				// If Recordset is not configured for BigInt and the column is BIGINT, do some impromptu conversion
