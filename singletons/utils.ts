@@ -270,12 +270,30 @@ export default class Utils {
 	}
 
 	/**
-	 * Fixes an HTML string by replacing all escape sequences with their character representations
+	 * Fixes an HTML string by replacing all escape sequences with their character representations.
+	 * Supports both decimal and hexadecimal entities.
 	 */
 	fixHTML (string: string): string {
 		return string.replaceAll(/&#?(?<identifier>[a-z0-9]+);/g, (...params) => {
 			const { identifier } = params.at(-1) as { identifier: string };
-			return Utils.htmlEntities[identifier] ?? String.fromCodePoint(Number(identifier));
+			const knownEntity = Utils.htmlEntities[identifier];
+			if (knownEntity) {
+				return knownEntity;
+			}
+
+			let codePoint: number;
+			if (identifier.startsWith("x")) {
+				codePoint = Number.parseInt(identifier.slice(1), 16);
+			}
+			else {
+				codePoint = Number(identifier);
+			}
+
+			if (!Number.isSafeInteger(codePoint)) {
+				return "";
+			}
+
+			return String.fromCodePoint(codePoint);
 		});
 	}
 
