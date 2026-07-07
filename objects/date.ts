@@ -186,7 +186,10 @@ export default class SupiDate extends Date {
 
 	setTimezoneOffset (offset: number): this {
 		if (offset % 15 !== 0) {
-			throw new Error("Unrecognized offset - make sure to use offset in minutes");
+			throw new Error("Unrecognized timezone offset - make sure to use minutes");
+		}
+		if (Math.abs(offset) > 840) { // 840 = UTC+14 in either direction = maximum offset possible in minutes
+			throw new Error("Timezone offset is too large - make sure to use minutes");
 		}
 
 		this.setMinutes(this.getMinutes() + this.getTimezoneOffset() + offset);
