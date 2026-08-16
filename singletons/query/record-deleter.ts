@@ -92,7 +92,7 @@ export default class RecordDeleter {
 	 * Must be called if a RecordDeleter is meant to be used without calling the `where()` method.
 	 * This prevents data deletion in case the `where` method call is omitted by accident.
 	 */
-	confirm () {
+	confirm (): this {
 		this.#confirmedFullDelete = true;
 		return this;
 	}

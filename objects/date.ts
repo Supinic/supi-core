@@ -255,7 +255,7 @@ export default class SupiDate extends Date {
 		return this;
 	}
 
-	get dayOfTheWeek () {
+	get dayOfTheWeek (): "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" {
 		switch (super.getDay()) {
 			case 0: return "Sunday";
 			case 1: return "Monday";
@@ -277,7 +277,7 @@ export default class SupiDate extends Date {
 		super.setMilliseconds(ms);
 	}
 
-	get seconds () {
+	get seconds (): number {
 		return super.getSeconds();
 	}
 
@@ -285,7 +285,7 @@ export default class SupiDate extends Date {
 		super.setSeconds(s);
 	}
 
-	get minutes () {
+	get minutes (): number {
 		return this.getMinutes();
 	}
 
@@ -293,7 +293,7 @@ export default class SupiDate extends Date {
 		super.setMinutes(m);
 	}
 
-	get hours () {
+	get hours (): number {
 		return super.getHours();
 	}
 
@@ -309,7 +309,7 @@ export default class SupiDate extends Date {
 		super.setDate(d);
 	}
 
-	get month () {
+	get month (): number {
 		return super.getMonth() + 1;
 	}
 
@@ -317,7 +317,7 @@ export default class SupiDate extends Date {
 		super.setMonth(m - 1);
 	}
 
-	get year () {
+	get year (): number {
 		return super.getFullYear();
 	}
 

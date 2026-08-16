@@ -139,7 +139,7 @@ export default class Batch {
 		this.clear();
 	}
 
-	clear () {
+	clear (): void {
 		this.records = [];
 	}
 }

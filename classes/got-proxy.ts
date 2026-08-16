@@ -1,16 +1,12 @@
 import * as gotModule from "got";
 import SupiError from "../objects/error.js";
 import type { JSONifiable } from "../singletons/query/index.js";
+import type { GotStream } from "got";
 
 export type { Response as GotResponse } from "got";
 
 const nameSymbol: unique symbol = Symbol.for("name");
-const gotRequestErrors = [
-	gotModule.CancelError,
-	gotModule.HTTPError,
-	gotModule.RequestError,
-	gotModule.TimeoutError
-];
+
 
 export const isGotRequestError = (input: unknown): input is gotModule.RequestError => (input instanceof gotModule.RequestError);
 
@@ -68,7 +64,7 @@ class StaticGot {
 		return instance;
 	}
 
-	static importData (definitions: GotInstanceDefinition[]) {
+	static importData (definitions: GotInstanceDefinition[]): void {
 		if (!Array.isArray(definitions)) {
 			throw new SupiError({
 				message: "Definitions must be provided as an array"
@@ -110,7 +106,7 @@ class StaticGot {
 		StaticGot.data = result;
 	}
 
-	static importSpecific (...definitions: GotInstanceDefinition[]) {
+	static importSpecific (...definitions: GotInstanceDefinition[]): void {
 		for (const definition of definitions) {
 			const oldInstanceIndex = StaticGot.data.findIndex(i => i[nameSymbol] === definition.name);
 			if (oldInstanceIndex !== -1) {
@@ -195,7 +191,7 @@ class StaticGot {
 		return gotModule.got({ ...gqlOptions, ...options }) as Promise<gotModule.Response>;
 	}
 
-	static sanitize (strings: string[], ...values: string[]) {
+	static sanitize (strings: string[], ...values: string[]): string {
 		const result = [];
 		for (let i = 0; i < strings.length; i++) {
 			result.push(strings[i]);
@@ -208,13 +204,20 @@ class StaticGot {
 		return result.join("").trim();
 	}
 
-	static isRequestError (error: unknown) {
+	static isRequestError (error: unknown): boolean {
+		const gotRequestErrors = [
+			gotModule.CancelError,
+			gotModule.HTTPError,
+			gotModule.RequestError,
+			gotModule.TimeoutError
+		];
+
 		return gotRequestErrors.some(GotError => error instanceof GotError);
 	}
 
-	static get stream () { return gotModule.got.stream; }
-	static get RequestError () { return gotModule.RequestError; }
-	static get TimeoutError () { return gotModule.TimeoutError; }
+	static get stream (): GotStream { return gotModule.got.stream; }
+	static get RequestError (): typeof gotModule["RequestError"] { return gotModule.RequestError; }
+	static get TimeoutError (): typeof gotModule["TimeoutError"] { return gotModule.TimeoutError; }
 }
 
 type ProxyApplyArgument = [string] | [string, string] | [string, Partial<gotModule.Options>];

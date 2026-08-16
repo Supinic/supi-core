@@ -1,7 +1,7 @@
-import tseslint from "typescript-eslint";
+import { defineConfig, type Config } from "eslint/config";
 import baseConfig from "../eslint.config.js";
 
-export default tseslint.config(
+const config: Config[] = defineConfig(
 	baseConfig,
 	{
 		ignores: ["**/*.js"]
@@ -16,3 +16,5 @@ export default tseslint.config(
 		}
 	}
 );
+
+export default config;

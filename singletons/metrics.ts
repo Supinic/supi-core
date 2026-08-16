@@ -28,11 +28,9 @@ export type MetricType = "Gauge" | "Counter" | "Histogram";
  * Very simple module wrapper around the Prometheus client metrics
  */
 export class Metrics {
-	#registry;
+	#registry = new Registry();
 
 	constructor () {
-		this.#registry = new Registry();
-
 		collectDefaultMetrics({
 			register: this.#registry
 		});
@@ -76,9 +74,7 @@ export class Metrics {
 		return this.#registry.getSingleMetric(name);
 	}
 
-	get registry () {
-		return this.#registry;
-	}
+	get registry (): Registry { return this.#registry; }
 }
 
 export default Metrics;

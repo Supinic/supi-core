@@ -50,7 +50,7 @@ export type JSONifiable = null | boolean | number | string | { [P: string]: JSON
 export type SimpleGenericData = Record<string, JSONifiable>;
 
 const updateBatchLimit = 1000;
-export const formatSymbolRegex = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
+export const formatSymbolRegex: RegExp = /%(s\+|n\+|b|dt|d|n|p|s|t|\*?like\*?)/g;
 const defaultPoolOptions = {
 	multipleStatements: true,
 	insertIdAsNumber: true,
@@ -367,7 +367,7 @@ export class Query {
 	 * @param options Configurable options object
 	 * @param options.callback Callback that gets passed into the RecordUpdater instances
 	 */
-	async batchUpdate <T extends SimpleGenericData> (data: T[], options: BatchUpdateOptions<T>) {
+	async batchUpdate <T extends SimpleGenericData> (data: T[], options: BatchUpdateOptions<T>): Promise<void> {
 		const { batchSize, callback, staggerDelay } = options;
 		if (typeof callback !== "function") {
 			throw new SupiError({
@@ -437,13 +437,13 @@ export class Query {
 		return rs.toCondition();
 	}
 
-	invalidateDefinition (database: Database, table: Table) {
+	invalidateDefinition (database: Database, table: Table): void {
 		if (this.tableDefinitions[database] && this.tableDefinitions[database][table]) {
 			this.tableDefinitions[database][table] = undefined;
 		}
 	}
 
-	invalidateAllDefinitions () {
+	invalidateAllDefinitions (): void {
 		this.tableDefinitions = {};
 	}
 
@@ -576,7 +576,7 @@ export class Query {
 		return String(value);
 	}
 
-	escapeIdentifier (string: string) {
+	escapeIdentifier (string: string): string {
 		// @todo should safely escape identifiers into backticks
 
 		// const result = (/\*$/.test(string))
@@ -728,7 +728,7 @@ export class Query {
 		} as const;
 	}
 
-	get formatSymbolRegex () {
+	get formatSymbolRegex (): typeof formatSymbolRegex {
 		return formatSymbolRegex;
 	}
 }

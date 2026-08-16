@@ -1,10 +1,10 @@
-import { defineConfig } from "eslint/config";
+import { defineConfig, type Config } from "eslint/config";
 import tseslint from "typescript-eslint";
 import eslintJs from "@eslint/js";
 import unicornPlugin from "eslint-plugin-unicorn";
 import globals from "globals";
 
-export default defineConfig(
+const config: Config[] = defineConfig(
 	eslintJs.configs.recommended,
 	unicornPlugin.configs.recommended,
 	tseslint.configs.strictTypeChecked,
@@ -206,10 +206,10 @@ export default defineConfig(
 
 			"@typescript-eslint/no-floating-promises": "error",
 			"@typescript-eslint/consistent-type-imports": "error",
-			"@typescript-eslint/restrict-template-expressions": ["warn", { // Allow numbers in template expressions without requiring explicit stringification
+			"@typescript-eslint/restrict-template-expressions": ["warn", {
 				allowNumber: true
 			}],
-			"@typescript-eslint/no-confusing-void-expression": ["warn", { // Ignore arrow functions implicitly "returning" another void function's result
+			"@typescript-eslint/no-confusing-void-expression": ["warn", {
 				ignoreVoidReturningFunctions: true
 			}],
 			"@typescript-eslint/no-unused-vars": "warn", // Only warn for unused vars instead of resulting in an error
@@ -244,3 +244,4 @@ export default defineConfig(
 		}
 	}
 );
+export default config;

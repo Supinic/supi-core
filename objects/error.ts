@@ -63,15 +63,15 @@ export class SupiError extends globalThis.Error {
 		});
 	}
 
-	get simpleMessage () {
+	get simpleMessage (): string {
 		return (typeof this.#messageDescriptor.get === "function")
 			? this.#messageDescriptor.get() as string
 			: this.#messageDescriptor.value as string;
 	}
 
-	get args () { return this.#args; }
-	get timestamp () { return this.#timestamp; }
-	get date () { return new Date(this.#timestamp); }
+	get args (): SimpleArgument { return this.#args; }
+	get timestamp (): number { return this.#timestamp; }
+	get date (): Date { return new Date(this.#timestamp); }
 }
 
 export class GenericRequestError extends SupiError {

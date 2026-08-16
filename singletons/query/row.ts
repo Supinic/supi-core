@@ -25,6 +25,9 @@ type SaveOptions = {
 	skipLoad?: boolean;
 };
 
+type ReceivedData <T extends Values> = { [K in keyof T]: SqlValue };
+type InsertResult<T extends Values> = [ReceivedData<T>] & { meta: MariaRowMeta[] };
+
 const isPrimaryKeyObject = (input: unknown): input is PrimaryKeyObject => {
 	if (!input || typeof input !== "object") {
 		return false;
@@ -89,7 +92,7 @@ export default class Row <T extends Values = Values> {
 		this.#transaction = options.transaction;
 	}
 
-	async initialize (database: string, table: string) {
+	async initialize (database: string, table: string): Promise<this> {
 		if (!database || !table) {
 			throw new SupiError({
 				message: "Cannot initialize row - missing database/table",
@@ -111,7 +114,7 @@ export default class Row <T extends Values = Values> {
 		return this;
 	}
 
-	async load (primaryKey: PrimaryKeyValue | PrimaryKeyObject, ignoreError: boolean = false) {
+	async load (primaryKey: PrimaryKeyValue | PrimaryKeyObject, ignoreError: boolean = false): Promise<this> {
 		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot load row - not initialized",
@@ -210,7 +213,7 @@ export default class Row <T extends Values = Values> {
 		return this;
 	}
 
-	async save (options: SaveOptions = {}) {
+	async save (options: SaveOptions = {}): Promise<false | UpsertResult | InsertResult<T>> {
 		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot save row - not initialized",
@@ -280,9 +283,8 @@ export default class Row <T extends Values = Values> {
 				}
 			}
 			else {
-				type ReceivedData = { [K in keyof T]: SqlValue };
 				const sqlString = `INSERT ${ignore}INTO ${this.#definition.escapedPath} (${columns.join(",")}) VALUES (${values.join(",")}) RETURNING *`;
-				outputData = await this.#query.transactionQuery(sqlString, this.#transaction) as [ReceivedData] & { meta: MariaRowMeta[] };
+				outputData = await this.#query.transactionQuery(sqlString, this.#transaction) as InsertResult<T>;
 
 				const firstResult = outputData.at(0);
 				if (firstResult) {
@@ -300,7 +302,7 @@ export default class Row <T extends Values = Values> {
 		return outputData;
 	}
 
-	async delete () {
+	async delete (): Promise<void> {
 		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot delete row - not initialized",
@@ -325,7 +327,7 @@ export default class Row <T extends Values = Values> {
 		}
 	}
 
-	reset () {
+	reset (): void {
 		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot reset row - not initialized",
@@ -340,7 +342,7 @@ export default class Row <T extends Values = Values> {
 		}
 	}
 
-	setValues (data: Partial<T>) {
+	setValues (data: Partial<T>): this {
 		if (!this.#initialized) {
 			throw new SupiError({
 				message: "Cannot set column values - row not initialized",
@@ -356,7 +358,7 @@ export default class Row <T extends Values = Values> {
 		return this;
 	}
 
-	hasProperty (property: string) {
+	hasProperty (property: string): boolean {
 		if (!this.#definition) {
 			throw new SupiError({
 				message: "Cannot check property - row not initialized",
@@ -367,7 +369,7 @@ export default class Row <T extends Values = Values> {
 		return (typeof this.#values[property] !== "undefined");
 	}
 
-	_getErrorInfo () {
+	_getErrorInfo (): { database: string | null; table: string | null; primaryKeys: string[]; deleted: boolean; loaded: boolean; } {
 		return {
 			database: this.#definition?.database ?? null,
 			table: this.#definition?.name ?? null,
@@ -377,7 +379,7 @@ export default class Row <T extends Values = Values> {
 		};
 	}
 
-	_getPrimaryKeyConditions () {
+	_getPrimaryKeyConditions (): string[] {
 		const conditions = [];
 		for (const column of this.#primaryKeyFields) {
 			// Guaranteed to not include the UNSET_VALUE symbol
@@ -407,10 +409,10 @@ export default class Row <T extends Values = Values> {
 		return obj;
 	}
 
-	get definition () { return this.#definition || null; }
-	get deleted () { return this.#deleted; }
-	get initialized () { return this.#initialized; }
-	get loaded () { return this.#loaded; }
+	get definition (): TableDefinition | null { return this.#definition || null; }
+	get deleted (): boolean { return this.#deleted; }
+	get initialized (): boolean { return this.#initialized; }
+	get loaded (): boolean { return this.#loaded; }
 
 	hasDefinition (): this is Row<T> & { definition: object } {
 		return this.#initialized;

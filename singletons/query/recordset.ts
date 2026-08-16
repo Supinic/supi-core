@@ -237,7 +237,7 @@ export default class Recordset <T = DefaultFetchResult> {
 		return this;
 	}
 
-	join (input: JoinInput, target?: JoinTarget, customField?: string, left: string = "") {
+	join (input: JoinInput, target?: JoinTarget, customField?: string, left: string = ""): this {
 		if (typeof input === "string" && typeof target === "string") {
 			const dot = (input) ? (`${input}.\`${target}\``) : (`\`${target}\``);
 			this.#join.push(`${left}JOIN ${dot} ON \`${this.#from.table}\`.\`${customField || target}\` = ${dot}.ID`);
@@ -400,7 +400,7 @@ export default class Recordset <T = DefaultFetchResult> {
 		}
 	}
 
-	toSQL () {
+	toSQL (): string[] {
 		if (this.#select.length === 0) {
 			throw new SupiError({
 				message: "No SELECT in Recordset - invalid definition"
@@ -522,7 +522,7 @@ export default class Recordset <T = DefaultFetchResult> {
 			: result as T;
 	}
 
-	static collapseReferencedData (data: EnhancedResultObject[], options: ReferenceDescriptor) {
+	static collapseReferencedData (data: EnhancedResultObject[], options: ReferenceDescriptor): EnhancedResultObject[] {
 		const keyMap: Map<JavascriptValue, EnhancedResultObject[]> = new Map();
 		const { collapseOn: collapser, target, columns } = options;
 		const regex = new RegExp(`^${target}_`);

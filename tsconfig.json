@@ -13,7 +13,7 @@
     "assumeChangesOnlyAffectDirectDependencies": true,   /* Have recompiles in '--incremental' and '--watch' assume that changes within a file will only affect files directly depending on it. Requires TypeScript version 3.8 or later. */
 
     /* JavaScript Support */
-    "allowJs": true,                                     /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */
+    "allowJs": false,                                     /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */
     "checkJs": false,                                    /* Enable error reporting in type-checked JavaScript files. */
 
     /* Emit */
@@ -69,8 +69,9 @@
     /* Completeness */
     "skipDefaultLibCheck": true,                         /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true,                               /* Skip type checking all .d.ts files. */
+    "isolatedDeclarations": true,
 
-    // This option allows the Typescript compiler to detect if the project has been built already.
+    // This option allows the TypeScript compiler to detect if the project has been built already.
     // It also enables the `incremental` option, allowing it to perform incremental builds instead of full rebuilds, reducing compile times significantly.
     "composite": true,
     "incremental": true

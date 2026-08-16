@@ -1,6 +1,9 @@
 import { Redis, type RedisOptions } from "ioredis";
 import SupiError from "../objects/error.js";
 
+// Borrowed from ioredis - this type doesn't seem to be exported
+type RedisStatus = "wait" | "reconnecting" | "connecting" | "connect" | "ready" | "close" | "end";
+
 const GROUP_DELIMITER = String.fromCodePoint(7);
 const ITEM_DELIMITER = String.fromCodePoint(8);
 
@@ -354,7 +357,7 @@ export class Cache {
 		return (this.#server.status === "ready");
 	}
 
-	get status () {
+	get status (): RedisStatus | null {
 		if (!this.#server) {
 			return null;
 		}
@@ -362,9 +365,9 @@ export class Cache {
 		return this.#server.status;
 	}
 
-	get version () { return this.#version; }
+	get version (): number[] | null { return this.#version; }
 
-	get server () {
+	get server (): Redis {
 		assertServerConnected(this.#server);
 		return this.#server;
 	}

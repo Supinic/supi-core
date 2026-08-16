@@ -81,7 +81,7 @@ export default class Utils {
 
 	/** Collection of string template "tag" functions */
 	tag = {
-		trim: (strings: TemplateStringsArray, ...values: Array<string|number>) => {
+		trim: (strings: TemplateStringsArray, ...values: Array<string|number>): string => {
 			const result = [];
 			for (let i = 0; i < strings.length; i++) {
 				result.push(strings[i].replaceAll(/\s+/g, " "), values[i]);
@@ -89,7 +89,7 @@ export default class Utils {
 
 			return result.join("").trim();
 		},
-		groupDigits: (strings: TemplateStringsArray, ...values: Array<string|number>) => {
+		groupDigits: (strings: TemplateStringsArray, ...values: Array<string|number>): string => {
 			const result = [];
 			for (let i = 0; i < strings.length; i++) {
 				result.push(strings[i]);
@@ -110,7 +110,7 @@ export default class Utils {
 	/**
 	 * Capitalizes the string's first letter.
 	 */
-	capitalize (string: string) {
+	capitalize (string: string): string {
 		return string[0].toUpperCase() + string.slice(1).toLowerCase();
 	}
 
@@ -245,7 +245,7 @@ export default class Utils {
 	/**
 	 * Rounds a number to given amount of decimal places.
 	 */
-	round (number: number, places = 0, options: { direction?: "ceil" | "floor" | "round" | "trunc" } = {}) {
+	round (number: number, places = 0, options: { direction?: "ceil" | "floor" | "round" | "trunc" } = {}): number {
 		const direction = options.direction ?? "round";
 		if (!["ceil", "floor", "round", "trunc"].includes(direction)) {
 			throw new SupiError({
@@ -308,7 +308,7 @@ export default class Utils {
 	 * Wraps the input string into the given amount of characters, discarding the rest.
 	 * @param [options.keepWhitespace] If true, newlines will and whitespace will be preserved. Default - they are converted to a single space
 	 */
-	wrapString (string: string, length: number, options: { keepWhitespace?: boolean } = {}) {
+	wrapString (string: string, length: number, options: { keepWhitespace?: boolean } = {}): string {
 		if (!options.keepWhitespace) {
 			string = string.replaceAll(/\r?\n/g, " ").replaceAll(/\s+/g, " ");
 		}
@@ -321,7 +321,7 @@ export default class Utils {
 	/**
 	 * Returns a random integer between min and max, inclusively.
 	 */
-	random (min: number, max: number) {
+	random (min: number, max: number): number {
 		return randomizer.integer(min, max);
 	}
 
@@ -425,7 +425,7 @@ export default class Utils {
 	/**
 	 * Parses strings containing time units into a time number.
 	 */
-	parseDuration = parseDuration;
+	parseDuration: typeof parseDuration = parseDuration;
 
 	/**
 	 * Parses a simple video duration in the format HH:MM:SS.vvv to seconds.
@@ -451,7 +451,7 @@ export default class Utils {
 		return Number.isFinite(number) ? number : null;
 	}
 
-	convertCase (text: string, caseFrom: TextCase, caseTo: TextCase) {
+	convertCase (text: string, caseFrom: TextCase, caseTo: TextCase): string {
 		if (typeof text !== "string") {
 			throw new SupiError({
 				message: "Text must be typeof string",
@@ -556,7 +556,7 @@ export default class Utils {
 	/**
 	 * Formats a number representing byte count into the closest matching SI/IEM prefix.
 	 */
-	formatByteSize (number: number, digits = 3, type: "si" | "iec" = "si") {
+	formatByteSize (number: number, digits = 3, type: "si" | "iec" = "si"): string {
 		const { multiplier, units } = byteUnits[type];
 
 		number = Math.abs(Math.trunc(number));
