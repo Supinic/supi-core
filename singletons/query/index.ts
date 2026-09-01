@@ -9,7 +9,7 @@ import Row, { type Values } from "./row.js";
 // eslint-disable-next-line unicorn/prefer-export-from
 export type { Row, Recordset, Batch, RecordDeleter, RecordUpdater };
 
-import { createPool as createMariaDbPool, type Pool, type PoolConnection, SqlError } from "mariadb";
+import { createPool as createMariaDbPool, type Pool, type PoolConnection } from "mariadb";
 
 export const columnTypes = {
 	DECIMAL: "DECIMAL",
@@ -186,15 +186,19 @@ export class Query {
 			connector = await this.pool.getConnection();
 		}
 		catch (e) {
+			if (!(e instanceof Error)) {
+				throw e;
+			}
+
 			let code: string | null = null;
-			if (e instanceof SqlError) {
+			if (typeof e === "object" && "code" in e && typeof e.code === "string") {
 				code = e.code;
 			}
 
 			throw new SupiError({
 				message: "Fetching database connection failed",
 				args: { code },
-				cause: e as Error
+				cause: e
 			});
 		}
 
