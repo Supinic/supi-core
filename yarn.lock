@@ -2228,7 +2228,7 @@ duration-parser@supinic/duration-parser:
   languageName: node
   linkType: hard
 
-"mariadb@npm:3.5.4":
+"mariadb@npm:^3.5.4":
   version: 3.5.4
   resolution: "mariadb@npm:3.5.4"
   dependencies:
@@ -2982,7 +2982,7 @@ duration-parser@supinic/duration-parser:
     globals: "npm:^17.11.0"
     got: "npm:^15.1.0"
     ioredis: "npm:^6.0.0"
-    mariadb: "npm:3.5.4"
+    mariadb: "npm:^3.5.4"
     mocha: "npm:^11.8.0"
     nyc: "npm:^18.0.0"
     prom-client: "npm:^15.1.3"
