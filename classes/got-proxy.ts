@@ -1,4 +1,5 @@
-import * as gotModule from "got";
+import got, { type Got, type Response as GotResponse, type Options, HTTPError, TimeoutError, RequestError } from "got";
+
 import SupiError from "../objects/error.js";
 import type { JSONifiable } from "../singletons/query/index.js";
 import type { GotStream } from "got";
@@ -7,8 +8,7 @@ export type { Response as GotResponse } from "got";
 
 const nameSymbol: unique symbol = Symbol.for("name");
 
-
-export const isGotRequestError = (input: unknown): input is gotModule.RequestError => (input instanceof gotModule.RequestError);
+export const isGotRequestError = (input: unknown): input is RequestError => (input instanceof RequestError);
 
 // Replace out all occurrences of the "up one level" string - "../"
 // Also if they are followed with another one, like so: "../.."
@@ -17,21 +17,21 @@ const sanitize = (string: string) => string
 	.replaceAll(/\.\.[/\\]?/g, "")
 	.replaceAll(/%2E%2E[/\\]?/g, "");
 
-type ExtendedGotInstance = gotModule.Got & {
+type ExtendedGotInstance = Got & {
 	[nameSymbol]: string;
 };
 
 type GotInstanceFunctionDefinition = {
 	name: string;
 	optionsType: "function";
-	options: () => Partial<gotModule.Options>;
+	options: () => Partial<Options>;
 	parent: string | null;
 	description: string;
 }
 type GotInstanceObjectDefinition = {
 	name: string;
 	optionsType: "object";
-	options: Partial<gotModule.Options>;
+	options: Partial<Options>;
 	parent: string | null;
 	description: string;
 }
@@ -144,7 +144,7 @@ class StaticGot {
 			gotInstance = parent.extend(options);
 		}
 		else {
-			gotInstance = gotModule.got.extend(options);
+			gotInstance = got.extend(options);
 		}
 
 		const extendedInstance: ExtendedGotInstance = Object.assign(gotInstance, {
@@ -162,7 +162,7 @@ class StaticGot {
 			});
 		}
 
-		const options: Partial<gotModule.Options> = {
+		const options: Partial<Options> = {
 			method: "POST",
 			responseType: "json",
 			throwHttpErrors: gqlOptions.throwHttpErrors ?? true,
@@ -188,7 +188,7 @@ class StaticGot {
 			delete gqlOptions.variables;
 		}
 
-		return gotModule.got({ ...gqlOptions, ...options }) as Promise<gotModule.Response>;
+		return got({ ...gqlOptions, ...options }) as Promise<GotResponse>;
 	}
 
 	static sanitize (strings: string[], ...values: string[]): string {
@@ -205,25 +205,19 @@ class StaticGot {
 	}
 
 	static isRequestError (error: unknown): boolean {
-		const gotRequestErrors = [
-			gotModule.CancelError,
-			gotModule.HTTPError,
-			gotModule.RequestError,
-			gotModule.TimeoutError
-		];
-
+		const gotRequestErrors = [HTTPError, RequestError, TimeoutError];
 		return gotRequestErrors.some(GotError => error instanceof GotError);
 	}
 
-	static get stream (): GotStream { return gotModule.got.stream; }
-	static get RequestError (): typeof gotModule["RequestError"] { return gotModule.RequestError; }
-	static get TimeoutError (): typeof gotModule["TimeoutError"] { return gotModule.TimeoutError; }
+	static get stream (): GotStream { return got.stream; }
+	static get RequestError (): typeof RequestError { return RequestError; }
+	static get TimeoutError (): typeof TimeoutError { return TimeoutError; }
 }
 
-type ProxyApplyArgument = [string] | [string, string] | [string, Partial<gotModule.Options>];
+type ProxyApplyArgument = [string] | [string, string] | [string, Partial<Options>];
 
 type CallableGot = typeof StaticGot & {
-	<T = string>(urlOrInstanceName: string, options: Partial<gotModule.Options>): gotModule.Response<T>;
+	<T = string>(urlOrInstanceName: string, options: Partial<Options>): GotResponse<T>;
 };
 
 export const GotProxy = new Proxy(StaticGot, {
@@ -234,7 +228,7 @@ export const GotProxy = new Proxy(StaticGot, {
 			url = args[0];
 		}
 
-		let options: Partial<gotModule.Options> | null = null;
+		let options: Partial<Options> | null = null;
 		if (typeof args[1] === "string") {
 			if (url) {
 				throw new SupiError({
@@ -257,14 +251,10 @@ export const GotProxy = new Proxy(StaticGot, {
 		}
 
 		if (options) {
-			return (instance)
-				? instance(options)
-				: gotModule.got(options);
+			return (instance) ? instance(options) : got(options);
 		}
 		else if (url) {
-			return (instance)
-				? instance(url)
-				: gotModule.got(url);
+			return (instance) ? instance(url) : got(url);
 		}
 		else {
 			throw new SupiError({
