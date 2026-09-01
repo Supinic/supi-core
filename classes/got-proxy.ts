@@ -1,4 +1,4 @@
-import got, { type Got, type Response as GotResponse, type Options as GotOptions, HTTPError, TimeoutError, RequestError } from "got";
+import got, { type Got, type Response as GotResponse, type Options, HTTPError, TimeoutError, RequestError } from "got";
 
 import SupiError from "../objects/error.js";
 import type { JSONifiable } from "../singletons/query/index.js";
@@ -21,23 +21,20 @@ type ExtendedGotInstance = Got & {
 	[nameSymbol]: string;
 };
 
-type Options = GotOptions & {
-	url: string;
-};
 type GotInstanceFunctionDefinition = {
 	name: string;
 	optionsType: "function";
 	options: () => Partial<Options>;
 	parent: string | null;
 	description: string;
-};
+}
 type GotInstanceObjectDefinition = {
 	name: string;
 	optionsType: "object";
 	options: Partial<Options>;
 	parent: string | null;
 	description: string;
-};
+}
 export type GotInstanceDefinition = GotInstanceFunctionDefinition | GotInstanceObjectDefinition;
 
 type GqlRequestOptions = {
@@ -246,25 +243,24 @@ export const GotProxy = new Proxy(StaticGot, {
 			options = args[1];
 		}
 
-		if (options && options.url && !url) {
-			url = options.url;
-			delete options.url;
-		}
 		if (url) {
 			url = sanitize(url);
 		}
-
-		if (!url) {
-			throw new SupiError({
-				message: "No URL provided"
-			});
+		if (options && url) {
+			options.url = url;
 		}
 
 		if (options) {
-			return (instance) ? instance(url, options) : got(url, options);
+			return (instance) ? instance(options) : got(options);
+		}
+		else if (url) {
+			return (instance) ? instance(url) : got(url);
 		}
 		else {
-			return (instance) ? instance(url) : got(url);
+			throw new SupiError({
+				message: "Invalid combination of arguments",
+				args: { url, options }
+			});
 		}
 	}
 }) as unknown as CallableGot;
