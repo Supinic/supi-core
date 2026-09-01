@@ -1672,7 +1672,7 @@ duration-parser@supinic/duration-parser:
   languageName: node
   linkType: hard
 
-"got@npm:^15.0.0":
+"got@npm:^15.1.0":
   version: 15.1.0
   resolution: "got@npm:15.1.0"
   dependencies:
@@ -2980,7 +2980,7 @@ duration-parser@supinic/duration-parser:
     eslint: "npm:^10.9.1"
     eslint-plugin-unicorn: "npm:^73.0.0"
     globals: "npm:^17.11.0"
-    got: "npm:^15.0.0"
+    got: "npm:^15.1.0"
     ioredis: "npm:^6.0.0"
     mariadb: "npm:3.5.4"
     mocha: "npm:^11.8.0"
