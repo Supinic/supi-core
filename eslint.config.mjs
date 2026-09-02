@@ -9,7 +9,7 @@ const config = defineConfig(
 	eslintJs.configs.recommended,
 	tseslint.configs.strictTypeChecked,
 	{
-		ignores: ["build/", "**/*.js"]
+		ignores: ["build/", "tests/", "**/*.js"]
 	},
 	{
 		plugins: {

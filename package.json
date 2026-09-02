@@ -26,9 +26,7 @@
     "build": "tsc",
     "prepack": "tsc",
     "lint": "eslint index.ts classes objects singletons",
-    "lint-tests": "eslint --config=tests/eslint.config.mjs tests",
     "lint:fix": "eslint --fix index.ts classes objects singletons",
-    "lint-tests:fix": "eslint --fix --config=tests/eslint.config.mjs tests",
     "test": "tsc && mocha ./build/tests --recursive --exit",
     "ncu": "yarn dlx npm-check-updates -c 7d -x typescript"
   },
