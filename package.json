@@ -5,9 +5,10 @@
   "main": "build/index.js",
   "type": "module",
   "dependencies": {
+    "@stylistic/eslint-plugin": "^5.10.0",
     "cheerio": "^1.2.0",
     "duration-parser": "supinic/duration-parser",
-    "got": "^14.6.6",
+    "got": "^16.0.0",
     "ioredis": "^6.0.0",
     "mariadb": "^3.5.4",
     "prom-client": "^15.1.3",
@@ -25,9 +26,7 @@
     "build": "tsc",
     "prepack": "tsc",
     "lint": "eslint index.ts classes objects singletons",
-    "lint-tests": "eslint --config=tests/eslint.config.mjs tests",
     "lint:fix": "eslint --fix index.ts classes objects singletons",
-    "lint-tests:fix": "eslint --fix --config=tests/eslint.config.mjs tests",
     "test": "tsc && mocha ./build/tests --recursive --exit",
     "ncu": "yarn dlx npm-check-updates -c 7d -x typescript"
   },

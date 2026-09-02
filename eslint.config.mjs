@@ -1,28 +1,30 @@
-import { defineConfig, type Config } from "eslint/config";
+import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
 import eslintJs from "@eslint/js";
+import stylistic from "@stylistic/eslint-plugin";
 import unicornPlugin from "eslint-plugin-unicorn";
 import globals from "globals";
 
-const config: Config[] = defineConfig(
+const config = defineConfig(
 	eslintJs.configs.recommended,
-	unicornPlugin.configs.recommended,
 	tseslint.configs.strictTypeChecked,
 	{
-		ignores: ["build/", "**/*.js"]
+		ignores: ["build/", "tests/", "**/*.js"]
 	},
 	{
+		plugins: {
+			unicorn: unicornPlugin,
+			"@stylistic": stylistic
+		},
 		languageOptions: {
 			parserOptions: {
 				projectService: true,
 				tsconfigRootDir: import.meta.dirname
 			},
 			globals: {
-				...globals.browser,
-				...globals.es2025,
 				...globals.node
 			},
-			ecmaVersion: "latest",
+			ecmaVersion: 2025,
 			sourceType: "module"
 		},
 		rules: {
@@ -177,7 +179,6 @@ const config: Config[] = defineConfig(
 			"unicorn/prefer-spread": "off",
 			"unicorn/empty-brace-spaces": "warn",
 			"unicorn/new-for-builtins": "error",
-			"unicorn/no-array-for-each": "error",
 			"unicorn/no-array-push-push": "warn",
 			"unicorn/no-console-spaces": "warn",
 			"unicorn/no-lonely-if": "warn",
