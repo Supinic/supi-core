@@ -36,6 +36,10 @@ export class GotRegistry {
 	private readonly instances = new Map<string, RegisteredGot>();
 
 	public add (definition: GotRegistryInstanceDefinition): void {
+		if (definition.name.length === 0) {
+			throw new Error("Definition name string must not be empty");
+		}
+
 		if (this.instances.has(definition.name)) {
 			throw new Error(`Got instance ${definition.name} already exists`);
 		}
@@ -65,8 +69,12 @@ export class GotRegistry {
 			if (!parent) {
 				continue;
 			}
+
+			if (name.length === 0) {
+				throw new Error(`Got registry instance name cannot be empty`);
+			}
 			if (!definitionsByName.has(parent) && !this.instances.has(parent)) {
-				throw new Error(`Got instance "${name}" references unknown parent "${parent}"`);
+				throw new Error(`Got registry instance "${name}" references unknown parent "${parent}"`);
 			}
 		}
 
@@ -101,6 +109,10 @@ export class GotRegistry {
 	}
 
 	public get (name: string): WrappedGot {
+		if (name.length === 0) {
+			throw new Error("Passed string must not be empty");
+		}
+
 		const instance = this.instances.get(name);
 		if (!instance) {
 			throw new Error(`Unknown Got instance "${name}"`);
@@ -110,6 +122,10 @@ export class GotRegistry {
 	}
 
 	public getRaw (name: string): Got {
+		if (name.length === 0) {
+			throw new Error("Passed string must not be empty");
+		}
+
 		const instance = this.instances.get(name);
 		if (!instance) {
 			throw new Error(`Unknown Got instance "${name}"`);
