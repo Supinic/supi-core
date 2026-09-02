@@ -69,12 +69,13 @@ export default class Batch {
 
 	add (data: BatchRecord): number {
 		for (const key of Object.keys(data)) {
-			const column = this.columns.find(i => i.name === key);
-			if (!column) {
+			const hasColumn = this.columns.some(i => i.name === key);
+			if (!hasColumn) {
 				throw new SupiError({
 					message: "Invalid batch column provided",
 					args: {
-						column: key, allowedColumns: this.columns.map(i => i.name)
+						column: key,
+						allowedColumns: this.columns.map(i => i.name)
 					}
 				});
 			}

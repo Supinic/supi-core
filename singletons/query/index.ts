@@ -6,7 +6,7 @@ import Recordset, { type DefaultFetchResult, type ResultObject as RecordsetResul
 import RecordDeleter from "./record-deleter.js";
 import RecordUpdater from "./record-updater.js";
 import Row, { type Values } from "./row.js";
-// eslint-disable-next-line unicorn/prefer-export-from
+
 export type { Row, Recordset, Batch, RecordDeleter, RecordUpdater };
 
 import { createPool as createMariaDbPool, type Pool, type PoolConnection } from "mariadb";

@@ -145,7 +145,7 @@ export class GotRegistry {
 			json: (variables)
 				? { query, variables }
 				: { query }
-		})
+		});
 	}
 
 	public static fromDefinitions (definitions: readonly GotRegistryInstanceDefinition[]): GotRegistry {
