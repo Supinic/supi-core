@@ -35,6 +35,71 @@ export const isGotRequestError = (input: unknown): input is RequestError => (inp
 export class GotRegistry {
 	private readonly instances = new Map<string, RegisteredGot>();
 
+	public add (definition: GotRegistryInstanceDefinition): void {
+		if (this.instances.has(definition.name)) {
+			throw new Error(`Got instance ${definition.name} already exists`);
+		}
+
+		const options = (typeof definition.options === "function") ? definition.options() : definition.options;
+		const parent = (definition.parent) ? this.getRaw(definition.parent) : got;
+		const instance = parent.extend(options);
+
+		this.instances.set(definition.name, {
+			raw: instance,
+			request: wrap(instance)
+		});
+	}
+
+	public import (definitions: readonly GotRegistryInstanceDefinition[]): void {
+		const definitionsByName = new Map<string, GotRegistryInstanceDefinition>();
+		for (const definition of definitions) {
+			const { name } = definition;
+			if (definitionsByName.has(name) || this.instances.has(name)) {
+				throw new Error(`Got instance "${name}" already exists`);
+			}
+
+			definitionsByName.set(name, definition);
+		}
+
+		for (const { name, parent } of definitions) {
+			if (!parent) {
+				continue;
+			}
+			if (!definitionsByName.has(parent) && !this.instances.has(parent)) {
+				throw new Error(`Got instance "${name}" references unknown parent "${parent}"`);
+			}
+		}
+
+		const available = new Set(this.instances.keys());
+		const pending = new Set(definitionsByName.keys());
+		const ordered: GotRegistryInstanceDefinition[] = [];
+
+		while (pending.size > 0) {
+			let resolved = 0;
+			for (const name of pending) {
+				const definition = definitionsByName.get(name);
+				if (!definition) {
+					throw new Error(`Assert error: Already added definition "${name}" not found`);
+				}
+
+				if (!definition.parent || available.has(definition.parent)) {
+					ordered.push(definition);
+					available.add(name);
+					pending.delete(name);
+					resolved++;
+				}
+			}
+
+			if (resolved === 0) {
+				throw new Error(`Cannot resolve Got registry instance dependencies: ${[...pending].join(", ")}`);
+			}
+		}
+
+		for (const definition of ordered) {
+			this.add(definition);
+		}
+	}
+
 	public get (name: string): WrappedGot {
 		const instance = this.instances.get(name);
 		if (!instance) {
@@ -44,7 +109,7 @@ export class GotRegistry {
 		return instance.request;
 	}
 
-	private getRaw (name: string): Got {
+	public getRaw (name: string): Got {
 		const instance = this.instances.get(name);
 		if (!instance) {
 			throw new Error(`Unknown Got instance "${name}"`);
@@ -53,7 +118,7 @@ export class GotRegistry {
 		return instance.raw;
 	}
 
-	public gql (options: GqlRequestOptions): RequestPromise<GotResponse<unknown>> {
+	public gql (options: GqlRequestOptions): RequestPromise<GotResponse> {
 		const { url, query, variables, token, headers, instance, ...rest } = options;
 		const target = (instance) ? this.getRaw(instance) : got;
 
@@ -71,18 +136,9 @@ export class GotRegistry {
 		})
 	}
 
-	public add (definition: GotRegistryInstanceDefinition): void {
-		if (this.instances.has(definition.name)) {
-			throw new Error(`Got instance ${definition.name} already exists`);
-		}
-
-		const options = (typeof definition.options === "function") ? definition.options() : definition.options;
-		const parent = (definition.parent) ? this.getRaw(definition.parent) : got;
-		const instance = parent.extend(options);
-
-		this.instances.set(definition.name, {
-			raw: instance,
-			request: wrap(instance)
-		});
+	public static fromDefinitions (definitions: readonly GotRegistryInstanceDefinition[]): GotRegistry {
+		const instance = new GotRegistry();
+		instance.import(definitions);
+		return instance;
 	}
 }

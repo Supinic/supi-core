@@ -1,7 +1,17 @@
 export { SupiError, SupiError as Error, GenericRequestError, isGenericRequestError, isSupiError } from "./objects/error.js";
 export { default as Date, default as SupiDate } from "./objects/date.js";
-export { GotRegistry, type GotRegistryInstanceDefinition, type GotResponse, isGotRequestError } from "./classes/got-registry.js";
+
+export {
+	GotRegistry,
+	isGotRequestError,
+	type GotRegistryInstanceDefinition,
+	type GotRequestOptions,
+	type GqlRequestOptions,
+	type GotResponse
+} from "./classes/got-registry.js";
+
 export { default as Utils } from "./singletons/utils.js";
+
 export {
 	Cache,
 	isFunctionKeyObject,
