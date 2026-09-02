@@ -18,18 +18,18 @@ type GotRegistryOptions = Omit<GotOptions, "url" | "resolveBodyOnly"> & {
 };
 export type GotRegistryInstanceDefinition = {
 	name: string;
-	parent?: string;
+	parent: string | null;
 	options: GotRegistryOptions | (() => GotRegistryOptions);
 };
 
-type WrappedGot = (options: GotRequestOptions) => RequestPromise<GotResponse>;
-type RegisteredGot = {
-	raw: Got;
-	request: WrappedGot;
+type TextGotRequestOptions = Omit<GotRequestOptions, "responseType"> & { responseType: "text"; };
+type WrappedGot = {
+	(options: TextGotRequestOptions): RequestPromise<GotResponse<string>>;
+	<T = unknown>(options: GotRequestOptions): RequestPromise<GotResponse<T>>;
 };
+type RegisteredGot = { raw: Got; request: WrappedGot; };
 
-const wrap = (instance: Got): WrappedGot => ({ url, ...options }) => instance(url, options);
-
+const wrap = (instance: Got): WrappedGot => ({ url, ...options }: GotRequestOptions) => instance(url, options);
 export const isGotRequestError = (input: unknown): input is RequestError => (input instanceof RequestError);
 
 export class GotRegistry {
@@ -45,7 +45,7 @@ export class GotRegistry {
 		}
 
 		const options = (typeof definition.options === "function") ? definition.options() : definition.options;
-		const parent = (definition.parent) ? this.getRaw(definition.parent) : got;
+		const parent = (definition.parent !== null) ? this.getRaw(definition.parent) : got;
 		const instance = parent.extend(options);
 
 		this.instances.set(definition.name, {
@@ -66,14 +66,10 @@ export class GotRegistry {
 		}
 
 		for (const { name, parent } of definitions) {
-			if (!parent) {
-				continue;
-			}
-
 			if (name.length === 0) {
 				throw new Error(`Got registry instance name cannot be empty`);
 			}
-			if (!definitionsByName.has(parent) && !this.instances.has(parent)) {
+			if (parent !== null && !definitionsByName.has(parent) && !this.instances.has(parent)) {
 				throw new Error(`Got registry instance "${name}" references unknown parent "${parent}"`);
 			}
 		}
@@ -90,7 +86,7 @@ export class GotRegistry {
 					throw new Error(`Assert error: Already added definition "${name}" not found`);
 				}
 
-				if (!definition.parent || available.has(definition.parent)) {
+				if (definition.parent === null || available.has(definition.parent)) {
 					ordered.push(definition);
 					available.add(name);
 					pending.delete(name);
