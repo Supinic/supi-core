@@ -45,11 +45,15 @@ type ClosestStringDescriptor = {
 	includes: boolean;
 };
 
-const isObject = (input: unknown): input is { [P: string]: SimpleValue } => (Boolean(input) && typeof input === "object");
+const isObject = (input: unknown): input is Record<string, unknown> => Boolean(
+	input
+	&& typeof input === "object"
+	&& ("constructor" in input)
+	&& input.constructor === Object
+);
 
 const isSomeObjectArray = (input: unknown): input is Record<string, unknown>[] => (
-	Array.isArray(input)
-	&& (input as unknown[]).every(i => i && typeof i === "object" && i.constructor === Object)
+	Array.isArray(input) && input.every(i => isObject(i))
 );
 
 // noinspection JSUnusedGlobalSymbols Don't check for unused methods - this is a module class
