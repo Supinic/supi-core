@@ -363,9 +363,9 @@ export default class Recordset <T = DefaultFetchResult> {
 				fromDatabase: sourceDatabase,
 				fromTable: sourceTable,
 				fromField: sourceField,
-				toDatabase: referenceDatabase,
-				toTable: referenceTable,
-				toField: referenceFieldSource,
+				toDatabase: targetDatabase,
+				toTable: targetTable,
+				toField: targetField,
 				condition: referenceCondition
 			};
 
