@@ -509,7 +509,7 @@ export default class Recordset <T = DefaultFetchResult> {
 		if (objectResult.length !== 0 && !this.#flat && this.#reference.length > 0) {
 			for (const reference of this.#reference) {
 				if (reference.collapseOn) {
-					Recordset.collapseReferencedData(objectResult, reference);
+					objectResult = Recordset.collapseReferencedData(objectResult, reference);
 				}
 			}
 
