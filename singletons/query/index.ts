@@ -522,6 +522,9 @@ export class Query {
 
 			case "INT":
 			case columnTypes.SHORT:
+			case columnTypes.FLOAT:
+			case columnTypes.DOUBLE:
+			case columnTypes.DECIMAL:
 			case columnTypes.NEWDECIMAL: return Number(value);
 
 			default: return String(value);
