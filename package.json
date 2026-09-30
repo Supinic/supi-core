@@ -5,7 +5,6 @@
   "main": "build/index.js",
   "type": "module",
   "dependencies": {
-    "@stylistic/eslint-plugin": "^5.10.0",
     "cheerio": "^1.2.0",
     "duration-parser": "supinic/duration-parser",
     "got": "^16.0.0",
@@ -32,6 +31,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^26.6.2",
     "eslint": "^10.11.0",
