@@ -26,19 +26,16 @@
     "prepack": "tsc",
     "lint": "eslint index.ts classes objects singletons",
     "lint:fix": "eslint --fix index.ts classes objects singletons",
-    "test": "tsc && mocha ./build/tests --recursive --exit",
+    "test": "node --test --test-reporter=dot",
     "ncu": "yarn dlx npm-check-updates -c 7d -x typescript"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",
-    "@types/mocha": "^10.0.10",
     "@types/node": "^26.6.2",
     "eslint": "^10.11.0",
     "eslint-plugin-unicorn": "^76.0.0",
     "globals": "^17.12.0",
-    "mocha": "^12.0.2",
-    "nyc": "^18.0.0",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.70.1"
   },

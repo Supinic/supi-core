@@ -1,5 +1,5 @@
 import type { PoolConnection } from "mariadb";
-import { SupiError } from "../../objects/error.js";
+import { SupiError } from "../../objects/error.ts";
 import {
 	type Database,
 	type Table,
@@ -8,7 +8,7 @@ import {
 	type FormatValue,
 	type FormatSymbol,
 	type Query as QuerySingleton
-} from "./index.js";
+} from "./index.ts";
 
 type ConstructorOptions = {
 	transaction?: PoolConnection;

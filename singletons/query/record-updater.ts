@@ -1,5 +1,5 @@
-import SupiDate from "../../objects/date.js";
-import { SupiError } from "../../objects/error.js";
+import SupiDate from "../../objects/date.ts";
+import { SupiError } from "../../objects/error.ts";
 import {
 	type ColumnDefinition,
 	type Database,
@@ -8,7 +8,7 @@ import {
 	type FormatValue,
 	type FormatSymbol,
 	type Query as QuerySingleton
-} from "./index.js";
+} from "./index.ts";
 import type { PoolConnection } from "mariadb";
 
 type Priority = "normal" | "low";

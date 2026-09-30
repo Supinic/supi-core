@@ -1,7 +1,7 @@
 {
   "include": ["./**/*.js", "./**/*.ts", "./**/*.json"],
   "compilerOptions": {
-    "types": ["node", "mocha"],
+    "types": ["node"],
     "rootDir": ".",
     "noUncheckedSideEffectImports": true,
     "libReplacement": false,
@@ -11,9 +11,10 @@
     "resolveJsonModule": true,                           /* Enable importing .json files. */
     "noErrorTruncation": false,
     "assumeChangesOnlyAffectDirectDependencies": true,   /* Have recompiles in '--incremental' and '--watch' assume that changes within a file will only affect files directly depending on it. Requires TypeScript version 3.8 or later. */
+    "rewriteRelativeImportExtensions": true,
 
     /* JavaScript Support */
-    "allowJs": false,                                     /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */
+    "allowJs": false,                                    /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */
     "checkJs": false,                                    /* Enable error reporting in type-checked JavaScript files. */
 
     /* Emit */

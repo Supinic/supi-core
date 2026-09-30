@@ -1,6 +1,7 @@
 import * as assert from "node:assert";
-import SupiDate from "../objects/date.js";
-import UtilsConstructor from "../singletons/utils.js";
+import { describe, it } from "node:test";
+import SupiDate from "../objects/date.ts";
+import UtilsConstructor from "../singletons/utils.ts";
 
 const range = (from: number, to: number) => [...new Array(to - from + 1)].map((i, ind) => ind + from);
 const Utils = new UtilsConstructor();

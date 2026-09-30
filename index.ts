@@ -1,5 +1,5 @@
-export { SupiError, SupiError as Error, GenericRequestError, isGenericRequestError, isSupiError } from "./objects/error.js";
-export { default as Date, default as SupiDate } from "./objects/date.js";
+export { SupiError, SupiError as Error, GenericRequestError, isGenericRequestError, isSupiError } from "./objects/error.ts";
+export { default as Date, default as SupiDate } from "./objects/date.ts";
 
 export {
 	GotRegistry,
@@ -8,9 +8,9 @@ export {
 	type GotRequestOptions,
 	type GqlRequestOptions,
 	type GotResponse
-} from "./classes/got-registry.js";
+} from "./classes/got-registry.ts";
 
-export { default as Utils } from "./singletons/utils.js";
+export { default as Utils } from "./singletons/utils.ts";
 
 export {
 	Cache,
@@ -19,7 +19,7 @@ export {
 	type FunctionKeyObject,
 	type KeyLike,
 	type KeyObject
-} from "./singletons/cache.js";
+} from "./singletons/cache.ts";
 
 export {
 	Metrics,
@@ -30,7 +30,7 @@ export {
 	type Metric,
 	type MetricType,
 	type MetricConfiguration
-} from "./singletons/metrics.js";
+} from "./singletons/metrics.ts";
 
 export {
 	Query,
@@ -41,4 +41,4 @@ export {
 	type RecordUpdater,
 	type SqlValue,
 	type JavascriptValue
-} from "./singletons/query/index.js";
+} from "./singletons/query/index.ts";

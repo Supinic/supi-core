@@ -1,4 +1,4 @@
-import type SupiDate from "./date.js";
+import type SupiDate from "./date.ts";
 
 type SimpleArgument = null | undefined | bigint | SupiDate | boolean | number | string | { [P: string]: SimpleArgument } | SimpleArgument[];
 type ErrorOptions = {

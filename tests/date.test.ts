@@ -1,5 +1,6 @@
 import * as assert from "node:assert";
-import SupiDate from "../objects/date.js";
+import { describe, it } from "node:test";
+import SupiDate from "../objects/date.ts";
 
 /**
  * Generates an Array pre-filled with the index

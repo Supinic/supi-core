@@ -1,11 +1,11 @@
-import SupiDate from "../../objects/date.js";
-import { SupiError } from "../../objects/error.js";
+import SupiDate from "../../objects/date.ts";
+import { SupiError } from "../../objects/error.ts";
 
-import Batch from "./batch.js";
-import Recordset, { type DefaultFetchResult, type ResultObject as RecordsetResultObject } from "./recordset.js";
-import RecordDeleter from "./record-deleter.js";
-import RecordUpdater from "./record-updater.js";
-import Row, { type Values } from "./row.js";
+import Batch from "./batch.ts";
+import Recordset, { type DefaultFetchResult, type ResultObject as RecordsetResultObject } from "./recordset.ts";
+import RecordDeleter from "./record-deleter.ts";
+import RecordUpdater from "./record-updater.ts";
+import Row, { type Values } from "./row.ts";
 
 export type { Row, Recordset, Batch, RecordDeleter, RecordUpdater };
 

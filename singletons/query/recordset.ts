@@ -1,6 +1,6 @@
 import type { PoolConnection } from "mariadb";
-import { SupiError } from "../../objects/error.js";
-import SupiDate from "../../objects/date.js";
+import { SupiError } from "../../objects/error.ts";
+import SupiDate from "../../objects/date.ts";
 import {
 	type Database,
 	type Table,
@@ -11,7 +11,7 @@ import {
 	type FormatSymbol,
 	type Query as QuerySingleton,
 	columnTypes
-} from "./index.js";
+} from "./index.ts";
 
 const ROW_COLLAPSED = "#row_collapsed";
 

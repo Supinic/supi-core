@@ -1,5 +1,5 @@
 import got, { type Got, type OptionsInit as GotOptions, type RequestPromise, type Response, RequestError } from "got";
-import type { JSONifiable } from "../singletons/query/index.js";
+import type { JSONifiable } from "../singletons/query/index.ts";
 
 export type GotResponse<T = unknown> = Response<T>;
 export type GotRequestOptions = Omit<GotOptions, "url" | "resolveBodyOnly"> & {

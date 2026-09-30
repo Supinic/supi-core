@@ -1,6 +1,6 @@
 // If `UpsertResult` suddenly becomes unreachable in mariadb, check versioning! worked in 3.5.1, broken in 3.5.2
 import type { PoolConnection, UpsertResult } from "mariadb";
-import { SupiError } from "../../objects/error.js";
+import { SupiError } from "../../objects/error.ts";
 import type {
 	ColumnDefinition,
 	JavascriptValue,
@@ -10,7 +10,7 @@ import type {
 	TableDefinition,
 	Value as QueryValue,
 	Query as QuerySingleton
-} from "./index.js";
+} from "./index.ts";
 
 const UNSET_VALUE: unique symbol = Symbol.for("UNSET");
 

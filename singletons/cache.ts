@@ -1,5 +1,5 @@
 import { Redis, type RedisOptions } from "ioredis";
-import SupiError from "../objects/error.js";
+import SupiError from "../objects/error.ts";
 
 // Borrowed from ioredis - this type doesn't seem to be exported
 type RedisStatus = "wait" | "reconnecting" | "connecting" | "connect" | "ready" | "close" | "end";

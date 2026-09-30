@@ -1,5 +1,5 @@
-import SupiDate from "../objects/date.js";
-import SupiError from "../objects/error.js";
+import SupiDate from "../objects/date.ts";
+import SupiError from "../objects/error.ts";
 
 import { MersenneTwister19937, Random } from "random-js";
 import { load as loadCheerio, type CheerioAPI } from "cheerio";
